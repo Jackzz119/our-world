@@ -6,9 +6,14 @@ interface ProtectedRouteProps {
     session: Session | null;
     loading: boolean;
     children: ReactNode;
+    devMode?: boolean;
 }
 
-const ProtectedRoute = ({ session, loading, children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ session, loading, children, devMode = false }: ProtectedRouteProps) => {
+    if (devMode) {
+        return <>{children}</>;
+    }
+
     if (loading) {
         return (
             <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-50 to-pink-50">

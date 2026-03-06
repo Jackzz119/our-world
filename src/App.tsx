@@ -5,6 +5,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import HomePage from '@/pages/HomePage.tsx';
 import LoginPage from '@/pages/LoginPage.tsx';
 import ProtectedRoute from '@/pages/ProtectedRoute.tsx';
+import { getEnv } from '@/utils';
 
 const App = () => {
     const [session, setSession] = useState<Session | null>(null);
@@ -39,7 +40,7 @@ const App = () => {
                 <Route
                     path="/"
                     element={
-                        <ProtectedRoute session={session} loading={loading}>
+                        <ProtectedRoute session={session} loading={loading} devMode={getEnv('VITE_DEV') == 'true'}>
                             <HomePage session={session!} />
                         </ProtectedRoute>
                     }

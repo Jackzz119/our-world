@@ -1,1 +1,1 @@
-export type EnvName = 'VITE_SUPABASE_URL' | 'VITE_SUPABASE_ANON_KEY';
+export type EnvName = 'VITE_SUPABASE_URL' | 'VITE_SUPABASE_ANON_KEY' | 'VITE_DEV';
