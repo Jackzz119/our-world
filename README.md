@@ -23,6 +23,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 Important:
+
 - `VITE_*` variables are exposed to browser code.
 - Never put `service_role` key in Vite frontend env.
 
