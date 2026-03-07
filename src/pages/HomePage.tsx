@@ -10,21 +10,21 @@ const HomePage = ({ session }: HomePageProps) => {
     const navigate = useNavigate();
     const [message, setMessage] = useState('');
 
-    async function handleSignOut(): Promise<void> {
+    const handleSignOut = async (): Promise<void> => {
         const { error } = await supabase.auth.signOut();
         if (error) {
             setMessage(error.message);
         } else {
             navigate('/login');
         }
-    }
+    };
 
     return (
-        <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 p-4">
+        <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-50 to-pink-50 p-4">
             <section className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
                 <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">主应用页面</h1>
                 <p className="text-center text-gray-600 mb-2">
-                    当前登录用户：<span className="font-semibold text-purple-600">{session.user.email}</span>
+                    当前登录用户：<span className="font-semibold text-purple-600">{session?.user?.email}</span>
                 </p>
                 <p className="text-center text-gray-500 mb-8">你可以在这里接入 todos 或其他主功能页面。</p>
 
