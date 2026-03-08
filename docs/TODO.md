@@ -15,9 +15,10 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 
 ### Phase 2 — 数据库设计（Supabase）
 
-- [ ] 创建 profiles 表
-- [ ] 创建 couples 表
-- [ ] 创建 posts 表（含 privacy enum）
+- [x] 创建 profiles 表
+- [x] 创建 couples 表（含 check: user1_id < user2_id）
+- [x] 创建 posts 表（含 privacy enum、updated_at trigger）
+- [ ] 创建 handle_new_user trigger（新用户自动写入 profiles）
 - [ ] 配置 RLS 策略
 
 ### Phase 3 — 情侣配对系统
