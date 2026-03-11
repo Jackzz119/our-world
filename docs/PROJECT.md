@@ -22,8 +22,8 @@
 ```
 profiles          # 用户资料（扩展 auth.users）
   - id (uuid, FK auth.users)
-  - display_name
-  - avatar_url
+  - display_name              # [trigger] on_auth_user_created → handle_new_user()：新用户注册/OAuth 后自动填入，Google 取 full_name，邮箱注册取 @ 前缀
+  - avatar_url                # [trigger] on_auth_user_created → handle_new_user()：Google OAuth 自动填入，邮箱注册为 null
   - created_at
 
 couples           # 情侣关系
@@ -42,7 +42,7 @@ posts             # 动态/说说
   - privacy (enum: shared | locked | private)
   - unlock_cost (int)       # 解锁所需亲密值，locked 级别用
   - created_at
-  - updated_at              # 自动触发器维护
+  - updated_at              # [trigger] on_post_updated → set_updated_at()：任意字段修改时自动更新时间戳
 ```
 
 ---
