@@ -94,12 +94,27 @@ profiles          # 用户资料（扩展 auth.users）
   - avatar_url                # [trigger] on_auth_user_created → handle_new_user()：Google OAuth 自动填入，邮箱注册为 null
   - created_at
 
+  RLS:
+  - select: 所有已登录用户可查看（配对时需查对方资料）
+  - update: 只能更新自己的行（auth.uid() = id）
+  - insert: 由 handle_new_user trigger 写入，绕过 RLS
+
 couples           # 情侣关系
   - id
   - user1_id (FK profiles)
   - user2_id (FK profiles)
   - intimacy_points (int)
   - created_at
+
+  约束:
+  - check: user1_id < user2_id            # 保证唯一性（同一对不会出现两行）
+  - check: user1_id <> user2_id           # 禁止自我配对
+  - [trigger] couples_check_uniqueness → check_couple_uniqueness()：每人只能属于一个 couple，insert/update 前校验
+
+  RLS:
+  - select: 只能查到自己参与的行（user1_id = uid 或 user2_id = uid）
+  - insert: 已登录用户可创建，自己必须是 user1_id 或 user2_id
+  - update: 双方均可更新（用于亲密值等字段）
 
 posts             # 动态/说说
   - id
@@ -111,6 +126,54 @@ posts             # 动态/说说
   - unlock_cost (int)       # 解锁所需亲密值，locked 级别用
   - created_at
   - updated_at              # [trigger] on_post_updated → set_updated_at()：任意字段修改时自动更新时间戳
+
+  约束:
+  - [trigger] posts_check_author_in_couple → check_post_author_in_couple()：insert/update 前校验 author_id 必须属于 couple_id 对应的情侣关系
+
+  RLS:
+  - select: 自己的所有 post 可见；对方仅可见 privacy = shared | locked 的 post（通过 couples 表确认关系）
+  - insert: author_id 必须为 auth.uid()
+  - update: 只能修改自己的 post
+  - delete: 只能删除自己的 post
+
+post_unlocks      # 解锁记录（谁解锁了哪条 locked post）
+  - post_id (uuid, FK posts, PK)
+  - user_id (uuid, FK profiles, PK)
+  - unlocked_at (timestamptz)
+
+  约束:
+  - primary key (post_id, user_id)
+  - [trigger] post_unlocks_check_validity → check_post_unlock_validity()：insert/update 前校验
+      · 作者不能解锁自己的 post
+      · 只有 privacy = 'locked' 的 post 可被解锁
+      · user_id 必须属于该 post 所属的 couple
+
+  RLS:
+  - select: 只能查自己的解锁记录（user_id = auth.uid()）
+  - insert: user_id 必须为 auth.uid()
+  - delete: 只能删除自己的解锁记录
+```
+
+### RPC 函数
+
+```
+get_feed_posts(p_couple_id uuid default null)
+  # Feed 聚合查询，返回经过权限处理后的 post 列表
+  # 调用者：authenticated 用户
+  # 参数：p_couple_id 可选，不传则返回所有可见 post
+
+  返回字段:
+  - post_id, couple_id, author_id, privacy
+  - created_at, updated_at, unlock_cost
+  - is_unlocked (bool)    # true: 自己的 post / shared / locked 且已解锁
+  - is_placeholder (bool) # true: locked 且非作者且未解锁（前端显示占位卡）
+  - visible_content       # locked 未解锁时为 null
+  - visible_images        # locked 未解锁时为 []
+
+  逻辑：
+  - left join post_unlocks，判断当前用户是否已解锁
+  - private post 已被 RLS 过滤，函数内不做额外处理
+  - 按 created_at desc 排序
 ```
 
 ---
@@ -161,3 +224,4 @@ posts             # 动态/说说
 - 地图打卡（去过的地方）
 - 年度回顾自动生成
 - 推送通知（对方发动态时）
+- 个人空间：用户拥有独立于情侣空间的个人 post 记录（couple_id 为 null），用于记录私人生活；数据库设计上 posts.couple_id 需支持 nullable

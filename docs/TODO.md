@@ -13,19 +13,31 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 - [x] 登出功能完善
 - [x] Google OAuth 登录
 
-### Phase 2 — 数据库设计（Supabase）
+### Phase 2 — 数据库设计（Supabase） ✅
 
 - [x] 创建 profiles 表
 - [x] 创建 couples 表（含 check: user1_id < user2_id）
 - [x] 创建 posts 表（含 privacy enum、updated_at trigger）
 - [x] 创建 handle_new_user trigger（新用户自动写入 profiles）
-- [ ] 配置 RLS 策略
+- [x] 配置 RLS 策略（profiles / couples / posts）
+- [x] couples 追加完整性约束与 trigger
+- [x] posts 追加 author 归属校验 trigger
+- [x] 创建 post_unlocks 表及完整性 trigger
+- [x] 配置 post_unlocks RLS 策略
+- [x] 创建 get_feed_posts() RPC 函数（Feed 聚合查询，含解锁状态）
 
-### Phase 3 — 情侣配对系统
+### Phase 3 — 情侣空间创建与配对
 
-- [ ] 用户生成邀请码 / 分享链接
-- [ ] 另一方输入码完成配对，写入 `couples` 表
-- [ ] 配对后才能进入 Timeline，否则引导配对
+> 流程：创建空间 → 单人可用（装扮、发 post）→ 生成邀请码邀请对方 → 对方接受 → 配对完成（双人）
+
+- [ ] 更新 `src/types/database.ts`，对齐当前 Supabase 数据库结构（用 CLI 自动生成）
+- [ ] `couples` 表新增 `status` 字段（`pending | active`），pending = 空间已创建但未配对，active = 双方配对完成
+- [ ] 创建情侣空间页面：用户首次进入时可创建空间（写入 couples，status = pending，user2_id 暂为 null）
+- [ ] 空间创建后可进行基础设置与装扮（空间名称等）
+- [ ] 创建 `couple_invites` 表（字段：code、couple_id、inviter_id、expires_at、used_at）
+- [ ] 生成邀请码 / 分享链接
+- [ ] 对方通过邀请码加入，更新 couples（填入 user2_id，status → active）
+- [ ] 路由守卫：登录后检查 couple 状态，无空间 → 引导创建，pending → 可进入但提示邀请，active → 正常进入 Timeline
 
 ### Phase 4 — 发布动态
 
@@ -36,6 +48,7 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 
 ### Phase 5 — Timeline 页面（HomePage）
 
+- [ ] 给 `get_feed_posts()` 补充 `p_limit` / `p_offset` 分页参数
 - [ ] 拉取当前情侣双方的动态，按时间倒序
 - [ ] 无限滚动（分页加载）
 - [ ] 节点展示：头像、昵称、时间、内容/图片
