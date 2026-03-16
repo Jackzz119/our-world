@@ -196,6 +196,16 @@ get_feed_posts(p_couple_id uuid default null)
 - devMode（`VITE_DEV=true`）跳过验证
 - ProtectedRoute 路由守卫
 
+### LoginPage 设计
+
+- 背景：`stone-50 → stone-100` 渐变，与全站风格统一
+- 品牌 Logo：`still`（stone-700 字色），与 HomePage navbar 一致
+- Google 登录置顶（常用路径优先），邮箱/密码表单在分割线下方
+- 输入框：`stone-50` 底色 + `stone-200` 边框，focus 时 `stone-400` + `ring-stone-200`
+- 主按钮：`stone-700`（同 HomePage 发布按钮）
+- 切换注册/登录：文字链接形式（轻量，非按钮）
+- 消息提示：error → `rose-50/rose-600`，info → `stone-50/stone-600`
+
 ### HomePage 布局
 
 **响应式：** 移动端单列 / 桌面端（md+）双列（左侧 Profile 侧边栏 sticky + 右侧主内容区），最大宽度 `max-w-4xl`
