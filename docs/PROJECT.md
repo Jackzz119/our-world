@@ -25,6 +25,11 @@
 - **构建工具**: Vite 7
 - **路由**: React Router DOM v7
 - **样式**: Tailwind CSS v4（注意：v4 语法与 v3 不同，例如渐变用 `bg-linear-to-br` 而非 `bg-gradient-to-br`）
+- **UI 组件库**: shadcn/ui（Radix 风格，New York style，CSS 变量主题，primary 色调为玫瑰红）
+    - 已安装组件：`avatar` `card` `button` `textarea` `badge` `separator`
+    - 工具依赖：`clsx` `tailwind-merge` `class-variance-authority`
+    - 配置文件：`components.json`（utils 路径用 `src/lib/utils`，组件生成到 `src/components/ui/`）
+    - 注意：shadcn 生成的组件 import 路径需手动改为 `@/lib/utils`（项目使用 `@` alias）
 - **后端/认证**: Supabase (`@supabase/supabase-js`)
 - **包管理器**: pnpm
 - **代码格式化**: Prettier
@@ -35,8 +40,11 @@
 
 ```
 src/
+├── components/
+│   └── ui/               # shadcn/ui 组件（avatar, card, button, textarea, badge, separator）
 ├── lib/
-│   └── supabase.ts       # Supabase 客户端初始化
+│   ├── supabase.ts       # Supabase 客户端初始化
+│   └── utils.ts          # cn() 工具函数（clsx + tailwind-merge）
 ├── pages/
 │   ├── HomePage.tsx      # 主页（需要登录）
 │   ├── LandingPage.tsx   # 落地页
@@ -52,6 +60,7 @@ src/
 ```
 
 **注意事项：**
+
 - 路径别名 `@/` 指向 `src/`
 - 环境变量通过 `getEnv()` 工具函数读取，缺失时会抛出错误
 - 所有 `EnvName` 类型在 `src/types/index.ts` 中维护
@@ -187,6 +196,27 @@ get_feed_posts(p_couple_id uuid default null)
 - devMode（`VITE_DEV=true`）跳过验证
 - ProtectedRoute 路由守卫
 
+### HomePage 布局
+
+**响应式：** 移动端单列 / 桌面端（md+）双列（左侧 Profile 侧边栏 sticky + 右侧主内容区），最大宽度 `max-w-4xl`
+
+**配色原则：** 暖中性 stone 为基调，rose 仅用于有情感语义的元素（情侣空间图标、亲密值）
+
+| 区域           | 移动                    | 桌面                            |
+| -------------- | ----------------------- | ------------------------------- |
+| Profile 卡     | 横向（头像左 + 文字右） | 竖向侧边栏（头像居中 + 统计格） |
+| 情侣空间入口   | 全宽卡片                | 同右列                          |
+| 个人动态输入框 | 全宽                    | 同右列                          |
+| Feed 占位      | 全宽                    | 同右列                          |
+
+- 顶部 sticky navbar：`stone-700` logo + 登出按钮，`max-w-4xl` 对齐主内容
+- 个人资料卡：Avatar（`stone-100/600` fallback）、display_name、bio 签名；桌面侧边栏额外展示动态数 / 亲密值统计格（占位）
+- 情侣空间入口卡：`rose-400→rose-600` Heart 图标 + Badge 状态（未创建 / 等待对方加入 / 已配对）；Phase 3 完成后接入真实状态和路由跳转
+- 个人动态输入框：头像 + Textarea，图片/表情按钮（disabled，Phase 4 接入），发布按钮（`stone-700`）
+- 个人 Feed 占位区：BookOpen 图标 + 提示文案，日记 / 个人 post 系统后续实现
+
+> 当前 `coupleStatus` 为 mock（`'none' as CoupleStatus`），Phase 3 数据库查询完成后替换。
+
 ### 情侣配对
 
 - 邀请码生成与输入
@@ -198,9 +228,9 @@ get_feed_posts(p_couple_id uuid default null)
 - 双方动态按时间倒序排列
 - 分页/无限滚动加载
 - 隐私等级差异化渲染：
-  - `shared` → 正常显示
-  - `locked` → 模糊/锁定，显示解锁所需亲密值；Mood Post 仅露出情绪色块
-  - `private` → 对方不可见，自己看到私密标记
+    - `shared` → 正常显示
+    - `locked` → 模糊/锁定，显示解锁所需亲密值；Mood Post 仅露出情绪色块
+    - `private` → 对方不可见，自己看到私密标记
 - 纪念册模式（聚合视图）：按 Day / Week / Month / Anniversary 归组展示
 
 ### 发布动态
@@ -225,3 +255,5 @@ get_feed_posts(p_couple_id uuid default null)
 - 年度回顾自动生成
 - 推送通知（对方发动态时）
 - 个人空间：用户拥有独立于情侣空间的个人 post 记录（couple_id 为 null），用于记录私人生活；数据库设计上 posts.couple_id 需支持 nullable
+- 日记模块：HomePage 中个人私密日记功能，区别于情侣共享动态，侧重个人记录与沉淀
+- AI 模块：基于个人/情侣数据的 AI 功能，方向待探索（如情绪分析、回忆生成、关系洞察等）

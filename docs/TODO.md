@@ -26,10 +26,14 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 - [x] 配置 post_unlocks RLS 策略
 - [x] 创建 get_feed_posts() RPC 函数（Feed 聚合查询，含解锁状态）
 
-### Phase 3 — 情侣空间创建与配对
+### Phase 3 — HomePage 与情侣空间创建与配对
 
 > 流程：创建空间 → 单人可用（装扮、发 post）→ 生成邀请码邀请对方 → 对方接受 → 配对完成（双人）
 
+- [x] HomePage：展示个人头像与基本信息（display_name、avatar_url）
+- [x] HomePage：空间入口卡片（情侣空间等），支持状态感知（未创建 / pending / active）
+- [x] HomePage：个人动态输入框 placeholder（为日记/个人 post 系统占位）
+- [x] HomePage：桌面端双列响应式布局（左侧 sticky Profile 侧边栏 + 右侧主内容）
 - [ ] 更新 `src/types/database.ts`，对齐当前 Supabase 数据库结构（用 CLI 自动生成）
 - [ ] `couples` 表新增 `status` 字段（`pending | active`），pending = 空间已创建但未配对，active = 双方配对完成
 - [ ] 创建情侣空间页面：用户首次进入时可创建空间（写入 couples，status = pending，user2_id 暂为 null）
