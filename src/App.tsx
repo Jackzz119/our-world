@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase.ts';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import HomePage from '@/pages/HomePage.tsx';
 import LoginPage from '@/pages/LoginPage.tsx';
+import CouplePage from '@/pages/CouplePage.tsx';
 import ProtectedRoute from '@/pages/ProtectedRoute.tsx';
 import { getEnv } from '@/utils';
 
@@ -42,6 +43,14 @@ const App = () => {
                     element={
                         <ProtectedRoute session={session} loading={loading} devMode={getEnv('VITE_DEV') == 'true'}>
                             <HomePage session={session!} />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/couple"
+                    element={
+                        <ProtectedRoute session={session} loading={loading} devMode={getEnv('VITE_DEV') == 'true'}>
+                            <CouplePage />
                         </ProtectedRoute>
                     }
                 />

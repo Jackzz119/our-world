@@ -36,7 +36,10 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 - [x] HomePage：桌面端双列响应式布局（左侧 sticky Profile 侧边栏 + 右侧主内容）
 - [ ] 更新 `src/types/database.ts`，对齐当前 Supabase 数据库结构（用 CLI 自动生成）
 - [ ] `couples` 表新增 `status` 字段（`pending | active`），pending = 空间已创建但未配对，active = 双方配对完成
-- [ ] 创建情侣空间页面：用户首次进入时可创建空间（写入 couples，status = pending，user2_id 暂为 null）
+- [x] 创建 `/couple` 路由与 `CouplePage.tsx`；HomePage 情侣空间卡片点击逻辑：status = none → 弹窗确认 → 跳转，其余状态直接跳转
+- [x] CouplePage：mock 数据（`public/mock/couple-feed.json` + `src/types/feed.ts`），fetch 模拟 API 调用
+- [x] CouplePage：情侣头部卡片（双头像 + 在一起天数 + 亲密值）、Timeline 竖线分组 feed、PostCard / LockedPostCard、PC 双列布局
+- [ ] 弹窗「立即创建」接入真实逻辑：写入 couples 表（status = pending，user2_id 暂为 null）
 - [ ] 空间创建后可进行基础设置与装扮（空间名称等）
 - [ ] 创建 `couple_invites` 表（字段：code、couple_id、inviter_id、expires_at、used_at）
 - [ ] 生成邀请码 / 分享链接

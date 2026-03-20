@@ -26,7 +26,7 @@
 - **路由**: React Router DOM v7
 - **样式**: Tailwind CSS v4（注意：v4 语法与 v3 不同，例如渐变用 `bg-linear-to-br` 而非 `bg-gradient-to-br`）
 - **UI 组件库**: shadcn/ui（Radix 风格，New York style，CSS 变量主题，primary 色调为玫瑰红）
-    - 已安装组件：`avatar` `card` `button` `textarea` `badge` `separator`
+    - 已安装组件：`avatar` `card` `button` `textarea` `badge` `separator` `dialog`
     - 工具依赖：`clsx` `tailwind-merge` `class-variance-authority`
     - 配置文件：`components.json`（utils 路径用 `src/lib/utils`，组件生成到 `src/components/ui/`）
     - 注意：shadcn 生成的组件 import 路径需手动改为 `@/lib/utils`（项目使用 `@` alias）
@@ -47,12 +47,14 @@ src/
 │   └── utils.ts          # cn() 工具函数（clsx + tailwind-merge）
 ├── pages/
 │   ├── HomePage.tsx      # 主页（需要登录）
+│   ├── CouplePage.tsx    # 情侣空间（/couple）
 │   ├── LandingPage.tsx   # 落地页
 │   ├── LoginPage.tsx     # 登录页
 │   └── ProtectedRoute.tsx # 路由守卫
 ├── types/
 │   ├── index.ts          # 类型定义（EnvName 等）
-│   └── database.ts       # Supabase 数据库类型
+│   ├── database.ts       # Supabase 数据库类型
+│   └── feed.ts           # Feed 相关类型（FeedPost, CoupleMeta 等）
 ├── utils/
 │   └── index.ts          # getEnv 工具函数
 ├── App.tsx               # 路由配置 + 认证状态管理
@@ -189,6 +191,16 @@ get_feed_posts(p_couple_id uuid default null)
 
 ## 功能模块
 
+### 路由结构
+
+```
+/          → HomePage（个人主页，需登录）
+/login     → LoginPage
+/couple    → CouplePage（情侣空间，需登录）
+```
+
+未来扩展：`/family`、`/blog` 等各自独立页面。
+
 ### Auth
 
 - 邮箱/密码登录注册
@@ -226,6 +238,30 @@ get_feed_posts(p_couple_id uuid default null)
 - 个人 Feed 占位区：BookOpen 图标 + 提示文案，日记 / 个人 post 系统后续实现
 
 > 当前 `coupleStatus` 为 mock（`'none' as CoupleStatus`），Phase 3 数据库查询完成后替换。
+
+### CouplePage（情侣空间）
+
+**路由：** `/couple`，受 ProtectedRoute 保护
+
+**布局：** 移动端单列 / 桌面端（md+）双列（左侧 sticky 情侣头部卡片 272px + 右侧 Timeline feed）
+
+**数据：** 当前通过 `fetch('/mock/couple-feed.json')` 加载 mock 数据，类型定义在 `src/types/feed.ts`（`CoupleFeedResponse`）；接入真实 API 时只需替换 fetch 目标
+
+**情侣头部卡片：**
+
+- 顶部玫瑰渐变装饰条
+- 双头像 + Heart 图标居中排列
+- 统计格：在一起天数（实时计算）/ 亲密值
+
+**Timeline Feed（`TimelineFeed` 组件）：**
+
+- 左侧 `rose-100` 竖线贯穿，按日期分组
+- 日期节点：空心圆点 + 日期标签（今天 / 昨天 / 具体日期）
+- post 节点圆点：自己发的 `stone-300`，对方发的 `rose-300`
+- `PostCard`：普通卡片（shared / 已解锁 locked / 自己的 private），privacy badge 区分状态
+- `LockedPostCard`：虚线边框，模糊假文字行 + 毛玻璃遮罩 + 解锁按钮（当前 disabled）
+
+**整体氛围：** 背景 `via-rose-50/20` 微暖玫瑰调，卡片 `#fefcfb`，navbar/border 用 `rose-100` 系
 
 ### 情侣配对
 
@@ -267,3 +303,4 @@ get_feed_posts(p_couple_id uuid default null)
 - 个人空间：用户拥有独立于情侣空间的个人 post 记录（couple_id 为 null），用于记录私人生活；数据库设计上 posts.couple_id 需支持 nullable
 - 日记模块：HomePage 中个人私密日记功能，区别于情侣共享动态，侧重个人记录与沉淀
 - AI 模块：基于个人/情侣数据的 AI 功能，方向待探索（如情绪分析、回忆生成、关系洞察等）
+- AI / 规则驱动的 Timeline Card 生成：用户发布原始文字 + 图片，系统通过关键词规则或 Claude API 提取元数据（card_type / extracted_quote / color_palette / tags / emoji），Timeline 根据 metadata 渲染对应的 fancy 卡片（Mood / Date / Memory / Photo / Milestone / Quote / Default 等类型）；原始内容保留可展开查看；card_meta 存为 posts 表的 jsonb 字段，post 创建时异步生成，为 null 时 fallback 到 Default Card；实现路径建议先规则后 AI 渐进接入

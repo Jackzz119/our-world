@@ -1,0 +1,122 @@
+{
+    "couple": {
+        "couple_id": "couple-1",
+        "intimacy_points": 420,
+        "created_at": "2024-02-14T00:00:00Z",
+        "user1": {
+            "id": "user-a",
+            "display_name": "Jack",
+            "avatar_url": ""
+        },
+        "user2": {
+            "id": "user-b",
+            "display_name": "Sherry",
+            "avatar_url": ""
+        }
+    },
+    "current_user_id": "user-a",
+    "posts": [
+        {
+            "post_id": "post-1",
+            "couple_id": "couple-1",
+            "author_id": "user-b",
+            "author": {
+                "id": "user-b",
+                "display_name": "Sherry",
+                "avatar_url": ""
+            },
+            "privacy": "shared",
+            "created_at": "2025-03-20T10:23:00Z",
+            "unlock_cost": 0,
+            "is_unlocked": true,
+            "is_placeholder": false,
+            "visible_content": "今天下午路过了我们第一次见面的那家咖啡店，点了一样的拿铁，坐在同一个角落。店员换人了，但窗边的那盆绿萝还在。",
+            "visible_images": []
+        },
+        {
+            "post_id": "post-2",
+            "couple_id": "couple-1",
+            "author_id": "user-a",
+            "author": {
+                "id": "user-a",
+                "display_name": "Jack",
+                "avatar_url": ""
+            },
+            "privacy": "shared",
+            "created_at": "2025-03-19T22:01:00Z",
+            "unlock_cost": 0,
+            "is_unlocked": true,
+            "is_placeholder": false,
+            "visible_content": "睡前想了很多，好像没什么大事，但就是想告诉你。",
+            "visible_images": []
+        },
+        {
+            "post_id": "post-3",
+            "couple_id": "couple-1",
+            "author_id": "user-b",
+            "author": {
+                "id": "user-b",
+                "display_name": "Sherry",
+                "avatar_url": ""
+            },
+            "privacy": "locked",
+            "created_at": "2025-03-18T15:44:00Z",
+            "unlock_cost": 80,
+            "is_unlocked": false,
+            "is_placeholder": true,
+            "visible_content": null,
+            "visible_images": []
+        },
+        {
+            "post_id": "post-4",
+            "couple_id": "couple-1",
+            "author_id": "user-a",
+            "author": {
+                "id": "user-a",
+                "display_name": "Jack",
+                "avatar_url": ""
+            },
+            "privacy": "private",
+            "created_at": "2025-03-17T09:15:00Z",
+            "unlock_cost": 0,
+            "is_unlocked": true,
+            "is_placeholder": false,
+            "visible_content": "有些话暂时只想自己知道。等时机到了再分享给你。",
+            "visible_images": []
+        },
+        {
+            "post_id": "post-5",
+            "couple_id": "couple-1",
+            "author_id": "user-b",
+            "author": {
+                "id": "user-b",
+                "display_name": "Sherry",
+                "avatar_url": ""
+            },
+            "privacy": "locked",
+            "created_at": "2025-03-16T20:30:00Z",
+            "unlock_cost": 120,
+            "is_unlocked": true,
+            "is_placeholder": false,
+            "visible_content": "今天鼓起勇气做了一件事，做完之后心跳一直没平静下来。希望你看到这条的时候，会笑。",
+            "visible_images": []
+        },
+        {
+            "post_id": "post-6",
+            "couple_id": "couple-1",
+            "author_id": "user-a",
+            "author": {
+                "id": "user-a",
+                "display_name": "Jack",
+                "avatar_url": ""
+            },
+            "privacy": "shared",
+            "created_at": "2025-03-14T12:00:00Z",
+            "unlock_cost": 0,
+            "is_unlocked": true,
+            "is_placeholder": false,
+            "visible_content": "情人节快乐。去年今天我还在想怎么开口，今年已经在一起了。时间过得真快。",
+            "visible_images": []
+        }
+    ]
+}

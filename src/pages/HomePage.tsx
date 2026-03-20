@@ -2,6 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { LogOut, Heart, ChevronRight, ImagePlus, Smile, BookOpen } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase.ts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -33,6 +41,7 @@ const HomePage = ({ session }: HomePageProps) => {
     const navigate = useNavigate();
     const [signOutError, setSignOutError] = useState('');
     const [postContent, setPostContent] = useState('');
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
     // mock 数据，Phase 3 完成后替换为真实查询
     const coupleStatus = 'none' as CoupleStatus;
@@ -52,12 +61,17 @@ const HomePage = ({ session }: HomePageProps) => {
     };
 
     const handleCoupleEntry = () => {
-        // Phase 3：根据 coupleStatus 跳转
         if (coupleStatus === 'none') {
-            // navigate('/couple/create')
+            setCreateDialogOpen(true);
         } else {
-            // navigate('/couple')
+            navigate('/couple');
         }
+    };
+
+    const handleCreateCouple = () => {
+        // Phase 3：写入 couples 表
+        setCreateDialogOpen(false);
+        navigate('/couple');
     };
 
     const handlePostSubmit = () => {
@@ -265,6 +279,38 @@ const HomePage = ({ session }: HomePageProps) => {
                     {signOutError}
                 </div>
             )}
+
+            {/* 创建情侣空间弹窗 */}
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <div className="flex justify-center mb-2">
+                            <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-rose-400 to-rose-600 flex items-center justify-center shadow-sm">
+                                <Heart className="w-5 h-5 text-white fill-white" />
+                            </div>
+                        </div>
+                        <DialogTitle className="text-center text-stone-800">创建你们的专属空间</DialogTitle>
+                        <DialogDescription className="text-center text-stone-400">
+                            创建后可邀请对方加入，开始记录你们的故事
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex-col gap-2 sm:flex-col">
+                        <Button
+                            className="w-full bg-stone-700 hover:bg-stone-800 text-white shadow-sm"
+                            onClick={handleCreateCouple}
+                        >
+                            立即创建
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="w-full text-stone-400 hover:text-stone-600"
+                            onClick={() => setCreateDialogOpen(false)}
+                        >
+                            取消
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
