@@ -1,10 +1,21 @@
 # still-love MVP TODO
 
+## MVP 策略
+
+MVP 核心三件事：**两人 Timeline 共享空间 + 个人笔记 + Todo 管理**
+先做好「两个人能用起来」的最小闭环，游戏化（亲密值、locked post 等）后续再补。
+
 ## 开发顺序
 
-Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → Phase 5 完整隐私逻辑 → Phase 6
+Phase 1 → Phase 2 → Phase 3 → Phase 4（Timeline 发帖）→ Phase 5（个人笔记）→ Phase 6（Todo）→ Phase 7（隐私与亲密值，可选）
 
 ---
+
+### Phase 0 — 访问控制（白名单） ✅
+
+- [x] 创建 `allowed_emails` 表（email PK、note、created_at）
+- [x] 配置 RLS：已登录用户只能查自己那行，insert/update/delete 全部拒绝
+- [ ] 前端：登录后查询 `allowed_emails`，不在白名单则立即 sign out 并提示无权限
 
 ### Phase 1 — Auth 完善 ✅
 
@@ -46,26 +57,32 @@ Phase 1 → Phase 2 → Phase 3 → Phase 5（先不做隐私）→ Phase 4 → 
 - [ ] 对方通过邀请码加入，更新 couples（填入 user2_id，status → active）
 - [ ] 路由守卫：登录后检查 couple 状态，无空间 → 引导创建，pending → 可进入但提示邀请，active → 正常进入 Timeline
 
-### Phase 4 — 发布动态
+### Phase 4 — 发布动态（Timeline 核心）
 
-- [ ] 发布入口（浮动按钮）
+- [ ] 发布入口（浮动按钮或输入框）
 - [ ] 支持写文字 + 上传图片（Supabase Storage）
-- [ ] 选择隐私等级（共享 / 待解锁 / 完全隐私）
-- [ ] 写入 `posts` 表
-
-### Phase 5 — Timeline 页面（HomePage）
-
+- [ ] 写入 `posts` 表（MVP 先只做 shared，隐私等级后续补）
+- [ ] 拉取当前情侣双方的动态，按时间倒序展示
 - [ ] 给 `get_feed_posts()` 补充 `p_limit` / `p_offset` 分页参数
-- [ ] 拉取当前情侣双方的动态，按时间倒序
 - [ ] 无限滚动（分页加载）
 - [ ] 节点展示：头像、昵称、时间、内容/图片
-- [ ] 隐私等级渲染逻辑：
-    - `shared` → 正常显示
-    - `locked` → 模糊/锁定状态，显示解锁所需亲密值
-    - `private` → 对方完全看不到，自己看到私密标记
 
-### Phase 6 — 亲密值系统（基础）
+### Phase 5 — 个人笔记
 
+- [ ] 数据库：`notes` 表（id、user_id、title、content、created_at、updated_at）
+- [ ] 笔记列表页：按时间倒序，支持搜索
+- [ ] 笔记编辑页：富文本或 Markdown 书写体验
+- [ ] 笔记完全私密，仅自己可见
+
+### Phase 6 — Todo 管理
+
+- [ ] 数据库：`todos` 表（id、user_id、couple_id nullable、content、is_done、due_date nullable、created_at）
+- [ ] 个人 Todo 列表：增删改查、勾选完成
+- [ ] 可选：共享 Todo（couple_id 不为 null，双方可见和操作）
+
+### Phase 7 — 隐私等级与亲密值（后续）
+
+- [ ] posts 隐私等级渲染：shared / locked / private
 - [ ] 每天登录 / 发动态 / 互动增加亲密值
 - [ ] 用亲密值解锁 `locked` 状态的动态
 - [ ] 展示当前亲密值

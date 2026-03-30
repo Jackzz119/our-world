@@ -5,9 +5,9 @@
 **still** 是一个以关系为核心的情感记录和共同合作平台，不同的关系类型对应独立的 workspace：
 
 - **still-love** — 情侣（当前项目）
-- **still-family** — 家庭
-- **still-friend** — 朋友
-- **still-work** — 工作伙伴
+- **still-family** — 家庭（暂不做）
+- **still-friend** — 朋友（暂不做）
+- **still-work** — 工作伙伴（暂不做）
 
 每个 workspace 共享同一套底层理念：**Shared Diary + Relationship Game + Emotional Timeline-Todo Management**
 
@@ -15,7 +15,15 @@
 - **Relationship Game** — 游戏化互动机制，驱动关系深度
 - **Emotional Timeline** — 时间轴沉淀记忆，看见关系的成长轨迹
 
-> 当前聚焦 still-love，MVP 验证核心体验后再扩展其他 workspace。
+### MVP 策略（当前阶段）
+
+当前聚焦 still-love，MVP 核心三件事：
+
+- **Timeline 共享空间** — 自己与爱人的共同动态时间轴，记录两人的日常与重要时刻
+- **个人笔记** — 私密的个人书写空间，独立于情侣共享区，用于个人记录与沉淀
+- **Todo 管理** — 个人或双人的待办记录，管理日常事务
+
+> MVP 目标：先做好「两个人能用起来」的最小闭环，验证核心体验后再扩展游戏化、多 workspace 等方向。
 
 ---
 
@@ -99,6 +107,15 @@ pnpm format     # Prettier 格式化
 ## 数据库设计（Supabase）
 
 ```
+allowed_emails    # 访问白名单（只有表内邮箱才能使用 still）
+  - email (text, PK)
+  - note (text)             # 备注，方便 Dashboard 识别是谁
+  - created_at
+
+  RLS:
+  - select: 已登录用户只能查到自己那一行（email = auth.users.email where id = auth.uid()）
+  - insert / update / delete: 全部拒绝（无 policy = 默认拒绝，只能通过 Dashboard 管理）
+
 profiles          # 用户资料（扩展 auth.users）
   - id (uuid, FK auth.users)
   - display_name              # [trigger] on_auth_user_created → handle_new_user()：新用户注册/OAuth 后自动填入，Google 取 full_name，邮箱注册取 @ 前缀
