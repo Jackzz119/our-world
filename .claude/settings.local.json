@@ -1,3 +1,11 @@
 {
-    "enabledMcpjsonServers": ["shadcn"]
+  "enabledMcpjsonServers": [
+    "shadcn",
+    "supabase"
+  ],
+  "permissions": {
+    "allow": [
+      "mcp__supabase__execute_sql"
+    ]
+  }
 }

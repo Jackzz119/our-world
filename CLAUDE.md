@@ -1,13 +1,17 @@
 # Claude 工作协议
 
+## 上下文准备
+
+每次对话开始时，必须先读取 `docs/PROJECT.md` 和 `docs/TODO.md`，将项目现状和任务列表纳入上下文，再开始分析或作答。
+
 ## 文档维护规则
 
 ### 职责分工
 
-- **PROJECT.md**：记录项目结构、已完成功能的详细描述、数据库表结构/RLS/trigger、以及 Brain Dump 想法区
+- **PROJECT.md**：记录项目结构、已完成功能的详细描述、数据库表结构等技术细节、以及 Brain Dump 想法区
 - **TODO.md**：时刻跟踪所有待办和已完成条目，是任务的唯一来源
 
-### Workflow
+### 工作流程
 
 1. **新想法出现** → 直接加入 `TODO.md` 对应 Phase，或先记入 `PROJECT.md` 的 Brain Dump 区
 2. **Brain Dump → 决定做** → 从 Brain Dump 移出，加入 `TODO.md` 对应 Phase
@@ -16,7 +20,7 @@
 
 ### 具体规则
 
-- 数据库结构（表、字段、RLS、trigger）只在 SQL **实际执行完成后**才更新到 PROJECT.md，待办的改动只写在 TODO.md
+- 技术实现细节（数据库结构、配置等）只在实际执行完成后才更新到 PROJECT.md，待办的改动只写在 TODO.md
 - TODO.md 只写高层描述，不写数据结构细节
 - PROJECT.md 的功能模块和数据库章节保持与线上实际状态一致
 
