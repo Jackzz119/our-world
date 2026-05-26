@@ -1,11 +1,16 @@
 {
-  "enabledMcpjsonServers": [
-    "shadcn",
-    "supabase"
-  ],
   "permissions": {
     "allow": [
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "Read(//d/code/agentic-tool/**)",
+      "Read(//d/code/**)",
+      "Bash(git add *)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "shadcn",
+    "supabase",
+    "blender"
+  ]
 }

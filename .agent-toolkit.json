@@ -1,0 +1,42 @@
+{
+  "source": "https://github.com/Jackzz119/agent-toolkit.git",
+  "skillsDir": ".claude/skills",
+  "skills": {
+    "blender-create": {
+      "sourceCommit": "b10e317af0092439fc5341bc3b530e4aabf0028c",
+      "contentHash": "sha256:a7bf71c02dc790c950828d9cc487094c4d94fb706968f277d3f317ff1c9a88e4",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    },
+    "custom-skill": {
+      "sourceCommit": "3233c46c53165b810465ca30f39ed5290e116f77",
+      "contentHash": "sha256:bc851a2545acd350229fd9fbf55ca8009ebe75d5197333b67e86f0480f679d77",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    },
+    "feature": {
+      "sourceCommit": "b10e317af0092439fc5341bc3b530e4aabf0028c",
+      "contentHash": "sha256:d51d8a58f6f5bb8d1d29bfecb96f62a8aa3799182da4631ce062e275577ffdf2",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    },
+    "intj": {
+      "sourceCommit": "b10e317af0092439fc5341bc3b530e4aabf0028c",
+      "contentHash": "sha256:938a21a5db4df7b7538054a300e214625218bad4c4b490ac905b4d6f3e221e5b",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    },
+    "logman": {
+      "sourceCommit": "e0de17fc060bbaba8d30f7e8df6f907cdcdf31b3",
+      "contentHash": "sha256:b21e07da3a4c594217eb32852cc2760579b4b56f69f1c063d882e0bef2461d4b",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    },
+    "vc": {
+      "sourceCommit": "b10e317af0092439fc5341bc3b530e4aabf0028c",
+      "contentHash": "sha256:ceb83df49a30da637d24baefaa3bb590de738bba81b3a96d6f49ebac4486291d",
+      "pulledAt": "2026-05-26",
+      "pack": "common"
+    }
+  }
+}
