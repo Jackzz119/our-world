@@ -4,7 +4,10 @@
       "mcp__supabase__execute_sql",
       "Read(//d/code/agentic-tool/**)",
       "Read(//d/code/**)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ]
   },
   "enableAllProjectMcpServers": true,
