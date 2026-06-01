@@ -1,59 +1,11 @@
-import { useEffect, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase.ts';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import HomePage from '@/pages/HomePage.tsx';
-import LoginPage from '@/pages/LoginPage.tsx';
-import CouplePage from '@/pages/CouplePage.tsx';
-import ProtectedRoute from '@/pages/ProtectedRoute.tsx';
-import { getEnv } from '@/utils';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import WorldPage from '@/pages/WorldPage.tsx';
 
 const App = () => {
-    const [session, setSession] = useState<Session | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        let mounted = true;
-
-        supabase.auth.getSession().then(({ data }) => {
-            if (!mounted) return;
-            setSession(data.session);
-            setLoading(false);
-        });
-
-        const {
-            data: { subscription }
-        } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-            setSession(nextSession);
-            setLoading(false);
-        });
-
-        return () => {
-            mounted = false;
-            subscription.unsubscribe();
-        };
-    }, []);
-
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/login" element={session ? <Navigate to="/" replace /> : <LoginPage />} />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute session={session} loading={loading} devMode={getEnv('VITE_DEV') == 'true'}>
-                            <HomePage session={session!} />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/couple"
-                    element={
-                        <ProtectedRoute session={session} loading={loading} devMode={getEnv('VITE_DEV') == 'true'}>
-                            <CouplePage />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/" element={<WorldPage />} />
             </Routes>
         </BrowserRouter>
     );
