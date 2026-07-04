@@ -6,13 +6,14 @@ export type FeedProfile = {
     avatar_url: string;
 };
 
+// Shape of the get_feed_posts RPC rows (privacy resolved server-side).
 export type FeedPost = {
     post_id: string;
-    couple_id: string;
+    room_id: string;
     author_id: string;
-    author: FeedProfile;
     privacy: PostPrivacy;
     created_at: string;
+    updated_at: string;
     unlock_cost: number;
     is_unlocked: boolean;
     is_placeholder: boolean;
@@ -20,16 +21,12 @@ export type FeedPost = {
     visible_images: string[];
 };
 
-export type CoupleMeta = {
-    couple_id: string;
-    user1: FeedProfile;
-    user2: FeedProfile;
+// A room is owned by one person (owner_id, the creator) and may later gain one
+// invited member (member_id, null while solo). A solo owner can still post.
+export type Room = {
+    id: string;
+    owner_id: string;
+    member_id: string | null;
     intimacy_points: number;
-    created_at: string;
-};
-
-export type CoupleFeedResponse = {
-    couple: CoupleMeta;
-    current_user_id: string;
-    posts: FeedPost[];
+    created_at: string | null;
 };
