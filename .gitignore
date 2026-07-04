@@ -25,3 +25,6 @@ dist-ssr
 
 #claude
 .mcp.json
+.claude/settings.local.json
+
+.env
