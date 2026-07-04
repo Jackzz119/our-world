@@ -18,14 +18,14 @@ import { useChatThreads } from '@/themes/cinnaglass/chat-data';
 import { ROOMS_DEFAULT, owLoad } from '@/themes/cinnaglass/rooms';
 import { useTweaks, type Mood } from '@/themes/cinnaglass/tweaks';
 import type { Alarm, CalEvent, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
-import { getMyRoom, createRoom } from '@/lib/rooms.ts';
-import type { Room as SharedRoom } from '@/types/feed.ts';
+import { getMyWorld, createWorld } from '@/lib/worlds.ts';
+import type { World } from '@/types/feed.ts';
 import { getEnvFlag } from '@/utils';
 
 // Entry switches (see .env.example). DEV skips the auth gate (no Supabase
 // session, so backend calls fail); AUTO_ENTER skips the lobby on mount when a
-// shared room already exists (dev convenience — players always land in the
-// lobby and enter through the portal). Both default to false when unset.
+// world already exists (dev convenience — players always land in the lobby
+// and enter through the portal). Both default to false when unset.
 const DEV_MODE = getEnvFlag('VITE_DEV');
 const AUTO_ENTER = getEnvFlag('VITE_AUTO_ENTER');
 
@@ -82,16 +82,18 @@ const WorldPage = () => {
     const [tbOpen, setTbOpen] = useState(false);
     // sidebar panel expanded state — persisted (the rail itself is always on)
     const [sbOpen, setSbOpen] = useState<boolean>(() => owLoad('ow-sbopen-v1', true));
-    // chat (see ai/Features/chat.md): one thread store, two surfaces.
-    // dock = in-scene ambient chat (solid ⇄ ghost); channel screen = covering.
+    // chat (see ai/Features/chat.md): one thread store, two surfaces, two
+    // owners — the sidebar only opens the covering conversation window
+    // (channels + DMs); the dock is stage-owned (chat button / Enter only).
     const { threads, typingId, send } = useChatThreads();
     const [dockSolid, setDockSolid] = useState(false);
     const [dockActive, setDockActive] = useState('ch-chat');
-    const [channelOpen, setChannelOpen] = useState<string | null>(null);
+    const [convOpen, setConvOpen] = useState<string | null>(null);
     const [screen, setScreen] = useState<string | null>(null);
     const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
-    // scene areas (living/bedroom …) — read-only since room config moved out
-    // of the sidebar; editing returns with the map/scene-switch feature
+    // rooms (living/bedroom …) — scene-bound voice channels inside the world
+    // (channel.md); listed in the sidebar and the map module, both switching
+    // the scene via enterSpace. Config editing returns with the map feature.
     const [rooms] = useState<Room[]>(() => owLoad('ow-rooms-v1', ROOMS_DEFAULT));
     const [meRoom, setMeRoom] = useState<string>(() => owLoad('ow-meroom-v1', 'living'));
     const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
@@ -100,29 +102,30 @@ const WorldPage = () => {
     const [events, setEvents] = useState<CalEvent[]>(() => owLoad('ow-dates-v1', SEED_EVENTS));
     const [alarms, setAlarms] = useState<Alarm[]>(() => owLoad('ow-alarms-v1', SEED_ALARMS));
 
-    // Shared-space (DB `rooms` row) state — NOT the cinnaglass scene-area
-    // "rooms" mock above (living/bedroom lighting + navigation, stays local).
-    const [sharedRoom, setSharedRoom] = useState<SharedRoom | null>(null);
+    // World state (DB `worlds` row — the couple's shared space, see
+    // channel.md). NOT the in-world scene rooms mock above (living/bedroom
+    // lighting + navigation, local).
+    const [world, setWorld] = useState<World | null>(null);
     const [lobbyStatus, setLobbyStatus] = useState<LobbyStatus>('loading');
     const [lobbyError, setLobbyError] = useState<string | null>(null);
     const [lobbyBusy, setLobbyBusy] = useState(false);
-    // Entering the room is explicit (portal click) unless AUTO_ENTER is on.
+    // Entering the world is explicit (portal click) unless AUTO_ENTER is on.
     const [entered, setEntered] = useState(false);
     const [lobbyTick, setLobbyTick] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
-        getMyRoom()
-            .then(({ room }) => {
+        getMyWorld()
+            .then(({ world }) => {
                 if (cancelled) return;
-                setSharedRoom(room);
+                setWorld(world);
                 setLobbyStatus('ready');
-                if (AUTO_ENTER && room) setEntered(true);
+                if (AUTO_ENTER && world) setEntered(true);
             })
             .catch((e: unknown) => {
                 if (cancelled) return;
                 if (DEV_MODE) {
-                    // Dev bypass has no session, so getMyRoom always throws
+                    // Dev bypass has no session, so getMyWorld always throws
                     // "未登录" — show the empty lobby instead of the error card.
                     setLobbyStatus('ready');
                     return;
@@ -258,23 +261,23 @@ const WorldPage = () => {
     };
     const curRoom = rooms.find((r) => r.id === meRoom) || rooms[0];
 
-    // Lobby → room flow. retryLobby resets in the event handler (not the
+    // Lobby → world flow. retryLobby resets in the event handler (not the
     // effect body) and bumps the tick so the effect refetches.
     const retryLobby = () => {
         setLobbyStatus('loading');
         setLobbyError(null);
         setLobbyTick((t) => t + 1);
     };
-    const enterRoom = () => {
-        if (sharedRoom) setEntered(true);
-        else retryLobby(); // room may have appeared elsewhere — re-check
+    const enterWorld = () => {
+        if (world) setEntered(true);
+        else retryLobby(); // a world may have appeared elsewhere — re-check
     };
     const createAndEnter = async () => {
         setLobbyBusy(true);
         setLobbyError(null);
         try {
-            const room = await createRoom();
-            setSharedRoom(room);
+            const created = await createWorld();
+            setWorld(created);
             setEntered(true);
         } catch (e) {
             setLobbyError(e instanceof Error ? e.message : String(e));
@@ -282,7 +285,7 @@ const WorldPage = () => {
             setLobbyBusy(false);
         }
     };
-    const inRoom = entered && sharedRoom !== null;
+    const inWorld = entered && world !== null;
 
     // any pointer-down on the stage outside the chat surfaces ghosts the dock
     const onStageDown = (e: React.PointerEvent) => {
@@ -302,33 +305,32 @@ const WorldPage = () => {
                 profile={profile}
                 setProfile={setProfile}
                 onOpenSettings={() => navigate('settings')}
-                sharedRoom={sharedRoom}
+                world={world}
                 lobbyStatus={lobbyStatus}
                 lobbyError={lobbyError}
                 busy={lobbyBusy}
-                inRoom={inRoom}
-                onEnterRoom={enterRoom}
-                onCreateRoom={createAndEnter}
-                onOpenDm={(contact) => {
-                    setDockActive(contact);
-                    setDockSolid(true);
-                }}
-                onOpenChannel={(id) => setChannelOpen(id)}
+                inWorld={inWorld}
+                onEnterWorld={enterWorld}
+                onCreateWorld={createAndEnter}
+                onOpenConv={(id) => setConvOpen(id)}
+                rooms={rooms}
+                meRoom={meRoom}
+                onEnterSpace={enterSpace}
             />
             <div className="stage" onPointerDownCapture={onStageDown}>
-                {inRoom ? (
+                {inWorld ? (
                     <RoomScene weather={weather.kind} />
                 ) : (
                     <LobbyScene
                         status={lobbyStatus}
-                        hasRoom={sharedRoom !== null}
+                        hasWorld={world !== null}
                         error={lobbyError}
                         busy={lobbyBusy}
-                        onEnter={enterRoom}
+                        onEnter={enterWorld}
                         onCreate={createAndEnter}
                     />
                 )}
-                {inRoom && (
+                {inWorld && (
                     <HUD
                         layout={t.hudLayout}
                         mood={t.mood}
@@ -359,8 +361,9 @@ const WorldPage = () => {
                     typingId={typingId}
                     onSend={send}
                 />
-                {/* covering channel window — opened from sidebar text channels */}
-                <ChannelScreen channelId={channelOpen} onClose={() => setChannelOpen(null)} threads={threads} onSend={send} />
+                {/* covering conversation window — the sidebar's only chat
+                    trigger (text channels AND DMs) */}
+                <ChannelScreen convId={convOpen} onClose={() => setConvOpen(null)} threads={threads} typingId={typingId} onSend={send} />
             </div>
         </div>
     );

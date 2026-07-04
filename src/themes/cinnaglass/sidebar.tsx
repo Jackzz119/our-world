@@ -1,18 +1,25 @@
 // sidebar.tsx — persistent Discord-style left sidebar, in the same layout
 // layer as the stage (opening it squeezes the scene right, no overlay):
-// an always-on rail of room-entry icons + a collapsible full-height panel.
-// Panel body switches on inRoom: lobby = room status cards (no channels),
-// in-room = text/voice channel management (scene-area switching lives in the
-// map feature, not here). Text channel click opens the covering ChannelScreen;
-// the DM section is persistent and solidifies the in-scene ChatDock.
+// an always-on rail + a collapsible full-height panel.
+// Rail (Discord-style): product logo on top = the HOME / DM hub entry
+// (friends, shop, open DM list), then the world entry icon below a divider.
+// Panel switches on the rail selection: home = DM hub; world = the world
+// column (in-world: rooms + text/voice channels + members; lobby: world
+// status card + activity invites). DMs never mix with a world's channels.
+// Terminology (see ai/Features/channel.md): world = the couple's shared
+// space (DB `worlds` row); rooms = scene-bound voice channels inside the
+// world (clicking one switches the scene, same action as the map module).
+// Decoupling rule (chat.md): the sidebar's ONLY chat trigger is the covering
+// conversation window (onOpenConv — text channels AND DMs); the in-scene
+// ChatDock is stage-owned and never opened from here.
 // See ai/Features/sidebar.md + ai/Features/chat.md.
 import { useState, type Dispatch, type SetStateAction } from 'react';
-import { IChat, IChevron, ICog, IHash, IHeart, IMic, IMicOff, IPlus, IVolume } from './icons';
-import { VOICE_DEFAULT } from './rooms';
+import { IChat, IChevron, ICog, IHash, IHeart, IMic, IMicOff, IPlus, ISparkle, IUsers, IVolume } from './icons';
+import { ROOM_ICONS, VOICE_DEFAULT } from './rooms';
 import { CONTACTS } from './contacts';
 import { TEXT_CHANNELS } from './chat-data';
-import type { Profile } from './model';
-import type { Room as SharedRoom } from '@/types/feed.ts';
+import type { Profile, Room } from './model';
+import type { World } from '@/types/feed.ts';
 
 const daysSince = (iso: string) => {
     const d = new Date(iso + 'T00:00:00');
@@ -26,7 +33,7 @@ const SidebarStyles = () => (
         stage to the right instead of floating over it ── */
   .owsb2{position:relative;z-index:13;height:100%;flex:0 0 auto;display:flex;}
 
-  /* rail: always-on room-entry column */
+  /* rail: always-on column — logo (home/DM hub) + world entries */
   .sb-rail{width:64px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
     gap:10px;padding:14px 0;border-radius:0;border-left:0;}
   .sb-rail-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
@@ -38,6 +45,8 @@ const SidebarStyles = () => (
   .sb-rail-btn.on::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);
     width:4px;height:22px;border-radius:0 4px 4px 0;background:var(--accent);}
   .sb-rail-btn:disabled{opacity:.45;cursor:default;transform:none;}
+  .sb-rail-logo{background:linear-gradient(135deg,#F8C8D6,#EF9DB4);}
+  .sb-rail-div{width:26px;height:2px;border-radius:2px;background:var(--glass-border);flex:0 0 auto;}
   .sb-rail-add{background:var(--glass-bg-2);color:var(--accent-deep);border:1.5px dashed var(--glass-border);
     box-shadow:none;font-weight:700;}
   .sb-rail-add:hover{border-color:var(--accent);color:var(--accent);}
@@ -67,6 +76,9 @@ const SidebarStyles = () => (
   .sb-id .meta{font-size:11.5px;color:var(--glass-sub);margin-top:2px;display:flex;align-items:center;gap:6px;}
   .sb-id .meta .num{font-family:"Baloo 2",sans-serif;color:var(--accent-deep);font-weight:700;}
   .sb-id .meta .dot{width:6px;height:6px;border-radius:50%;background:#5fcf8e;box-shadow:0 0 6px #5fcf8e;flex:0 0 auto;}
+  .sb-logo-badge{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;color:#fff;
+    background:linear-gradient(135deg,#F8C8D6,#EF9DB4);
+    box-shadow:0 6px 16px -5px rgba(20,29,51,.55), inset 0 1px 0 rgba(255,255,255,.45);flex:0 0 auto;}
 
   .sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 10px 12px;}
   .sb-scroll::-webkit-scrollbar{width:6px;}
@@ -78,6 +90,9 @@ const SidebarStyles = () => (
   .sb-cat .cog{display:inline-flex;cursor:pointer;color:var(--glass-sub);transition:color .18s,transform .2s;}
   .sb-cat .cog:hover{color:var(--accent-deep);}
   .sb-cat .cog.on{color:var(--accent-deep);transform:rotate(60deg);}
+
+  .sb-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--accent-deep);
+    background:var(--glass-hi);border:1px solid var(--glass-border);border-radius:99px;padding:2px 8px;flex:0 0 auto;}
 
   /* shared avatar */
   .ava{position:relative;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;
@@ -96,7 +111,7 @@ const SidebarStyles = () => (
   @keyframes spkbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
   @media (prefers-reduced-motion: reduce){.ava.speaking{animation:none}.ava.speaking::before,.ava.speaking::after{animation:none;opacity:0}}
 
-  /* ── DM section (persistent in both states) ── */
+  /* ── DM rows (home panel) ── */
   .sb-dm{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;}
   .sb-dm:hover{background:var(--glass-bg-2);color:var(--glass-text);}
@@ -105,7 +120,7 @@ const SidebarStyles = () => (
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .sb-dm .st{font-size:11px;color:var(--glass-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
 
-  /* ── lobby: room status cards ── */
+  /* ── lobby: world status cards ── */
   .sb-rcard{border:1px solid var(--glass-border);background:var(--glass-bg-2);border-radius:16px;
     padding:13px 14px;margin:4px 2px 10px;display:flex;flex-direction:column;gap:9px;}
   .sb-rcard .rc-top{display:flex;align-items:center;gap:10px;}
@@ -123,12 +138,10 @@ const SidebarStyles = () => (
   .sb-rcard .rc-go:hover{transform:translateY(-1px);}
   .sb-rcard .rc-go:disabled{opacity:.5;cursor:default;transform:none;}
   .sb-rcard.invite{border-style:dashed;opacity:.85;}
-  .sb-rcard .rc-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--accent-deep);
-    background:var(--glass-hi);border:1px solid var(--glass-border);border-radius:99px;padding:2px 8px;flex:0 0 auto;}
   .sb-lob-empty{text-align:center;font-size:12.5px;color:var(--glass-sub);padding:14px 8px;line-height:1.7;}
   .sb-err{font-size:12px;color:#d96a84;padding:4px 10px;}
 
-  /* ── in-room: scene areas / config / voice / presence ── */
+  /* ── in-world: rooms / channels / presence ── */
   .sb-room{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;position:relative;}
   .sb-room:hover{background:var(--glass-bg-2);color:var(--glass-text);}
@@ -205,59 +218,83 @@ export function Sidebar({
     profile,
     setProfile,
     onOpenSettings,
-    sharedRoom,
+    world,
     lobbyStatus,
     lobbyError,
     busy,
-    inRoom,
-    onEnterRoom,
-    onCreateRoom,
-    onOpenDm,
-    onOpenChannel
+    inWorld,
+    onEnterWorld,
+    onCreateWorld,
+    onOpenConv,
+    rooms,
+    meRoom,
+    onEnterSpace
 }: {
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;
     profile: Profile;
     setProfile: Dispatch<SetStateAction<Profile>>;
     onOpenSettings: () => void;
-    sharedRoom: SharedRoom | null;
+    world: World | null;
     lobbyStatus: 'loading' | 'ready' | 'error';
     lobbyError: string | null;
     busy: boolean;
-    inRoom: boolean;
-    onEnterRoom: () => void;
-    onCreateRoom: () => void;
-    onOpenDm: (contactId: string) => void;
-    onOpenChannel: (channelId: string) => void;
+    inWorld: boolean;
+    onEnterWorld: () => void;
+    onCreateWorld: () => void;
+    onOpenConv: (convId: string) => void; // text channel id OR DM contact id
+    rooms: Room[];
+    meRoom: string;
+    onEnterSpace: (r: Room) => void;
 }) {
     const [voice, setVoice] = useState<string | null>(null); // joined voice channel id
-    const [muted, setMuted] = useState(false);
+    // mic defaults muted — joining any audio space never hot-mics you (channel.md)
+    const [muted, setMuted] = useState(true);
     const [spk, setSpk] = useState<Record<string, boolean>>({}); // speaking preview flags
+
+    // rail selection, Discord-style: home (DM hub) vs the world column.
+    // Follows enter/leave transitions via render-time adjustment (no effect).
+    const [railSel, setRailSel] = useState<'home' | 'world'>(inWorld ? 'world' : 'home');
+    const [prevInWorld, setPrevInWorld] = useState(inWorld);
+    if (inWorld !== prevInWorld) {
+        setPrevInWorld(inWorld);
+        setRailSel(inWorld ? 'world' : 'home');
+    }
+    const showHome = railSel === 'home' || !world;
 
     const her: Person = { id: 'her', name: profile.her || '她', ini: (profile.her || '她').slice(0, 1), color: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)', couple: true, online: true };
     const me: Person = { id: 'me', name: profile.me || '我', ini: (profile.me || '我').slice(0, 1), color: 'linear-gradient(135deg,#FCD9A0,#F1B45A)', couple: true, online: true };
-    const here = [her, me]; // presence mock: both of us in the room
+    const here = [her, me]; // presence mock: both of us in the world
+    const herRoom = rooms[0]?.id; // presence mock: she idles in the first room
 
     const days = daysSince(profile.anniv);
     const worldName = profile.world || '我们的小世界';
-    const memberCount = sharedRoom ? (sharedRoom.member_id ? 2 : 1) : 0;
-    // DM contacts: lover pinned first, groups excluded from the compact list
-    const dms = CONTACTS.filter((c) => !c.group).slice(0, 3);
+    const memberCount = world ? (world.member_id ? 2 : 1) : 0;
+    // all open DM conversations (groups excluded — two-person product)
+    const dms = CONTACTS.filter((c) => !c.group);
 
     return (
         <>
             <SidebarStyles />
             <div className="owsb2">
-                {/* ── rail: room entries, always on ── */}
+                {/* ── rail: logo (home/DM hub) + world entries, always on ── */}
                 <div className="sb-rail glass">
-                    {sharedRoom && (
+                    <button
+                        type="button"
+                        className={`sb-rail-btn sb-rail-logo ${showHome ? 'on' : ''}`}
+                        title="Our World · 私信"
+                        onClick={() => setRailSel('home')}
+                    >
+                        <IHeart size={20} />
+                    </button>
+                    <div className="sb-rail-div" />
+                    {world && (
                         <button
                             type="button"
-                            className={`sb-rail-btn ${inRoom ? 'on' : ''}`}
+                            className={`sb-rail-btn ${!showHome ? 'on' : ''}`}
                             style={{ background: 'linear-gradient(135deg,#9fd6f4,#5fb0e2)' }}
-                            title={inRoom ? worldName : `进入 · ${worldName}`}
-                            onClick={onEnterRoom}
-                            disabled={busy}
+                            title={worldName}
+                            onClick={() => setRailSel('world')}
                         >
                             {worldName.slice(0, 1)}
                         </button>
@@ -265,9 +302,9 @@ export function Sidebar({
                     <button
                         type="button"
                         className="sb-rail-btn sb-rail-add"
-                        title={sharedRoom ? '当前一人一房，敬请期待更多空间' : '创建房间'}
-                        onClick={sharedRoom ? undefined : onCreateRoom}
-                        disabled={!!sharedRoom || busy || lobbyStatus !== 'ready'}
+                        title={world ? '当前一人一个世界，敬请期待更多' : '创建世界'}
+                        onClick={world ? undefined : onCreateWorld}
+                        disabled={!!world || busy || lobbyStatus !== 'ready'}
                     >
                         <IPlus size={18} />
                     </button>
@@ -282,149 +319,202 @@ export function Sidebar({
                 {/* ── panel: collapsible context column ── */}
                 {open && (
                     <div className="sb-panel glass">
-                        <div className="sb-hd">
-                            <div className="sb-hd-top">
-                                <div className="sb-avas">
-                                    <MiniAva person={her} />
-                                    <MiniAva person={me} />
-                                </div>
-                                <div className="sb-id">
-                                    <h3>{worldName}</h3>
-                                    <div className="meta">
-                                        <span className="dot" />在一起 <span className="num">{days}</span> 天
+                        {showHome ? (
+                            <>
+                                {/* home / DM hub — Discord's "私信" column */}
+                                <div className="sb-hd">
+                                    <div className="sb-hd-top">
+                                        <span className="sb-logo-badge">
+                                            <IHeart size={18} />
+                                        </span>
+                                        <div className="sb-id">
+                                            <h3>Our World</h3>
+                                            <div className="meta">
+                                                <span className="dot" />
+                                                你们的私密小宇宙
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                                <div className="sb-scroll">
+                                    <div className="sb-room" title="好友列表，敬请期待">
+                                        <span className="ic">
+                                            <IUsers size={17} />
+                                        </span>
+                                        <span className="nm">好友</span>
+                                        <span className="sb-tag">敬请期待</span>
+                                    </div>
+                                    <div className="sb-room" title="商店，敬请期待">
+                                        <span className="ic">
+                                            <ISparkle size={17} />
+                                        </span>
+                                        <span className="nm">商店</span>
+                                        <span className="sb-tag">敬请期待</span>
+                                    </div>
 
-                        <div className="sb-scroll">
-                            {/* DM — persistent in both states */}
-                            <div className="sb-cat">私信</div>
-                            {dms.map((c) => (
-                                <div key={c.id} className="sb-dm" onClick={() => onOpenDm(c.id)} title={`私信 ${c.name}`}>
-                                    <MiniAva person={{ id: c.id, name: c.name, ini: c.ini, color: c.color, couple: c.lover, online: c.online }} size={30} />
-                                    <span className="nm">{c.name}</span>
-                                    <span className="st">{c.status}</span>
-                                </div>
-                            ))}
-
-                            {inRoom ? (
-                                <>
-                                    {/* text channels — click opens the covering ChannelScreen.
-                                        (scene-area switching belongs to the map feature, not here) */}
-                                    <div className="sb-cat">文字频道</div>
-                                    {TEXT_CHANNELS.map((ch) => (
-                                        <div key={ch.id} className="sb-room" onClick={() => onOpenChannel(ch.id)} title={ch.topic}>
-                                            <span className="ic">
-                                                <IHash size={17} />
-                                            </span>
-                                            <span className="nm">{ch.name}</span>
+                                    <div className="sb-cat">私信</div>
+                                    {dms.map((c) => (
+                                        <div key={c.id} className="sb-dm" onClick={() => onOpenConv(c.id)} title={`私信 ${c.name}`}>
+                                            <MiniAva person={{ id: c.id, name: c.name, ini: c.ini, color: c.color, couple: c.lover, online: c.online }} size={30} />
+                                            <span className="nm">{c.name}</span>
+                                            <span className="st">{c.status}</span>
                                         </div>
                                     ))}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* world column — channels in-world, status card in the lobby */}
+                                <div className="sb-hd">
+                                    <div className="sb-hd-top">
+                                        <div className="sb-avas">
+                                            <MiniAva person={her} />
+                                            <MiniAva person={me} />
+                                        </div>
+                                        <div className="sb-id">
+                                            <h3>{worldName}</h3>
+                                            <div className="meta">
+                                                <span className="dot" />在一起 <span className="num">{days}</span> 天
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    {/* voice channels (mock) */}
-                                    <div className="sb-cat">语音频道</div>
-                                    {VOICE_DEFAULT.map((vc) => {
-                                        const joined = voice === vc.id;
-                                        return (
-                                            <div key={vc.id}>
-                                                <div className={`sb-vc-head ${joined ? 'live' : ''}`} onClick={() => setVoice(joined ? null : vc.id)}>
-                                                    <span className="ic">
-                                                        <IVolume size={17} />
-                                                    </span>
-                                                    <span className="nm">{vc.name}</span>
-                                                    <span className="join">{joined ? '离开' : '加入'}</span>
-                                                </div>
-                                                {joined && (
-                                                    <div className="sb-vc-members">
-                                                        <div className="sb-vc-m">
-                                                            <MiniAva person={me} size={26} speaking={!muted} />
-                                                            {me.name}
-                                                            <span className={`mc ${muted ? 'muted' : ''}`}>{muted ? <IMicOff size={15} /> : <IMic size={15} />}</span>
-                                                        </div>
+                                <div className="sb-scroll">
+                                    {inWorld ? (
+                                        <>
+                                            {/* rooms — voice channels extended with a bound scene
+                                                (channel.md). Clicking one switches the scene, the
+                                                same action as the map module; clicking the room
+                                                you're in is a no-op. Occupant minis preview the
+                                                "see where she is" presence (mock for now). */}
+                                            <div className="sb-cat">房间</div>
+                                            {rooms.map((r) => {
+                                                const Icon = ROOM_ICONS[r.icon] ?? IHash;
+                                                const on = r.id === meRoom;
+                                                const who = [...(on ? [me] : []), ...(r.id === herRoom ? [her] : [])];
+                                                return (
+                                                    <div
+                                                        key={r.id}
+                                                        className={`sb-room ${on ? 'on' : ''}`}
+                                                        onClick={() => {
+                                                            if (!on) onEnterSpace(r);
+                                                        }}
+                                                        title={on ? `正在 ${r.name}` : `去${r.name} · ${r.note || ''}`}
+                                                    >
+                                                        <span className="ic">
+                                                            <Icon size={17} />
+                                                        </span>
+                                                        <span className="nm">{r.name}</span>
+                                                        <span className="who">
+                                                            {who.map((p) => (
+                                                                <span key={p.id} className="mini" style={{ background: p.color }}>
+                                                                    {p.ini}
+                                                                </span>
+                                                            ))}
+                                                        </span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
+                                                );
+                                            })}
 
-                                    {/* who's here (presence mock) */}
-                                    <div className="sb-cat">在房间的人 — {here.length}</div>
-                                    {here.map((pp) => (
-                                        <div
-                                            key={pp.id}
-                                            className="sb-pcard"
-                                            onClick={() => setSpk((s) => ({ ...s, [pp.id]: !s[pp.id] }))}
-                                            title="轻点预览说话光晕"
-                                        >
-                                            <MiniAva person={pp} speaking={!!spk[pp.id]} />
-                                            <div className="pc-b">
-                                                <div className="pc-nm">
-                                                    {pp.name}
-                                                    <span className="pc-tag">{pp.id === 'me' ? '你' : '她'}</span>
+                                            {/* text channels — click opens the covering ChannelScreen */}
+                                            <div className="sb-cat">文字频道</div>
+                                            {TEXT_CHANNELS.map((ch) => (
+                                                <div key={ch.id} className="sb-room" onClick={() => onOpenConv(ch.id)} title={ch.topic}>
+                                                    <span className="ic">
+                                                        <IHash size={17} />
+                                                    </span>
+                                                    <span className="nm">{ch.name}</span>
                                                 </div>
-                                                <div className="pc-st">{pp.id === 'me' ? profile.status || '在你身边' : '在看窗外发呆'}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </>
-                            ) : (
-                                <>
-                                    {/* lobby: room status cards — no channels here */}
-                                    <div className="sb-cat">房间动态</div>
-                                    {lobbyStatus === 'loading' ? (
-                                        <div className="sb-lob-empty">正在寻找你们的小世界…</div>
-                                    ) : lobbyStatus === 'error' ? (
-                                        <div className="sb-err">{lobbyError || '出了点问题，稍后再试。'}</div>
-                                    ) : sharedRoom ? (
-                                        <div className="sb-rcard">
-                                            <div className="rc-top">
-                                                <IHeart size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
-                                                <span className="rc-nm">{worldName}</span>
-                                            </div>
-                                            <div className="rc-doing">像是在等你回来…</div>
-                                            <div className="rc-foot">
-                                                <span className="rc-ppl">
-                                                    <MiniAva person={me} size={24} />
-                                                    {memberCount > 1 && <MiniAva person={her} size={24} />}
-                                                </span>
-                                                <span className="rc-cnt">{memberCount} 位成员</span>
-                                                <button type="button" className="rc-go" onClick={onEnterRoom} disabled={busy}>
-                                                    进入
-                                                </button>
-                                            </div>
-                                        </div>
+                                            ))}
+
+                                            {/* voice channels (mock) — pure voice, no scene bound;
+                                                rooms above are the scene-bound superset (channel.md) */}
+                                            <div className="sb-cat">语音频道</div>
+                                            {VOICE_DEFAULT.map((vc) => {
+                                                const joined = voice === vc.id;
+                                                return (
+                                                    <div key={vc.id}>
+                                                        <div className={`sb-vc-head ${joined ? 'live' : ''}`} onClick={() => setVoice(joined ? null : vc.id)}>
+                                                            <span className="ic">
+                                                                <IVolume size={17} />
+                                                            </span>
+                                                            <span className="nm">{vc.name}</span>
+                                                            <span className="join">{joined ? '离开' : '加入'}</span>
+                                                        </div>
+                                                        {joined && (
+                                                            <div className="sb-vc-members">
+                                                                <div className="sb-vc-m">
+                                                                    <MiniAva person={me} size={26} speaking={!muted} />
+                                                                    {me.name}
+                                                                    <span className={`mc ${muted ? 'muted' : ''}`}>{muted ? <IMicOff size={15} /> : <IMic size={15} />}</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+
+                                            {/* who's in the world (presence mock) */}
+                                            <div className="sb-cat">成员 — {here.length}</div>
+                                            {here.map((pp) => (
+                                                <div
+                                                    key={pp.id}
+                                                    className="sb-pcard"
+                                                    onClick={() => setSpk((s) => ({ ...s, [pp.id]: !s[pp.id] }))}
+                                                    title="轻点预览说话光晕"
+                                                >
+                                                    <MiniAva person={pp} speaking={!!spk[pp.id]} />
+                                                    <div className="pc-b">
+                                                        <div className="pc-nm">
+                                                            {pp.name}
+                                                            <span className="pc-tag">{pp.id === 'me' ? '你' : '她'}</span>
+                                                        </div>
+                                                        <div className="pc-st">{pp.id === 'me' ? profile.status || '在你身边' : '在看窗外发呆'}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
                                     ) : (
-                                        <div className="sb-rcard">
-                                            <div className="rc-top">
-                                                <IHeart size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
-                                                <span className="rc-nm">还没有你们的小世界</span>
+                                        <>
+                                            {/* lobby: world status card — enter from here or the portal */}
+                                            <div className="sb-cat">世界动态</div>
+                                            <div className="sb-rcard">
+                                                <div className="rc-top">
+                                                    <IHeart size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
+                                                    <span className="rc-nm">{worldName}</span>
+                                                </div>
+                                                <div className="rc-doing">像是在等你回来…</div>
+                                                <div className="rc-foot">
+                                                    <span className="rc-ppl">
+                                                        <MiniAva person={me} size={24} />
+                                                        {memberCount > 1 && <MiniAva person={her} size={24} />}
+                                                    </span>
+                                                    <span className="rc-cnt">{memberCount} 位成员</span>
+                                                    <button type="button" className="rc-go" onClick={onEnterWorld} disabled={busy}>
+                                                        进入
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="rc-doing">创建一个房间，开始收藏你们的回忆。</div>
-                                            <div className="rc-foot">
-                                                <span className="rc-cnt" />
-                                                <button type="button" className="rc-go" onClick={onCreateRoom} disabled={busy}>
-                                                    {busy ? '创建中…' : '创建房间'}
-                                                </button>
+                                            {lobbyError && <div className="sb-err">{lobbyError}</div>}
+
+                                            {/* activity invites — UI placeholder, see ai/Features/activity.md (TBD) */}
+                                            <div className="sb-cat">活动邀请</div>
+                                            <div className="sb-rcard invite">
+                                                <div className="rc-top">
+                                                    <IChat size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
+                                                    <span className="rc-nm">找人一起玩？</span>
+                                                    <span className="sb-tag">敬请期待</span>
+                                                </div>
+                                                <div className="rc-doing">世界里的人可以发出邀请：打扑克、看电影、一起听歌…</div>
                                             </div>
-                                        </div>
+                                        </>
                                     )}
+                                </div>
+                            </>
+                        )}
 
-                                    {/* activity invites — UI placeholder, see ai/Features/activity.md (TBD) */}
-                                    <div className="sb-cat">活动邀请</div>
-                                    <div className="sb-rcard invite">
-                                        <div className="rc-top">
-                                            <IChat size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
-                                            <span className="rc-nm">找人一起玩？</span>
-                                            <span className="rc-tag">敬请期待</span>
-                                        </div>
-                                        <div className="rc-doing">房间里的人可以发出邀请：打扑克、看电影、一起听歌…</div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {/* footer user panel */}
+                        {/* footer user panel — persistent in both columns */}
                         <div className="sb-user">
                             <MiniAva person={me} />
                             <div className="u-b">

@@ -1,10 +1,13 @@
-// channel-screen.tsx — the covering chat surface: opened from a text channel
-// in the sidebar, it floats over (almost covers) the stage so you can chat
-// with the scene tucked away. Shares threads with the in-scene ChatDock —
-// same content, different experience. Base template per ai/Features/chat.md.
+// channel-screen.tsx — the covering conversation surface: opened from the
+// sidebar (text channels AND DMs — the sidebar's only chat trigger), it
+// floats over (almost covers) the stage so you can chat with the scene
+// tucked away. Shares threads with the in-scene ChatDock — same content,
+// different experience; the dock is triggered only from the stage (chat
+// button / Enter), never from the sidebar. See ai/Features/chat.md.
 import { useEffect, useRef, useState } from 'react';
 import { IClose, IHash, ISend } from './icons';
 import { TEXT_CHANNELS, type Msg } from './chat-data';
+import { CONTACTS } from './contacts';
 
 const ChannelStyles = () => (
     <style>{`
@@ -18,6 +21,9 @@ const ChannelStyles = () => (
 
   .chsc-hd{display:flex;align-items:center;gap:11px;padding:16px 18px 13px;border-bottom:1px solid var(--glass-border);}
   .chsc-hd .ic{display:inline-flex;color:var(--accent-deep);}
+  .chsc-ava{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-size:12px;font-weight:700;border:2px solid rgba(255,255,255,.72);
+    box-shadow:0 6px 16px -5px rgba(20,29,51,.55);flex:0 0 auto;}
   .chsc-hd h3{margin:0;font-size:16.5px;font-weight:800;color:var(--glass-text);}
   .chsc-hd .topic{flex:1;min-width:0;font-size:12px;color:var(--glass-sub);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -48,28 +54,31 @@ const ChannelStyles = () => (
 );
 
 type ChannelScreenProps = {
-    channelId: string | null;
+    convId: string | null; // text channel id OR DM contact id
     onClose: () => void;
     threads: Record<string, Msg[]>;
+    typingId?: string | null; // conv currently "typing…" (DM fake replies)
     onSend: (convId: string, text: string) => void;
 };
 
-export function ChannelScreen({ channelId, onClose, threads, onSend }: ChannelScreenProps) {
+export function ChannelScreen({ convId, onClose, threads, typingId, onSend }: ChannelScreenProps) {
     const [text, setText] = useState('');
     const msgsRef = useRef<HTMLDivElement>(null);
-    const ch = TEXT_CHANNELS.find((c) => c.id === channelId);
-    const msgs = (channelId && threads[channelId]) || [];
+    const ch = TEXT_CHANNELS.find((c) => c.id === convId);
+    const dm = ch ? undefined : CONTACTS.find((c) => c.id === convId);
+    const msgs = (convId && threads[convId]) || [];
+    const typing = !!convId && typingId === convId;
 
     useEffect(() => {
         const el = msgsRef.current;
         if (el) el.scrollTop = el.scrollHeight;
-    }, [threads, channelId]);
+    }, [threads, convId]);
 
-    if (!channelId || !ch) return null;
+    if (!convId || (!ch && !dm)) return null;
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSend(channelId, text);
+        onSend(convId, text);
         setText('');
     };
 
@@ -79,11 +88,17 @@ export function ChannelScreen({ channelId, onClose, threads, onSend }: ChannelSc
             <div className="chsc-scrim" onClick={onClose} />
             <div className="chsc glass">
                 <div className="chsc-hd">
-                    <span className="ic">
-                        <IHash size={18} />
-                    </span>
-                    <h3>{ch.name}</h3>
-                    <span className="topic">{ch.topic}</span>
+                    {ch ? (
+                        <span className="ic">
+                            <IHash size={18} />
+                        </span>
+                    ) : (
+                        <span className="chsc-ava" style={{ background: dm!.color }}>
+                            {dm!.ini}
+                        </span>
+                    )}
+                    <h3>{ch ? ch.name : dm!.name}</h3>
+                    <span className="topic">{typing ? '正在输入…' : ch ? ch.topic : dm!.status}</span>
                     <div className="chsc-x" onClick={onClose} title="关闭">
                         <IClose size={16} />
                     </div>
@@ -92,7 +107,7 @@ export function ChannelScreen({ channelId, onClose, threads, onSend }: ChannelSc
                     {msgs.map((m) => (
                         <div key={m.id} className={`chsc-m ${m.from === 'me' ? 'me' : ''}`}>
                             <span className="meta">
-                                {m.from === 'me' ? '我' : m.sender || '对方'} · {m.time}
+                                {m.from === 'me' ? '我' : m.sender || (dm ? dm.name : '对方')} · {m.time}
                             </span>
                             <span className="bub">{m.text}</span>
                         </div>
@@ -102,7 +117,7 @@ export function ChannelScreen({ channelId, onClose, threads, onSend }: ChannelSc
                     <input
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        placeholder={`在 #${ch.name} 说点什么…`}
+                        placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
                         maxLength={500}
                         spellCheck={false}
                         autoFocus
