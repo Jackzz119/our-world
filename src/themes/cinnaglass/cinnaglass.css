@@ -1,0 +1,700 @@
+/* ow.css — Our World global design tokens + scene / mood / weather layers.
+   Ported verbatim from the design prototype's `Our World.html` <style> block. */
+
+:root {
+  /* ── Cinnamoroll palette ── */
+  --sky-1: #aedff2;
+  --sky-2: #bfe3f5;
+  --sky-3: #d8effa;
+  --cream: #fbfcfe;
+  --butter: #fce7b0;
+  --blush: #f8d7df;
+  --navy-1: #2a3a5e;
+  --navy-2: #1e2a47;
+  --navy-deep: #141d33;
+
+  /* glass tokens (overridden per glass style) */
+  --glass-bg: rgba(255, 255, 255, 0.66);
+  --glass-bg-2: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-hi: rgba(255, 255, 255, 0.85);
+  --glass-blur: 22px;
+  --glass-sat: 150%;
+  --glass-shadow: 0 18px 44px -12px rgba(30, 42, 71, 0.42), 0 4px 14px -6px rgba(30, 42, 71, 0.3);
+  --glass-text: #2a3a5e;
+  --glass-sub: rgba(42, 58, 94, 0.62);
+  --glass-glow: rgba(174, 223, 242, 0.55);
+  --accent: #7cc6ec;
+  --accent-deep: #4fa9dc;
+
+  --r-lg: 24px;
+  --r-md: 18px;
+  --r-sm: 14px;
+  --r-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--navy-2);
+}
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
+  color: var(--glass-text);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+#root {
+  position: fixed;
+  inset: 0;
+}
+.num {
+  font-family: 'Baloo 2', 'Noto Sans SC', system-ui, sans-serif;
+  font-feature-settings: 'tnum';
+}
+
+/* ════ GLASS STYLES ════ */
+[data-glass='cloud'] {
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-2: rgba(255, 255, 255, 0.44);
+  --glass-border: rgba(255, 255, 255, 0.82);
+  --glass-hi: rgba(255, 255, 255, 0.92);
+  --glass-text: #2a3a5e;
+  --glass-sub: rgba(42, 58, 94, 0.6);
+  --glass-glow: rgba(255, 255, 255, 0.6);
+  --accent: #8ad0f2;
+  --accent-deep: #54a6d8;
+}
+[data-glass='sky'] {
+  --glass-bg: rgba(196, 230, 248, 0.56);
+  --glass-bg-2: rgba(214, 239, 250, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-hi: rgba(255, 255, 255, 0.8);
+  --glass-text: #234063;
+  --glass-sub: rgba(35, 64, 99, 0.62);
+  --glass-glow: rgba(174, 223, 242, 0.7);
+  --accent: #7cc6ec;
+  --accent-deep: #3f98cf;
+}
+[data-glass='twilight'] {
+  --glass-bg: rgba(42, 58, 94, 0.52);
+  --glass-bg-2: rgba(30, 42, 71, 0.4);
+  --glass-border: rgba(190, 220, 245, 0.36);
+  --glass-hi: rgba(214, 239, 250, 0.45);
+  --glass-text: #eef6fc;
+  --glass-sub: rgba(216, 233, 247, 0.72);
+  --glass-glow: rgba(124, 198, 236, 0.5);
+  --accent: #9fd6f4;
+  --accent-deep: #6fbce8;
+  --glass-shadow: 0 20px 48px -12px rgba(10, 16, 32, 0.6), 0 4px 14px -6px rgba(10, 16, 32, 0.5);
+}
+
+/* frosted glass surface mixin */
+.glass {
+  background: linear-gradient(160deg, var(--glass-bg), var(--glass-bg-2));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  color: var(--glass-text);
+}
+
+/* ════ SHARED UI PRIMITIVES ════
+   跨组件复用的原子类：只定义"长相"，尺寸/间距交给使用处。
+   组件里这样组合： className={`btn-primary ${styles.submit}`} */
+
+/* 渐变主按钮（登录"登录"、发帖"发布"等共用） */
+.btn-primary {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  color: #0d2336;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, #9fd6f4, #5fb0e2);
+  box-shadow: 0 7px 18px -7px rgba(79, 169, 220, 0.7);
+  transition: transform 0.18s, filter 0.2s;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  filter: none;
+}
+
+/* 玻璃 pill 输入框（图标 + input 包一层 label.field） */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-2);
+  color: var(--glass-sub);
+  transition: border-color 0.2s, background 0.2s;
+}
+.field:focus-within {
+  border-color: var(--accent);
+  background: var(--glass-hi);
+}
+.field input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--glass-text);
+}
+.field input::placeholder {
+  color: var(--glass-sub);
+}
+
+/* 开关 toggle（hud Toolbox / 设置 / 闹钟 共用） */
+.sw {
+  width: 42px;
+  height: 25px;
+  border-radius: 99px;
+  background: var(--glass-bg-2);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background 0.22s, border-color 0.22s;
+}
+.sw.on {
+  background: linear-gradient(135deg, #9fd6f4, #5fb0e2);
+  border-color: transparent;
+}
+.sw i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(20, 29, 51, 0.3);
+  transition: transform 0.24s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+.sw.on i {
+  transform: translateX(17px);
+}
+
+/* 卡片基座（hud 浮窗卡 / 音乐播放器 共用） */
+.card {
+  border-radius: var(--r-md);
+  padding: 13px 15px;
+}
+
+/* ════ MODAL SHELL ════
+   居中弹窗外壳，被 SubScreen / 日历 / 时钟 / 设置 / 空间切换器 共用。
+   （原先散落在 screens.tsx + calendar.tsx，靠组件挂载才生效，现提为全局。） */
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(20, 29, 51, 0.4);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.34s ease;
+}
+.modal-scrim.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 21;
+  width: min(760px, calc(100vw - 32px));
+  height: min(720px, calc(100vh - 56px));
+  border-radius: 26px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center center;
+  transition: opacity 0.26s ease, transform 0.4s cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+.modal.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal.mini {
+  width: min(520px, calc(100vw - 32px));
+  height: min(660px, calc(100vh - 56px));
+}
+.modal-hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 14px 20px;
+  flex: 0 0 auto;
+}
+.modal-hd .si {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex: 0 0 auto;
+  box-shadow: 0 5px 13px -4px rgba(40, 90, 140, 0.5);
+  transition: background 0.3s;
+}
+.modal-hd h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  flex: 1;
+}
+.modal-x {
+  appearance: none;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-2);
+  color: var(--glass-text);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.modal-x:hover {
+  background: var(--glass-hi);
+}
+.modal-x:active {
+  transform: scale(0.9);
+}
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 20px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-body::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ════ SCENE / MOOD ════ */
+.scene-base {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.room-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, 4vh) max(16px, 3vw);
+  pointer-events: none;
+}
+.room-stage svg {
+  width: min(100%, 1180px);
+  height: auto;
+  max-height: 100%;
+  filter: saturate(1.02);
+}
+/* ambient base gradient that shows when the slot is empty — mood-aware
+   so the world feels atmospheric even before a photo is dropped */
+.scene-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: background 0.9s ease;
+  background:
+    radial-gradient(78% 60% at 24% 22%, rgba(255, 221, 160, 0.62), transparent 62%),
+    radial-gradient(60% 50% at 88% 14%, rgba(255, 198, 158, 0.45), transparent 60%),
+    radial-gradient(95% 72% at 84% 92%, rgba(170, 155, 205, 0.45), transparent 62%),
+    linear-gradient(165deg, #e2d6ec 0%, #b6acd2 36%, #7d78ac 68%, #4a4d7a 100%);
+}
+[data-mood='golden'] .scene-ambient {
+  background:
+    radial-gradient(120% 80% at 76% 12%, rgba(255, 238, 184, 0.92), transparent 55%),
+    radial-gradient(95% 75% at 18% 98%, rgba(247, 178, 148, 0.6), transparent 60%),
+    linear-gradient(160deg, #ffe3ac 0%, #f7b98c 40%, #c98aa0 72%, #6e5a86 100%);
+}
+[data-mood='twilight'] .scene-ambient {
+  background:
+    radial-gradient(82% 62% at 24% 22%, rgba(255, 216, 150, 0.7), transparent 62%),
+    radial-gradient(58% 48% at 86% 12%, rgba(255, 190, 150, 0.5), transparent 58%),
+    radial-gradient(95% 72% at 86% 92%, rgba(168, 150, 205, 0.42), transparent 62%),
+    linear-gradient(165deg, #e6d6e8 0%, #c2aecf 32%, #8f82b2 64%, #565279 100%);
+}
+[data-mood='night'] .scene-ambient {
+  background:
+    radial-gradient(48% 40% at 30% 42%, rgba(255, 212, 152, 0.5), transparent 65%),
+    radial-gradient(85% 62% at 80% 94%, rgba(72, 104, 176, 0.42), transparent 65%),
+    linear-gradient(165deg, #3a4a78 0%, #25325a 45%, #161f3b 78%, #0e1430 100%);
+}
+
+/* mood overlays — sit ON TOP of the room image */
+.mood {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease, background 0.9s ease;
+}
+.mood-tint {
+  mix-blend-mode: soft-light;
+}
+.mood-glow {
+  mix-blend-mode: screen;
+}
+.mood-vignette {
+  box-shadow: inset 0 0 200px 40px rgba(20, 29, 51, 0);
+  transition: box-shadow 0.9s ease;
+}
+
+[data-mood='golden'] .mood-tint {
+  background: linear-gradient(150deg, rgba(255, 221, 150, 0.85) 0%, rgba(255, 180, 140, 0.45) 55%, rgba(120, 90, 150, 0.35) 100%);
+  opacity: 0.5;
+}
+[data-mood='golden'] .mood-glow {
+  background: radial-gradient(60% 50% at 78% 20%, rgba(255, 228, 168, 0.75), transparent 70%);
+  opacity: 0.9;
+}
+[data-mood='golden'] .mood-vignette {
+  box-shadow: inset 0 0 220px 30px rgba(70, 40, 30, 0.28);
+}
+
+[data-mood='twilight'] .mood-tint {
+  background: linear-gradient(160deg, rgba(255, 206, 150, 0.62) 0%, rgba(214, 168, 180, 0.45) 48%, rgba(90, 86, 135, 0.6) 100%);
+  opacity: 0.52;
+}
+[data-mood='twilight'] .mood-glow {
+  background: radial-gradient(48% 42% at 24% 28%, rgba(255, 228, 170, 0.62), transparent 72%),
+    radial-gradient(40% 36% at 84% 70%, rgba(255, 200, 170, 0.4), transparent 75%);
+  opacity: 0.9;
+}
+[data-mood='twilight'] .mood-vignette {
+  box-shadow: inset 0 0 240px 50px rgba(20, 29, 51, 0.45);
+}
+
+[data-mood='night'] .mood-tint {
+  background: linear-gradient(165deg, rgba(40, 56, 98, 0.78) 0%, rgba(24, 34, 64, 0.86) 55%, rgba(15, 20, 40, 0.92) 100%);
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+[data-mood='night'] .mood-glow {
+  background: radial-gradient(34% 30% at 30% 42%, rgba(255, 214, 150, 0.7), transparent 70%),
+    radial-gradient(28% 24% at 70% 66%, rgba(150, 190, 255, 0.4), transparent 74%);
+  opacity: 0.95;
+}
+[data-mood='night'] .mood-vignette {
+  box-shadow: inset 0 0 260px 70px rgba(8, 12, 28, 0.7);
+}
+.mood-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  background-image:
+    radial-gradient(1.4px 1.4px at 18% 22%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 64% 14%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 82% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 42% 9%, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 8% 40%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 90% 50%, #cfe6ff, transparent);
+  animation: twinkle 4.5s ease-in-out infinite;
+}
+[data-mood='night'] .mood-stars {
+  opacity: 0.9;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* ════ WEATHER ════ */
+.wx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+/* sunny: warm glow + soft god-rays */
+[data-wx='sun'] .wx-sun {
+  opacity: 1;
+  background:
+    radial-gradient(46% 40% at 76% 14%, rgba(255, 238, 176, 0.55), transparent 70%),
+    radial-gradient(30% 26% at 74% 12%, rgba(255, 246, 210, 0.7), transparent 70%);
+}
+.wx-sun::after {
+  content: '';
+  position: absolute;
+  top: -12%;
+  right: 6%;
+  width: 46%;
+  height: 80%;
+  background: linear-gradient(115deg, rgba(255, 244, 200, 0) 38%, rgba(255, 244, 200, 0.22) 46%, rgba(255, 244, 200, 0) 54%);
+  transform: rotate(8deg);
+}
+/* rain: animated streaks + cool dim */
+[data-wx='rain'] .wx-rain {
+  opacity: 1;
+  background: linear-gradient(180deg, rgba(40, 58, 94, 0.18), rgba(40, 58, 94, 0.05));
+}
+.wx-rain::before {
+  content: '';
+  position: absolute;
+  inset: -20% 0;
+  background-image: repeating-linear-gradient(
+    102deg,
+    rgba(200, 224, 245, 0) 0 6px,
+    rgba(200, 224, 245, 0.42) 6px 7px,
+    rgba(200, 224, 245, 0) 7px 13px
+  );
+  background-size: auto 120px;
+  animation: rainfall 0.6s linear infinite;
+}
+@keyframes rainfall {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 24px 120px;
+  }
+}
+/* snow: drifting flakes */
+[data-wx='snow'] .wx-snow {
+  opacity: 1;
+}
+.wx-snow::before,
+.wx-snow::after {
+  content: '';
+  position: absolute;
+  inset: -20% 0;
+  background-image:
+    radial-gradient(2.2px 2.2px at 20% 10%, #fff, transparent),
+    radial-gradient(1.8px 1.8px at 50% 20%, #fff, transparent),
+    radial-gradient(2px 2px at 78% 8%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 35% 40%, #fff, transparent),
+    radial-gradient(2px 2px at 65% 50%, #eaf4ff, transparent);
+  background-size: auto 280px;
+  animation: snowfall 7s linear infinite;
+  opacity: 0.9;
+}
+.wx-snow::after {
+  background-size: auto 200px;
+  animation-duration: 11s;
+  opacity: 0.6;
+}
+@keyframes snowfall {
+  from {
+    background-position: 0 -280px;
+  }
+  to {
+    background-position: 30px 280px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wx-rain::before,
+  .wx-snow::before,
+  .wx-snow::after {
+    animation: none;
+  }
+}
+
+/* top + bottom legibility scrims */
+.scrim-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 230px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(20, 29, 51, 0.34), transparent);
+  transition: opacity 0.9s;
+}
+[data-mood='golden'] .scrim-top {
+  background: linear-gradient(to bottom, rgba(90, 55, 30, 0.26), transparent);
+}
+.scrim-bot {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 240px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(20, 29, 51, 0.3), transparent);
+}
+
+/* float keyframes for weightless HUD */
+@keyframes floatA {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+@keyframes floatB {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes floatC {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mood-stars {
+    animation: none;
+  }
+  [style*='floatA'],
+  [style*='floatB'],
+  [style*='floatC'] {
+    animation: none !important;
+  }
+}
+
+/* heartbeat */
+@keyframes beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.18);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.12);
+  }
+}
+
+/* ════ LOBBY (pre-room floating island + portal) ════
+   Shown instead of the room diorama when the user has no shared space yet.
+   Static 2D placeholder; replaced by an R3F island later. */
+.lobby-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: max(24px, 4vh) max(16px, 3vw);
+}
+.lobby-float {
+  animation: lobby-bob 5.2s ease-in-out infinite;
+}
+.lobby-float svg {
+  display: block;
+  width: min(78vw, 440px);
+  height: auto;
+  max-height: 52vh;
+  overflow: visible;
+}
+@keyframes lobby-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.lobby-portal {
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.25s;
+}
+.lobby-portal:hover,
+.lobby-portal:focus-visible {
+  filter: brightness(1.1) drop-shadow(0 0 16px rgba(159, 214, 244, 0.85));
+}
+.lobby-portal[aria-disabled='true'] {
+  cursor: default;
+  filter: none;
+}
+.lobby-card {
+  position: relative;
+  z-index: 2;
+  border-radius: var(--r-lg);
+  padding: 20px 26px;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.lobby-card h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+.lobby-sub {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--glass-sub);
+}
+.lobby-err {
+  margin: 0;
+  font-size: 12.5px;
+  color: #d96a84;
+}
+.lobby-cta {
+  height: 44px;
+  padding: 0 30px;
+  font-size: 15px;
+}
+.lobby-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--glass-sub);
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lobby-float {
+    animation: none;
+  }
+}
