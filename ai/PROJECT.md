@@ -1,29 +1,51 @@
 # Our World 项目文档
 
 > 项目名 **Our World** 暂定（package.json 已改为 `our-world`，目录名 `still-love` 与 git 远程暂不动）。
-> 最后更新：2026-05-31
+> 最后更新：2026-06-23（文档校正：auth 之前的实现已被重构移除、需重做；纠正了关于 auth「已完成」的错误记录）
 
 ## 产品定位
 
-**Our World** 是一个围绕「我和女朋友两个人生活」的私密空间——一个游戏化、可视化的 3D metaspace。
+**Our World** 是一个**管理亲密关系记忆的私密空间**——给两个人（尤其异地/两地生活）一个能**沉淀双方回忆资产、并带来陪伴感**的地方。它不是社交产品，没有 feed、没有陌生人，就是属于两个人的小世界。
 
-天空视角俯瞰一个属于两个人的小世界，在其中沉淀照片、文字回忆、共同记忆，并实时互动。它不是社交产品，没有多用户、没有 feed 流，就是两个人自己的小世界。
+两个关键词：
 
-**核心体验：**
+- **回忆资产** —— 把两个人的照片、文字、（未来）视频，作为共同资产长期存储、随时回看。
+- **陪伴感** —— 通过共享的 timeline、实时互动、共同经营的空间，制造「我们在一起」的实感。这是它区别于普通相册/网盘的灵魂。
 
-- **3D metaspace（天空视角）** — Three.js / React Three Fiber 渲染的两人专属小世界，天空俯视视角。场景模型在 Blender 开发中，**当前阶段用 Canvas 占位**，模型导入后再替换。
-- **游戏化 UI（HUD 覆盖层）** — 覆盖在 3D 场景上的游戏化界面，例如左上角 minimap。后续开发。
-- **回忆系统（悬浮窗口）** — 通过按钮选单打开悬浮窗，上传/查看 图片、文字回忆、Timeline。**当前开发重点。**
-- **实时互动** — 两人实时文字聊天。后续开发。
+### 功能优先级路线（也是开发顺序）
+
+按情感价值与依赖关系，由内向外分四层做：
+
+**① 回忆存储（核心，当前重点）**
+
+- 有相互陪伴感的 **timeline**
+- 图文 **post** 存储
+- （later）**视频** 存储
+
+**② Metaspace 体验（Discord-like 交互空间）**
+
+- 先做**文字聊天**
+- 再做**共同播放音乐**
+- 最后做**语音**
+
+**③ 关系小工具**
+
+- 两人**心愿单**
+- **日历**、**在一起天数** 等
+
+**④ 3D 场景互动（最后）**
+
+- 当前仅 **placeholder 单间**；未来会有多个房间
+- 场景中触发 / 展示具体回忆相关的图片
+- 交互小游戏、种植物、养宠物
+
+**视觉风格方向：** 大耳狗（Cinnamoroll）色调——柔和天空蓝 + 奶白为主，点缀淡黄 / 腮红粉，整体清新梦幻；适当加入暗色调（暮色蓝 / 室内阴影）强化沉浸与纵深。沿用 `src/themes/cinnaglass/`。
 
 ### 当前阶段策略
 
-**先做 UI，前端骨架优先，数据先用 mock，后端等 UI 成型再接回来。**
-
-1. 主页直接进入带 Canvas 的世界空间——**不需要登录页**。
-2. 先开发回忆系统的**三个悬浮窗口**：按钮选单 →（Timeline / 纯文字 / 图片）。
-3. 再做实时文字聊天。
-4. 游戏化 HUD（minimap 等）、3D 模型导入、场景内交互——放后面。
+- **auth 先做（地基，待重做）** —— 两个人的空间需要保密与权限，登录/权限是基础设施。**定位最小化：只为我们两个人**（白名单 2 人 + 登录守卫 + dev 跳过开关），不做多用户注册体系。之前有过一版实现、已被重构移除，需重做。
+- **数据接真实后端** —— 从 ① 回忆存储（timeline + 图文 post）开始接 Supabase，逐层往外做。
+- **3D 暂不投入** —— 当前用 cinnaglass 的 2D 等距房间作 placeholder 验证情感闭环；3D 是最后阶段，具体方案后续提供。
 
 ---
 
@@ -33,7 +55,8 @@
 - **构建工具**: Vite 7
 - **路由**: React Router DOM v7
 - **样式**: Tailwind CSS v4（注意：v4 语法与 v3 不同，例如渐变用 `bg-linear-to-br` 而非 `bg-gradient-to-br`）
-- **UI 组件库**: shadcn/ui（Radix 风格，New York style，CSS 变量主题，primary 色调为玫瑰红）
+- **主 UI / 主题体系**: `src/themes/cinnaglass/`——第一版 MVP 的整套界面，玻璃拟态（glassmorphism）+ 大耳狗色调，自带设计 token、内联 `<style>` 块、图标库、`<image-slot>` 组件。设计为可扩展皮肤体系（未来新皮肤平级放 `src/themes/<name>/`，现阶段只分目录、不建切换引擎）。详见 `ai/Features/handoff-claude-design.md`
+- **UI 组件库**: shadcn/ui（Radix 风格，New York style，CSS 变量主题，primary 色调为玫瑰红）——**暂未用于主 UI**，保留给未来真正常规的界面（复杂表单/确认对话框等），与 cinnaglass 两套隔离
     - 已安装组件：`avatar` `card` `button` `textarea` `badge` `separator` `dialog`
     - 工具依赖：`clsx` `tailwind-merge` `class-variance-authority`
     - 配置文件：`components.json`（utils 路径用 `src/lib/utils`，组件生成到 `src/components/ui/`）
@@ -42,7 +65,8 @@
     - 视角：天空俯视视角（aerial / top-down）
     - 当前用 Canvas 占位，Blender 导出的 GLTF 模型导入后替换为 R3F 场景
 - **后端/认证**: Supabase (`@supabase/supabase-js`)
-    - 已建好的后端见下方「已建基础设施」，**当前前端先用 mock 数据，暂不接入**
+    - 已建好的后端见下方「已建基础设施」；前端按优先级路线、由 auth 起逐层接入（当前仍 mock）
+    - **实时架构**：聊天 / 在场 / 2 人化身同步用 Supabase Realtime（Broadcast + Presence + Postgres Changes）即可——产品拓扑是无数个隔离的「2 人房间」而非 MMO，不需要权威游戏服务器。仅当未来高频/多方同步证明不够，再**旁挂** Colyseus（TS 房间制多人框架）这类实时层、Supabase 仍当主干。**不用 Java**。
 - **包管理器**: pnpm
 - **代码格式化**: Prettier
 
@@ -52,21 +76,36 @@
 
 ```
 src/
+├── themes/
+│   └── cinnaglass/       # 第一版 MVP UI 皮肤（玻璃拟态 + 大耳狗色调），由 Claude Design 原型复刻
+│       ├── cinnaglass.css    # 全局设计 token + 场景/光线/天气层 + 关键帧
+│       ├── icons.tsx         # 全套线性图标（Ico + I*）
+│       ├── scene.tsx         # RoomScene + RoomArt（等距房间 SVG）
+│       ├── hud.tsx           # 悬浮玻璃 HUD + Toolbox（拖拽编辑/吸附对齐）
+│       ├── screens.tsx       # SubScreen（时间线/照片墙/文字回忆/心愿单）
+│       ├── calendar.tsx      # CalendarScreen + ClockScreen
+│       ├── settings.tsx      # SettingsScreen（个人资料/账号密码/主题外观）
+│       ├── sidebar.tsx       # Discord 式侧边栏
+│       ├── space.tsx         # SpaceScreen 空间切换器
+│       ├── music.tsx         # MusicPlayer（生成式 WebAudio）
+│       ├── chat.tsx          # Chat（停靠/全屏/群聊/表情/拖拽改尺寸）
+│       ├── image-slot.js     # <image-slot> 照片占位 Web Component（localStorage 持久化）
+│       ├── tweaks.ts         # useTweaks（mood/glass/weather 等，localStorage 持久化）
+│       ├── model.ts / rooms.ts / profile.ts / types.d.ts  # 共享类型与数据
 ├── components/
-│   └── ui/               # shadcn/ui 组件（avatar, card, button, textarea, badge, separator, dialog）
+│   └── ui/               # shadcn/ui 组件（暂未用于主 UI，保留给未来常规界面）
 ├── lib/
 │   ├── supabase.ts       # Supabase 客户端初始化
 │   └── utils.ts          # cn() 工具函数（clsx + tailwind-merge）
-├── pages/                # ⚠️ 待重构：移除登录/配对相关页面，主页直接是世界空间
-├── types/
-│   ├── index.ts          # 类型定义（EnvName 等）
-│   ├── database.ts       # Supabase 数据库类型
-│   └── feed.ts           # Feed 相关类型
-├── utils/
-│   └── index.ts          # getEnv 工具函数
-├── App.tsx               # 路由配置（⚠️ 待重构：去掉登录守卫，主页直接进世界空间）
-└── main.tsx              # 入口
+├── pages/
+│   └── WorldPage.tsx     # 世界空间主页：合并原型 App 编排（时钟/天气/状态/导航/弹窗挂载/持久化）
+├── types/                # Supabase 数据库类型 / Feed 类型 / EnvName
+├── utils/                # getEnv 工具函数
+├── App.tsx               # 路由配置（当前单路由 / → WorldPage；auth 守卫待做）
+└── main.tsx              # 入口（import cinnaglass.css + 注册 image-slot + render App）
 ```
+
+> ⚠️ 旧占位组件（WorldCanvas / FloatingMenu / FloatingPanel / CenteredPanel / panels/*）已随复刻删除。
 
 **注意事项：**
 
@@ -90,27 +129,30 @@ pnpm format     # Prettier 格式化
 
 ## 功能模块
 
-> Phase 1 + Phase 2 的 UI 骨架已实现（去登录 + 占位 Canvas 主页 + 悬浮选单 + 三个可拖拽多开悬浮窗口），实现细节见 `ai/Features/world-space-ui.md`。以下为各模块说明。
+> 第一版 MVP UI 已由 Claude Design 原型整体复刻（`src/themes/cinnaglass/`），取代了早期的占位 Canvas + 三悬浮窗口骨架。完整设计与实现细节见 `ai/Features/handoff-claude-design.md`；早期骨架记录见 `ai/Features/world-space-ui.md`。以下为各模块摘要。
+
+> **房间 / 共享空间入口**：两人共享空间 = DB `rooms` 表（原 couples，owner + member）。无房用户进入前停在**大厅**（漂浮岛 + 传送门，主动建房/进入），有房才进 `RoomScene`。完整设计见 `ai/Features/room.md`。⚠️ 注意与 cinnaglass 的场景区域 `rooms`（客厅/卧室 mock）区分。
 
 ### 世界空间主页（核心载体）
 
-- 全屏 Canvas，作为 metaspace 的渲染载体
-- **当前为占位 Canvas**（纯色/简单绘制即可），Blender 模型导入后替换为 R3F 天空视角场景
-- 应用入口即此页面，无登录页、无前厅主页
-- 其上覆盖游戏化 HUD（minimap 等，后续）和回忆系统入口（按钮选单）
+- 全屏场景：当前为**手绘等距房间 SVG**（`RoomArt`，含两只 chibi 兔子 + 窗/桌/床等），叠加 mood 光线层（黄昏/暮色/夜晚）与天气层（晴/多云/雨/雪）。Blender 室内场景模型导入后替换为 R3F 场景
+- 应用入口当前直接进世界空间（**auth 守卫待做**：两人隐私/权限的登录守卫，见 `ai/TODO.md`）；页面上覆盖**悬浮玻璃 HUD**（游戏化浮窗：纪念日/最近回忆/时间天气/在一起天数/音乐/灯光切换 + minimap），点击浮窗打开对应弹窗
+- HUD Toolbox 支持开关附加组件、解锁编辑拖拽摆放（带吸附对齐线）
+- 数据先用 mock + localStorage，后端等 UI 成型再接 Supabase
 
-### 回忆系统 — 三个悬浮窗口（当前开发重点）
+### 回忆系统 — SubScreen 居中弹窗（四 tab）
 
-一个按钮选单（floating menu），点开后可打开以下三个悬浮窗口（floating panel）之一：
+从 HUD 浮窗打开的居中玻璃弹窗，常驻挂载（状态/滚动保留），含四个 tab：
 
-| 窗口        | 功能                                               |
-| ----------- | -------------------------------------------------- |
-| **Timeline** | 时间轴方式展示两人的回忆记录                        |
-| **纯文字**   | 写/看 文字回忆录                                    |
-| **图片**     | 上传/查看 两个人的照片                              |
+| Tab | 功能 |
+| --- | --- |
+| **时间线** | 时间轴展示回忆 + 发帖 Composer（文字 + `<image-slot>` 配图） |
+| **照片墙** | 由时间线图片汇成的瀑布流相册 |
+| **文字回忆** | 文字回忆录 |
+| **心愿单** | 两人共同心愿清单（勾选/进度条/添加） |
 
-- 三个窗口均为悬浮在 Canvas 之上的面板，可打开/关闭
-- 数据先用 mock，后端等 UI 成型再接 Supabase（posts 表 / Storage）
+- 照片通过 `<image-slot>` 拖拽上传，localStorage 持久化
+- 此外还有：日历·约会、时间·闹钟、设置、Discord 式侧边栏、空间切换器、一起听歌播放器、聊天（停靠/全屏/群聊）等弹窗，详见 Feature 文档
 
 ### 实时聊天（后续）
 
@@ -124,9 +166,9 @@ pnpm format     # Prettier 格式化
 
 ---
 
-## 已建基础设施（Supabase — 当前前端先 mock，暂不接入）
+## 已建基础设施（Supabase）
 
-> 以下后端在转向前已建好，保留为参考。新阶段前端用 mock 数据先行，等 UI 成型后再决定如何接回（couples = 两个人，posts = 回忆）。
+> 后端表与 RLS 早已建好（couples = 两个人，posts = 回忆）。**前端目前尚未接入**（auth 待重做、posts 仍 mock）。计划按优先级路线、由 auth 起逐层接入。
 
 ```
 allowed_emails    # 访问白名单
@@ -169,9 +211,11 @@ get_feed_posts(p_couple_id uuid default null)
 
 ## Brain Dump / 待探索想法
 
-- 游戏化 HUD：minimap、场景内可点击热点
-- 场景天气 / 昼夜系统：随时间或随机变化
-- 角色 / 化身：天空视角下两人在世界里的存在形式
+- 游戏化 HUD：场景上方浮起按钮展示近期信息（最近回忆 / 纪念日），参考原神 / 异环；minimap
+- 角色移动 + 室内物件交互：两人化身在房间内走动，点击书桌等热点触发功能 / 打开弹窗
+- 角色互动动作（emote）：两人化身可对着对方做动作/表情，类似指令式触发（如 `/smile` 对着对方笑、抱抱、挥手等），增强两人临场互动感
+- 场景天气 / 昼夜系统：随时间或随机变化（室内可表现为窗外光线 / 灯光氛围）
+- 角色 / 化身：俯视视角下两人在房间里的存在形式
 - 回忆物品化：post 在 3D 世界里以物品形式呈现（信纸 / 相框 / 小电视）
 - 纪念日道具：特殊日子场景出现装饰
 - 年度回顾：自动生成「这一年我们的故事」

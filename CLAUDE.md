@@ -11,7 +11,6 @@
 
 在 skill 上下文中回复时，**在回复开头标注 skill 名称**，像这个 skill 的"人"在说话：
 
-
 ```
 **INTJ** 好，我看了一下，你现在还有...
 **VC** 当前分支状态如下...
@@ -43,8 +42,7 @@
 创建新 skill 时遵循以下结构：
 
 ```
-.c
-laude/skills/<skill-name>/
+.claude/skills/<skill-name>/
 ├── SKILL.md        # 必需：入口指令 + frontmatter，控制在 500 行以内
 ├── reference.md    # 可选：详细规范，需要时才加载
 └── examples.md     # 可选：示例
@@ -90,6 +88,19 @@ allowed-tools: Bash, Read, Edit   # 预批准工具，免去每次确认
 - TODO.md 只写高层描述，不写数据结构细节
 - PROJECT.md 的功能模块和数据库章节保持与线上实际状态一致
 - **Feature 文档已记录的细节不重复写入 PROJECT.md**：`Ai/Features/*.md` 中有详细说明的内容，PROJECT.md 只写一句摘要 + 文档路径引用，不做内容搬运
+
+## 命名规则
+
+新建文件 / 文件夹 / 文档前，**先扫描当前项目已有的命名模式**，遵循它，不要凭习惯套用其他项目的规则。
+
+需观察的维度：
+- 文件夹大小写（全小写 / PascalCase / kebab-case）
+- 文档（.md）命名风格（全大写 / 全小写 / 混合）
+- 代码文件命名（camelCase / snake_case / kebab-case）
+- 是否有 `codeStyle.md`、`.editorconfig` 等明确规范文件
+
+如果同一类目内存在多种风格，挑**多数派**或**最近新增**的那种；不确定时先问用户。
+发现历史遗留不一致的，顺手改正。
 
 ## 语言规则
 
