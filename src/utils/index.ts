@@ -7,3 +7,9 @@ export function getEnv(name: EnvName): string {
     }
     return value;
 }
+
+// Optional boolean flag: missing/anything-but-'true' → false. For dev-only
+// switches that must not crash the app when absent (unlike getEnv).
+export function getEnvFlag(name: EnvName): boolean {
+    return import.meta.env[name] === 'true';
+}
