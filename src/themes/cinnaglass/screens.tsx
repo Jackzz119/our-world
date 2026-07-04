@@ -195,7 +195,7 @@ const fmtMeta = (iso: string): string => {
 
 type Picked = { file: File; dataUrl: string };
 
-function Composer({ roomId, onPublished }: { roomId: string | null; onPublished: () => void }) {
+function Composer({ worldId, onPublished }: { worldId: string | null; onPublished: () => void }) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('');
     const [imgId, setImgId] = useState(() => `ow-img-${Date.now()}`);
@@ -219,17 +219,17 @@ function Composer({ roomId, onPublished }: { roomId: string | null; onPublished:
 
     const publish = async () => {
         const v = text.trim();
-        if (!v || !roomId || busy) return;
+        if (!v || !worldId || busy) return;
         setBusy(true);
         setErr(null);
         try {
             let images: string[] = [];
             const picked = pickedRef.current;
             if (picked) {
-                const { originalPath } = await uploadMemoryImage(roomId, picked.file, picked.dataUrl);
+                const { originalPath } = await uploadMemoryImage(worldId, picked.file, picked.dataUrl);
                 images = [originalPath];
             }
-            await createPost({ roomId, content: v, images });
+            await createPost({ worldId, content: v, images });
             setText('');
             setOpen(false);
             pickedRef.current = null;
@@ -287,7 +287,7 @@ function Composer({ roomId, onPublished }: { roomId: string | null; onPublished:
                         >
                             取消
                         </button>
-                        <button className="btn-pub" onClick={publish} disabled={!text.trim() || !roomId || busy}>
+                        <button className="btn-pub" onClick={publish} disabled={!text.trim() || !worldId || busy}>
                             {busy ? '发布中…' : '发布'}
                         </button>
                     </div>
@@ -321,7 +321,7 @@ function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
 }
 
 function TimelineBody({ feed, thumbUrls }: { feed: UseFeed; thumbUrls: Record<string, string> }) {
-    const { status, posts, error, roomId, reload } = feed;
+    const { status, posts, error, worldId, reload } = feed;
 
     if (status === 'loading') return <div className="empty-hint">正在加载你们的回忆…</div>;
     if (status === 'error')
@@ -335,7 +335,7 @@ function TimelineBody({ feed, thumbUrls }: { feed: UseFeed; thumbUrls: Record<st
         );
     return (
         <div>
-            <Composer roomId={roomId} onPublished={reload} />
+            <Composer worldId={worldId} onPublished={reload} />
             <div className="tl">
                 {posts.length === 0 && <div className="empty-hint">还没有回忆 · 记录第一条吧</div>}
                 {posts.map((p) => {

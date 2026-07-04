@@ -1,17 +1,18 @@
-// lobby.tsx — the pre-room "lobby" scene: a floating island with a glowing
-// portal, shown when the user has no shared space (DB `rooms` row) yet.
-// Static 2D placeholder for now; swapped for an R3F top-down island later.
-// NOT related to the cinnaglass scene-area "rooms" mock (living/bedroom).
+// lobby.tsx — the pre-world "lobby" scene: a floating island with a glowing
+// portal, shown before entering the world (the couple's shared space, DB
+// `rooms` row — see channel.md for terminology). Static 2D placeholder for
+// now; swapped for an R3F top-down island later.
+// NOT related to the in-world scene rooms mock (living/bedroom).
 
 export type LobbyStatus = 'loading' | 'ready' | 'error';
 
 type LobbySceneProps = {
-    status: LobbyStatus; // loading = fetching getMyRoom; error = that fetch failed
-    hasRoom: boolean; // a room exists — entering is still explicit (portal / button)
-    error: string | null; // fetch failure OR createRoom failure message
-    busy: boolean; // a createRoom request is in flight
-    onEnter: () => void; // portal click → enter the room (or re-check if none known)
-    onCreate: () => void; // card CTA → createRoom, then enter
+    status: LobbyStatus; // loading = fetching getMyWorld; error = that fetch failed
+    hasWorld: boolean; // a world exists — entering is still explicit (portal / button)
+    error: string | null; // fetch failure OR createWorld failure message
+    busy: boolean; // a createWorld request is in flight
+    onEnter: () => void; // portal click → enter the world (or re-check if none known)
+    onCreate: () => void; // card CTA → createWorld, then enter
 };
 
 const P = {
@@ -120,7 +121,7 @@ function IslandArt({ onEnter, canEnter }: { onEnter: () => void; canEnter: boole
     );
 }
 
-export function LobbyScene({ status, hasRoom, error, busy, onEnter, onCreate }: LobbySceneProps) {
+export function LobbyScene({ status, hasWorld, error, busy, onEnter, onCreate }: LobbySceneProps) {
     const canEnter = status === 'ready' && !busy;
     return (
         <div className="scene-base">
@@ -140,24 +141,24 @@ export function LobbyScene({ status, hasRoom, error, busy, onEnter, onCreate }: 
                                 重试
                             </button>
                         </>
-                    ) : hasRoom ? (
+                    ) : hasWorld ? (
                         <>
                             <h2>你们的小世界已就绪</h2>
-                            <p className="lobby-sub">穿过传送门，回到你们的房间</p>
+                            <p className="lobby-sub">穿过传送门，回到你们的世界</p>
                             {error && <p className="lobby-err">{error}</p>}
                             <button type="button" className="btn-primary lobby-cta" onClick={onEnter} disabled={busy}>
-                                进入房间
+                                进入世界
                             </button>
                         </>
                     ) : (
                         <>
                             <h2>还没有你们的小世界</h2>
-                            <p className="lobby-sub">创建一个房间，开始收藏你们的回忆</p>
+                            <p className="lobby-sub">创建一个世界，开始收藏你们的回忆</p>
                             {error && <p className="lobby-err">{error}</p>}
                             <button type="button" className="btn-primary lobby-cta" onClick={onCreate} disabled={busy}>
-                                {busy ? '创建中…' : '创建房间'}
+                                {busy ? '创建中…' : '创建世界'}
                             </button>
-                            <p className="lobby-hint">已经有房间？点上方传送门进入</p>
+                            <p className="lobby-hint">已经有世界？点上方传送门进入</p>
                         </>
                     )}
                 </div>

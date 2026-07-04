@@ -9,7 +9,7 @@ export type FeedProfile = {
 // Shape of the get_feed_posts RPC rows (privacy resolved server-side).
 export type FeedPost = {
     post_id: string;
-    room_id: string;
+    world_id: string;
     author_id: string;
     privacy: PostPrivacy;
     created_at: string;
@@ -21,9 +21,10 @@ export type FeedPost = {
     visible_images: string[];
 };
 
-// A room is owned by one person (owner_id, the creator) and may later gain one
-// invited member (member_id, null while solo). A solo owner can still post.
-export type Room = {
+// A world (the couple's shared space, DB `worlds`) is owned by one person
+// (owner_id, the creator) and may later gain one invited member (member_id,
+// null while solo). A solo owner can still post.
+export type World = {
     id: string;
     owner_id: string;
     member_id: string | null;

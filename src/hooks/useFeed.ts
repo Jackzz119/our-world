@@ -1,19 +1,19 @@
-// useFeed.ts — loads the memory feed for the current user's room.
-// The feed assumes you have already entered a room (creation is a separate,
-// explicit action), so it only *fetches* the room — a missing room is an error
-// (not created yet, or the owner deleted it). Then it loads the room's posts
-// via the get_feed_posts RPC (privacy rules run server-side).
+// useFeed.ts — loads the memory feed for the current user's world.
+// The feed assumes you have already entered a world (creation is a separate,
+// explicit action), so it only *fetches* the world — a missing world is an
+// error (not created yet, or the owner deleted it). Then it loads the world's
+// posts via the get_feed_posts RPC (privacy rules run server-side).
 import { useState, useEffect, useCallback } from 'react';
 import { getFeedPosts } from '@/lib/posts.ts';
-import { getMyRoom } from '@/lib/rooms.ts';
-import type { Room, FeedPost } from '@/types/feed.ts';
+import { getMyWorld } from '@/lib/worlds.ts';
+import type { World, FeedPost } from '@/types/feed.ts';
 
 export type FeedStatus = 'loading' | 'ready' | 'error';
 
 export type UseFeed = {
     status: FeedStatus;
-    room: Room | null;
-    roomId: string | null;
+    world: World | null;
+    worldId: string | null;
     currentUserId: string | null;
     posts: FeedPost[];
     error: string | null;
@@ -22,7 +22,7 @@ export type UseFeed = {
 
 export const useFeed = (): UseFeed => {
     const [status, setStatus] = useState<FeedStatus>('loading');
-    const [room, setRoom] = useState<Room | null>(null);
+    const [world, setWorld] = useState<World | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [posts, setPosts] = useState<FeedPost[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -39,19 +39,19 @@ export const useFeed = (): UseFeed => {
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            const { room, userId } = await getMyRoom();
-            if (!room) {
+            const { world, userId } = await getMyWorld();
+            if (!world) {
                 if (cancelled) return;
-                // Reached the feed without a room: not created yet, or the owner
-                // deleted it. Surfaced as an error state rather than a prompt.
+                // Reached the feed without a world: not created yet, or the
+                // owner deleted it. Surfaced as an error state, not a prompt.
                 setCurrentUserId(userId);
-                setError('找不到你的房间——可能还没创建，或已被房主删除。');
+                setError('找不到你们的世界——可能还没创建，或已被删除。');
                 setStatus('error');
                 return;
             }
-            const posts = await getFeedPosts(room.id);
+            const posts = await getFeedPosts(world.id);
             if (cancelled) return;
-            setRoom(room);
+            setWorld(world);
             setCurrentUserId(userId);
             setPosts(posts);
             setStatus('ready');
@@ -65,5 +65,5 @@ export const useFeed = (): UseFeed => {
         };
     }, [tick]);
 
-    return { status, room, roomId: room?.id ?? null, currentUserId, posts, error, reload };
+    return { status, world, worldId: world?.id ?? null, currentUserId, posts, error, reload };
 };

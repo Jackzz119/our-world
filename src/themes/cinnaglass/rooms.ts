@@ -1,4 +1,6 @@
-// rooms.ts — shared room data + icon map (used by sidebar, space switcher, App).
+// rooms.ts — in-world rooms + icon map (used by sidebar, space switcher, App).
+// Terminology (channel.md): rooms = scene-bound voice channels inside the
+// world; VOICE_DEFAULT below = pure voice channels (no scene bound).
 import type { ReactNode } from 'react';
 import type { IcoProps } from './icons';
 import { IBed, IBook, ILeaf, ISofa } from './icons';

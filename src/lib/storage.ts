@@ -1,8 +1,8 @@
-// storage.ts — Supabase Storage access for room memory photos.
+// storage.ts — Supabase Storage access for world memory photos.
 // Originals + client-made webp thumbnails live in the private 'memories'
-// bucket, path-scoped by room id:
-//   <roomId>/<uuid>.<ext>        original (archival quality)
-//   <roomId>/<uuid>.thumb.webp   thumbnail (from the image-slot preview)
+// bucket, path-scoped by world id:
+//   <worldId>/<uuid>.<ext>        original (archival quality)
+//   <worldId>/<uuid>.thumb.webp   thumbnail (from the image-slot preview)
 // posts.images stores the ORIGINAL path; display uses short-lived signed URLs
 // because the bucket is private.
 import { supabase } from '@/lib/supabase.ts';
@@ -32,11 +32,11 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
 const newId = (): string =>
     typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
-// Upload the original image (+ optional webp thumbnail) for a room. Returns the
-// original's storage path to persist in posts.images.
-export const uploadMemoryImage = async (roomId: string, file: File, thumbDataUrl?: string): Promise<{ originalPath: string }> => {
+// Upload the original image (+ optional webp thumbnail) for a world. Returns
+// the original's storage path to persist in posts.images.
+export const uploadMemoryImage = async (worldId: string, file: File, thumbDataUrl?: string): Promise<{ originalPath: string }> => {
     const ext = EXT_BY_TYPE[file.type] ?? 'bin';
-    const base = `${roomId}/${newId()}`;
+    const base = `${worldId}/${newId()}`;
     const originalPath = `${base}.${ext}`;
 
     const { error: origErr } = await supabase.storage.from(BUCKET).upload(originalPath, file, { contentType: file.type, upsert: false });
