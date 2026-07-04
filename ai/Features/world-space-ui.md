@@ -54,6 +54,13 @@ main.tsx → App.tsx（单路由 / → WorldPage）
 - 三个窗口数据当前 mock，后端接入在 Phase 3 之后
 - 悬浮窗口是否支持多开 / 拖拽 / 记忆位置 —— 待定，先做单开 + 固定位置
 
+### 方向变更（2026-06-04）
+
+- 弹窗已从「可拖拽多开悬浮窗」改为「**居中单开大窗口**」：新增 `CenteredPanel.tsx`（半透明遮罩 + 居中毛玻璃 + 标题栏固定 + 内容超高滚动 + 按窗口声明 `maxWidth` 自适应宽度）；`FloatingPanel.tsx` 拖拽版保留未启用。`WorldPage` 改为单个 `activePanel`。
+- 场景方向：占位从 2D 天空渐变 → **室内空间（房间内部俯视）**，后续做角色移动 + 书桌等物件交互。
+- 视觉风格：改为大耳狗（Cinnamoroll）色调（天空蓝 + 奶白 + 淡黄 / 腮红粉）+ 适当暗色沉浸。
+- HUD：场景上方浮起按钮展示近期信息（参考原神 / 异环）。
+
 ## 实现计划
 
 进度：5 / 5 subtasks 完成（100%，代码就绪，待可视化验收）
@@ -73,6 +80,112 @@ main.tsx → App.tsx（单路由 / → WorldPage）
 - [x] ST-5: 悬浮窗口框架 + 三个窗口骨架
    - 影响文件：`src/components/world/FloatingPanel.tsx`, `src/components/world/panels/{Timeline,Text,Image}Panel.tsx`
    - 说明：通用悬浮面板（毛玻璃、标题栏拖拽、关闭、点击置顶、多开堆叠）；TimelinePanel mock 时间轴、TextPanel 文字录入+列表、ImagePanel 本地 FileReader 预览
+
+## UI 设计 Prompt（2026-06-04）
+
+用于在 Claude design 生成 UI 设计稿。风格：大耳狗（Cinnamoroll）色调 + 暗色沉浸；场景为室内房间俯视；HUD 走原神 / 异环式浮起按钮 + 近期信息。一屏一屏生成，每条都带上「通用风格段」。
+
+### 0. 通用风格段（每条 prompt 都附在后面）
+
+```
+Visual style: a cozy, dreamy private world for a couple (two people in love). NOT a social app —
+no feeds, no multi-user. Color palette inspired by Sanrio's Cinnamoroll: soft sky blue
+(#AEDFF2 / #BFE3F5) and creamy off-white (#FBFCFE) as the base, with pale buttery yellow
+(#FCE7B0) and soft blush pink (#F8D7DF) as gentle accents, plus fluffy white clouds motifs.
+To deepen immersion, blend in darker moody tones — twilight / navy blue (#2A3A5E, #1E2A47) used
+for depth, ambient shadows and cozy evening lighting. Overall: airy and pastel but with rich
+atmospheric depth, soft glow, gentle volumetric light. Glassmorphism UI: frosted translucent
+panels (white/blue tint at ~80% opacity), backdrop blur, thin light borders, soft large shadows,
+rounded corners 16–24px. Clean gentle typography. Game-like polished HUD. Mobile-first but looks
+great on desktop.
+```
+
+### 1. 主屏 — 室内房间 + 浮起 HUD（可直接当场景占位图）
+
+```
+Design the main screen of "Our World", an intimate game-like 3D app for a couple.
+
+THE SCENE (fills the entire screen as backdrop): a high-angle / isometric 3D view looking DOWN
+INTO a cozy bedroom-study INTERIOR — like peering into a beautifully detailed dollhouse room
+from above at a 3/4 aerial angle. The room is warm and intimate: a wooden study desk with a
+lamp, books, a small plant and a computer; a bed with soft bedding; a rug; a window letting in
+soft twilight light; shelves with little keepsakes. Stylized, low-poly, soft-rounded, cute
+(Cinnamoroll-like pastel cuteness) but with atmospheric evening lighting and gentle shadows for
+depth and immersion. Optionally, two small cute chibi character avatars standing in the room.
+
+GAME-STYLE HUD overlaid on top of the scene (inspired by Genshin Impact / "Ananta / 异环" floating
+UI — buttons that hover above the world):
+- Top area: a few floating rounded glassmorphism info cards/buttons hovering above the scene,
+  each showing recent info, e.g. a small card "在一起 365 天 / 365 days together", a card
+  "最近回忆 · 阳台看日落 / Latest memory", a small anniversary countdown chip. They look like
+  weightless floating game widgets with soft glow.
+- Bottom-right: a circular floating action button (56px) with a soft sky-blue gradient and a
+  white "+" icon, soft glow shadow — shown EXPANDED, revealing 3 frosted-glass pill entries
+  stacked above it, each with a small icon + label: "Timeline" (clock), "文字回忆 / Notes"
+  (document), "照片 / Photos" (image).
+- (Optional) top-left: a small round minimap of the room.
+
+Keep the HUD light and floating so the room scene stays the star. Apply the shared visual style.
+```
+
+### 2. 弹窗 — 文字回忆 (Notes)
+
+```
+Design a centered modal window floating over the room scene (the room behind is dimmed with a
+soft twilight-navy translucent overlay + blur, for immersion).
+
+Frosted-glass card, centered, NARROW reading width (~560px max), rounded 24px corners, soft glow
+shadow, subtle sky-blue tint. Layout top to bottom:
+- Fixed title bar (~48px): small sky-blue document icon + title "文字回忆 / Notes" left, soft "X"
+  close button right, thin divider underneath.
+- Scrollable content area:
+    - A soft rounded text input ("写下此刻想记住的..." / "Write down what you want to remember...")
+      with a small sky-blue "记下 / Save" button aligned right.
+    - A vertical list of saved memories below — each a soft rounded cream/pale-blue card, warm
+      and journal-like. Show 4–5 short heartfelt couple memory entries.
+
+Apply the shared visual style.
+```
+
+### 3. 弹窗 — 照片 (Photos)
+
+```
+Design a centered modal window floating over the dimmed + blurred room scene (twilight-navy
+overlay for immersion).
+
+Frosted-glass card, centered, WIDE (~900px max, for a photo grid), rounded 24px corners, soft
+sky-blue tint. Layout:
+- Fixed title bar: sky-blue image icon + title "照片 / Photos", "X" close right.
+- Scrollable content area:
+    - Full-width "添加照片 / Add Photos" button at top (soft sky-blue fill, white text, image icon).
+    - A responsive grid of square photo thumbnails — 3 columns on small widths, up to 5 columns
+      when wide; rounded corners, object-fit cover. Show warm couple/lifestyle placeholder photos.
+
+Apply the shared visual style.
+```
+
+### 4. 弹窗 — Timeline
+
+```
+Design a centered modal window floating over the dimmed + blurred room scene (twilight-navy
+overlay for immersion).
+
+Frosted-glass card, centered, MEDIUM width (~640px max), rounded 24px corners, soft sky-blue tint.
+Layout:
+- Fixed title bar: sky-blue clock icon + title "Timeline", "X" close right.
+- Scrollable content area: a vertical timeline of shared memories. A thin vertical line down the
+  left; each entry has a small soft sky-blue (or blush-pink) dot on the line, a muted date label
+  above, and a short memory sentence below. Show 5–6 entries with dates and sweet couple moments,
+  newest at top.
+
+Apply the shared visual style.
+```
+
+### 抽卡提示
+
+- 先生成第 1 屏定调（室内房间 + 浮起 HUD），最关键，多抽几次选最满意的当占位图。
+- 大耳狗 + 暗色组合若太亮没沉浸感，把 `darker moody twilight tones, atmospheric evening lighting, rich shadows` 往前提、加重。
+- HUD 理解不到位时补一句：`floating game UI widgets like Genshin Impact's hovering quest markers / minimap cards`。
 
 ## 测试记录
 
