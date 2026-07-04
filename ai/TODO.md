@@ -48,11 +48,13 @@
 
 ### ② Metaspace 体验（Discord-like 交互空间）
 
-- [ ] **贯穿式侧边栏**（rail 房间 icon 竖栏 + 上下文 panel + SaaS 式收缩；大厅无频道、房内有频道）—— 见 `ai/Features/sidebar.md`，待定问题对齐后拆 subtask
-- [ ] **频道概念 feature 文档（待建 `channel.md`）**：房间内的子空间（文字/语音/场景区域），大厅状态不出现
-- [ ] **文字聊天**：UI 已复刻，接 Supabase Realtime broadcast + `messages` 表持久化
+- [~] **贯穿式侧边栏**（rail + panel 通高、与场景同层挤压式；大厅=房间动态卡+私信、房内=文字/语音频道管理）—— sidebar.md SB-1~4 完成（80%），剩 SB-5 联调 + 真机验收
+- [~] **双形态聊天**（WoW 式场景伴随 ChatDock + 覆盖式 ChannelScreen，内容同源）—— chat.md CH-1~5 完成（83%），剩 CH-6 联调 + 真机验收
+- [ ] **频道数据模型 feature 文档（待建 `channel.md`）**：文字/语音频道的后端结构，UI 管理已在 sidebar/chat 落地
+- [ ] **文字聊天接后端**：接 Supabase Realtime broadcast + `messages` 表持久化（UI 基础模板已就绪，见 chat.md）
 - [ ] **共同播放音乐**：UI 已复刻（生成式 WebAudio pad），接共享播放状态（谁在放 / 进度同步）
 - [ ] **语音**
+- [ ] （后期）**直播 / 一起看**：房间内共享实时画面（屏幕分享或摄像头），依赖语音的音视频基建（WebRTC/SFU），排在语音落地之后
 
 ### ③ 关系小工具
 
