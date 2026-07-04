@@ -1,54 +1,314 @@
-import { useState, type ComponentType, type ReactNode } from 'react';
-import { Clock, FileText, Image as ImageIcon } from 'lucide-react';
-import WorldCanvas from '@/components/world/WorldCanvas';
-import FloatingMenu from '@/components/world/FloatingMenu';
-import FloatingPanel from '@/components/world/FloatingPanel';
-import TimelinePanel from '@/components/world/panels/TimelinePanel';
-import TextPanel from '@/components/world/panels/TextPanel';
-import ImagePanel from '@/components/world/panels/ImagePanel';
+// WorldPage.tsx — root orchestration for the cinnaglass "Our World" UI.
+// Ported from the design prototype's app.jsx: live clock, real weather,
+// tweaks, navigation, and all shared state (profile, rooms, current room,
+// events, alarms, widgets) + localStorage persistence.
+import { useEffect, useState } from 'react';
+import { RoomScene } from '@/themes/cinnaglass/scene';
+import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
+import { HUD } from '@/themes/cinnaglass/hud';
+import { SubScreen, type TabKey } from '@/themes/cinnaglass/screens';
+import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
+import { SettingsScreen } from '@/themes/cinnaglass/settings';
+import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
+import { Sidebar } from '@/themes/cinnaglass/sidebar';
+import { SpaceScreen } from '@/themes/cinnaglass/space';
+import { Chat } from '@/themes/cinnaglass/chat';
+import { ROOMS_DEFAULT, owLoad } from '@/themes/cinnaglass/rooms';
+import { useTweaks, type Mood } from '@/themes/cinnaglass/tweaks';
+import type { Alarm, CalEvent, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
+import { getMyRoom, createRoom } from '@/lib/rooms.ts';
+import type { Room as SharedRoom } from '@/types/feed.ts';
+import { getEnvFlag } from '@/utils';
 
-export type PanelKey = 'timeline' | 'text' | 'image';
+// Entry switches (see .env.example). DEV skips the auth gate (no Supabase
+// session, so backend calls fail); AUTO_ENTER skips the lobby on mount when a
+// shared room already exists (dev convenience — players always land in the
+// lobby and enter through the portal). Both default to false when unset.
+const DEV_MODE = getEnvFlag('VITE_DEV');
+const AUTO_ENTER = getEnvFlag('VITE_AUTO_ENTER');
 
-const PANELS: Record<PanelKey, { title: string; Icon: ComponentType<{ className?: string }>; Content: ComponentType }> = {
-    timeline: { title: 'Timeline', Icon: Clock, Content: TimelinePanel },
-    text: { title: '文字回忆', Icon: FileText, Content: TextPanel },
-    image: { title: '照片', Icon: ImageIcon, Content: ImagePanel }
+// addon widgets are removable; required stay on always
+const REQUIRED = ['days', 'minimap'];
+const ADDON = ['presence', 'memory', 'anniv', 'ambient', 'music', 'lighting'];
+const loadWidgets = (): Widgets => {
+    const base: Widgets = {};
+    REQUIRED.forEach((k) => (base[k] = true));
+    ADDON.forEach((k) => (base[k] = true));
+    try {
+        return { ...base, ...JSON.parse(localStorage.getItem('ow-widgets-v1') || '{}') };
+    } catch {
+        return base;
+    }
 };
 
-/**
- * 世界空间主页：占位 Canvas 铺底 + 悬浮 UI 覆盖层。
- * openPanels 数组顺序即堆叠层级（最后的在最上层），支持多开 / 置顶。
- */
-const WorldPage = () => {
-    const [openPanels, setOpenPanels] = useState<PanelKey[]>([]);
+// WMO weather code → kind + label
+const mapWmo = (code: number): { kind: string; label: string } => {
+    if (code === 0) return { kind: 'sun', label: '晴' };
+    if (code <= 3) return { kind: 'cloud', label: '多云' };
+    if (code <= 48) return { kind: 'cloud', label: '雾' };
+    if (code <= 67) return { kind: 'rain', label: '小雨' };
+    if (code <= 77) return { kind: 'snow', label: '雪' };
+    if (code <= 82) return { kind: 'rain', label: '阵雨' };
+    if (code <= 86) return { kind: 'snow', label: '阵雪' };
+    return { kind: 'rain', label: '雷雨' };
+};
+const MANUAL_WX: Record<string, { kind: string; label: string; temp: number }> = {
+    sun: { kind: 'sun', label: '晴', temp: 26 },
+    cloud: { kind: 'cloud', label: '多云', temp: 22 },
+    rain: { kind: 'rain', label: '小雨', temp: 18 },
+    snow: { kind: 'snow', label: '雪', temp: 1 }
+};
 
-    // 打开 / 置顶：把 key 移到数组末尾（最上层）
-    const openOrFocus = (key: PanelKey) => setOpenPanels((prev) => [...prev.filter((k) => k !== key), key]);
-    const closePanel = (key: PanelKey) => setOpenPanels((prev) => prev.filter((k) => k !== key));
+const futureDate = (addDays: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + addDays);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const SEED_EVENTS: CalEvent[] = [
+    { id: 'ev-seed1', date: futureDate(3), title: '看那部期待很久的电影 🎬' },
+    { id: 'ev-seed2', date: futureDate(9), title: '去新开的那家面包店 🥐' }
+];
+const SEED_ALARMS: Alarm[] = [
+    { id: 'al1', time: '07:30', label: '早安，一起醒来', on: true },
+    { id: 'al2', time: '22:30', label: '晚安，说句悄悄话', on: true }
+];
+
+const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'notes', 'wishlist'];
+
+const WorldPage = () => {
+    const [t, setTweak] = useTweaks();
+    const [tbOpen, setTbOpen] = useState(false);
+    const [sbOpen, setSbOpen] = useState(false);
+    const [screen, setScreen] = useState<string | null>(null);
+    const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
+    const [rooms, setRooms] = useState<Room[]>(() => owLoad('ow-rooms-v1', ROOMS_DEFAULT));
+    const [meRoom, setMeRoom] = useState<string>(() => owLoad('ow-meroom-v1', 'living'));
+    const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
+    const [nowTs, setNowTs] = useState(() => Date.now());
+    const [weather, setWeather] = useState<Weather>({ kind: 'cloud', label: '多云', temp: 22, place: '' });
+    const [events, setEvents] = useState<CalEvent[]>(() => owLoad('ow-dates-v1', SEED_EVENTS));
+    const [alarms, setAlarms] = useState<Alarm[]>(() => owLoad('ow-alarms-v1', SEED_ALARMS));
+
+    // Shared-space (DB `rooms` row) state — NOT the cinnaglass scene-area
+    // "rooms" mock above (living/bedroom lighting + navigation, stays local).
+    const [sharedRoom, setSharedRoom] = useState<SharedRoom | null>(null);
+    const [lobbyStatus, setLobbyStatus] = useState<LobbyStatus>('loading');
+    const [lobbyError, setLobbyError] = useState<string | null>(null);
+    const [lobbyBusy, setLobbyBusy] = useState(false);
+    // Entering the room is explicit (portal click) unless AUTO_ENTER is on.
+    const [entered, setEntered] = useState(false);
+    const [lobbyTick, setLobbyTick] = useState(0);
+
+    useEffect(() => {
+        let cancelled = false;
+        getMyRoom()
+            .then(({ room }) => {
+                if (cancelled) return;
+                setSharedRoom(room);
+                setLobbyStatus('ready');
+                if (AUTO_ENTER && room) setEntered(true);
+            })
+            .catch((e: unknown) => {
+                if (cancelled) return;
+                if (DEV_MODE) {
+                    // Dev bypass has no session, so getMyRoom always throws
+                    // "未登录" — show the empty lobby instead of the error card.
+                    setLobbyStatus('ready');
+                    return;
+                }
+                setLobbyError(e instanceof Error ? e.message : String(e));
+                setLobbyStatus('error');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [lobbyTick]);
+
+    // live clock
+    useEffect(() => {
+        const id = setInterval(() => setNowTs(Date.now()), 1000);
+        return () => clearInterval(id);
+    }, []);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-dates-v1', JSON.stringify(events));
+        } catch {
+            /* ignore */
+        }
+    }, [events]);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-alarms-v1', JSON.stringify(alarms));
+        } catch {
+            /* ignore */
+        }
+    }, [alarms]);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-profile-v1', JSON.stringify(profile));
+        } catch {
+            /* ignore */
+        }
+    }, [profile]);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-rooms-v1', JSON.stringify(rooms));
+        } catch {
+            /* ignore */
+        }
+    }, [rooms]);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-meroom-v1', JSON.stringify(meRoom));
+        } catch {
+            /* ignore */
+        }
+    }, [meRoom]);
+
+    // weather: manual override OR real-time (geolocation → open-meteo)
+    useEffect(() => {
+        if (t.weather !== 'auto') {
+            // Manual tweak forces a fixed kind; auto path resolves async below.
+            setWeather({ ...MANUAL_WX[t.weather], place: '' });
+            return;
+        }
+        let cancel = false;
+        const fallback = () => !cancel && setWeather({ kind: 'cloud', label: '多云', temp: 22, place: '' });
+        if (!navigator.geolocation) {
+            fallback();
+            return;
+        }
+        const to = setTimeout(fallback, 7000);
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude: la, longitude: lo } = pos.coords;
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`)
+                    .then((r) => r.json())
+                    .then((d) => {
+                        if (cancel) return;
+                        clearTimeout(to);
+                        const c = d.current;
+                        setWeather({ ...mapWmo(c.weather_code), temp: Math.round(c.temperature_2m), place: '当前位置' });
+                    })
+                    .catch(() => {
+                        clearTimeout(to);
+                        fallback();
+                    });
+            },
+            () => {
+                clearTimeout(to);
+                fallback();
+            },
+            { timeout: 6500, maximumAge: 6e5 }
+        );
+        return () => {
+            cancel = true;
+            clearTimeout(to);
+        };
+    }, [t.weather]);
+
+    const setWidget = (k: string, v: boolean) => {
+        if (REQUIRED.includes(k)) return; // required widgets can't be removed
+        setWidgets((w) => {
+            const next = { ...w, [k]: v };
+            try {
+                localStorage.setItem('ow-widgets-v1', JSON.stringify(next));
+            } catch {
+                /* ignore */
+            }
+            return next;
+        });
+    };
+    const navigate = (k: string) => {
+        setScreen(k);
+        setTbOpen(false);
+    };
+    const enterSpace = (r: Room) => {
+        setMeRoom(r.id);
+        if (r.mood) setTweak('mood', r.mood as Mood);
+    };
+    const curRoom = rooms.find((r) => r.id === meRoom) || rooms[0];
+
+    // Lobby → room flow. retryLobby resets in the event handler (not the
+    // effect body) and bumps the tick so the effect refetches.
+    const retryLobby = () => {
+        setLobbyStatus('loading');
+        setLobbyError(null);
+        setLobbyTick((t) => t + 1);
+    };
+    const enterRoom = () => {
+        if (sharedRoom) setEntered(true);
+        else retryLobby(); // room may have appeared elsewhere — re-check
+    };
+    const createAndEnter = async () => {
+        setLobbyBusy(true);
+        setLobbyError(null);
+        try {
+            const room = await createRoom();
+            setSharedRoom(room);
+            setEntered(true);
+        } catch (e) {
+            setLobbyError(e instanceof Error ? e.message : String(e));
+        } finally {
+            setLobbyBusy(false);
+        }
+    };
+    const inRoom = entered && sharedRoom !== null;
 
     return (
-        <div className="relative h-screen w-screen overflow-hidden">
-            <WorldCanvas />
-
-            {openPanels.map((key, i) => {
-                const { title, Icon, Content } = PANELS[key];
-                const icon: ReactNode = <Icon className="h-4 w-4 text-rose-400" />;
-                return (
-                    <FloatingPanel
-                        key={key}
-                        title={title}
-                        icon={icon}
-                        zIndex={30 + i}
-                        initial={{ x: 120 + i * 32, y: 96 + i * 32 }}
-                        onClose={() => closePanel(key)}
-                        onFocus={() => openOrFocus(key)}
-                    >
-                        <Content />
-                    </FloatingPanel>
-                );
-            })}
-
-            <FloatingMenu onOpen={openOrFocus} />
+        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0 }}>
+            {inRoom ? (
+                <RoomScene weather={weather.kind} />
+            ) : (
+                <LobbyScene
+                    status={lobbyStatus}
+                    hasRoom={sharedRoom !== null}
+                    error={lobbyError}
+                    busy={lobbyBusy}
+                    onEnter={enterRoom}
+                    onCreate={createAndEnter}
+                />
+            )}
+            {inRoom && (
+                <HUD
+                    layout={t.hudLayout}
+                    mood={t.mood}
+                    density={t.density}
+                    weather={weather}
+                    nowTs={nowTs}
+                    widgets={widgets}
+                    setWidget={setWidget}
+                    tbOpen={tbOpen}
+                    setTbOpen={setTbOpen}
+                    setMood={(k) => setTweak('mood', k)}
+                    onNavigate={navigate}
+                    spaceName={curRoom ? curRoom.name : ''}
+                />
+            )}
+            {widgets.presence && (
+                <Sidebar
+                    open={sbOpen}
+                    setOpen={setSbOpen}
+                    profile={profile}
+                    setProfile={setProfile}
+                    onOpenSettings={() => {
+                        setSbOpen(false);
+                        navigate('settings');
+                    }}
+                    mood={t.mood}
+                    setTweak={setTweak}
+                    rooms={rooms}
+                    setRooms={setRooms}
+                    meRoom={meRoom}
+                    enterSpace={enterSpace}
+                />
+            )}
+            <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={profile} />
+            <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
+            <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
+            <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
+            <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
+            <Chat />
         </div>
     );
 };
