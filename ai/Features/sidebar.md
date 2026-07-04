@@ -1,19 +1,22 @@
 # Sidebar（贯穿式左侧边栏）系统设计文档
 
-> 最后更新：2026-07-03
-> 路线图位置：② Metaspace 体验的骨架 —— 侧边栏是大厅/房间共用的全局导航层
-> 关联代码：`src/themes/cinnaglass/sidebar.tsx`（现状，将重构）、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/lobby.tsx`
-> 关联文档：`ai/Features/room.md`（大厅/房间入口）、`ai/Features/channel.md`（频道，**待建**——频道是进房后的概念，独立成档）、`ai/Features/activity.md`（活动/游戏 + 邀请广播，**待建**）
+> 最后更新：2026-07-04
+> 路线图位置：② Metaspace 体验的骨架 —— 侧边栏是大厅/世界共用的全局导航层
+> 关联代码：`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/lobby.tsx`
+> 关联文档：`ai/Features/room.md`（大厅/世界入口）、`ai/Features/channel.md`（**世界结构单一事实来源**，2026-07-04 已建）、`ai/Features/activity.md`（活动/游戏 + 邀请广播，**待建**）
 
 ---
 
-## ⚠️ 术语澄清（三层"房间/频道"概念，改动前必读）
+## ⚠️ 术语（2026-07-04 定型，完整定义见 `channel.md`）
 
 | 名字 | 指什么 | Discord 对应物 |
 | --- | --- | --- |
-| **房间**（DB `rooms`，共享空间） | 两人世界本体，rail 上的入口 icon | **服务器（Server）** |
-| **频道**（future，见 `channel.md`） | 房间内部的子空间：文字聊天 / 语音 / 场景区域等 | **频道（Channel）** |
-| cinnaglass 场景区域（`ROOMS_DEFAULT`，客厅/卧室） | 3D 场景内的区域导航，现在混在侧边栏里 | 频道的雏形之一，归属频道概念，本文档不定义细节 |
+| **世界**（DB `worlds`，2026-07-04 已迁移） | 两人共享空间本体，rail 上的入口 icon | **服务器（Server）** |
+| **房间**（现 `ROOMS_DEFAULT` 客厅/卧室 mock） | 世界内**绑定场景的语音频道**：点击切场景 + 自动接音频（默认闭麦） | 语音频道的空间化版本 |
+| **文字频道**（`TEXT_CHANNELS`） | 只发文字/图片，点击开覆盖式 ChannelScreen | 文字频道 |
+| **语音频道**（`VOICE_DEFAULT` mock） | 纯语音通道，无场景（"打电话"） | 语音频道 |
+
+> 历史备注：2026-07-03 曾把场景区域移出侧边栏归"地图功能"；2026-07-04 世界结构定型后，场景区域升格为**房间**回归侧边栏（SB-6），地图模块保留为同一动作的第二入口。
 
 **聊天分两种（2026-07-03 用户定型）：**
 
@@ -93,7 +96,7 @@ WorldPage
 
 ## 实现计划
 
-进度：4 / 5 subtasks 完成（80%）
+进度：6 / 7 subtasks 完成（86%）
 
 - [x] **SB-1: 骨架重构（弹出式 → 常驻 rail + panel + 收缩）**（2026-07-03，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/themes/cinnaglass/sidebar.tsx`（整体重写）、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/hud.tsx`
@@ -114,6 +117,15 @@ WorldPage
 
 - [ ] **SB-5: 联调 + 边界**
    - 说明：大厅↔房间切换 panel 内容正确、收缩态持久化、无房态 rail 只有「＋」、创建/进入经由 rail 与 LobbyScene 两条入口都闭环、tsc/eslint、真机 `pnpm dev` 验收。
+
+- [x] **SB-6: 房间列表回归 + 世界术语对齐**（2026-07-04，tsc/eslint/build 绿，待真机验证 = channel.md C-1/C-2）
+   - 影响文件：`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/{lobby.tsx, rooms.ts}`
+   - 说明：房内 panel 新增「房间」区块（图标 + 在场者 mini 头像 mock），点击 = `enterSpace`（与地图模块同一动作），当前房高亮 + no-op；分类改名「世界动态」「成员」；创建/进入按钮文案改「世界」；麦克风默认闭麦（muted 初始 true）。
+
+- [x] **SB-7: Discord 式 Home / 私信分离**（2026-07-04，tsc/eslint/build 绿，待真机验证）
+   - 影响文件：`src/themes/cinnaglass/sidebar.tsx`（重写）、`src/pages/WorldPage.tsx`
+   - 说明：私信不再与世界频道混排（SB-3 的"私信区块两状态常驻"废弃）。rail 顶部新增**产品 logo 按钮（爱心渐变）= Home/私信入口**，分隔线下是世界 icon 与「＋」；`railSel: home|world` 内部状态（进/出世界时渲染期调整自动跟随）。Home 栏 = 好友 + 商店（占位，敬请期待）+ 已打开的私信列表；世界栏 = 房内频道 or 大厅世界动态卡。**行为修订**：rail 世界 icon 从「点击直接进入」改为「点击选择世界栏」（Discord 语义），进入仍走面板「进入」按钮 / 传送门。props 全量换名（`world/inWorld/onEnterWorld/onCreateWorld`，= channel.md C-3）。
+   - **修订（2026-07-04，chat.md CH-7 解耦）**：私信点击从「实体化 ChatDock」改为**打开覆盖式会话大窗**（与文字频道同一出口 `onOpenConv`）；sidebar 从此不触碰任何场景内悬浮模块——sidebar 只开覆盖式界面（会话大窗 / 设置弹窗）与导航动作（进世界 / 切房间），ChatDock 归 stage 专属。
 
 ## 测试记录
 

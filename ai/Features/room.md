@@ -1,8 +1,8 @@
 # Room（两人共享空间 / 大厅入口）系统设计文档
 
-> 最后更新：2026-07-03
+> 最后更新：2026-07-04
 > 路线图位置：① 回忆存储 的地基（房间是回忆/聊天/场景的容器）——见 `ai/PROJECT.md` / `ai/TODO.md`
-> 关联代码：`src/lib/rooms.ts`、`src/hooks/useFeed.ts`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/{scene.tsx, space.tsx, sidebar.tsx, rooms.ts, model.ts}`
+> 关联代码：`src/lib/worlds.ts`、`src/hooks/useFeed.ts`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/{scene.tsx, space.tsx, sidebar.tsx, rooms.ts, model.ts}`
 > 关联文档：回忆时间线 `ai/Features/timeline.md`（回忆 feed 活在房间内部；DB 迁移/RLS 细节在其 ST-A）
 
 ---
@@ -11,10 +11,10 @@
 
 | 名字 | 指什么 | 存在哪 |
 | --- | --- | --- |
-| **DB `rooms` 表**（本文档主角，原 `couples`） | 两人**共享空间/世界**：owner（房主/创建者）+ member（被邀请者，可空）+ status | Supabase `public.rooms` |
-| **cinnaglass `rooms`**（`ROOMS_DEFAULT` / `meRoom='living'`） | 共享空间**内部的场景区域**（客厅/卧室等，管灯光/mood/导航） | 前端 localStorage mock（`ow-rooms-v1`），**与 DB 表无关** |
+| **DB `worlds` 表**（本文档主角，原 `couples` → `rooms` → `worlds`） | 两人**共享空间/世界**：owner（创建者）+ member（被邀请者，可空）+ status | Supabase `public.worlds` |
+| **cinnaglass `rooms`**（`ROOMS_DEFAULT` / `meRoom='living'`） | 世界**内部的房间**（客厅/卧室等，绑定场景的语音频道，见 channel.md） | 前端 localStorage mock（`ow-rooms-v1`），**与 DB 表无关** |
 
-**本文档的「房间」= DB 共享空间。** cinnaglass 的场景区域是另一层（进入空间之后的事），本期不动、维持 mock。
+> **术语定型（2026-07-04，见 `ai/Features/channel.md`）**：顶层容器正式改叫**世界（World）**——本文档标题与正文里的「房间/共享空间」今后统称世界；「房间」一词让位给世界内部的场景地点。**迁移已完成（channel.md C-3）**：DB `rooms → worlds`（含枚举/约束/触发器/RPC 全量换名）+ 代码 `src/lib/worlds.ts`（`getMyWorld`/`createWorld`）、`World` 类型、`WorldPage` 的 `world/inWorld/enterWorld`。本文档下文的 R-1~R-5 记录保留当时的 room 命名不回溯改写，读时按上表映射。
 
 ---
 
@@ -89,24 +89,24 @@ LobbyScene 卡片按状态四分支：
 
 ---
 
-## 四、数据模型（DB `rooms`）
+## 四、数据模型（DB `worlds`，2026-07-04 迁移后）
 
-> 迁移与 RLS 细节见 `ai/Features/timeline.md` ST-A（couples→rooms 全量改名，已应用）。此处只列形状。
+> 沿革：couples→rooms 见 `ai/Features/timeline.md` ST-A；rooms→worlds 见 `ai/Features/channel.md` C-3（migration `rename_rooms_to_worlds`）。此处只列形状。
 
 ```
-rooms
+worlds
   - id (uuid, PK)
-  - owner_id  (uuid, NOT NULL, FK profiles)   房主/创建者
+  - owner_id  (uuid, NOT NULL, FK profiles)   世界创建者
   - member_id (uuid, NULLABLE, FK profiles)   被邀请成员（单人时为空）
   - intimacy_points (int, default 0)
-  - status (room_status: 'pending' | 'active', default 'pending')
+  - status (world_status: 'pending' | 'active', default 'pending')
   - created_at
-  约束：owner<>member；status='pending' 或 member 非空（active 必须有 member）；
-        [trigger] check_room_uniqueness：一个人只能属于一个房
+  约束：owner<>member（worlds_no_self_pair）；active 必须有 member（worlds_active_requires_member）
+        [trigger] worlds_check_uniqueness → check_world_uniqueness()：一个人只能属于一个世界
   RLS：select/insert/update 仅限自己参与（owner 或 member）
 ```
 
-前端 `Room` 类型（`src/types/feed.ts`）：`{ id, owner_id, member_id, intimacy_points, created_at }`（不含 status——前端用 `member_id==null` 判断单/双人）。
+前端 `World` 类型（`src/types/feed.ts`）：`{ id, owner_id, member_id, intimacy_points, created_at }`（不含 status——前端用 `member_id==null` 判断单/双人）。
 
 ---
 

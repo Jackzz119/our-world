@@ -1,7 +1,7 @@
 # Our World 项目文档
 
 > 项目名 **Our World** 暂定（package.json 已改为 `our-world`，目录名 `still-love` 与 git 远程暂不动）。
-> 最后更新：2026-06-23（文档校正：auth 之前的实现已被重构移除、需重做；纠正了关于 auth「已完成」的错误记录）
+> 最后更新：2026-07-04（世界结构定型：世界 > 房间/文字频道/语音频道，见 `ai/Features/channel.md`；UI 术语与 sidebar 房间列表已落地）
 
 ## 产品定位
 
@@ -131,7 +131,8 @@ pnpm format     # Prettier 格式化
 
 > 第一版 MVP UI 已由 Claude Design 原型整体复刻（`src/themes/cinnaglass/`），取代了早期的占位 Canvas + 三悬浮窗口骨架。完整设计与实现细节见 `ai/Features/handoff-claude-design.md`；早期骨架记录见 `ai/Features/world-space-ui.md`。以下为各模块摘要。
 
-> **房间 / 共享空间入口**：两人共享空间 = DB `rooms` 表（原 couples，owner + member）。无房用户进入前停在**大厅**（漂浮岛 + 传送门，主动建房/进入），有房才进 `RoomScene`。完整设计见 `ai/Features/room.md`。⚠️ 注意与 cinnaglass 的场景区域 `rooms`（客厅/卧室 mock）区分。
+> **世界 / 共享空间入口**：两人共享空间 = **世界**（DB `worlds` 表，原 couples/rooms，owner + member，2026-07-04 已完成术语迁移）。无世界的用户停在**大厅**（漂浮岛 + 传送门，主动创建/进入），有世界才进 `RoomScene`。入口设计见 `ai/Features/room.md`。
+> **世界结构（2026-07-04 定型）**：世界 > 房间（绑定场景的语音频道，= cinnaglass 客厅/卧室 mock）/ 文字频道 / 语音频道；音频规则（进房自动接入、默认闭麦、单语音线路）与 `channels` 表设计见 `ai/Features/channel.md`。
 
 ### 世界空间主页（核心载体）
 
@@ -168,7 +169,8 @@ pnpm format     # Prettier 格式化
 
 ## 已建基础设施（Supabase）
 
-> 后端表与 RLS 早已建好（couples = 两个人，posts = 回忆）。**前端目前尚未接入**（auth 待重做、posts 仍 mock）。计划按优先级路线、由 auth 起逐层接入。
+> 后端表与 RLS 已建好，回忆读写链路已接入前端（`get_feed_posts` RPC + posts 写入，见 `ai/Features/timeline.md`）。
+> 表名沿革：couples →（2026-07-03）rooms →（2026-07-04）**worlds**（术语定型见 `ai/Features/channel.md`；本次迁移同时清理了全部 `couples_*` 约束名、修复了 `check_post_unlock_validity` 仍引用 couples 的遗留 bug）。
 
 ```
 allowed_emails    # 访问白名单
@@ -180,30 +182,37 @@ profiles          # 用户资料（扩展 auth.users）
   - [trigger] on_auth_user_created → handle_new_user()：新用户自动填资料
   RLS: select 所有已登录可见；update 仅自己；insert 由 trigger 写入
 
-couples           # 两人关系
-  - id / user1_id / user2_id / intimacy_points / created_at
-  约束: user1_id < user2_id（唯一）；user1_id <> user2_id（禁自配）
-       [trigger] check_couple_uniqueness：每人只能属于一个 couple
-  RLS: select/insert/update 仅限自己参与的关系
+worlds            # 世界（两人共享空间；原 couples/rooms）
+  - id / owner_id / member_id (可空) / intimacy_points / created_at
+  - status (world_status: pending|active)
+  约束: owner<>member（worlds_no_self_pair）；active 必须有 member（worlds_active_requires_member）
+       [trigger] worlds_check_uniqueness → check_world_uniqueness()：每人只能属于一个世界
+  RLS: select/insert/update 仅限自己参与（owner 或 member）
 
 posts             # 回忆记录
-  - id / author_id / couple_id / content / images (text[])
+  - id / author_id / world_id / content / images (text[])
   - privacy (shared|locked|private) / unlock_cost / created_at / updated_at
-  - [trigger] set_updated_at、check_post_author_in_couple
+  - [trigger] posts_updated_at、posts_check_author_in_world
+  - [RPC] get_feed_posts(p_world_id)：隐私/解锁规则服务端解析
   RLS: 自己全可见，对方仅 shared|locked 可见；增删改仅限自己
 
 post_unlocks      # locked post 解锁记录
   - post_id (PK) / user_id (PK) / unlocked_at
-  - [trigger] check_post_unlock_validity
+  - [trigger] post_unlocks_check_validity
   RLS: 仅自己的解锁记录
+
+storage.memories  # 私有图片桶，路径 <world_id>/<uuid>.<ext>（+ .thumb.webp）
+  四条 "memories: world can read/upload/update/delete" 策略（2026-07-04 已完成换名）
 ```
+
+> 安全/性能顾问审计发现与后端规划见 `ai/Features/supabase.md`（待专门讨论）。
 
 ### RPC 函数
 
 ```
-get_feed_posts(p_couple_id uuid default null)
+get_feed_posts(p_world_id uuid default null)
   # Feed 聚合查询，返回经权限处理的 post 列表
-  # 返回 is_unlocked / is_placeholder / visible_content / visible_images 等字段
+  # 返回 world_id / is_unlocked / is_placeholder / visible_content / visible_images 等字段
   # 按 created_at desc 排序
 ```
 

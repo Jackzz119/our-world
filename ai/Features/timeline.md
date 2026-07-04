@@ -1,8 +1,10 @@
 # Timeline · 回忆存储接后端 系统设计文档
 
-> 最后更新：2026-06-27
+> 最后更新：2026-07-04（术语映射备注）
 > 路线图位置：① 回忆存储（核心）——见 `ai/PROJECT.md` / `ai/TODO.md`
-> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`（新，Storage 上传/签名）、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/screens.tsx`、`src/themes/cinnaglass/image-slot.js`
+> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`（Storage 上传/签名）、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/screens.tsx`、`src/themes/cinnaglass/image-slot.js`
+>
+> ⚠️ **术语映射（2026-07-04，见 `ai/Features/channel.md` C-3）**：本文档正文写作时的 `rooms` 表 / `Room` / `getMyRoom` / `room_id` / `roomId`，已全量迁移为 `worlds` / `World` / `getMyWorld`（`src/lib/worlds.ts`）/ `world_id` / `worldId`。下文历史记录不回溯改写，读时按此映射。
 
 ---
 

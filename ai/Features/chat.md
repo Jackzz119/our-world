@@ -1,9 +1,9 @@
 # Chat（双形态聊天系统）设计文档
 
-> 最后更新：2026-07-03
+> 最后更新：2026-07-04
 > 路线图位置：② Metaspace 体验 —— 聊天是 Discord-like 空间的核心交互
 > 关联代码：`src/themes/cinnaglass/{chat-data.ts, chat-dock.tsx, channel-screen.tsx, contacts.ts}`、`src/pages/WorldPage.tsx`
-> 关联文档：`ai/Features/sidebar.md`（侧边栏/频道入口）、`ai/Features/channel.md`（频道数据模型，**待建**）
+> 关联文档：`ai/Features/sidebar.md`（侧边栏/频道入口）、`ai/Features/channel.md`（世界结构 + 频道数据模型，2026-07-04 已建——文字频道是其中 `type='text'` 的 channel）
 > 前身：旧 `chat.tsx`（launcher + 浮窗多会话）已废弃删除，会话 mock 数据迁入 `chat-data.ts` / `contacts.ts`
 
 ---
@@ -14,8 +14,10 @@
 
 | 形态 | 组件 | 体验定位 | 触发 |
 | --- | --- | --- | --- |
-| **场景伴随聊天** | `ChatDock`（左下角常驻悬浮小块） | **在场景中互动时**顺手聊：平时虚化不挡场景，随时能瞄到最新消息 | 场景聊天按钮 / 裸回车 |
-| **覆盖式频道窗口** | `ChannelScreen`（几乎盖住场景的大窗） | **遮住场景专心聊**：沉浸式频道会话 | sidebar 点文字频道 |
+| **场景伴随聊天** | `ChatDock`（左下角常驻悬浮小块） | **在场景中互动时**顺手聊：平时虚化不挡场景，随时能瞄到最新消息 | **仅 stage 内**：场景聊天按钮 / 裸回车 |
+| **覆盖式会话窗口** | `ChannelScreen`（几乎盖住场景的大窗） | **遮住场景专心聊**：沉浸式会话（文字频道 + 私信） | **仅 sidebar**：点文字频道 / 点私信 |
+
+**解耦规则（2026-07-04 用户定型）**：sidebar 管理型交互与场景内悬浮模块**分离**——sidebar 的唯一聊天出口是覆盖式大窗（`onOpenConv`，频道与私信同一回调）；ChatDock 归 stage 所有（聊天按钮/回车实体化、点场景虚化），**不再被 sidebar 触发**（原"私信点击实体化 dock 定位"废弃）。
 
 **ChatDock 实体化/虚化状态机（WoW 式）：**
 
@@ -39,12 +41,11 @@ WorldPage
   → dockSolid / dockActive / channelOpen 状态
   → <div class="app" flex>
        <Sidebar>
-         私信点击   → setDockActive(id) + setDockSolid(true)   // dock 实体化定位到 DM
-         文字频道点击 → setChannelOpen(chId)                    // 打开覆盖窗口
+         私信点击 / 文字频道点击 → onOpenConv(id) → setConvOpen(id)  // 唯一出口：覆盖式大窗
        <div class="stage" onPointerDownCapture=ghost判定>       // 场景层，被 sidebar 挤压
          RoomScene / LobbyScene、HUD、各 modal
-         <ChatDock solid active threads onSend/>               // 左下角，跟 stage 走
-         <ChannelScreen channelId threads onSend/>             // inset 3%/4% 覆盖 stage
+         <ChatDock solid active threads onSend/>               // 左下角，stage 专属触发
+         <ChannelScreen convId threads typingId onSend/>       // inset 3%/4% 覆盖 stage（频道+私信）
   → window keydown Enter（无输入框聚焦）→ setDockSolid(true)
   → send(convId, text)：追加我的消息；DM 有假回复（replies 池），频道暂无（等 Realtime）
 ```
@@ -57,7 +58,7 @@ WorldPage
 | --- | --- | --- |
 | `chat-data.ts` | `Msg`/`TextChannel` 类型、`TEXT_CHANNELS`、`SEED_THREADS`（DM + 频道种子）、`useChatThreads()`（threads + typing + send） | ✅ 基础模板 |
 | `chat-dock.tsx` | 场景伴随聊天：ghost/solid 两态、会话 tab、尾部 5 条、输入行、聊天按钮 | ✅ 基础模板 |
-| `channel-screen.tsx` | 覆盖式频道窗口：scrim + inset 3%/4% 玻璃大窗、气泡消息流、输入行 | ✅ 基础模板 |
+| `channel-screen.tsx` | 覆盖式会话窗口（频道 + 私信）：scrim + inset 3%/4% 玻璃大窗、气泡消息流、输入行、DM 头像/状态/正在输入 | ✅ 基础模板 |
 | `contacts.ts` | DM 联系人 mock（dock tab、sidebar 私信区共用） | ✅ |
 | 旧 `chat.tsx` | launcher + dock/full 浮窗 | 🗑 已删除 |
 
@@ -79,7 +80,7 @@ WorldPage
 
 ## 实现计划
 
-进度：5 / 6 subtasks 完成（83%）
+进度：6 / 7 subtasks 完成（86%）
 
 - [x] **CH-1: 挤压式布局重构**（2026-07-03，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/cinnaglass.css`、`src/themes/cinnaglass/sidebar.tsx`
@@ -102,7 +103,11 @@ WorldPage
    - 说明：sidebar 房内面板改为 文字频道（点击开 ChannelScreen）+ 语音频道 + 在场的人；场景区域切换移出（归地图功能）；私信点击 = dock 实体化定位；删除旧 chat.tsx（ChatOpenReq 机制随之退役）。
 
 - [ ] **CH-6: 联调 + 真机验收**
-   - 说明：挤压布局不破 HUD/modal、dock 两态切换手感、频道窗开合、回车/点场景、收起 sidebar 后 stage 回弹、tsc/eslint/build（已绿）+ `pnpm dev` 真机。
+   - 说明：挤压布局不破 HUD/modal、dock 两态切换手感、频道/私信大窗开合、回车/点场景、收起 sidebar 后 stage 回弹、tsc/eslint/build（已绿）+ `pnpm dev` 真机。
+
+- [x] **CH-7: sidebar 解耦——私信改开覆盖式大窗**（2026-07-04，tsc/eslint/build 绿，待真机验证）
+   - 影响文件：`src/themes/cinnaglass/channel-screen.tsx`、`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`
+   - 说明：ChannelScreen 升级为**会话窗口**（`convId` 同时接受频道 id 与 DM 联系人 id：DM 头 = 头像/名字/状态 + 正在输入，占位符「发给 xx…」）；sidebar 的 `onOpenDm`/`onOpenChannel` 合并为 `onOpenConv`（唯一聊天出口）；dock 不再被 sidebar 实体化，成为 stage 专属（见顶部解耦规则）。
 
 ## 测试记录
 

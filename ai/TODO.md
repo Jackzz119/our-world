@@ -31,6 +31,8 @@
 - [x] 照片墙接真实 post —— timeline.md ST-6
 - [x] 建房改主动式：feed 只查房、无房即 error；`getMyRoom` + `createRoom` —— room.md R-2（= timeline.md ST-G）
 - [ ] 端到端联调 + 边界（回忆链路，本机无法 dev，另机验证）—— timeline.md ST-7
+- [ ] （杂项）`src/components/ui/{badge,button}.tsx` 违反 react-refresh/only-export-components（shadcn 模板遗留，eslint 全量扫描报错，不影响 build）
+- [ ] **Supabase 结构审计跟进**：安全加固（函数 search_path / handle_new_user RPC 暴露 / GraphQL 可发现性 / 泄露密码保护）+ 性能（RLS initplan、4 个 FK 索引）+ 白名单强制执行方案 + 世界名/昵称入库 —— 发现与候选方案见 `ai/Features/supabase.md`，**待专门讨论后执行**
 
 **② 房间入口（大厅）—— 见 `ai/Features/room.md`**
 
@@ -48,12 +50,12 @@
 
 ### ② Metaspace 体验（Discord-like 交互空间）
 
-- [~] **贯穿式侧边栏**（rail + panel 通高、与场景同层挤压式；大厅=房间动态卡+私信、房内=文字/语音频道管理）—— sidebar.md SB-1~4 完成（80%），剩 SB-5 联调 + 真机验收
+- [x] **世界结构定型 + `channel.md` 文档**（2026-07-04）：世界 > 房间（场景+语音，语音频道的扩展）/ 文字频道 / 语音频道；UI 术语 + sidebar 房间列表 + **DB/代码全量迁移 `rooms→worlds`** 已落地（channel.md C-1~C-3，顺手修复 post_unlocks 触发器引用旧 couples 表的潜伏 bug）；`channels` 表为 future（C-7）
+- [~] **贯穿式侧边栏**（rail：logo=私信 Home 入口 + 世界 icon，Discord 式分离；panel：Home=好友/商店/私信列表、世界=房间+文字/语音频道 or 大厅动态卡）—— sidebar.md SB-1~4/6/7 完成（86%），剩 SB-5 联调 + 真机验收
 - [~] **双形态聊天**（WoW 式场景伴随 ChatDock + 覆盖式 ChannelScreen，内容同源）—— chat.md CH-1~5 完成（83%），剩 CH-6 联调 + 真机验收
-- [ ] **频道数据模型 feature 文档（待建 `channel.md`）**：文字/语音频道的后端结构，UI 管理已在 sidebar/chat 落地
 - [ ] **文字聊天接后端**：接 Supabase Realtime broadcast + `messages` 表持久化（UI 基础模板已就绪，见 chat.md）
-- [ ] **共同播放音乐**：UI 已复刻（生成式 WebAudio pad），接共享播放状态（谁在放 / 进度同步）
-- [ ] **语音**
+- [ ] **共同播放音乐**：UI 已复刻（生成式 WebAudio pad），接共享播放状态（进房自动听到、不抢主动权 —— 规则见 channel.md C-5）
+- [ ] **语音**（进房自动接入、默认闭麦、单线路 fade 切换 + 🎧 角标 + 挂断回落 —— 规则见 channel.md C-4）
 - [ ] （后期）**直播 / 一起看**：房间内共享实时画面（屏幕分享或摄像头），依赖语音的音视频基建（WebRTC/SFU），排在语音落地之后
 
 ### ③ 关系小工具
