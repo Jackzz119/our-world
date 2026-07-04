@@ -12,7 +12,9 @@ import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
 import { Sidebar } from '@/themes/cinnaglass/sidebar';
 import { SpaceScreen } from '@/themes/cinnaglass/space';
-import { Chat } from '@/themes/cinnaglass/chat';
+import { ChatDock } from '@/themes/cinnaglass/chat-dock';
+import { ChannelScreen } from '@/themes/cinnaglass/channel-screen';
+import { useChatThreads } from '@/themes/cinnaglass/chat-data';
 import { ROOMS_DEFAULT, owLoad } from '@/themes/cinnaglass/rooms';
 import { useTweaks, type Mood } from '@/themes/cinnaglass/tweaks';
 import type { Alarm, CalEvent, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
@@ -29,7 +31,7 @@ const AUTO_ENTER = getEnvFlag('VITE_AUTO_ENTER');
 
 // addon widgets are removable; required stay on always
 const REQUIRED = ['days', 'minimap'];
-const ADDON = ['presence', 'memory', 'anniv', 'ambient', 'music', 'lighting'];
+const ADDON = ['memory', 'anniv', 'ambient', 'music', 'lighting'];
 const loadWidgets = (): Widgets => {
     const base: Widgets = {};
     REQUIRED.forEach((k) => (base[k] = true));
@@ -78,10 +80,19 @@ const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'notes', 'wishlist'];
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
     const [tbOpen, setTbOpen] = useState(false);
-    const [sbOpen, setSbOpen] = useState(false);
+    // sidebar panel expanded state — persisted (the rail itself is always on)
+    const [sbOpen, setSbOpen] = useState<boolean>(() => owLoad('ow-sbopen-v1', true));
+    // chat (see ai/Features/chat.md): one thread store, two surfaces.
+    // dock = in-scene ambient chat (solid ⇄ ghost); channel screen = covering.
+    const { threads, typingId, send } = useChatThreads();
+    const [dockSolid, setDockSolid] = useState(false);
+    const [dockActive, setDockActive] = useState('ch-chat');
+    const [channelOpen, setChannelOpen] = useState<string | null>(null);
     const [screen, setScreen] = useState<string | null>(null);
     const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
-    const [rooms, setRooms] = useState<Room[]>(() => owLoad('ow-rooms-v1', ROOMS_DEFAULT));
+    // scene areas (living/bedroom …) — read-only since room config moved out
+    // of the sidebar; editing returns with the map/scene-switch feature
+    const [rooms] = useState<Room[]>(() => owLoad('ow-rooms-v1', ROOMS_DEFAULT));
     const [meRoom, setMeRoom] = useState<string>(() => owLoad('ow-meroom-v1', 'living'));
     const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
     const [nowTs, setNowTs] = useState(() => Date.now());
@@ -129,6 +140,17 @@ const WorldPage = () => {
         const id = setInterval(() => setNowTs(Date.now()), 1000);
         return () => clearInterval(id);
     }, []);
+    // WoW-style: bare Enter (no input focused) solidifies the chat dock
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key !== 'Enter') return;
+            const el = document.activeElement;
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+            setDockSolid(true);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
     useEffect(() => {
         try {
             localStorage.setItem('ow-dates-v1', JSON.stringify(events));
@@ -164,6 +186,13 @@ const WorldPage = () => {
             /* ignore */
         }
     }, [meRoom]);
+    useEffect(() => {
+        try {
+            localStorage.setItem('ow-sbopen-v1', JSON.stringify(sbOpen));
+        } catch {
+            /* ignore */
+        }
+    }, [sbOpen]);
 
     // weather: manual override OR real-time (geolocation → open-meteo)
     useEffect(() => {
@@ -255,60 +284,84 @@ const WorldPage = () => {
     };
     const inRoom = entered && sharedRoom !== null;
 
+    // any pointer-down on the stage outside the chat surfaces ghosts the dock
+    const onStageDown = (e: React.PointerEvent) => {
+        if (!dockSolid) return;
+        const el = e.target as HTMLElement;
+        if (el.closest('.cdk') || el.closest('.chsc')) return;
+        setDockSolid(false);
+    };
+
     return (
-        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0 }}>
-            {inRoom ? (
-                <RoomScene weather={weather.kind} />
-            ) : (
-                <LobbyScene
-                    status={lobbyStatus}
-                    hasRoom={sharedRoom !== null}
-                    error={lobbyError}
-                    busy={lobbyBusy}
-                    onEnter={enterRoom}
-                    onCreate={createAndEnter}
+        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0, display: 'flex' }}>
+            {/* sidebar shares the layout layer with the stage: opening it
+                squeezes the scene right instead of floating over it */}
+            <Sidebar
+                open={sbOpen}
+                setOpen={setSbOpen}
+                profile={profile}
+                setProfile={setProfile}
+                onOpenSettings={() => navigate('settings')}
+                sharedRoom={sharedRoom}
+                lobbyStatus={lobbyStatus}
+                lobbyError={lobbyError}
+                busy={lobbyBusy}
+                inRoom={inRoom}
+                onEnterRoom={enterRoom}
+                onCreateRoom={createAndEnter}
+                onOpenDm={(contact) => {
+                    setDockActive(contact);
+                    setDockSolid(true);
+                }}
+                onOpenChannel={(id) => setChannelOpen(id)}
+            />
+            <div className="stage" onPointerDownCapture={onStageDown}>
+                {inRoom ? (
+                    <RoomScene weather={weather.kind} />
+                ) : (
+                    <LobbyScene
+                        status={lobbyStatus}
+                        hasRoom={sharedRoom !== null}
+                        error={lobbyError}
+                        busy={lobbyBusy}
+                        onEnter={enterRoom}
+                        onCreate={createAndEnter}
+                    />
+                )}
+                {inRoom && (
+                    <HUD
+                        layout={t.hudLayout}
+                        mood={t.mood}
+                        density={t.density}
+                        weather={weather}
+                        nowTs={nowTs}
+                        widgets={widgets}
+                        setWidget={setWidget}
+                        tbOpen={tbOpen}
+                        setTbOpen={setTbOpen}
+                        setMood={(k) => setTweak('mood', k)}
+                        onNavigate={navigate}
+                        spaceName={curRoom ? curRoom.name : ''}
+                    />
+                )}
+                <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={profile} />
+                <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
+                <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
+                <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
+                <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
+                {/* in-scene ambient chat (WoW-style) — follows the stage when squeezed */}
+                <ChatDock
+                    solid={dockSolid}
+                    setSolid={setDockSolid}
+                    active={dockActive}
+                    setActive={setDockActive}
+                    threads={threads}
+                    typingId={typingId}
+                    onSend={send}
                 />
-            )}
-            {inRoom && (
-                <HUD
-                    layout={t.hudLayout}
-                    mood={t.mood}
-                    density={t.density}
-                    weather={weather}
-                    nowTs={nowTs}
-                    widgets={widgets}
-                    setWidget={setWidget}
-                    tbOpen={tbOpen}
-                    setTbOpen={setTbOpen}
-                    setMood={(k) => setTweak('mood', k)}
-                    onNavigate={navigate}
-                    spaceName={curRoom ? curRoom.name : ''}
-                />
-            )}
-            {widgets.presence && (
-                <Sidebar
-                    open={sbOpen}
-                    setOpen={setSbOpen}
-                    profile={profile}
-                    setProfile={setProfile}
-                    onOpenSettings={() => {
-                        setSbOpen(false);
-                        navigate('settings');
-                    }}
-                    mood={t.mood}
-                    setTweak={setTweak}
-                    rooms={rooms}
-                    setRooms={setRooms}
-                    meRoom={meRoom}
-                    enterSpace={enterSpace}
-                />
-            )}
-            <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={profile} />
-            <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
-            <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
-            <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
-            <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
-            <Chat />
+                {/* covering channel window — opened from sidebar text channels */}
+                <ChannelScreen channelId={channelOpen} onClose={() => setChannelOpen(null)} threads={threads} onSend={send} />
+            </div>
         </div>
     );
 };

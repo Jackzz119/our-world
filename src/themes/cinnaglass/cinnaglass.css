@@ -59,6 +59,15 @@ body {
   font-feature-settings: 'tnum';
 }
 
+/* stage: everything scene-related lives here; the in-flow sidebar squeezes it */
+.stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 /* ════ GLASS STYLES ════ */
 [data-glass='cloud'] {
   --glass-bg: rgba(255, 255, 255, 0.7);

@@ -22,7 +22,6 @@ import {
     ISnow,
     ISparkle,
     ISun,
-    IUsers,
     IWand
 } from './icons';
 import { RoomArt } from './scene';
@@ -374,8 +373,8 @@ const WIDGET_REQUIRED: WidgetDef[] = [
     { key: 'minimap', label: '房间小地图', Icon: IMapPin, c: 'linear-gradient(135deg,#C9E8C2,#86C99A)' },
     { key: 'chat', label: '悄悄话', Icon: IChat, c: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)' }
 ];
+// note: the sidebar is app-wide chrome now (always on), no 'presence' widget
 const WIDGET_ADDONS: WidgetDef[] = [
-    { key: 'presence', label: '侧边栏 · 房间 / 头像', Icon: IUsers, c: 'linear-gradient(135deg,#C9E8C2,#86C99A)' },
     { key: 'anniv', label: '日历 · 纪念日', Icon: ICalendar, c: 'linear-gradient(135deg,#D8C2F0,#A98FD6)' },
     { key: 'memory', label: '照片集', Icon: IPhoto, c: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)' },
     { key: 'ambient', label: '时间 · 闹钟 · 天气', Icon: ICloud, c: 'linear-gradient(135deg,#AEDFF2,#7CC6EC)' },
@@ -486,11 +485,9 @@ function Toolbox({ open, setOpen, widgets, setWidget, dragMode, setDragMode, res
 
 function hudPositions(layout: HudLayout): Record<string, CSSProperties> {
     const C: CSSProperties = { left: '50%', transform: 'translateX(-50%)' };
-    const RAIL: CSSProperties = { top: '50%', left: 14, transform: 'translateY(-50%)' };
     if (layout === 'cluster') {
         return {
             minimap: { top: 18, left: 18 },
-            presence: RAIL,
             ambient: { top: 22, right: 20 },
             memory: { top: 96, right: 20 },
             days: { top: 204, right: 20 },
@@ -502,7 +499,6 @@ function hudPositions(layout: HudLayout): Record<string, CSSProperties> {
         return {
             minimap: { top: 18, left: 18 },
             ambient: { top: 22, right: 20 },
-            presence: RAIL,
             anniv: { top: 24, ...C },
             days: { top: 64, ...C },
             memory: { top: 108, right: 20 },
@@ -512,7 +508,6 @@ function hudPositions(layout: HudLayout): Record<string, CSSProperties> {
     return {
         minimap: { top: 18, left: 18 },
         ambient: { top: 22, right: 20 },
-        presence: RAIL,
         anniv: { top: 26, ...C },
         days: { top: 200, right: 20 },
         memory: { top: 96, right: 20 },
