@@ -22,11 +22,11 @@ import { getMyWorld, createWorld } from '@/lib/worlds.ts';
 import type { World } from '@/types/feed.ts';
 import { getEnvFlag } from '@/utils';
 
-// Entry switches (see .env.example). DEV skips the auth gate (no Supabase
-// session, so backend calls fail); AUTO_ENTER skips the lobby on mount when a
-// world already exists (dev convenience — players always land in the lobby
-// and enter through the portal). Both default to false when unset.
-const DEV_MODE = getEnvFlag('VITE_DEV');
+// Entry switch (see .env.example). AUTO_ENTER skips the lobby on mount when
+// a world already exists (dev convenience — players always land in the lobby
+// and enter through the portal). Defaults to false when unset.
+// VITE_DEV (dev auto-login with a real session) lives in ProtectedRoute —
+// by the time this page renders, a session always exists.
 const AUTO_ENTER = getEnvFlag('VITE_AUTO_ENTER');
 
 // addon widgets are removable; required stay on always
@@ -124,12 +124,6 @@ const WorldPage = () => {
             })
             .catch((e: unknown) => {
                 if (cancelled) return;
-                if (DEV_MODE) {
-                    // Dev bypass has no session, so getMyWorld always throws
-                    // "未登录" — show the empty lobby instead of the error card.
-                    setLobbyStatus('ready');
-                    return;
-                }
                 setLobbyError(e instanceof Error ? e.message : String(e));
                 setLobbyStatus('error');
             });
@@ -143,8 +137,12 @@ const WorldPage = () => {
         const id = setInterval(() => setNowTs(Date.now()), 1000);
         return () => clearInterval(id);
     }, []);
-    // WoW-style: bare Enter (no input focused) solidifies the chat dock
+    // WoW-style: bare Enter (no input focused) solidifies the chat dock.
+    // Layer gate (chat.md): while any UI-layer surface is open (conversation
+    // window, modal screens) ALL scene shortcuts are disabled — Enter today,
+    // movement/interaction keys later.
     useEffect(() => {
+        if (convOpen || screen) return; // UI layer open — scene shortcuts off
         const onKey = (e: KeyboardEvent) => {
             if (e.key !== 'Enter') return;
             const el = document.activeElement;
@@ -153,7 +151,7 @@ const WorldPage = () => {
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, []);
+    }, [convOpen, screen]);
     useEffect(() => {
         try {
             localStorage.setItem('ow-dates-v1', JSON.stringify(events));
