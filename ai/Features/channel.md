@@ -74,7 +74,7 @@ messages（文字频道持久化，归 chat.md 后端接入时一并设计）
 
 ## 实现计划
 
-进度：3 / 7 subtasks 完成（43%）
+进度：4 / 7 subtasks 完成（57%）
 
 - [x] **C-1: UI 术语对齐（容器改叫「世界」）**（2026-07-04，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/themes/cinnaglass/sidebar.tsx`、`src/themes/cinnaglass/lobby.tsx`、`src/themes/cinnaglass/rooms.ts`、`src/pages/WorldPage.tsx`
@@ -94,12 +94,18 @@ messages（文字频道持久化，归 chat.md 后端接入时一并设计）
 - [ ] **C-5: 共享音乐接入**
    - 说明：进房自动听到房间在放的音乐（同"不抢主动权"规则），接共享播放状态。TODO ② 的「共同播放音乐」条目关联。
 
-- [ ] **C-6: 联调 + 真机验收（C-1/C-2/C-3 部分）**
-   - 说明：房间列表点击切场景/mood、当前房高亮 + no-op、她的头像挂在第一间、文案全为「世界」、默认闭麦图标态、**真机登录后建世界/进世界/发帖/读 feed 全链路（验证 worlds 迁移）**、tsc/eslint/build（已绿）+ `pnpm dev` 真机。
+- [x] **C-6: 联调 + 真机验收（C-1/C-2/C-3 部分）**（2026-07-04，Chrome 扩展直连 `pnpm dev` 实测通过，见测试记录）
+   - 说明：房间列表点击切场景/mood、当前房高亮 + no-op、她的头像挂在第一间、文案全为「世界」、默认闭麦图标态、真机进世界/读 feed 链路（验证 worlds 迁移）。**发帖写链路**（posts/Storage 写入）未在本轮触发，归 timeline.md ST-7。
 
 - [ ] **C-7: `channels` 表建表 + RLS**
    - 说明：§四 的 channels 结构（type: text|voice|room + scene_id + position），等文字聊天接后端（Supabase Realtime + messages 表）时一起落地。
 
 ## 测试记录
 
-（待 C-6 填写。本机无法 `pnpm dev`，真机验证在另一台机器进行。）
+**2026-07-04 真机验收（localhost:5173 + Chrome 扩展实测，console 零报错）：**
+
+- ✅ **worlds 迁移实战**：页面加载 `GET /auth/v1/user` 200（持久化会话恢复）→ `GET /rest/v1/worlds?...owner_id.eq.<uid>...` 200（查到真实世界行 `a8e83aff…`，active 双人）→ `POST /rpc/get_feed_posts` 200（新签名 `p_world_id` 正常）
+- ✅ 房间 = 场景绑定语音频道的 UI 语义：点卧室 → `meRoom=bedroom` + `data-mood=night`（场景换夜色）+ 侧栏高亮 + 我的头像移到卧室行（她留在客厅——"看她在哪"生效）；再点当前房 no-op
+- ✅ 术语：大厅卡「你们的小世界已就绪 / 进入世界」、Home/世界双栏文案全为新术语
+- ✅ 默认闭麦：加入语音频道 mock 后成员行显示闭麦图标、无说话光晕
+- 遗留观察：「在一起天数」sidebar 头部与 HUD 挂件数值不一致（两处各算各的 localStorage mock）——世界属性入库（supabase.md 讨论点 2）时消灭

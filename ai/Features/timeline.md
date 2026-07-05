@@ -205,6 +205,11 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 - [ ] **⑧ ST-7: 联调 + 边界**
    - 影响文件：全链路 + 测试数据准备
    - 说明：端到端（登录→(已有房)发帖→原图进 Storage→刷新可见）；图片体积/数量、上传失败、signed URL 过期、网络失败、邮箱确认、无房→error 提示、（将来）房主删房踢人等边界。
+   - **部分完成（2026-07-04，浏览器实测）**：读链路已真机验证——持久化会话恢复 → `get_feed_posts(p_world_id)` 200、照片墙空态正确渲染（DB 0 帖）。**写链路（发帖 + 传图）与边界仍待测。**
+
+- [x] **⑨ ST-I: feed 懒加载**（2026-07-04，tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/hooks/useFeed.ts`、`src/themes/cinnaglass/screens.tsx`
+   - 说明：`SubScreen` 以 `screen=null` 挂载时钩子照跑，导致页面加载即拉 feed。`useFeed(enabled)` 加渲染期闩锁（首次 enabled 才 arm、之后保持，`reload()` 手动刷新）；实测：加载/进世界均 0 次 `get_feed_posts`，首次打开时间线弹窗恰好 1 次。弹窗保持常驻 DOM（淡入淡出动画依赖 `.show` 切换），故懒的是数据不是挂载。
 
 ---
 

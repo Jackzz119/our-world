@@ -50,9 +50,11 @@
 ```
 WorldPage 挂载
   → getMyRoom()                         // src/lib/rooms.ts（只查，不建）
-     → 结果只更新大厅状态（sharedRoom / lobbyStatus），默认不自动进入
-     → VITE_AUTO_ENTER=true 且有房 → entered=true 直接进房（开发便利）
-     → VITE_DEV=true（跳过登录、无会话）→ 查询必抛「未登录」→ 降级为「无房大厅」而非错误卡
+     → 结果只更新大厅状态（world / lobbyStatus），默认不自动进入
+     → VITE_AUTO_ENTER=true 且有世界 → entered=true 直接进入（开发便利）
+     → VITE_DEV **语义修订（2026-07-04）**：不再跳过登录（无会话时 RLS 查不到任何数据，
+       后端链路全失败），改为 ProtectedRoute 里用 VITE_DEV_EMAIL/PASSWORD 自动真登录；
+       到达本页时必有会话，原「无会话降级空大厅」分支已删除，错误一律走错误卡
   → 渲染：inRoom（entered && 有房）? <RoomScene> : <LobbyScene>；HUD 仅 inRoom 时显示
   → Sidebar（房间入口）+ Chat 始终常驻
 ```
@@ -157,4 +159,11 @@ worlds
 
 ## 测试记录
 
-（待 R-8 填写。注：本机无法 `pnpm dev` 验证，验证在另一台机器进行；每个 subtask 完成先静态检查 tsc/eslint。）
+**2026-07-04 部分验收（localhost:5173 + Chrome 扩展实测，console 零报错）：**
+
+- ✅ 有世界 → 大厅显示「你们的小世界已就绪」→ 点「进入世界」进场景（LobbyScene 卡片入口闭环）
+- ✅ `getMyWorld()` 真实链路：`GET /auth/v1/user` 200（持久化会话）→ `GET /rest/v1/worlds` 200 命中世界行
+- ✅ dev 请求双份为 React StrictMode 双跑 effect（生产减半），非 bug
+- **R-8 剩余待测**（需无房账号/断网等条件）：无房→创建世界流程、createWorld 失败容错、未登录落登录页、传送门无房时重查
+
+（本机已可经 Chrome 扩展直连 dev 服务器验证，"另一台机器"限制解除。）

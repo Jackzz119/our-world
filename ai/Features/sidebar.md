@@ -96,7 +96,7 @@ WorldPage
 
 ## 实现计划
 
-进度：6 / 7 subtasks 完成（86%）
+进度：7 / 7 subtasks 完成（100%，2026-07-04；无房态/邀请等场景留给 room.md R-6/R-8）
 
 - [x] **SB-1: 骨架重构（弹出式 → 常驻 rail + panel + 收缩）**（2026-07-03，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/themes/cinnaglass/sidebar.tsx`（整体重写）、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/hud.tsx`
@@ -115,8 +115,8 @@ WorldPage
    - 说明：房内 panel = 场景区域列表/房间设置/语音频道/在场的人，逻辑与 mock 未动；底部用户面板（状态/静音/设置）两状态常驻。
    - **修订（2026-07-03，chat.md CH-1/CH-5）**：布局改挤压式（`.owsb2` 入流通高，`.app` flex + `.stage`）；RoomPanel 改为 **文字频道**（点击开 ChannelScreen）+ 语音频道 + 在场的人；场景区域列表与房间设置（名称/此刻/光线）移出，随"地图切换"功能回归；私信点击改为实体化 ChatDock（旧 Chat 浮窗已删）。
 
-- [ ] **SB-5: 联调 + 边界**
-   - 说明：大厅↔房间切换 panel 内容正确、收缩态持久化、无房态 rail 只有「＋」、创建/进入经由 rail 与 LobbyScene 两条入口都闭环、tsc/eslint、真机 `pnpm dev` 验收。
+- [x] **SB-5: 联调 + 边界**（2026-07-04，Chrome 扩展直连 `pnpm dev` 实测通过，见测试记录）
+   - 说明：大厅↔房间切换 panel 内容正确、收缩态持久化、创建/进入闭环、tsc/eslint、真机验收。**未测**（当前账号已有世界，无法走到）：无房态 rail 只有「＋」、创建世界流程——归 room.md R-8 补测。
 
 - [x] **SB-6: 房间列表回归 + 世界术语对齐**（2026-07-04，tsc/eslint/build 绿，待真机验证 = channel.md C-1/C-2）
    - 影响文件：`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/{lobby.tsx, rooms.ts}`
@@ -129,4 +129,13 @@ WorldPage
 
 ## 测试记录
 
-（待实现后填写）
+**2026-07-04 真机验收（localhost:5173 + Chrome 扩展实测，console 零报错）：**
+
+- ✅ rail：logo（Home）⇄ 世界 icon 切换 panel 内容正确；「＋」有世界时禁用态
+- ✅ Home 栏：好友/商店占位 + 私信列表（点击开覆盖式大窗，不再触发 dock）
+- ✅ 世界栏（房内）：房间列表（当前房高亮 + 在场者 mini 头像：我随切换移动、她固定客厅）→ 文字频道 → 语音频道 → 成员—2
+- ✅ 房间点击 = 切场景 + mood 跟随（卧室 → `meRoom=bedroom`、`data-mood=night` 场景变夜色）；再点当前房 no-op
+- ✅ 语音频道 mock 加入/离开；加入后成员行默认闭麦图标（muted 初始 true）
+- ✅ 收缩：panel 消失只剩 rail、stage 回弹占满；`ow-sbopen-v1` 持久化（刷新后仍收起）
+- ✅ 世界数据真实：rail 图标由 `getMyWorld()` DB 行驱动（network 实测 `GET /rest/v1/worlds` 200）
+- 未测：无房态（rail 仅「＋」、创建引导卡）——当前账号已有世界，归 R-8

@@ -19,10 +19,14 @@
 
 ## 🔨 进行中 —— 地基（auth）+ ① 回忆存储接后端
 
+> **🎯 当前最高优先级（2026-07-04 用户定调）：世界框架真实数据化闭环。**
+> 代码链路已就绪（worlds/posts/Storage 读写全部接真实 Supabase），缺的是让它在真机上真正跑起来：
+> ① auth 收口（真实登录 + 白名单拦截）→ ② 真机端到端验收（timeline ST-7 / room R-8 / channel C-6：登录→建世界→进世界→发帖传图→读 feed）→ ③ 世界属性入库（世界名/昵称/纪念日现在只在 localStorage，方案见 `supabase.md` 讨论点 2）。
+>
 > auth 定位最小化：**只为我们两个人的隐私与权限**，不做多用户注册体系。
 > ① 回忆存储的完整链路设计 + subtask 进度见 `ai/Features/timeline.md`。
 
-- [~] **auth 地基**：登录页 + 路由守卫 + dev 跳过 已就绪（代码 + build 绿，待真机实测）；**收口待做**：白名单拦截 + 登出
+- [~] **auth 地基**：登录页 + 路由守卫 已就绪；**dev 开关改为自动真登录**（2026-07-04：`VITE_DEV` + `VITE_DEV_EMAIL/PASSWORD` 真实 signInWithPassword，废弃"跳过登录"——无会话则后端全不可达）；**收口待做**：白名单拦截 + 登出
 - [x] Supabase 基建确认（当前项目 `xrscspcqnsxvfshskfpy`：5 表 + `get_feed_posts` RPC 均在）
 - [x] posts API 数据层（`getFeedPosts` / `createPost`）—— timeline.md ST-1/C
 - [x] **模型 couple → room（owner/member）+ 单人可发帖**：DB 全量改名迁移、去「未配对」态 —— timeline.md ST-A~F
@@ -30,7 +34,7 @@
 - [x] image-slot 暴露 dataURL + 发帖写链路（上传 Storage + createPost）—— timeline.md ST-4/5
 - [x] 照片墙接真实 post —— timeline.md ST-6
 - [x] 建房改主动式：feed 只查房、无房即 error；`getMyRoom` + `createRoom` —— room.md R-2（= timeline.md ST-G）
-- [ ] 端到端联调 + 边界（回忆链路，本机无法 dev，另机验证）—— timeline.md ST-7
+- [ ] 端到端联调 + 边界（回忆链路）—— timeline.md ST-7：读链路已真机验证（2026-07-04，Chrome 扩展直连 dev，"另机验证"限制解除），**写链路（发帖+传图）与边界待测**；feed 懒加载已修（ST-I）
 - [ ] （杂项）`src/components/ui/{badge,button}.tsx` 违反 react-refresh/only-export-components（shadcn 模板遗留，eslint 全量扫描报错，不影响 build）
 - [ ] **Supabase 结构审计跟进**：安全加固（函数 search_path / handle_new_user RPC 暴露 / GraphQL 可发现性 / 泄露密码保护）+ 性能（RLS initplan、4 个 FK 索引）+ 白名单强制执行方案 + 世界名/昵称入库 —— 发现与候选方案见 `ai/Features/supabase.md`，**待专门讨论后执行**
 
@@ -51,8 +55,8 @@
 ### ② Metaspace 体验（Discord-like 交互空间）
 
 - [x] **世界结构定型 + `channel.md` 文档**（2026-07-04）：世界 > 房间（场景+语音，语音频道的扩展）/ 文字频道 / 语音频道；UI 术语 + sidebar 房间列表 + **DB/代码全量迁移 `rooms→worlds`** 已落地（channel.md C-1~C-3，顺手修复 post_unlocks 触发器引用旧 couples 表的潜伏 bug）；`channels` 表为 future（C-7）
-- [~] **贯穿式侧边栏**（rail：logo=私信 Home 入口 + 世界 icon，Discord 式分离；panel：Home=好友/商店/私信列表、世界=房间+文字/语音频道 or 大厅动态卡）—— sidebar.md SB-1~4/6/7 完成（86%），剩 SB-5 联调 + 真机验收
-- [~] **双形态聊天**（WoW 式场景伴随 ChatDock + 覆盖式 ChannelScreen，内容同源）—— chat.md CH-1~5 完成（83%），剩 CH-6 联调 + 真机验收
+- [x] **贯穿式侧边栏**（rail：logo=私信 Home 入口 + 世界 icon，Discord 式分离；panel：Home=好友/商店/私信列表、世界=房间+文字/语音频道 or 大厅动态卡）—— sidebar.md 100%（2026-07-04 真机验收通过；无房态场景归 room.md R-8）
+- [x] **双形态聊天**（WoW 式场景伴随 ChatDock + 覆盖式会话大窗，内容同源；UI 层快捷键闸门）—— chat.md 100%（2026-07-04 真机验收通过；后端接入见下条）
 - [ ] **文字聊天接后端**：接 Supabase Realtime broadcast + `messages` 表持久化（UI 基础模板已就绪，见 chat.md）
 - [ ] **共同播放音乐**：UI 已复刻（生成式 WebAudio pad），接共享播放状态（进房自动听到、不抢主动权 —— 规则见 channel.md C-5）
 - [ ] **语音**（进房自动接入、默认闭麦、单线路 fade 切换 + 🎧 角标 + 挂断回落 —— 规则见 channel.md C-4）

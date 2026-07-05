@@ -19,6 +19,8 @@
 
 **解耦规则（2026-07-04 用户定型）**：sidebar 管理型交互与场景内悬浮模块**分离**——sidebar 的唯一聊天出口是覆盖式大窗（`onOpenConv`，频道与私信同一回调）；ChatDock 归 stage 所有（聊天按钮/回车实体化、点场景虚化），**不再被 sidebar 触发**（原"私信点击实体化 dock 定位"废弃）。
 
+**分层快捷键闸门（2026-07-04 用户定型，全局原则同 PROJECT.md「分层交互原则」）**：大窗属 **UI 层**（sidebar 触发的 chrome），场景快捷键属**场景层**——**UI 层任一覆盖面打开（`convOpen` / `screen` 弹窗）→ 场景快捷键全部禁用**。现在只有裸回车一个场景快捷键（已加闸，CH-8）；未来人物移动（WASD/方向键）与交互键接入时走同一个闸门，届时快捷键注册收敛成统一的 scene-hotkey 管理器。
+
 **ChatDock 实体化/虚化状态机（WoW 式）：**
 
 ```
@@ -75,12 +77,12 @@ WorldPage
 2. **未读数**：旧 Chat 的 unread 红点在基础模板中移除，后端接入时重做（dock 按钮红点 + sidebar 频道加粗）。
 3. **表情面板 / 窗口缩放**：旧 Chat 的 emoji picker 与拖拽 resize 未迁移，属增强项。
 4. **dock ghost 的可读性**：夜晚 mood 下描边阴影是否够，真机验收调。
-5. **回车实体化 vs 游戏快捷键**：将来 3D 场景有键盘操作时需要输入焦点管理。
+5. ~~回车实体化 vs 游戏快捷键~~ → 方向已定（CH-8 闸门）：UI 层打开即禁用场景快捷键；3D 键盘操作接入时把散落监听收敛为统一 scene-hotkey 管理器（届时另拆 subtask）。
 6. **群聊 grp**：contacts 里的群聊会话未进 dock tab（两人产品暂不需要），数据保留。
 
 ## 实现计划
 
-进度：6 / 7 subtasks 完成（86%）
+进度：8 / 8 subtasks 完成（100%，2026-07-04）
 
 - [x] **CH-1: 挤压式布局重构**（2026-07-03，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/cinnaglass.css`、`src/themes/cinnaglass/sidebar.tsx`
@@ -102,13 +104,26 @@ WorldPage
    - 影响文件：`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/chat.tsx`（删）
    - 说明：sidebar 房内面板改为 文字频道（点击开 ChannelScreen）+ 语音频道 + 在场的人；场景区域切换移出（归地图功能）；私信点击 = dock 实体化定位；删除旧 chat.tsx（ChatOpenReq 机制随之退役）。
 
-- [ ] **CH-6: 联调 + 真机验收**
-   - 说明：挤压布局不破 HUD/modal、dock 两态切换手感、频道/私信大窗开合、回车/点场景、收起 sidebar 后 stage 回弹、tsc/eslint/build（已绿）+ `pnpm dev` 真机。
+- [x] **CH-6: 联调 + 真机验收**（2026-07-04，Chrome 扩展直连 `pnpm dev` 实测通过，见测试记录）
+   - 说明：挤压布局不破 HUD/modal、dock 两态切换手感、频道/私信大窗开合、回车/点场景、收起 sidebar 后 stage 回弹。
 
 - [x] **CH-7: sidebar 解耦——私信改开覆盖式大窗**（2026-07-04，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/themes/cinnaglass/channel-screen.tsx`、`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`
    - 说明：ChannelScreen 升级为**会话窗口**（`convId` 同时接受频道 id 与 DM 联系人 id：DM 头 = 头像/名字/状态 + 正在输入，占位符「发给 xx…」）；sidebar 的 `onOpenDm`/`onOpenChannel` 合并为 `onOpenConv`（唯一聊天出口）；dock 不再被 sidebar 实体化，成为 stage 专属（见顶部解耦规则）。
 
+- [x] **CH-8: UI 层快捷键闸门**（2026-07-04，tsc/eslint/build 绿，待真机验证）
+   - 影响文件：`src/pages/WorldPage.tsx`
+   - 说明：回车监听 effect 加闸——`convOpen`（会话大窗）或 `screen`（任一弹窗）非空时不注册场景快捷键；大窗打开时裸回车不再让底下的 dock 实体化。未来场景快捷键统一走此闸门（见分层快捷键闸门规则）。
+
 ## 测试记录
 
-（待 CH-6 填写）
+**2026-07-04 真机验收（localhost:5173 + Chrome 扩展实测，console 零报错）：**
+
+- ✅ 裸回车（无输入焦点）→ dock 实体化（`.cdk-box solid`，tabs + 输入框自动聚焦）
+- ✅ 点场景任意处 → dock 虚化（`.cdk-box ghost`）
+- ✅ **CH-8 闸门**：会话大窗打开时 blur 输入框后按回车，dock 保持 ghost 不实体化
+- ✅ 文字频道大窗（# 闲聊 + topic + 气泡流）与私信大窗（头像/在线状态头部 + 「发给 小满…」占位）开合正常，scrim 点击关闭
+- ✅ 双面同源：大窗内发送「验收测试～」→ 关窗后同一消息出现在 dock ghost 尾部
+- ✅ `send()` 空文本守卫生效（输入框内空回车不产生消息）
+- ✅ 收起 sidebar → dock/聊天按钮随 stage 回弹左移；展开恢复
+- 备注：dock 聊天按钮点击走同一 `setSolid` 路径未单独点测；DM 假回复「正在输入…」在大窗 topic 位显示，本轮未截到帧（逻辑同 dock，已过静态检查）
