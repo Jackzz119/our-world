@@ -463,7 +463,9 @@ export function SubScreen({ screen, onClose }: { screen: TabKey | null; onClose:
     const show = !!screen;
     const [tab, setTab] = useState<TabKey>('timeline');
     const [wishes, setWishes] = useState<Wish[]>(() => load('ow-wishes-v1', SEED_WISHES));
-    const feed = useFeed();
+    // lazy: the feed fetch fires on first open, not at page load (the modal
+    // stays mounted while hidden for its fade animation)
+    const feed = useFeed(show);
     // Sign thumbnails once; timeline and photo wall share the map.
     const thumbUrls = useSignedThumbs(feed.posts);
 

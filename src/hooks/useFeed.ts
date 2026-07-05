@@ -20,13 +20,20 @@ export type UseFeed = {
     reload: () => void;
 };
 
-export const useFeed = (): UseFeed => {
+// `enabled` gates the initial fetch: hooks run even while their host renders
+// null (e.g. SubScreen mounted with screen=null), which used to fire the feed
+// query on page load. Armed on the first enabled render, then latched — the
+// feed loads once on first open, later opens reuse it (reload() refreshes).
+export const useFeed = (enabled = true): UseFeed => {
     const [status, setStatus] = useState<FeedStatus>('loading');
     const [world, setWorld] = useState<World | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [posts, setPosts] = useState<FeedPost[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [tick, setTick] = useState(0);
+    // render-time latch (not an effect): once enabled, stays armed
+    const [armed, setArmed] = useState(enabled);
+    if (enabled && !armed) setArmed(true);
 
     // Reset to the loading state in the event handler (not in the effect body,
     // which would trigger cascading renders); the initial state covers mount.
@@ -37,6 +44,7 @@ export const useFeed = (): UseFeed => {
     }, []);
 
     useEffect(() => {
+        if (!armed) return;
         let cancelled = false;
         (async () => {
             const { world, userId } = await getMyWorld();
@@ -63,7 +71,7 @@ export const useFeed = (): UseFeed => {
         return () => {
             cancelled = true;
         };
-    }, [tick]);
+    }, [tick, armed]);
 
     return { status, world, worldId: world?.id ?? null, currentUserId, posts, error, reload };
 };
