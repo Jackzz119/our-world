@@ -13,3 +13,9 @@ export function getEnv(name: EnvName): string {
 export function getEnvFlag(name: EnvName): boolean {
     return import.meta.env[name] === 'true';
 }
+
+// Optional string: missing/empty → null. For dev-only values that must not
+// crash the app when absent (unlike getEnv).
+export function getEnvOptional(name: EnvName): string | null {
+    return import.meta.env[name] || null;
+}
