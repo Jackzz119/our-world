@@ -32,9 +32,36 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
 const newId = (): string =>
     typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
-// Upload the original image (+ optional webp thumbnail) for a world. Returns
-// the original's storage path to persist in posts.images.
-export const uploadMemoryImage = async (worldId: string, file: File, thumbDataUrl?: string): Promise<{ originalPath: string }> => {
+// Display-quality thumbnail regenerated from the original (the composer
+// slot's preview is sized to its tiny frame — too small for the photo wall).
+// 1024 covers hi-dpi photo-wall columns and the lightbox's progressive
+// preview; 480 was visibly soft on both.
+const THUMB_MAX = 1024;
+const makeThumbDataUrl = async (file: File): Promise<string> => {
+    const bitmap = await createImageBitmap(file);
+    try {
+        const scale = Math.min(1, THUMB_MAX / Math.max(bitmap.width, bitmap.height));
+        const w = Math.max(1, Math.round(bitmap.width * scale));
+        const h = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d')?.drawImage(bitmap, 0, 0, w, h);
+        return canvas.toDataURL('image/webp', 0.85);
+    } finally {
+        bitmap.close?.();
+    }
+};
+
+// Upload the original image (+ webp thumbnail) for a world. The thumbnail is
+// regenerated from the original at display size; `fallbackThumbDataUrl` (the
+// slot preview) covers formats createImageBitmap can't decode. Returns the
+// original's storage path to persist in posts.images.
+export const uploadMemoryImage = async (
+    worldId: string,
+    file: File,
+    fallbackThumbDataUrl?: string
+): Promise<{ originalPath: string }> => {
     const ext = EXT_BY_TYPE[file.type] ?? 'bin';
     const base = `${worldId}/${newId()}`;
     const originalPath = `${base}.${ext}`;
@@ -42,6 +69,7 @@ export const uploadMemoryImage = async (worldId: string, file: File, thumbDataUr
     const { error: origErr } = await supabase.storage.from(BUCKET).upload(originalPath, file, { contentType: file.type, upsert: false });
     if (origErr) throw origErr;
 
+    const thumbDataUrl = await makeThumbDataUrl(file).catch(() => fallbackThumbDataUrl);
     if (thumbDataUrl) {
         const thumb = dataUrlToBlob(thumbDataUrl);
         const { error: thumbErr } = await supabase.storage

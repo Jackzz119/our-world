@@ -5,12 +5,21 @@
 import { supabase } from '@/lib/supabase.ts';
 import type { FeedPost, PostPrivacy } from '@/types/feed.ts';
 
-// Fetch a world's memory posts. With no worldId, the RPC returns every post
-// the caller may see (RLS-scoped). Throws on error so the UI can show error
-// state.
-export const getFeedPosts = async (worldId?: string): Promise<FeedPost[]> => {
+export type FeedPage = {
+    // Exclusive cursor: only posts strictly older than this created_at.
+    before?: string | null;
+    // Page size; omit for all rows (legacy behavior).
+    limit?: number;
+};
+
+// Fetch a world's memory posts, newest first. With no worldId, the RPC
+// returns every post the caller may see (RLS-scoped). Throws on error so the
+// UI can show error state.
+export const getFeedPosts = async (worldId?: string, page: FeedPage = {}): Promise<FeedPost[]> => {
     const { data, error } = await supabase.rpc('get_feed_posts', {
-        p_world_id: worldId ?? null
+        p_world_id: worldId ?? null,
+        p_before: page.before ?? null,
+        p_limit: page.limit ?? null
     });
     if (error) throw error;
     return (data ?? []) as FeedPost[];

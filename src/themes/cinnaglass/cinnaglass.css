@@ -212,6 +212,18 @@ body {
   padding: 13px 15px;
 }
 
+/* 蓝渐变圆形 chip（composer 入口 / 心愿单添加按钮 共用；尺寸交给使用处） */
+.chip-accent {
+  border-radius: 50%;
+  border: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  cursor: pointer;
+  background: radial-gradient(120% 120% at 30% 25%, #bfe6fa, #7cc6ec 46%, #4fa9dc);
+  box-shadow: 0 5px 14px -5px rgba(79, 169, 220, 0.6);
+}
+
 /* ════ MODAL SHELL ════
    居中弹窗外壳，被 SubScreen / 日历 / 时钟 / 设置 / 空间切换器 共用。
    （原先散落在 screens.tsx + calendar.tsx，靠组件挂载才生效，现提为全局。） */
@@ -255,6 +267,14 @@ body {
 .modal.mini {
   width: min(520px, calc(100vw - 32px));
   height: min(660px, calc(100vh - 56px));
+}
+/* tall variant: long-scroll surfaces (SubScreen timeline) go near-fullscreen
+   on desktop — same scale as the channel screen's 3%/4% inset. Sized against
+   the stage (its positioning container), not the viewport, so the in-flow
+   sidebar never covers it. */
+.modal.tall {
+  width: min(1280px, calc(100% - 56px));
+  height: min(1000px, calc(100% - 44px));
 }
 .modal-hd {
   display: flex;
@@ -305,6 +325,7 @@ body {
   overflow-y: auto;
   padding: 4px 20px 24px;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; /* keep the rubber-band pull from chaining to the page */
 }
 .modal-body::-webkit-scrollbar {
   width: 0;
