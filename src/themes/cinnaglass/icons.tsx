@@ -28,6 +28,19 @@ export const Ico = ({ d, size = 20, sw = 1.8, fill = 'none', children, ...p }: I
 export const IHeart = (p: IcoProps) => (
     <Ico {...p} d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
 );
+export const IEye = (p: IcoProps) => (
+    <Ico {...p}>
+        <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+        <circle cx="12" cy="12" r="2.8" />
+    </Ico>
+);
+export const IEyeOff = (p: IcoProps) => (
+    <Ico {...p}>
+        <path d="M4 4l16 16" />
+        <path d="M10.7 5.7c.42-.13.85-.2 1.3-.2 6 0 9.5 6.5 9.5 6.5a17.6 17.6 0 0 1-2.9 3.6M6.4 6.9C3.9 8.7 2.5 12 2.5 12s3.5 6.5 9.5 6.5c1.15 0 2.22-.24 3.2-.64" />
+        <path d="M10 10.1a2.8 2.8 0 0 0 3.9 3.9" />
+    </Ico>
+);
 export const IClock = (p: IcoProps) => (
     <Ico {...p}>
         <circle cx="12" cy="12" r="8.5" />

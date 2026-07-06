@@ -146,6 +146,23 @@
   border: 1px solid rgba(239, 157, 180, 0.6);
 }
 
+/* password visibility toggle inside a .field */
+.eye {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 4px;
+  margin-right: -6px;
+  color: var(--glass-sub);
+  flex: 0 0 auto;
+  transition: color 0.16s;
+}
+.eye:hover {
+  color: var(--glass-text);
+}
+
 /* size only — the look comes from the global .btn-primary */
 .submit {
   margin-top: 4px;

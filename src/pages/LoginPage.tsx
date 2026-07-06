@@ -6,7 +6,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase.ts';
 import { RoomScene } from '@/themes/cinnaglass/scene.tsx';
-import { Ico, IHeart } from '@/themes/cinnaglass/icons.tsx';
+import { Ico, IEye, IEyeOff, IHeart } from '@/themes/cinnaglass/icons.tsx';
 import styles from './LoginPage.module.css';
 
 const IMail = (p: Parameters<typeof Ico>[0]) => (
@@ -50,6 +50,7 @@ const LoginPage = () => {
     const [mode, setMode] = useState<'signin' | 'signup'>('signin');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPw, setShowPw] = useState(false);
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState<Msg>(null);
 
@@ -62,6 +63,27 @@ const LoginPage = () => {
             options: { redirectTo: window.location.origin + '/' }
         });
         if (error) setMsg({ type: 'error', text: error.message });
+    };
+
+    // forgot password: send a recovery email that lands on /reset-password
+    const handleForgot = async () => {
+        if (!email) {
+            setMsg({ type: 'error', text: '先填上你的邮箱，再点忘记密码。' });
+            return;
+        }
+        setBusy(true);
+        setMsg(null);
+        try {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password'
+            });
+            if (error) throw error;
+            setMsg({ type: 'info', text: '重置邮件已发送 ✿ 点击邮件里的链接设置新密码。' });
+        } catch (err) {
+            setMsg({ type: 'error', text: err instanceof Error ? err.message : '发送失败，请重试。' });
+        } finally {
+            setBusy(false);
+        }
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -128,13 +150,16 @@ const LoginPage = () => {
                     <label className="field">
                         <ILock size={17} />
                         <input
-                            type="password"
+                            type={showPw ? 'text' : 'password'}
                             autoComplete={signUpMode ? 'new-password' : 'current-password'}
                             placeholder="密码"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <button type="button" className={styles.eye} onClick={() => setShowPw((v) => !v)} title={showPw ? '隐藏密码' : '显示密码'}>
+                            {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
+                        </button>
                     </label>
 
                     {msg && <div className={`${styles.msg} ${styles[msg.type]}`}>{msg.text}</div>}
@@ -156,6 +181,14 @@ const LoginPage = () => {
                         {signUpMode ? '去登录' : '创建一个'}
                     </button>
                 </div>
+                {!signUpMode && (
+                    <div className={styles.switchRow}>
+                        忘记密码了？
+                        <button type="button" onClick={handleForgot} disabled={busy}>
+                            发重置邮件
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
