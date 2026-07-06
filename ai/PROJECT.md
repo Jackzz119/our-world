@@ -55,13 +55,9 @@
 - **框架**: React 19 + TypeScript
 - **构建工具**: Vite 7
 - **路由**: React Router DOM v7
-- **样式**: Tailwind CSS v4（注意：v4 语法与 v3 不同，例如渐变用 `bg-linear-to-br` 而非 `bg-gradient-to-br`）
-- **主 UI / 主题体系**: `src/themes/cinnaglass/`——第一版 MVP 的整套界面，玻璃拟态（glassmorphism）+ 大耳狗色调，自带设计 token、内联 `<style>` 块、图标库、`<image-slot>` 组件。设计为可扩展皮肤体系（未来新皮肤平级放 `src/themes/<name>/`，现阶段只分目录、不建切换引擎）。详见 `ai/Features/handoff-claude-design.md`
-- **UI 组件库**: shadcn/ui（Radix 风格，New York style，CSS 变量主题，primary 色调为玫瑰红）——**暂未用于主 UI**，保留给未来真正常规的界面（复杂表单/确认对话框等），与 cinnaglass 两套隔离
-    - 已安装组件：`avatar` `card` `button` `textarea` `badge` `separator` `dialog`
-    - 工具依赖：`clsx` `tailwind-merge` `class-variance-authority`
-    - 配置文件：`components.json`（utils 路径用 `src/lib/utils`，组件生成到 `src/components/ui/`）
-    - 注意：shadcn 生成的组件 import 路径需手动改为 `@/lib/utils`（项目使用 `@` alias）
+- **样式**: 自有 CSS 体系（无框架）——`index.css` 最小 reset + theme 内 token/原子类/组件 `<style>` 块/CSS Module 四层，结构与复用规范见 `ai/Features/ui-system.md`
+- **主 UI / 主题体系**: `src/themes/cinnaglass/`——第一版 MVP 的整套界面，玻璃拟态（glassmorphism）+ 大耳狗色调，自带设计 token、内联 `<style>` 块、图标库、`<image-slot>` 组件。设计为可扩展皮肤体系（未来新皮肤平级放 `src/themes/<name>/`，现阶段只分目录、不建切换引擎）。详见 `ai/Features/handoff-claude-design.md`；UI 结构/复用/多 theme 契约见 `ai/Features/ui-system.md`
+- **UI 组件库**: 无。shadcn/ui + Tailwind 已于 2026-07-05 全量移除（UX 评估：商业 SaaS 语言与高定制玻璃拟态 + 多世界观 theme 路线不匹配，且零业务引用；将来需要 a11y 行为层时按需单独引 radix primitive）
 - **3D 渲染**: `@react-three/fiber` + `@react-three/drei`（**尚未安装**，开发 3D 场景时再装）
     - 视角：天空俯视视角（aerial / top-down）
     - 当前用 Canvas 占位，Blender 导出的 GLTF 模型导入后替换为 R3F 场景
@@ -93,11 +89,9 @@ src/
 │       ├── image-slot.js     # <image-slot> 照片占位 Web Component（localStorage 持久化）
 │       ├── tweaks.ts         # useTweaks（mood/glass/weather 等，localStorage 持久化）
 │       ├── model.ts / rooms.ts / profile.ts / types.d.ts  # 共享类型与数据
-├── components/
-│   └── ui/               # shadcn/ui 组件（暂未用于主 UI，保留给未来常规界面）
 ├── lib/
 │   ├── supabase.ts       # Supabase 客户端初始化
-│   └── utils.ts          # cn() 工具函数（clsx + tailwind-merge）
+│   ├── worlds.ts / posts.ts / storage.ts / profiles.ts  # 数据层（世界/发帖/Storage/作者档案）
 ├── pages/
 │   └── WorldPage.tsx     # 世界空间主页：合并原型 App 编排（时钟/天气/状态/导航/弹窗挂载/持久化）
 ├── types/                # Supabase 数据库类型 / Feed 类型 / EnvName

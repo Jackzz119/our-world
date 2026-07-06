@@ -145,7 +145,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 
 > **执行顺序已按「couple → 发 post → 渲染 post」重排**（原读先行 → 改为写先行，每步可端到端验证）。ST 编号保留原始编号便于追溯，实际推进按下方序号。
 
-进度：13 / 15 subtasks 完成（约 87%）
+进度：27 / 29 subtasks 完成（93%）
 
 > **修订（2026-06-30，room/solo 落地）**：ST-2 的「未配对四态」被废弃，couple 全量改名 room（ST-A~F）。原 ST-3/4/5/6/7 续做，`coupleId` 一律改 `roomId`。
 > **再修订（2026-07-02，建房改主动式）**：放弃「进 feed 自动建房」，改为 feed 只查房、无房即 error；建房是独立主动动作（ST-G 拆函数，ST-H 做入口 UI）。故「重复建房竞态」边界随之消失（用户手动点，不并发）。
@@ -205,8 +205,78 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 - [ ] **⑧ ST-7: 联调 + 边界**
    - 影响文件：全链路 + 测试数据准备
    - 说明：端到端（登录→(已有房)发帖→原图进 Storage→刷新可见）；图片体积/数量、上传失败、signed URL 过期、网络失败、邮箱确认、无房→error 提示、（将来）房主删房踢人等边界。
-   - **部分完成（2026-07-04，浏览器实测）**：读链路已真机验证——持久化会话恢复 → `get_feed_posts(p_world_id)` 200、照片墙空态正确渲染（DB 0 帖）。**写链路（发帖 + 传图）与边界仍待测。**
+   - **部分完成（2026-07-04，浏览器实测）**：读链路已真机验证——持久化会话恢复 → `get_feed_posts(p_world_id)` 200、照片墙空态正确渲染（DB 0 帖）。
+   - **写链路已通（2026-07-05，浏览器实测，经 ST-J 修复后）**：发帖传图 → `memories/<worldId>/` 下原图 + `.thumb.webp` 两对象、`posts.images` 存原图路径、时间线缩略图 + 照片墙均正确渲染。**边界（上传失败/URL 过期/断网等）仍待测。**
 
+- [x] **⑩ ST-J: 修复 Composer 丢图 bug + 作者身份标识**（2026-07-05，tsc/eslint 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`、`src/hooks/useFeed.ts`、`src/lib/profiles.ts`（新）
+   - 说明：**Bug**——Composer 绑定 `slot-change` 的 effect 只依赖 `[imgId]`，而组件初始为折叠态（slot 未挂载、ref=null），effect 空跑后不再重跑，监听器从未绑上 → 拖图后 `pickedRef` 恒为 null → 发布只走文字分支（`images: []`、Storage 空）。修复：effect 依赖改 `[open, imgId]`；另修「取消」不清 `pickedRef` 的隐性 stale 图问题（关闭时置 null + 换新 imgId）。
+   - **作者身份标识**：RPC 只回 `author_id`，新增 `lib/profiles.ts#getProfilesByIds`，`useFeed` 拿到 world 后并行查 owner/member 两条 profile（失败降级为空 map，不影响 feed）；时间线卡片 meta 行显示作者——自己的帖显「我」（蓝 accent）+ 卡片左缘 accent 细线，对方的帖显 `display_name`（粉色）+ 粉色时间线节点。（节点样式随 ST-K 演进为 rail 头像）
+
+- [x] **⑪ ST-K: 时间线重设计——聊天式方向 + rail 头像 + 无限上滚 + 底部 composer + lightbox + 裁撤文字回忆**（2026-07-05，UX 裁决 + tsc/eslint/build 绿 + 浏览器实测，28 条临时测试帖验证后已清理）
+   - 影响：DB `get_feed_posts`（迁移 `get_feed_posts_cursor_pagination`：drop 旧签名重建，加 `p_before`/`p_limit` 游标分页，默认值向后兼容）、`src/lib/posts.ts`（`FeedPage` 参数）、`src/lib/storage.ts`（上传时从原图重生成 480px webp 缩略图，槽位预览仅作解码失败的 fallback）、`src/hooks/useFeed.ts`（分页态 `hasMore/loadingOlder/loadOlder`，posts 改升序暴露，profiles 按实际 author_id 增量补查）、`src/themes/cinnaglass/screens.tsx`（大改）、`cinnaglass.css`（`.modal.tall`）、`WorldPage.tsx`（MODAL_TABS 去 notes）
+   - 设计（UX skill 裁决记录）：时间线心智从「博客 feed」换成「对话流/日记本」——上旧下新、composer 在底部（续写故事）、往上翻加载历史（游标分页 + prepend 滚动锚定）、发布后平滑滑底迎接新帖（glide 期间抑制顶部误加载 + 900ms 落底校正）；rail 节点升级为**作者头像**（名字首字 + uid 稳定散列渐变底色，支持任意多作者，`avatar_url` 就绪后自动显图）；日期改为居中 day chip 分组（今天/昨天/N月N日）；弹窗加高（`.modal.tall`）增强长卷轴感；照片墙点击开 **lightbox**（缩略图立即呈现 → 原图签名后换入，Esc/点击关闭）；**裁撤「文字回忆」tab**（与时间线同数据无独立心智，其情感价值将来归 private/locked post 类型）
+   - 已知边界：发布后 `reload()` 回到最新一页（历史翻页状态重置，符合「跳回最新」预期）；日期分组按本地时区
+
+- [x] **⑫ ST-L: 拖拽滚动 + 底部橡皮筋刷新 + member 成对配色**（2026-07-05，tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`、`cinnaglass.css`（`.modal-body` 加 `overscroll-behavior: contain`）
+   - **拖拽滚动**：鼠标按住时间线任意空白处可拖动滚动（pointer 事件驱动 `scrollTop`，5px 阈值区分点击/拖动，拖动后吞掉尾随 click 防误触卡片/composer，`grab/grabbing` 光标 + 拖动中禁选中文字）；触屏保持原生滚动惯性不劫持
+   - **橡皮筋刷新**：滚到底后继续上拉（鼠标拖/手指划）→ 列表带 0.5 阻尼上移（上限 96px），过 52px 阈值 caption 变「松开，刷新最新回忆」（accent 高亮），松手回弹 + `reload()` 拉最新页；未过阈值只回弹。底部常驻 caption「已经看到最新的回忆了 ·」告知已到最新；触屏路径用 `touchmove preventDefault` + `overscroll-behavior: contain` 防止手势链到页面
+   - **member 成对配色**（UX 裁决）：对方帖补齐与「我」对称的三重标记——粉名字 `#D97A96` + 粉头像光环 `rgba(239,157,180,.8)` + 卡片左缘粉线 `#F2B9CB`（我 = accent 蓝三件套）；未来多作者再升级为按头像散列色
+   - **member 测试数据**：以 jacklovesherryfav（member）身份插了 6 条 `【测试数据】` 前缀的帖用于双人视觉验证，**按用户要求保留在库中，上线前按前缀统一清理**
+
+- [x] **⑬ ST-M: 交互打磨——惯性拖拽 / 独立滚动区 + 渐变边界 / composer 输入框化 / post 详情**（2026-07-05，tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - **光标**：默认光标不再是 grab，仅拖动中 `grabbing`（`data-dragging` 属性驱动）+ 拖动中禁文字选中
+   - **鼠标惯性**：松手速度 >0.15px/ms 时进入 rAF 动量滚动（速度平滑采样 0.7/0.3、上限 3px/ms、指数摩擦 0.994^dt），碰到上下边界或衰减到 0.02 停止；滚轮/再按下/触摸即取消。触屏继续用浏览器原生滚动（自带惯性），仅接管「到底继续上划」的橡皮筋手势
+   - **布局重构**：timeline tab 不再让 modal-body 整体滚动——`.tl-host`（flex 列）内 `.tl-scroll`（独立滚动区，上下 `mask-image` 渐变淡出）+ composer 作为**兄弟节点**固定在下方，列表内容永远不会滑到 composer 底下（原 sticky 方案废弃）
+   - **composer 输入框化**：折叠态从「+ 加文字」改为完整的 pill 输入框造型（边框 + 玻璃底），hover 亮 accent 边框 + 浮现「点击书写 ✎」提示——整条可点的 affordance 不再依赖左侧加号
+   - **post 详情**：时间线卡片可点（hover 微浮起）→ 打开 `PostDetail` 弹层：头像 + 作者（蓝/粉规则一致）+ 完整日期（年月日·时分）+ 原图（缩略图先显、签名原图渐进换入）+ 全文（`pre-wrap`）；Esc/点外关闭；拖拽后的误触 click 已被吞掉不会误开
+   - Avatar 原子化：`.tl-ava` 拆为通用 `.ava`（+ `.ava-mine/.ava-theirs` 光环）供时间线与详情共用，rail 定位移到 `.tl .ava` 作用域
+
+- [x] **⑭ ST-N: 宽屏华丽版时间线（近全屏弹窗 + 中央脊线交错布局）**（2026-07-05，tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/cinnaglass.css`（`.modal.tall` 尺寸）、`src/themes/cinnaglass/screens.tsx`（`@media(min-width:1000px)` 宽屏层）
+   - **弹窗放大**：`.modal.tall` 从 760px 宽升级为 `width:min(1280px, calc(100% - 56px)); height:min(1000px, calc(100% - 44px))`——对齐聊天大窗（ChannelScreen `inset:3% 4%`）的近全屏量级；**尺寸基准用 stage 容器百分比而非 vw/vh**（第一版用 92vw 时被 in-flow sidebar 盖住左缘，实测后修正）
+   - **宽屏交错布局**（≥1000px 生效，窄屏回落单列左轨）：时间轴脊线移到中央（`left:50%`），我的帖靠右（对应聊天「我在右」心智）、TA 的帖靠左，卡片各占 `calc(50% - 48px)`，头像分别贴向脊线两侧（`.mine .ava{left:-48px}` / `:not(.mine) .ava{right:-48px}`）；日期 chip 骑在脊线上；缩略图 72→96px；composer/心愿单居中限宽（840/820px）；照片墙 4 列
+   - 蓝右粉左 + 中央脊线 = 桌面经典 timeline 模式（婚礼/纪念页常用），与二人产品的「对话感」吻合
+   - **（已被 ST-O 修订）**「边 = 作者」上线当天即发现视觉跳跃 + 不可扩展，改为 zigzag，见下
+
+- [x] **⑮ ST-O: zigzag 节奏 + 作者色身份系统 + 签名 URL 自动续签**（2026-07-05，UX 裁决 + tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - **UX 裁决**：「边 = 作者」让位置承载双重语义（顺序 + 身份），同人连发聚一侧导致视线跳跃，且第三作者出现即破产。改为**位置只管节奏、颜色只管身份**：左右按发帖顺序严格交错（经典 zigzag timeline）；身份色打在头像光环 + 名字 + 卡片边线三处（`--au-ring`/`--au-deep` 自定义属性按帖注入）
+   - **作者色分配**（`toneOf`）：我 = accent 蓝（永远）；世界另一成员 = 粉（保留既有语义）；未来其他作者 = uid 散列从主题色板取（黄/绿/紫/天蓝），同人恒同色
+   - **节点强化**：保留脊线头像节点，新增 16px 连接枝（`.tl-item::after`，颜色随作者色）把节点和卡片挂上
+   - **图片挂机消失修复**：private bucket 签名 URL TTL 1 小时，页面挂机超时后图片 403"消失"。`useSignedThumbs` 每 40 分钟自动重签 + 标签页重新可见时立即重签（后台 tab 定时器会被浏览器节流）；照片墙补「正在加载照片…」态（签名在飞时不再误显"还没有照片"空态）
+
+- [x] **⑯ ST-P: 时间线单列日记流（去 zigzag / 脊线节点）**（2026-07-05 用户拍板，视觉基准 `ai/design_system/cinnaglass/timeline-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - 说明：调研结论——中央脊线 + 字母节点 + 连接枝是 Git graph/企业「发展历程」的技术叙事，与大耳狗玻璃世界观冲突；zigzag 是装饰性模式（业界在窄屏一律折回单列），且情侣/日记类产品（Between/Day One/恋爱记/SumOne）全部单列日记流。改造：单列居中（620px，宽屏 680px）；脊线退成极淡点线小路（`border-left:2px dotted`）；节点/连接枝取消，头像 36px 作贴纸挂卡片左上；day chip 升级手帐日期贴纸（⭐今天/☁️昨天/🌸更早，奶油黄/天蓝渐变按天交替微旋转）；卡片重构为「作者+时间行 → 正文」，图片帖以图为主视觉（16:10 顶部通栏，`has-media` 变体）；作者身份保持颜色三件套（延续 ST-O「颜色管身份」，「位置管节奏」简化为自上而下）；卡片不旋转（用户裁决，旋转只留给贴纸和照片墙）；宽屏 zigzag/side-l/side-r 全部删除
+- [x] **⑰ ST-Q: 照片墙拼贴手帐墙（polaroid + 自然纵横比）**（2026-07-05，tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - 说明：修根因——image-slot `:host` 默认 `height:160px` 把每格压成等高横条裁切，masonry 形同虚设。改用普通 `<img loading="lazy">` 保持原始纵横比做真瀑布流；相纸白框（#fffdf8 + 底缘留白）+ 日期铅笔字写相纸下缘（今天/昨天带「M.D · 今天」）+ 按 key 稳定散列 ±2.4° 微旋转（`--rot`）+ washi 胶带贴角（蓝/粉条纹按奇偶交替）+ hover 摆正浮起；月份分组小标题（跨年自动带年份）；lightbox 渐进加载保留
+- [x] **⑱ ST-R: 缩略图 1024 升级 + 存量重生成**（2026-07-05，浏览器实测 2/2 成功）
+   - 影响文件：`src/lib/storage.ts` + 一次性 dev 模块（已删）
+   - 说明：`THUMB_MAX` 480 → 1024（480 在高 DPI + ~280px 列宽下竖图是放大显示，必糊；lightbox 渐进期更是马赛克）；存量帖的 480 缩略图经临时 `dev-regen-thumbs.ts`（挂 window、走登录态用户 RLS、`upsert:true` 覆盖）在浏览器一次性从原图重生成 1024 webp，跑完即删（模块 + App.tsx 临时 import）
+
+- [x] **⑲ ST-S: 白底纸感 + composer 上传区/CTA 重做**（2026-07-05 用户拍板，比稿 `ai/design_system/cinnaglass/composer-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - 说明：①post 卡片/详情卡/composer 统一亮白底（`.tl-card` 84% / `.pd-card` 88% / `.compose` 86% 白）——深色场景透过 66% 白玻璃显朦胧蓝，字浮在雾上；②上传区从 62px 方块（空态「图标+标题+副行」竖排三层必剪裁）改 **V1 宽条拖放区**（整宽 ×108px，Fitts 定律最大命中区，文案完整；比稿含 V2 大方块 / V3 icon-only 及否决理由）；③发布按钮改 **B1「✨ 记下这一刻」**（动词+情感价值替代平台向「发布」，与折叠态「记录此刻的我们…」同句式呼应；微光阴影 + busy 态「正在收进小世界…」；仍复用 `.btn-primary` 原子，`.btn-pub` 只加尺寸/光）
+- [x] **⑳ ST-T: 多图上传 + 溢出/省略修复 + 输入框自动长高 + 吉祥物**（2026-07-05，比稿 `ai/design_system/cinnaglass/timeline-mascot-multiimg.html`；tsc/eslint/build 绿 + 浏览器端到端实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - **修「拖 B 传 A」bug**：旧 62px `<image-slot>` 方块是极小拖放目标，第二次拖拽脱靶时旧选择原样上传。Composer 弃用 image-slot，改**受控多图选择器**：整个展开态皆可拖放，空态宽条 → 已选缩略图行（×移除 / ＋追加 / 上限 9 张计数），**所见即所传**；objectURL 预览按移除/取消/发布及时 revoke
+   - **多图上传**：发布循环 `uploadMemoryImage`（原图+1024 缩略图各一份）→ `posts.images` 存路径数组；卡片=首图 16:10 hero + 右下「＋N 张」徽标；详情=全部图片渐进加载（缩略图先显、签名原图逐张换入）；照片墙天然摊平多图。放开「必须有文字」：有图即可发
+   - **溢出修复 + 省略**：`.tt` 加 `overflow-wrap:anywhere`（修无空格长串穿出卡片）+ `-webkit-line-clamp:6`（超 6 行省略，全文进详情）
+   - **输入框自动长高**：textarea 随内容长高（scrollHeight，上限 220px ≈ 5-6 行后内部滚动），打开时初算
+   - **吉祥物**：原创云朵小狗 SVG（非授权素材）——蓝狗睁眼在左、粉狗眯眼在右（呼应作者色语言），≥1200px 宽屏才出现、pointer-events 关闭、漂浮周期 6s/7.2s 错开、respects prefers-reduced-motion
+   - **实测记录**：DataTransfer 注入 3 张 canvas 生成图（横/竖/方）→ ×移除第 3 张 → ＋追加第 4 张 → 发布 → 卡片「＋2 张」徽标 + 6 行省略 + 详情三图（顺序 A/B/D 证明移除/追加正确）+ 照片墙 6 瞬间全对；console 零报错。测试帖带【测试数据】前缀留库，上线前统一清理
+- [x] **㉑ ST-U: composer 草稿交互 + 紧凑化**（2026-07-06，UX 裁决 + 比稿 `ai/design_system/cinnaglass/composer-compact.html`；tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - **草稿规则（UX 裁决）**：隐式动作永不销毁内容——点 composer 外部 / Esc → 收起且草稿保留（文字+已选图）；「取消」是唯一显式清空路径；发布成功也清空。配套设计：折叠 pill 有草稿时变**草稿预览**（accent 边框 +「✎ 草稿」奶油黄贴纸 + 首行文字省略预览 + 图片数），否则用户会误以为内容丢失（对齐 X/Gmail 的 draft-on-dismiss 惯例）
+   - **紧凑化（选 H2）**：展开态 ≈258px → **实测 127px**——textarea 一行起步（min-height 70→44，自动长高不变）、96px 常驻拖放条撤销（多数发帖不带图，为少数场景常驻付 96px 不值）、照片入口改操作行左侧 34px 圆钮 `.pk-cam`、整个 composer 仍是拖放目标（拖拽悬停高亮外框 `.compose.dropping`，不做布局位移避免 dragleave 抖动）、缩略图行仅选图后出现（76→64px）
+   - **实测**：展开 127px；输入文字+1 图 → 点时间线空白 → 草稿 pill 呈现正确 → 重开文字/图完整 → 取消 → 回空占位 pill
+- [x] **㉒ ST-V: composer 高度语义修正**（2026-07-06，用户澄清 + tsc/eslint/build 绿 + 浏览器实测）
+   - 影响文件：`src/themes/cinnaglass/screens.tsx`
+   - 说明：ST-U 对「太高」的理解有偏——用户指的是 **idle 折叠条**，展开态原高度 + 拖拽提示没问题。修正：折叠 pill 52→40px（chip 36→28、总高 74→62px 实测）；展开态回退 ST-T 布局（textarea 70px + 96px 宽拖放条常驻 + 选图后缩略图行/＋块），撤销 H2 的 `.pk-cam` 圆钮；**保留** ST-U 的全部草稿能力（点外/Esc 收起保草稿、取消唯一清空、草稿预览 pill）与拖拽悬停高亮
 - [x] **⑨ ST-I: feed 懒加载**（2026-07-04，tsc/eslint/build 绿 + 浏览器实测）
    - 影响文件：`src/hooks/useFeed.ts`、`src/themes/cinnaglass/screens.tsx`
    - 说明：`SubScreen` 以 `screen=null` 挂载时钩子照跑，导致页面加载即拉 feed。`useFeed(enabled)` 加渲染期闩锁（首次 enabled 才 arm、之后保持，`reload()` 手动刷新）；实测：加载/进世界均 0 次 `get_feed_posts`，首次打开时间线弹窗恰好 1 次。弹窗保持常驻 DOM（淡入淡出动画依赖 `.show` 切换），故懒的是数据不是挂载。
@@ -218,11 +288,11 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 > 本机无法 `pnpm dev` / 无真实登录态（MCP 走 service role 绕过 RLS），代码已过 tsc + eslint 静态检查。以下为 ST-7 在另一台机器的**待执行**清单。
 
 ### 主链路（端到端）
-- [ ] 登录（Google 或已确认邮箱）+ 已有房（dev room 或经 ST-H 建房）→ 打开 SubScreen 时间线，`useFeed` 进 ready
+- [x] 登录 + 已有世界 → 打开 SubScreen 时间线，`useFeed` 进 ready（2026-07-04 真机验证）
 - [ ] 无房账号打开时间线 → error 态显示「找不到你的房间…」（而非自动建房）
-- [ ] 空房（有房无帖）→ 时间线空态「还没有回忆 · 记录第一条吧」，发布按钮可用
-- [ ] 纯文字发帖 → `posts` 落一行（room_id 正确）→ `reload` 后时间线可见
-- [ ] 带图发帖 → `memories/<roomId>/` 下出现 原图 + `.thumb.webp` 两个对象 → 时间线显示缩略图（签名 URL）→ 照片墙出现该图
+- [x] 纯文字发帖 → `posts` 落一行（world_id 正确）→ `reload` 后时间线可见（2026-07-05 用户真机实测，即暴露 ST-J bug 的那次发帖）
+- [x] 带图发帖 → `memories/<worldId>/` 下出现 原图 + `.thumb.webp` 两个对象 → 时间线显示缩略图（签名 URL）→ 照片墙出现该图（2026-07-05 ST-J 修复后浏览器实测通过；修复前用户实测带图发帖只落了纯文字帖 `images:[]`，该旧帖仍在，可自行删除或补图重发）
+- [x] 作者标识：自己的帖显「我」+ 蓝 accent，对方的帖显 display_name + 粉色（2026-07-05，双人帖对照待另一账号发帖后复验）
 - [ ] 双人房：另一账号（dev room `a8e83aff…`）能看到对方 shared 帖
 
 ### 边界

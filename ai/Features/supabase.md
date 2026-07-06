@@ -42,6 +42,8 @@ Edge Functions  无
 
 **待讨论的结构问题（下次专门讨论）：**
 
+0. **⚠️ 删号会级联删世界（2026-07-05 删号操作中发现）**：`worlds_owner_id_fkey` / `worlds_member_id_fkey` 都是 `ON DELETE CASCADE`——**member 删号会把整个世界行连带删除**（回忆 posts 再级联全灭）。语义应该是：member 删号 → `SET NULL` + status 回退 pending（人走了世界还在）；owner 删号才值得讨论是否删世界。本次删号已手动先拆链避开（member 置 null + status='pending' 后再删用户）。修复 = 一条 `alter table ... drop constraint / add constraint ... on delete set null` 迁移，建议与安全加固一起做。
+
 1. **白名单未强制执行**：`allowed_emails` 表在，但注册/登录没有任何拦截挂钩——现在任何人注册都能建号（只是进不了别人的世界）。方案候选：a) `auth.users` 上 before-insert trigger 校验 email ∈ allowed_emails；b) 前端登录后校验 + 登出（弱）；c) Edge Function 注册钩子。与 TODO「auth 收口：白名单拦截 + 登出」是同一件事，需定方案。
 2. **世界名/昵称未入库**：世界名、两人昵称、纪念日全在前端 localStorage（`ow-profile-v1`），换设备即丢，也无法双人同步。是否加 `worlds.name`（+`anniv`）列、昵称走 `profiles.display_name`？牵动 sidebar/HUD 的数据源。
 3. **`intimacy_points` 的归属**：现挂在 worlds 上（世界的属性）。解锁经济（unlock_cost）尚未设计消费/获取链路，确认后再动。
@@ -69,7 +71,7 @@ Edge Functions  无
 
 进度：0 / 0 subtasks（审计完成，等专门讨论后拆分执行项）
 
-- 候选 subtask（讨论后定优先级）：S-1 安全加固 migration（search_path + revoke handle_new_user + GraphQL 收紧）；S-2 性能 migration（initplan 重写 + 4 索引）；S-3 白名单强制执行方案；S-4 世界名/昵称入库；S-5 Auth 泄露密码保护开关
+- 候选 subtask（讨论后定优先级）：S-1 安全加固 migration（search_path + revoke handle_new_user + GraphQL 收紧）；S-2 性能 migration（initplan 重写 + 4 索引）；S-3 白名单强制执行方案；S-4 世界名/昵称入库；S-5 Auth 泄露密码保护开关；**S-6 worlds member/owner 外键 CASCADE → SET NULL（§二-0，删号不该灭世界）**
 
 ## 测试记录
 

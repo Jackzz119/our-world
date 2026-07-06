@@ -15,7 +15,9 @@
 | 形态 | 组件 | 体验定位 | 触发 |
 | --- | --- | --- | --- |
 | **场景伴随聊天** | `ChatDock`（左下角常驻悬浮小块） | **在场景中互动时**顺手聊：平时虚化不挡场景，随时能瞄到最新消息 | **仅 stage 内**：场景聊天按钮 / 裸回车 |
-| **覆盖式会话窗口** | `ChannelScreen`（几乎盖住场景的大窗） | **遮住场景专心聊**：沉浸式会话（文字频道 + 私信） | **仅 sidebar**：点文字频道 / 点私信 |
+| **聊天中心（覆盖大窗）** | `ChannelScreen`（几乎盖住场景的大窗 + 内嵌会话列表栏） | **遮住场景专心聊**：沉浸式会话；sidebar 条目只是**唤起按钮**，窗内左栏可自由切换会话 | **仅 sidebar**：点文字频道 / 点私信（唤起 + 定位） |
+
+**会话集合规则（2026-07-05 用户定型，CH-9）**：可切换集合 = **当前世界的文字频道 + 已打开的私信**（大厅 = 仅私信——频道是世界概念）。集合由 `chat-data.ts` 的 `convsFor(inWorld)` 单点生成，dock tabs 与聊天中心左栏**强制同源**；「已打开的私信」现 mock = 全部非群聊联系人，接消息后端后升级为按最近活跃排序 + 未读红点。激活会话 = 提升态 `convOpen` 单一数据源：窗内切换与 sidebar 唤起改同一个值，**外层 sidebar 的频道/私信行高亮自动跟随**（`activeConv`）。
 
 **解耦规则（2026-07-04 用户定型）**：sidebar 管理型交互与场景内悬浮模块**分离**——sidebar 的唯一聊天出口是覆盖式大窗（`onOpenConv`，频道与私信同一回调）；ChatDock 归 stage 所有（聊天按钮/回车实体化、点场景虚化），**不再被 sidebar 触发**（原"私信点击实体化 dock 定位"废弃）。
 
@@ -60,7 +62,7 @@ WorldPage
 | --- | --- | --- |
 | `chat-data.ts` | `Msg`/`TextChannel` 类型、`TEXT_CHANNELS`、`SEED_THREADS`（DM + 频道种子）、`useChatThreads()`（threads + typing + send） | ✅ 基础模板 |
 | `chat-dock.tsx` | 场景伴随聊天：ghost/solid 两态、会话 tab、尾部 5 条、输入行、聊天按钮 | ✅ 基础模板 |
-| `channel-screen.tsx` | 覆盖式会话窗口（频道 + 私信）：scrim + inset 3%/4% 玻璃大窗、气泡消息流、输入行、DM 头像/状态/正在输入 | ✅ 基础模板 |
+| `channel-screen.tsx` | **聊天中心**：scrim + inset 3%/4% 玻璃大窗 = 左栏会话列表（文字频道分组仅世界内 + 私信分组）+ 右侧会话（头部/气泡流/输入行、DM 头像/状态/正在输入）；切会话清空未发草稿 | ✅ 基础模板 |
 | `contacts.ts` | DM 联系人 mock（dock tab、sidebar 私信区共用） | ✅ |
 | 旧 `chat.tsx` | launcher + dock/full 浮窗 | 🗑 已删除 |
 
@@ -82,7 +84,7 @@ WorldPage
 
 ## 实现计划
 
-进度：8 / 8 subtasks 完成（100%，2026-07-04）
+进度：9 / 9 subtasks 完成（100%，2026-07-05）
 
 - [x] **CH-1: 挤压式布局重构**（2026-07-03，tsc/eslint/build 绿，待真机验证）
    - 影响文件：`src/pages/WorldPage.tsx`、`src/themes/cinnaglass/cinnaglass.css`、`src/themes/cinnaglass/sidebar.tsx`
@@ -111,9 +113,14 @@ WorldPage
    - 影响文件：`src/themes/cinnaglass/channel-screen.tsx`、`src/themes/cinnaglass/sidebar.tsx`、`src/pages/WorldPage.tsx`
    - 说明：ChannelScreen 升级为**会话窗口**（`convId` 同时接受频道 id 与 DM 联系人 id：DM 头 = 头像/名字/状态 + 正在输入，占位符「发给 xx…」）；sidebar 的 `onOpenDm`/`onOpenChannel` 合并为 `onOpenConv`（唯一聊天出口）；dock 不再被 sidebar 实体化，成为 stage 专属（见顶部解耦规则）。
 
-- [x] **CH-8: UI 层快捷键闸门**（2026-07-04，tsc/eslint/build 绿，待真机验证）
+- [x] **CH-8: UI 层快捷键闸门**（2026-07-04，tsc/eslint/build 绿，真机验证通过）
    - 影响文件：`src/pages/WorldPage.tsx`
    - 说明：回车监听 effect 加闸——`convOpen`（会话大窗）或 `screen`（任一弹窗）非空时不注册场景快捷键；大窗打开时裸回车不再让底下的 dock 实体化。未来场景快捷键统一走此闸门（见分层快捷键闸门规则）。
+
+- [x] **CH-9: 聊天中心内部会话切换**（2026-07-05，tsc/eslint/build 绿，UX 设计经用户确认；窄屏 v1 不折叠左栏——用户拍板）
+   - 影响文件：`src/themes/cinnaglass/{chat-data.ts, channel-screen.tsx, chat-dock.tsx, sidebar.tsx}`、`src/pages/WorldPage.tsx`
+   - 说明：`convsFor(inWorld)` 共享会话集合（`Conv` 类型）；ChannelScreen 加左栏（188px，文字频道分组仅世界内 + 私信分组带 mini 头像，`onSelect` 直改 `convOpen`）；切会话渲染期清空草稿 + `key={convId}` 重聚焦输入框；dock tabs 改用 convsFor（大厅自动只剩私信，active 不在集合时回退到首个会话）；sidebar 频道/私信行 `activeConv` 高亮同步。
+   - **真机验收通过（2026-07-05）**：sidebar 点 #闲聊 唤起聊天中心（左栏分组正确 + 闲聊双侧高亮）→ 窗内切「小满」→ 右侧变 DM 头部（头像/在线状态）+「发给 小满…」占位 + 左栏高亮移动 + 外层 sidebar 频道高亮清除（DM 行在 Home 栏，符合预期）。
 
 ## 测试记录
 

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>吉祥物摆位 + 多图上传 + 文字省略 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-1:#aedff2; --sky-2:#bfe3f5; --sky-3:#d8effa;
+    --cream:#fbfcfe; --butter:#fce7b0; --blush:#f8d7df;
+    --navy-1:#2a3a5e;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+    --pink:#ef9db4; --pink-deep:#d97a96;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:920px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vlabel{font-size:13px;font-weight:700;margin:20px 0 8px;color:var(--navy-1)}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:-4px 0 12px}
+
+  /* ── 模拟宽屏时间线弹窗 ── */
+  .stage{position:relative;border-radius:20px;overflow:hidden;height:430px;
+    background:rgba(255,255,255,.4);border:1px solid var(--glass-border);backdrop-filter:blur(10px)}
+  .stage .col{position:absolute;left:50%;transform:translateX(-50%);top:18px;width:min(56%,460px);
+    display:flex;flex-direction:column;gap:12px}
+  .cardX{border-radius:16px;padding:11px 14px;background:rgba(255,255,255,.84);
+    border:1px solid var(--glass-border);box-shadow:0 8px 20px -12px rgba(20,29,51,.35), inset 3px 0 0 0 var(--accent)}
+  .cardX.p{box-shadow:0 8px 20px -12px rgba(20,29,51,.35), inset 3px 0 0 0 #F2B9CB}
+  .cardX .who{font-size:11px;font-weight:700;color:var(--accent-deep);margin-bottom:2px}
+  .cardX.p .who{color:var(--pink-deep)}
+  .cardX p{font-size:13px}
+  .day{align-self:center;font-size:10.5px;font-weight:700;color:#8a6d3a;letter-spacing:.08em;
+    background:linear-gradient(135deg,#fff8ec,var(--butter));border:1px solid rgba(255,255,255,.9);
+    border-radius:999px;padding:4px 14px;transform:rotate(-1.2deg)}
+  .mascot{position:absolute;pointer-events:none}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .mascot svg{animation:bob 6s ease-in-out infinite}
+  .mascot.right svg{animation-duration:7.2s}
+
+  /* ── composer 多图 ── */
+  .compose{border-radius:18px;padding:12px;background:rgba(255,255,255,.86);
+    border:1px solid var(--glass-border);box-shadow:0 12px 30px -14px rgba(20,29,51,.35);max-width:640px;margin:0 auto}
+  .compose textarea{width:100%;min-height:64px;resize:none;border:0;background:transparent;outline:none;
+    font:inherit;font-size:15px;line-height:1.6;color:var(--glass-text)}
+  .pk-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .pk{position:relative;width:76px;height:76px;border-radius:12px;overflow:hidden;
+    box-shadow:0 6px 14px -6px rgba(20,29,51,.35)}
+  .pk .im{width:100%;height:100%}
+  .g1{background:linear-gradient(160deg,#9ecdf2,#c6a9e0)}
+  .g2{background:linear-gradient(120deg,#ffd9a8,#f2909e)}
+  .g3{background:linear-gradient(140deg,#a8e6d4,#7cc6ec)}
+  .pk .x{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;
+    background:rgba(20,29,51,.55);color:#fff;display:grid;place-items:center;cursor:pointer;
+    font-size:12px;line-height:1;backdrop-filter:blur(4px)}
+  .pk-add{width:76px;height:76px;border-radius:12px;border:1.5px dashed rgba(79,169,220,.5);
+    background:rgba(216,239,250,.35);display:grid;place-items:center;color:var(--accent-deep);
+    cursor:pointer;font-size:24px;font-weight:300}
+  .pk-cnt{font-size:11px;color:var(--glass-sub);margin-left:2px}
+  .row{display:flex;align-items:center;margin-top:10px}
+  .row .spacer{flex:1}
+  .btn-ghost{appearance:none;cursor:pointer;font:inherit;font-weight:600;border-radius:999px;
+    background:rgba(255,255,255,.55);color:var(--glass-sub);padding:9px 15px;font-size:13px;
+    border:1px solid var(--glass-border);margin-right:9px}
+  .btn-b1{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;color:#fff;
+    font-size:14px;padding:12px 24px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;
+    background:linear-gradient(135deg,#9FD6F4,#4fa9dc);
+    box-shadow:0 8px 22px -8px rgba(79,169,220,.65)}
+
+  /* ── 卡片多图徽标 + 文字省略 ── */
+  .demo2{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+  .mcard{border-radius:18px;overflow:hidden;background:rgba(255,255,255,.84);
+    border:1px solid var(--glass-border);box-shadow:0 10px 26px -14px rgba(20,29,51,.35), inset 3px 0 0 0 var(--accent)}
+  .mcard .hero{position:relative;aspect-ratio:16/10;
+    background:radial-gradient(circle at 70% 30%,#ffd9e8 0%,transparent 45%),
+      linear-gradient(150deg,#9ecdf2 0%,#c6a9e0 55%,#f2b9cb 100%);
+    display:grid;place-items:center;color:rgba(255,255,255,.85);font-size:12px;letter-spacing:.15em}
+  .imgn{position:absolute;right:10px;bottom:10px;background:rgba(20,29,51,.55);color:#fff;
+    font-size:11px;padding:3px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+  .mcard .bd{padding:11px 16px 13px}
+  .mcard .who{font-size:12px;font-weight:700;color:var(--accent-deep);margin-bottom:4px}
+  .mcard .who i{font-style:normal;font-weight:400;color:var(--glass-sub);margin-left:7px;font-size:11px}
+  .clamp{font-size:14.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden}
+  .hint{font-size:11px;color:var(--glass-sub);margin-top:6px;letter-spacing:.04em}
+  .foot{color:rgba(255,255,255,.75);font-size:11px;text-align:center;margin-top:8px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<h1>吉祥物摆位 · 多图上传 · 文字省略</h1>
+<div class="sub">宽屏两侧的大耳狗（原创云朵小狗，蓝/粉）· composer 多图选择器 · 卡片 clamp —— cinnaglass token 同源</div>
+
+<div class="wrap">
+  <div class="panel">
+    <span class="panel-tag">A · 吉祥物</span>
+    <h2>宽屏时间线两侧 —— 摆位方案<span class="pick">已选 P1 两侧守望</span></h2>
+    <div class="note">≥1200px 才出现（窄屏两侧本来就没有空）；pointer-events 关闭不挡操作；低幅漂浮动画与 HUD 同语言。P2（底角单只）会压 composer 视线，P3（顶部小对）离内容太远存在感弱——均否决。</div>
+
+    <div class="vlabel">P1 · 两侧守望：蓝狗在左看着「我」的蓝，粉狗在右呼应 TA 的粉 ✓</div>
+    <div class="stage">
+      <!-- 左：蓝大耳狗 -->
+      <div class="mascot" style="left:34px;bottom:52px">
+        <svg width="150" height="150" viewBox="0 0 200 190" fill="none">
+          <ellipse cx="30" cy="86" rx="19" ry="46" transform="rotate(16 30 86)" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <ellipse cx="30" cy="90" rx="10" ry="32" transform="rotate(16 30 90)" fill="var(--sky-3)"/>
+          <ellipse cx="170" cy="86" rx="19" ry="46" transform="rotate(-16 170 86)" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <ellipse cx="170" cy="90" rx="10" ry="32" transform="rotate(-16 170 90)" fill="var(--sky-3)"/>
+          <ellipse cx="100" cy="148" rx="42" ry="30" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <ellipse cx="76" cy="172" rx="15" ry="9" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <ellipse cx="124" cy="172" rx="15" ry="9" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <ellipse cx="100" cy="80" rx="60" ry="52" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+          <circle cx="79" cy="78" r="5.2" fill="#2a3a5e"/><circle cx="81" cy="76" r="1.8" fill="#fff"/>
+          <circle cx="121" cy="78" r="5.2" fill="#2a3a5e"/><circle cx="123" cy="76" r="1.8" fill="#fff"/>
+          <ellipse cx="63" cy="94" rx="9" ry="5" fill="#bfe3f5"/>
+          <ellipse cx="137" cy="94" rx="9" ry="5" fill="#bfe3f5"/>
+          <path d="M95 90 Q100 95 105 90" stroke="#2a3a5e" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M158 34 l3.5 8 8 3.5 -8 3.5 -3.5 8 -3.5 -8 -8 -3.5 8 -3.5 Z" fill="#9FD6F4"/>
+        </svg>
+      </div>
+      <!-- 右：粉大耳狗 -->
+      <div class="mascot right" style="right:34px;bottom:46px">
+        <svg width="140" height="140" viewBox="0 0 200 190" fill="none">
+          <ellipse cx="30" cy="86" rx="19" ry="46" transform="rotate(16 30 86)" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <ellipse cx="30" cy="90" rx="10" ry="32" transform="rotate(16 30 90)" fill="var(--blush)"/>
+          <ellipse cx="170" cy="86" rx="19" ry="46" transform="rotate(-16 170 86)" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <ellipse cx="170" cy="90" rx="10" ry="32" transform="rotate(-16 170 90)" fill="var(--blush)"/>
+          <ellipse cx="100" cy="148" rx="42" ry="30" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <ellipse cx="76" cy="172" rx="15" ry="9" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <ellipse cx="124" cy="172" rx="15" ry="9" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <ellipse cx="100" cy="80" rx="60" ry="52" fill="#fff" stroke="#f0d9e2" stroke-width="2.5"/>
+          <path d="M74 76 q5 -6 10 0" stroke="#2a3a5e" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          <path d="M116 76 q5 -6 10 0" stroke="#2a3a5e" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+          <ellipse cx="63" cy="94" rx="9" ry="5" fill="#f6c3d2"/>
+          <ellipse cx="137" cy="94" rx="9" ry="5" fill="#f6c3d2"/>
+          <path d="M95 90 Q100 95 105 90" stroke="#2a3a5e" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M42 30 c-3 -6 -12 -4 -12 3 c0 5 7 9 12 12 c5 -3 12 -7 12 -12 c0 -7 -9 -9 -12 -3 Z" fill="#F2B9CB"/>
+        </svg>
+      </div>
+      <!-- 中央时间线示意 -->
+      <div class="col">
+        <span class="day">⭐ 今天</span>
+        <div class="cardX p"><div class="who">小满</div><p>今天的晚霞是棉花糖粉色的</p></div>
+        <div class="cardX"><div class="who">我</div><p>拍得好好看，存进我们的小世界里啦</p></div>
+        <div class="cardX p"><div class="who">小满</div><p>晚饭做了番茄牛腩，下次做给你吃</p></div>
+      </div>
+    </div>
+    <div class="vnote" style="margin-top:10px">细节：蓝狗睁眼望向卡片流、粉狗眯眼微笑（一动一静成对）；各配一颗星/心小点缀；漂浮周期错开（6s / 7.2s）避免同步呆板。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">B · 多图上传</span>
+    <h2>composer 选图区 —— 空态宽条 → 已选缩略图行</h2>
+    <div class="note">空态保持 V1 宽条；选入 ≥1 张后收起为缩略图行：每张可 ×移除、末尾「＋」继续加（拖拽/点击均可）、上限 9 张。所选即所传，根治「拖 B 传 A」。</div>
+    <div class="compose">
+      <textarea placeholder="今天发生了什么温柔的事？（输入框随行数自动长高，上限约 5 行后内部滚动）"></textarea>
+      <div class="pk-row">
+        <span class="pk"><span class="im g1"></span><span class="x">×</span></span>
+        <span class="pk"><span class="im g2"></span><span class="x">×</span></span>
+        <span class="pk"><span class="im g3"></span><span class="x">×</span></span>
+        <span class="pk-add">＋</span>
+        <span class="pk-cnt">3 / 9</span>
+      </div>
+      <div class="row"><span class="spacer"></span>
+        <button class="btn-ghost">取消</button>
+        <button class="btn-b1">✨ 记下这一刻</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag" style="background:linear-gradient(135deg,#f6c3d2,#ef9db4)">C · 卡片收纳</span>
+    <h2>多图徽标 + 长文省略</h2>
+    <div class="note">卡片只当「目录」：首图 16:10 + 右下「+N」徽标；文字最多 6 行后省略——全文与全部图片在点开的详情里看。超长无空格字符串用 overflow-wrap:anywhere 强制折行（修溢出 bug）。</div>
+    <div class="demo2">
+      <div class="mcard">
+        <div class="hero">首 图<span class="imgn">＋2 张</span></div>
+        <div class="bd">
+          <div class="who">我 <i>20:31</i></div>
+          <div class="clamp">今天去了海边，风把云吹成了大耳狗的形状，我们追着浪跑了好久好久。你说要把这一刻记下来，于是我拍了三张照片：一张是云，一张是你，一张是我们的影子叠在一起。回家的路上买了热乎的鲷鱼烧，豆沙馅的分你一半。今天真是温柔的一天，连风都是甜的。希望以后的每个周末都能这样，慢慢地把日子过成我们喜欢的样子。sdfsdfsdfsdfsdfssddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</div>
+          <div class="hint">…点开卡片看全文 ↗</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="foot">ai/design_system/cinnaglass/ · timeline-mascot-multiimg.html · 2026-07-05</div>
+</body>
+</html>

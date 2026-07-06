@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Timeline 重设计提案 · 共写日记流 + 拼贴照片墙</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-1:#aedff2; --sky-2:#bfe3f5; --sky-3:#d8effa;
+    --cream:#fbfcfe; --butter:#fce7b0; --blush:#f8d7df;
+    --navy-1:#2a3a5e; --navy-2:#1e2a47;
+    --glass-bg:rgba(255,255,255,.66); --glass-bg-2:rgba(255,255,255,.42);
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+    --pink:#ef9db4; --pink-deep:#d97a96; --pink-line:#f2b9cb;
+    --r-lg:24px; --r-md:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);
+    min-height:100vh;padding:36px 20px 80px;
+  }
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:860px;margin:0 auto}
+  .panel{
+    background:var(--glass-bg);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:var(--r-lg);
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);
+    padding:26px 30px 30px;margin-bottom:34px;
+  }
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+    border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:22px}
+
+  /* ─────────── A. 共写日记流 ─────────── */
+  .tl{max-width:600px;margin:0 auto;position:relative;padding-left:0}
+  /* 柔和点线小路：淡到几乎是背景纹理 */
+  .tl::before{content:"";position:absolute;left:27px;top:14px;bottom:8px;width:0;
+    border-left:2px dotted rgba(124,198,236,.38)}
+
+  .day-sticker{display:flex;justify-content:center;margin:26px 0 18px;position:relative}
+  .day-sticker span{
+    background:linear-gradient(135deg,#fff8ec,var(--butter));
+    border:1px solid rgba(255,255,255,.9);
+    color:#8a6d3a;font-size:12px;font-weight:700;letter-spacing:.08em;
+    border-radius:999px;padding:5px 18px;
+    box-shadow:0 4px 14px -6px rgba(140,110,60,.35);
+    transform:rotate(-1.2deg);
+  }
+  .day-sticker.blue span{background:linear-gradient(135deg,#eef8ff,var(--sky-3));color:#3d6f92;transform:rotate(.8deg);
+    box-shadow:0 4px 14px -6px rgba(61,111,146,.3)}
+
+  .entry{position:relative;margin:0 0 18px 56px;max-width:520px}
+  .entry .card{
+    background:var(--glass-bg);border:1px solid var(--glass-border);
+    border-radius:20px;padding:14px 17px;
+    box-shadow:0 10px 26px -14px rgba(20,29,51,.35);
+    transition:transform .18s;
+  }
+  .entry:hover .card{transform:translateY(-2px)}
+  /* 头像 = 挂在卡片左上角的贴纸，不再是脊线节点 */
+  .entry .ava{
+    position:absolute;left:-46px;top:2px;width:36px;height:36px;border-radius:50%;
+    display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;
+    border:2.5px solid #fff;box-shadow:0 4px 10px -4px rgba(20,29,51,.4);
+  }
+  .entry.mine .ava{background:linear-gradient(135deg,var(--accent),var(--accent-deep))}
+  .entry.hers .ava{background:linear-gradient(135deg,#f6c3d2,var(--pink))}
+  .entry.mine .card{border-left:3px solid rgba(79,169,220,.55)}
+  .entry.hers .card{border-left:3px solid var(--pink-line)}
+  .entry .who{font-size:11.5px;font-weight:700;margin-bottom:3px}
+  .entry.mine .who{color:var(--accent-deep)}
+  .entry.hers .who{color:var(--pink-deep)}
+  .entry .who i{font-style:normal;font-weight:400;color:var(--glass-sub);margin-left:7px;font-size:11px}
+  .entry p{font-size:14px;color:var(--glass-text)}
+
+  /* 图片帖：图为主视觉，顶部通栏大图 */
+  .entry .card.photo{padding:0;overflow:hidden}
+  .entry .card.photo .ph{
+    aspect-ratio:16/10;
+    background:
+      radial-gradient(circle at 70% 30%, #ffd9e8 0%, transparent 45%),
+      radial-gradient(circle at 25% 70%, #ffe9c9 0%, transparent 50%),
+      linear-gradient(150deg,#9ecdf2 0%,#c6a9e0 55%,#f2b9cb 100%);
+    display:grid;place-items:center;color:rgba(255,255,255,.85);font-size:12px;letter-spacing:.15em
+  }
+  .entry .card.photo .txt{padding:12px 17px 14px}
+
+  /* ─────────── B. 拼贴照片墙 ─────────── */
+  .month-head{font-size:12.5px;color:var(--glass-sub);font-weight:700;letter-spacing:.06em;margin:8px 4px 16px}
+  .month-head b{color:var(--accent-deep);font-size:14px;margin-right:6px}
+  .pw{columns:3;column-gap:18px;max-width:760px;margin:0 auto}
+  @media(max-width:640px){.pw{columns:2}}
+  .pola{
+    break-inside:avoid;margin:0 0 20px;background:#fffdf8;border-radius:6px;
+    padding:8px 8px 30px;box-shadow:0 10px 24px -10px rgba(20,29,51,.35);
+    position:relative;transition:transform .22s cubic-bezier(.3,.8,.35,1);cursor:zoom-in;
+  }
+  .pola:nth-child(3n+1){transform:rotate(-2.2deg)}
+  .pola:nth-child(3n+2){transform:rotate(1.6deg)}
+  .pola:nth-child(3n){transform:rotate(-.8deg)}
+  .pola:hover{transform:rotate(0) translateY(-4px) scale(1.02);z-index:2}
+  .pola .img{border-radius:3px;width:100%;display:block}
+  .pola .cap{position:absolute;left:0;right:0;bottom:7px;text-align:center;
+    font-size:11px;color:#8b7f6a;letter-spacing:.08em}
+  /* washi 胶带 */
+  .pola .tape{position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(-3deg);
+    width:64px;height:18px;border-radius:2px;opacity:.85;
+    background:repeating-linear-gradient(45deg,var(--sky-2) 0 6px,#d8effa 6px 12px)}
+  .pola:nth-child(2n) .tape{background:repeating-linear-gradient(45deg,#f8d7df 0 6px,#fce9ef 6px 12px);transform:translateX(-50%) rotate(2deg)}
+  /* 占位“照片”，不同纵横比展示自然 masonry */
+  .g1{aspect-ratio:3/4;background:linear-gradient(160deg,#9ecdf2,#c6a9e0)}
+  .g2{aspect-ratio:4/3;background:linear-gradient(120deg,#ffd9a8,#f2909e)}
+  .g3{aspect-ratio:1/1;background:linear-gradient(140deg,#a8e6d4,#7cc6ec)}
+  .g4{aspect-ratio:4/5;background:linear-gradient(160deg,#f2b9cb,#b9c9ec)}
+  .g5{aspect-ratio:16/10;background:linear-gradient(140deg,#c3b8e8,#8ad0f2)}
+  .g6{aspect-ratio:3/4;background:linear-gradient(170deg,#fce7b0,#f8d7df)}
+
+  .foot{color:rgba(255,255,255,.75);font-size:11px;text-align:center;margin-top:8px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<h1>Timeline 重设计提案 · Mockup</h1>
+<div class="sub">A 共写日记流（替代中央脊线 zigzag） · B 拼贴照片墙（替代等高裁切网格）</div>
+
+<div class="wrap">
+  <div class="panel">
+    <span class="panel-tag">A · 时间线</span>
+    <h2>共写日记流 —— 单列 · 日期贴纸 · 头像贴在卡片上</h2>
+    <div class="note">脊线退成一条几乎隐形的点线小路；日期是手帐贴纸；作者身份只靠颜色（蓝/粉），位置不再左右横跳。图片帖以图为主视觉。</div>
+
+    <div class="tl">
+      <div class="day-sticker"><span>☁️ 昨天</span></div>
+
+      <div class="entry hers">
+        <div class="ava">满</div>
+        <div class="card">
+          <div class="who">小满 <i>19:42</i></div>
+          <p>晚饭做了番茄牛腩，下次做给你吃</p>
+        </div>
+      </div>
+
+      <div class="entry mine">
+        <div class="ava">知</div>
+        <div class="card">
+          <div class="who">我 <i>21:08</i></div>
+          <p>好呀，那我负责洗碗（和试吃）</p>
+        </div>
+      </div>
+
+      <div class="day-sticker blue"><span>⭐ 今天</span></div>
+
+      <div class="entry hers">
+        <div class="ava">满</div>
+        <div class="card photo">
+          <div class="ph">照 片 占 位</div>
+          <div class="txt">
+            <div class="who">小满 <i>09:16</i></div>
+            <p>今天的晚霞是棉花糖粉色的</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry mine">
+        <div class="ava">知</div>
+        <div class="card">
+          <div class="who">我 <i>11:57</i></div>
+          <p>拍得好好看，存进我们的小世界里啦</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag" style="background:linear-gradient(135deg,#f6c3d2,#ef9db4)">B · 照片墙</span>
+    <h2>拼贴手帐墙 —— 自然纵横比 · 相纸白框 · 轻微旋转 · 胶带贴角</h2>
+    <div class="note">照片保持原始纵横比做真 masonry；hover 摆正浮起；日期手写在相纸下缘。缩略图长边 480→1024 修模糊。</div>
+
+    <div class="month-head"><b>7 月</b>6 个瞬间</div>
+    <div class="pw">
+      <figure class="pola"><i class="tape"></i><div class="img g1"></div><figcaption class="cap">7.5 · 今天</figcaption></figure>
+      <figure class="pola"><i class="tape"></i><div class="img g2"></div><figcaption class="cap">7.4 · 昨天</figcaption></figure>
+      <figure class="pola"><i class="tape"></i><div class="img g3"></div><figcaption class="cap">7.3</figcaption></figure>
+      <figure class="pola"><i class="tape"></i><div class="img g4"></div><figcaption class="cap">7.2</figcaption></figure>
+      <figure class="pola"><i class="tape"></i><div class="img g5"></div><figcaption class="cap">7.1</figcaption></figure>
+      <figure class="pola"><i class="tape"></i><div class="img g6"></div><figcaption class="cap">7.1</figcaption></figure>
+    </div>
+  </div>
+</div>
+<div class="foot">配色 / 圆角 / 玻璃全部取自 cinnaglass token · 占位渐变代表照片</div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Composer 紧凑化 + 草稿交互 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-2:#bfe3f5; --sky-3:#d8effa; --butter:#fce7b0; --blush:#f8d7df;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:760px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vlabel{font-size:13px;font-weight:700;margin:22px 0 8px}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:-4px 0 12px}
+  .h-tag{font-size:10.5px;color:#fff;background:rgba(42,58,94,.45);border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:1px}
+
+  .compose{border-radius:18px;padding:10px;background:rgba(255,255,255,.86);
+    border:1px solid var(--glass-border);box-shadow:0 12px 30px -14px rgba(20,29,51,.35)}
+  .compose textarea{width:100%;resize:none;border:0;background:transparent;outline:none;
+    font:inherit;font-size:15px;line-height:1.6;color:var(--glass-text);display:block}
+  .compose textarea::placeholder{color:var(--glass-sub)}
+  .row{display:flex;align-items:center;gap:9px}
+  .row .spacer{flex:1}
+  .btn-ghost{appearance:none;cursor:pointer;font:inherit;font-weight:600;border-radius:999px;
+    background:rgba(255,255,255,.55);color:var(--glass-sub);padding:8px 14px;font-size:13px;
+    border:1px solid var(--glass-border);display:inline-flex;align-items:center;gap:6px}
+  .btn-b1{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;color:#fff;
+    font-size:13.5px;padding:10px 20px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,#9FD6F4,#4fa9dc);box-shadow:0 8px 22px -8px rgba(79,169,220,.65)}
+  .strip{height:96px;border-radius:14px;border:1.5px dashed rgba(79,169,220,.45);
+    background:rgba(216,239,250,.35);display:flex;align-items:center;justify-content:center;gap:9px;
+    color:var(--glass-sub);font-size:12.5px;margin:10px 0}
+  .pk-row{display:flex;gap:9px;align-items:center;margin:10px 0 2px}
+  .pk{position:relative;width:64px;height:64px;border-radius:11px;overflow:hidden;box-shadow:0 6px 14px -6px rgba(20,29,51,.35)}
+  .pk .im{width:100%;height:100%;display:block}
+  .g1{background:linear-gradient(160deg,#9ecdf2,#c6a9e0)} .g2{background:linear-gradient(120deg,#ffd9a8,#f2909e)}
+  .pk .x{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;
+    background:rgba(20,29,51,.55);color:#fff;display:grid;place-items:center;font-size:11px}
+  .cam{width:34px;height:34px;border-radius:50%;border:1px solid var(--glass-border);cursor:pointer;
+    background:rgba(216,239,250,.5);display:grid;place-items:center;color:var(--accent-deep)}
+  svg{flex:0 0 auto}
+
+  /* 折叠态草稿 pill */
+  .pill{display:flex;align-items:center;gap:11px;height:52px;padding:0 16px 0 8px;border-radius:999px;
+    border:1px solid var(--glass-border);background:rgba(255,255,255,.6);cursor:pointer}
+  .pill .chip{width:36px;height:36px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;color:#fff;
+    background:linear-gradient(135deg,#9FD6F4,#4fa9dc);font-size:19px;font-weight:300}
+  .pill .ph{color:var(--glass-sub);font-size:14px;flex:1}
+  .pill.draft{border-color:rgba(124,198,236,.7)}
+  .pill.draft .ph{color:var(--glass-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dchip{font-size:10.5px;font-weight:700;color:#8a6d3a;letter-spacing:.06em;flex:0 0 auto;
+    background:linear-gradient(135deg,#fff8ec,var(--butter));border:1px solid rgba(255,255,255,.9);
+    border-radius:999px;padding:2.5px 10px}
+  .dimg{font-size:11px;color:var(--accent-deep);font-weight:600;flex:0 0 auto}
+  .foot{color:rgba(255,255,255,.75);font-size:11px;text-align:center;margin-top:8px;letter-spacing:.06em}
+  .spec{font-size:12.5px;line-height:2;color:var(--glass-text)}
+  .spec b{color:var(--accent-deep)}
+</style>
+</head>
+<body>
+<h1>Composer 紧凑化 + 草稿交互</h1>
+<div class="sub">高度对比（H1 现状 / H2 紧凑 / H3 折中） · 折叠态草稿预览 · 交互规则</div>
+
+<div class="wrap">
+  <div class="panel">
+    <span class="panel-tag">A · 高度</span>
+    <h2>展开态三方案<span class="pick">已选 H2 紧凑</span></h2>
+    <div class="note">composer 是时间线的「地板」，越矮，回忆流可视区越大。三案均保持既有 token（白底 / pill / 蓝渐变 CTA）。</div>
+
+    <div class="vlabel">H1 · 现状<span class="h-tag">≈ 258px</span></div>
+    <div class="vnote">96px 拖放条常驻——多数发帖不带图，为少数场景常驻付 96px 是浪费。</div>
+    <div class="compose">
+      <textarea style="min-height:70px" placeholder="今天发生了什么温柔的事？"></textarea>
+      <div class="strip">🖼 分享几张此刻的照片 · 拖进来，或 <u>选择文件</u></div>
+      <div class="row"><span class="spacer"></span><button class="btn-ghost">取消</button><button class="btn-b1">✨ 记下这一刻</button></div>
+    </div>
+
+    <div class="vlabel">H2 · 紧凑：一行起步，照片入口收进操作行 ✓<span class="h-tag">≈ 124px</span></div>
+    <div class="vnote">textarea 一行起步（打字自动长高）；📷 圆钮开文件选择、整个 composer 仍可整体拖放（拖拽悬停时高亮提示）；选图后缩略图行才出现。聊天输入框的成熟形态，与 ChatDock 同语言。</div>
+    <div class="compose">
+      <textarea style="min-height:44px" placeholder="今天发生了什么温柔的事？"></textarea>
+      <div class="row">
+        <span class="cam"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
+        <span class="spacer"></span><button class="btn-ghost">取消</button><button class="btn-b1">✨ 记下这一刻</button>
+      </div>
+    </div>
+    <div class="vnote" style="margin-top:8px">选图后（缩略图行出现，仍然很矮）：</div>
+    <div class="compose">
+      <textarea style="min-height:44px" placeholder="今天发生了什么温柔的事？"></textarea>
+      <div class="pk-row">
+        <span class="pk"><span class="im g1"></span><span class="x">×</span></span>
+        <span class="pk"><span class="im g2"></span><span class="x">×</span></span>
+        <span style="font-size:11px;color:var(--glass-sub)">2 / 9</span>
+      </div>
+      <div class="row">
+        <span class="cam"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
+        <span class="spacer"></span><button class="btn-ghost">取消</button><button class="btn-b1">✨ 记下这一刻</button>
+      </div>
+    </div>
+
+    <div class="vlabel">H3 · 折中：拖放条瘦身为 52px 细条<span class="h-tag">≈ 208px</span></div>
+    <div class="vnote">仍常驻一条；比 H1 矮但没解决「为少数场景常驻付费」的本质。</div>
+    <div class="compose">
+      <textarea style="min-height:52px" placeholder="今天发生了什么温柔的事？"></textarea>
+      <div class="strip" style="height:52px;margin:8px 0">🖼 拖进来，或 <u>选择文件</u></div>
+      <div class="row"><span class="spacer"></span><button class="btn-ghost">取消</button><button class="btn-b1">✨ 记下这一刻</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag" style="background:linear-gradient(135deg,#f6c3d2,#ef9db4)">B · 草稿</span>
+    <h2>点外部收起 = 存草稿 · 折叠态必须「看得见草稿」</h2>
+    <div class="note">隐式动作（点外部/Esc）永不销毁内容——X/Gmail 的行业惯例；销毁只走显式「取消」。配套设计：折叠 pill 从空占位变成草稿预览，否则用户以为内容丢了。</div>
+
+    <div class="vlabel">无草稿（现状不变）</div>
+    <div class="pill"><span class="chip">＋</span><span class="ph">记录此刻的我们…</span></div>
+
+    <div class="vlabel" style="margin-top:14px">有草稿 → 预览 + 徽标</div>
+    <div class="pill draft">
+      <span class="chip">＋</span>
+      <span class="dchip">✎ 草稿</span>
+      <span class="ph">今天去了海边，风把云吹成了大耳狗的形状，我们追着浪跑了…</span>
+      <span class="dimg">🖼 2 张</span>
+    </div>
+
+    <div class="vlabel" style="margin-top:18px">交互规则（拍板稿）</div>
+    <div class="spec">
+      · 点 composer 外部（时间线弹窗内任意处）→ <b>收起，草稿保留</b>（文字 + 已选图片）<br>
+      · <b>Esc</b> → 同上（键盘等价路径）<br>
+      · 点「取消」→ <b>清空草稿</b> 并收起（唯一销毁路径）<br>
+      · 发布成功 → 清空并收起（内容已进时间线）<br>
+      · 折叠 pill 有草稿时：accent 边框 + 「✎ 草稿」贴纸 + 首行文字预览 + 图片数
+    </div>
+  </div>
+</div>
+<div class="foot">ai/design_system/cinnaglass/ · composer-compact.html · 2026-07-06</div>
+</body>
+</html>
