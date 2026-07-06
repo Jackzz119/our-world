@@ -115,6 +115,7 @@ const SidebarStyles = () => (
   .sb-dm{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;}
   .sb-dm:hover{background:var(--glass-bg-2);color:var(--glass-text);}
+  .sb-dm.on{background:var(--glass-hi);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-border);}
   .sb-dm .ava{width:30px;height:30px;font-size:12px;}
   .sb-dm .nm{flex:1;font-size:13.5px;font-weight:600;color:var(--glass-text);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -226,6 +227,7 @@ export function Sidebar({
     onEnterWorld,
     onCreateWorld,
     onOpenConv,
+    activeConv,
     rooms,
     meRoom,
     onEnterSpace
@@ -243,6 +245,7 @@ export function Sidebar({
     onEnterWorld: () => void;
     onCreateWorld: () => void;
     onOpenConv: (convId: string) => void; // text channel id OR DM contact id
+    activeConv: string | null; // conv active in the chat hub — mirrors highlight
     rooms: Room[];
     meRoom: string;
     onEnterSpace: (r: Room) => void;
@@ -354,7 +357,7 @@ export function Sidebar({
 
                                     <div className="sb-cat">私信</div>
                                     {dms.map((c) => (
-                                        <div key={c.id} className="sb-dm" onClick={() => onOpenConv(c.id)} title={`私信 ${c.name}`}>
+                                        <div key={c.id} className={`sb-dm ${activeConv === c.id ? 'on' : ''}`} onClick={() => onOpenConv(c.id)} title={`私信 ${c.name}`}>
                                             <MiniAva person={{ id: c.id, name: c.name, ini: c.ini, color: c.color, couple: c.lover, online: c.online }} size={30} />
                                             <span className="nm">{c.name}</span>
                                             <span className="st">{c.status}</span>
@@ -417,10 +420,11 @@ export function Sidebar({
                                                 );
                                             })}
 
-                                            {/* text channels — click opens the covering ChannelScreen */}
+                                            {/* text channels — summon buttons for the chat hub;
+                                                highlight mirrors the hub's active conv */}
                                             <div className="sb-cat">文字频道</div>
                                             {TEXT_CHANNELS.map((ch) => (
-                                                <div key={ch.id} className="sb-room" onClick={() => onOpenConv(ch.id)} title={ch.topic}>
+                                                <div key={ch.id} className={`sb-room ${activeConv === ch.id ? 'on' : ''}`} onClick={() => onOpenConv(ch.id)} title={ch.topic}>
                                                     <span className="ic">
                                                         <IHash size={17} />
                                                     </span>

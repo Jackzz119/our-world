@@ -1,12 +1,14 @@
-// channel-screen.tsx — the covering conversation surface: opened from the
-// sidebar (text channels AND DMs — the sidebar's only chat trigger), it
-// floats over (almost covers) the stage so you can chat with the scene
-// tucked away. Shares threads with the in-scene ChatDock — same content,
-// different experience; the dock is triggered only from the stage (chat
-// button / Enter), never from the sidebar. See ai/Features/chat.md.
+// channel-screen.tsx — the covering CHAT HUB: opened from the sidebar (text
+// channels AND DMs — the sidebar's only chat trigger), it floats over the
+// stage so you can chat with the scene tucked away. The sidebar entries are
+// summon buttons; once open, the hub's own left column switches between all
+// open conversations (current world's text channels + DMs — same set as the
+// dock tabs via convsFor). Threads are shared with the in-scene ChatDock —
+// same content, different experience; the dock is triggered only from the
+// stage (chat button / Enter), never from the sidebar. See ai/Features/chat.md.
 import { useEffect, useRef, useState } from 'react';
 import { IClose, IHash, ISend } from './icons';
-import { TEXT_CHANNELS, type Msg } from './chat-data';
+import { TEXT_CHANNELS, convsFor, type Msg } from './chat-data';
 import { CONTACTS } from './contacts';
 
 const ChannelStyles = () => (
@@ -14,10 +16,31 @@ const ChannelStyles = () => (
   .chsc-scrim{position:absolute;inset:0;z-index:22;background:rgba(14,20,38,.45);
     -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:chscFade .3s ease both;}
   @keyframes chscFade{from{opacity:0}to{opacity:1}}
-  .chsc{position:absolute;inset:3% 4%;z-index:23;display:flex;flex-direction:column;overflow:hidden;
+  .chsc{position:absolute;inset:3% 4%;z-index:23;display:flex;flex-direction:row;overflow:hidden;
     border-radius:24px;animation:chscIn .34s cubic-bezier(.3,.8,.4,1) both;}
   @keyframes chscIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion: reduce){.chsc,.chsc-scrim{animation:none}}
+
+  /* left column: conversation switcher (channels of this world + DMs) */
+  .chsc-nav{width:188px;flex:0 0 auto;border-right:1px solid var(--glass-border);
+    background:linear-gradient(160deg,var(--glass-hi),transparent);
+    overflow-y:auto;overflow-x:hidden;padding:12px 9px;}
+  .chsc-nav::-webkit-scrollbar{width:5px;}
+  .chsc-nav::-webkit-scrollbar-thumb{background:var(--glass-border);border-radius:9px;}
+  .chsc-cat{font-size:10.5px;letter-spacing:.15em;font-weight:700;color:var(--glass-sub);
+    padding:10px 8px 5px;text-transform:uppercase;}
+  .chsc-nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;cursor:pointer;
+    color:var(--glass-sub);transition:background .16s,color .16s;}
+  .chsc-nav-item:hover{background:var(--glass-bg-2);color:var(--glass-text);}
+  .chsc-nav-item.on{background:var(--glass-hi);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-border);}
+  .chsc-nav-item .ic{display:inline-flex;flex:0 0 auto;}
+  .chsc-nav-item .nm{flex:1;min-width:0;font-size:13.5px;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chsc-nav-item .ava-s{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-size:10px;font-weight:700;border:1.5px solid rgba(255,255,255,.72);flex:0 0 auto;}
+
+  /* right column: the conversation itself */
+  .chsc-main{flex:1;min-width:0;display:flex;flex-direction:column;}
 
   .chsc-hd{display:flex;align-items:center;gap:11px;padding:16px 18px 13px;border-bottom:1px solid var(--glass-border);}
   .chsc-hd .ic{display:inline-flex;color:var(--accent-deep);}
@@ -54,20 +77,31 @@ const ChannelStyles = () => (
 );
 
 type ChannelScreenProps = {
-    convId: string | null; // text channel id OR DM contact id
+    convId: string | null; // active conversation: text channel id OR DM contact id
+    onSelect: (convId: string) => void; // hub-internal switching (same lifted state)
+    inWorld: boolean; // channels are a world concept — lobby shows DMs only
     onClose: () => void;
     threads: Record<string, Msg[]>;
     typingId?: string | null; // conv currently "typing…" (DM fake replies)
     onSend: (convId: string, text: string) => void;
 };
 
-export function ChannelScreen({ convId, onClose, threads, typingId, onSend }: ChannelScreenProps) {
+export function ChannelScreen({ convId, onSelect, inWorld, onClose, threads, typingId, onSend }: ChannelScreenProps) {
     const [text, setText] = useState('');
+    // render-time adjustment: drop the unsent draft when switching conversations
+    const [prevConv, setPrevConv] = useState(convId);
+    if (convId !== prevConv) {
+        setPrevConv(convId);
+        setText('');
+    }
     const msgsRef = useRef<HTMLDivElement>(null);
     const ch = TEXT_CHANNELS.find((c) => c.id === convId);
     const dm = ch ? undefined : CONTACTS.find((c) => c.id === convId);
     const msgs = (convId && threads[convId]) || [];
     const typing = !!convId && typingId === convId;
+    const convs = convsFor(inWorld);
+    const channels = convs.filter((c) => c.kind === 'channel');
+    const dms = convs.filter((c) => c.kind === 'dm');
 
     useEffect(() => {
         const el = msgsRef.current;
@@ -87,45 +121,77 @@ export function ChannelScreen({ convId, onClose, threads, typingId, onSend }: Ch
             <ChannelStyles />
             <div className="chsc-scrim" onClick={onClose} />
             <div className="chsc glass">
-                <div className="chsc-hd">
-                    {ch ? (
-                        <span className="ic">
-                            <IHash size={18} />
-                        </span>
-                    ) : (
-                        <span className="chsc-ava" style={{ background: dm!.color }}>
-                            {dm!.ini}
-                        </span>
+                {/* conversation switcher — same set as the dock tabs (convsFor) */}
+                <div className="chsc-nav">
+                    {channels.length > 0 && (
+                        <>
+                            <div className="chsc-cat">文字频道</div>
+                            {channels.map((c) => (
+                                <div key={c.id} className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`} onClick={() => onSelect(c.id)} title={c.hint}>
+                                    <span className="ic">
+                                        <IHash size={15} />
+                                    </span>
+                                    <span className="nm">{c.name}</span>
+                                </div>
+                            ))}
+                        </>
                     )}
-                    <h3>{ch ? ch.name : dm!.name}</h3>
-                    <span className="topic">{typing ? '正在输入…' : ch ? ch.topic : dm!.status}</span>
-                    <div className="chsc-x" onClick={onClose} title="关闭">
-                        <IClose size={16} />
-                    </div>
+                    <div className="chsc-cat">私信</div>
+                    {dms.map((c) => {
+                        const p = CONTACTS.find((x) => x.id === c.id);
+                        return (
+                            <div key={c.id} className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`} onClick={() => onSelect(c.id)} title={c.hint}>
+                                <span className="ava-s" style={{ background: p?.color }}>
+                                    {p?.ini}
+                                </span>
+                                <span className="nm">{c.name}</span>
+                            </div>
+                        );
+                    })}
                 </div>
-                <div className="chsc-msgs" ref={msgsRef}>
-                    {msgs.map((m) => (
-                        <div key={m.id} className={`chsc-m ${m.from === 'me' ? 'me' : ''}`}>
-                            <span className="meta">
-                                {m.from === 'me' ? '我' : m.sender || (dm ? dm.name : '对方')} · {m.time}
+
+                <div className="chsc-main">
+                    <div className="chsc-hd">
+                        {ch ? (
+                            <span className="ic">
+                                <IHash size={18} />
                             </span>
-                            <span className="bub">{m.text}</span>
+                        ) : (
+                            <span className="chsc-ava" style={{ background: dm!.color }}>
+                                {dm!.ini}
+                            </span>
+                        )}
+                        <h3>{ch ? ch.name : dm!.name}</h3>
+                        <span className="topic">{typing ? '正在输入…' : ch ? ch.topic : dm!.status}</span>
+                        <div className="chsc-x" onClick={onClose} title="关闭">
+                            <IClose size={16} />
                         </div>
-                    ))}
+                    </div>
+                    <div className="chsc-msgs" ref={msgsRef}>
+                        {msgs.map((m) => (
+                            <div key={m.id} className={`chsc-m ${m.from === 'me' ? 'me' : ''}`}>
+                                <span className="meta">
+                                    {m.from === 'me' ? '我' : m.sender || (dm ? dm.name : '对方')} · {m.time}
+                                </span>
+                                <span className="bub">{m.text}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <form className="chsc-input" onSubmit={submit}>
+                        <input
+                            key={convId}
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
+                            maxLength={500}
+                            spellCheck={false}
+                            autoFocus
+                        />
+                        <button type="submit" aria-label="发送">
+                            <ISend size={17} />
+                        </button>
+                    </form>
                 </div>
-                <form className="chsc-input" onSubmit={submit}>
-                    <input
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
-                        maxLength={500}
-                        spellCheck={false}
-                        autoFocus
-                    />
-                    <button type="submit" aria-label="发送">
-                        <ISend size={17} />
-                    </button>
-                </form>
             </div>
         </>
     );

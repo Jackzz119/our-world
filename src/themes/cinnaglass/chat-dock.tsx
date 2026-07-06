@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IChat, IHash, ISend } from './icons';
 import { CONTACTS } from './contacts';
-import { TEXT_CHANNELS, isChannel, type Msg } from './chat-data';
+import { TEXT_CHANNELS, convsFor, isChannel, type Msg } from './chat-data';
 
 const DockStyles = () => (
     <style>{`
@@ -72,6 +72,7 @@ type ChatDockProps = {
     setSolid: (v: boolean) => void;
     active: string; // conversation id: DM contact or 'ch-*' channel
     setActive: (id: string) => void;
+    inWorld: boolean; // channel tabs are a world concept — lobby shows DMs only
     threads: Record<string, Msg[]>;
     typingId: string | null;
     onSend: (convId: string, text: string) => void;
@@ -83,31 +84,36 @@ const nameOf = (convId: string, m: Msg): string => {
     return CONTACTS.find((c) => c.id === convId)?.name ?? '对方';
 };
 
-export function ChatDock({ solid, setSolid, active, setActive, threads, typingId, onSend }: ChatDockProps) {
+export function ChatDock({ solid, setSolid, active, setActive, inWorld, threads, typingId, onSend }: ChatDockProps) {
     const [text, setText] = useState('');
     const msgsRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const msgs = threads[active] || [];
+    // same conversation set as the chat hub (convsFor keeps them in sync);
+    // if the active conv left the set (e.g. a channel while in the lobby),
+    // fall back to the first available one
+    const convs = convsFor(inWorld);
+    const cur = convs.some((c) => c.id === active) ? active : (convs[0]?.id ?? active);
+
+    const msgs = threads[cur] || [];
     const tail = solid ? msgs : msgs.slice(-5); // ghost only shows the tail
 
     // stick to bottom; refocus input whenever the dock solidifies
     useEffect(() => {
         const el = msgsRef.current;
         if (el) el.scrollTop = el.scrollHeight;
-    }, [threads, typingId, active, solid]);
+    }, [threads, typingId, cur, solid]);
     useEffect(() => {
         if (solid) inputRef.current?.focus();
     }, [solid]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSend(active, text);
+        onSend(cur, text);
         setText('');
     };
 
-    const dms = CONTACTS.filter((c) => !c.group);
-    const typingName = typingId === active && !isChannel(active) ? CONTACTS.find((c) => c.id === active)?.name : null;
+    const typingName = typingId === cur && !isChannel(cur) ? CONTACTS.find((c) => c.id === cur)?.name : null;
 
     return (
         <div className="cdk">
@@ -115,16 +121,13 @@ export function ChatDock({ solid, setSolid, active, setActive, threads, typingId
             <div className={`cdk-box ${solid ? 'solid glass' : 'ghost'}`}>
                 {solid && (
                     <div className="cdk-tabs">
-                        {TEXT_CHANNELS.map((ch) => (
-                            <button key={ch.id} type="button" className={`cdk-tab ${active === ch.id ? 'on' : ''}`} onClick={() => setActive(ch.id)}>
-                                <span className="ic">
-                                    <IHash size={11} />
-                                </span>
-                                {ch.name}
-                            </button>
-                        ))}
-                        {dms.map((c) => (
-                            <button key={c.id} type="button" className={`cdk-tab ${active === c.id ? 'on' : ''}`} onClick={() => setActive(c.id)}>
+                        {convs.map((c) => (
+                            <button key={c.id} type="button" className={`cdk-tab ${cur === c.id ? 'on' : ''}`} onClick={() => setActive(c.id)}>
+                                {c.kind === 'channel' && (
+                                    <span className="ic">
+                                        <IHash size={11} />
+                                    </span>
+                                )}
                                 {c.name}
                             </button>
                         ))}
@@ -133,7 +136,7 @@ export function ChatDock({ solid, setSolid, active, setActive, threads, typingId
                 <div className="cdk-msgs" ref={msgsRef}>
                     {tail.map((m) => (
                         <div key={m.id} className="cdk-line">
-                            <span className={`who ${m.from === 'me' ? 'me' : ''}`}>[{nameOf(active, m)}]</span>
+                            <span className={`who ${m.from === 'me' ? 'me' : ''}`}>[{nameOf(cur, m)}]</span>
                             {m.text}
                         </div>
                     ))}
@@ -145,7 +148,7 @@ export function ChatDock({ solid, setSolid, active, setActive, threads, typingId
                             ref={inputRef}
                             value={text}
                             onChange={(e) => setText(e.target.value)}
-                            placeholder={isChannel(active) ? `在 #${TEXT_CHANNELS.find((c) => c.id === active)?.name} 说话…` : '说句悄悄话…'}
+                            placeholder={isChannel(cur) ? `在 #${TEXT_CHANNELS.find((c) => c.id === cur)?.name} 说话…` : '说句悄悄话…'}
                             maxLength={200}
                             spellCheck={false}
                         />

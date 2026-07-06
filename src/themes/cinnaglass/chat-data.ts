@@ -17,6 +17,19 @@ export const TEXT_CHANNELS: TextChannel[] = [
 
 export const isChannel = (convId: string) => convId.startsWith('ch-');
 
+// One switchable conversation entry. convsFor is the single source for every
+// conversation switcher (dock tabs + chat hub list + future unread badges):
+// text channels belong to the world, DMs are persistent — so the set is
+// "current world's channels + open DMs" in-world, DMs only in the lobby.
+// "Open DMs" = all non-group contacts while mock; becomes recency-ordered
+// threads with the messages backend.
+export type Conv = { id: string; kind: 'channel' | 'dm'; name: string; hint: string };
+
+export const convsFor = (inWorld: boolean): Conv[] => [
+    ...(inWorld ? TEXT_CHANNELS.map((ch): Conv => ({ id: ch.id, kind: 'channel', name: ch.name, hint: ch.topic })) : []),
+    ...CONTACTS.filter((c) => !c.group).map((c): Conv => ({ id: c.id, kind: 'dm', name: c.name, hint: c.status }))
+];
+
 export const SEED_THREADS: Record<string, Msg[]> = {
     xm: [
         { id: 1, from: 'them', text: '今天的云好软，我拍下来了，回家给你看', time: '18:31' },

@@ -75,7 +75,7 @@ const SEED_ALARMS: Alarm[] = [
     { id: 'al2', time: '22:30', label: '晚安，说句悄悄话', on: true }
 ];
 
-const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'notes', 'wishlist'];
+const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'wishlist'];
 
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
@@ -311,6 +311,7 @@ const WorldPage = () => {
                 onEnterWorld={enterWorld}
                 onCreateWorld={createAndEnter}
                 onOpenConv={(id) => setConvOpen(id)}
+                activeConv={convOpen}
                 rooms={rooms}
                 meRoom={meRoom}
                 onEnterSpace={enterSpace}
@@ -355,13 +356,22 @@ const WorldPage = () => {
                     setSolid={setDockSolid}
                     active={dockActive}
                     setActive={setDockActive}
+                    inWorld={inWorld}
                     threads={threads}
                     typingId={typingId}
                     onSend={send}
                 />
-                {/* covering conversation window — the sidebar's only chat
-                    trigger (text channels AND DMs) */}
-                <ChannelScreen convId={convOpen} onClose={() => setConvOpen(null)} threads={threads} typingId={typingId} onSend={send} />
+                {/* covering chat hub — the sidebar's only chat trigger (text
+                    channels AND DMs); switches conversations internally */}
+                <ChannelScreen
+                    convId={convOpen}
+                    onSelect={(id) => setConvOpen(id)}
+                    inWorld={inWorld}
+                    onClose={() => setConvOpen(null)}
+                    threads={threads}
+                    typingId={typingId}
+                    onSend={send}
+                />
             </div>
         </div>
     );
