@@ -1,502 +1,185 @@
 ---
 name: blender-create
-description: Use this skill when the user asks to create, modify, or export 3D models in Blender via MCP. Triggers on phrases like "在 Blender 里生成", "帮我建模", "生成场景", "调整模型", "修改贴图", "retopo", "重新布线", "绑定骨骼", "rigging", "导出 GLB", "导出 GLTF", or any request involving Blender model creation, texture adjustment, retopology, bone rigging, or exporting assets for Three.js / React Three Fiber.
-version: 1.0.0
+description: Use this skill when the user asks to create, modify, render, or export 3D models/scenes in Blender — via headless CLI scripts or MCP. Triggers on phrases like "在 Blender 里生成", "帮我建模", "生成场景", "调整模型", "渲染", "修改贴图", "retopo", "绑定骨骼", "rigging", "导出 GLB", "导出 GLTF", or any request involving Blender scene building, stylized/pastel look dev, self-check render loops, or exporting assets for Three.js / React Three Fiber.
+version: 2.0.0
 ---
 
-# blender_create 技能
+# blender-create 技能
 
 ## 概述
 
-本技能指导 Claude 使用 Blender MCP 工具完成完整的 3D 资产制作流程，涵盖：
-- 场景/模型生成
-- 材质与贴图调整
-- Retopology（重新布线）
-- 骨骼绑定（Rigging）
-- 导出为 GLTF/GLB 供 Three.js 使用
+指导 Claude 完成 Blender 3D 资产制作全流程：场景生成 → 渲染自检 → 材质/绑骨 → 导出 GLB 给 R3F。
+**两条管线，默认走无头 CLI**（2026-07-12 metaspace 实战定型）：
+
+| 管线 | 何时用 | 方式 |
+|------|--------|------|
+| **无头 CLI（主）** | 场景批量建造、可复现迭代 | `blender -b --python build_xxx.py`，参数化脚本是唯一事实源 |
+| MCP 交互（辅） | 实况查看用户打开的 Blender、微调、读 .blend | 官方 blender MCP（见下方工具表与接入） |
+
+深度参考按需读 [reference.md](reference.md)：重拓扑 / 骨骼绑定 / 贴图节点 / R3F 加载代码。
 
 ---
 
-## 可用 MCP 工具
+## 一、无头 CLI 管线（主力）
+
+### 核心循环（每个 Pass）
+
+```
+改脚本 → blender -b --python script.py → 出固定机位渲染 PNG
+       → Claude 用 Read 工具直接读图 → 按清单自检打分 → 再改脚本
+```
+
+- 脚本模板结构：常量区（色板/尺寸）→ helper（mat/box/cyl/ball/cut）→ 建造 → 灯光 → 相机 → 渲染输出 → `save_as_mainfile`
+- **脚本重跑 = 全场景重建**，禁止依赖 .blend 里的手工状态；用户手改的需求要回灌进脚本参数
+- 渲染审查机位固定 3~5 个（默认游戏视角 / 顶视 / 细节近景 / 外观 / 特写区域），文件名 `passNN_<cam>.png`
+- 切面渲染（隐藏遮挡墙/屋顶）用**前缀匹配**收集隐藏对象，避免新增部件漏隐藏产生"悬空窗框"类穿帮
+
+```python
+CUTAWAY_PREFIXES = ("House_Wall_S", "House_Roof", ...)
+def cutaway_objs():
+    return [o for o in bpy.data.objects
+            if any(o.name.startswith(p) for p in CUTAWAY_PREFIXES)]
+```
+
+### 自检清单（读渲染图后逐项打分，≥4/5 过关）
+
+1. 色板忠实度（无脏色/过曝/洗灰） 2. 比例构图 3. 形体语言 4. 光影（主光方向/无死黑） 5. 技术卫生（穿插/漏缝/悬空/命名）
+
+### 运行命令（Windows）
+
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" -b --python "path\to\build.py"
+```
+
+输出用 `Select-String "Error|Traceback|Saved:"` 过滤。渲染 1280×720 EEVEE 64 采样约 2~3 秒/张。
+
+---
+
+## 二、风格化渲染关键知识（实战踩坑结晶）
+
+### 色彩管理：粉彩/卡通风必换 Standard
+
+Blender 默认 **AgX** 视图变换（胶片模拟曲线）会把粉彩色全部压灰——粉彩场景第一渲染必然"洗灰"。风格化场景直接换：
+
+```python
+scene.view_settings.view_transform = "Standard"
+scene.view_settings.look = "None"
+scene.view_settings.exposure = -0.15   # Standard 无高光保护，易过曝，用曝光补偿控制
+```
+
+代价：Standard 下高光直接裁切（纯白一片），所以灯光能量要显著低于 AgX 习惯值（Sun 2~3 而不是 5+）。
+
+### CSS 色板 → Blender 线性色
+
+CSS hex 是 sRGB 空间，Blender 材质吃线性空间，直接抄 hex 会偏色。统一换算：
+
+```python
+def hx(h, alpha=1.0):
+    h = h.lstrip("#")
+    s = [int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+    return tuple((c ** 2.2) for c in s) + (alpha,)
+```
+
+建 PALETTE 字典管理，建模代码禁止裸 RGB 魔法数。
+
+### 三层灯光配方（日光基准）
+
+```python
+# 1. 暖阳主光：定方向、产生窗格影
+light("Sun", "SUN", energy=2.6, color=(1.0, 0.95, 0.85), rot=...)
+# 2. 窗口冷补：天空色大面积 Area 贴在窗外朝内
+light("WindowFill", "AREA", energy=80, color=PALETTE["sky_2"][:3], size=(5, 2.2))
+# 3. 室内暖补：极低能量防死黑（层叠结构下每层单独补）
+light("Interior", "AREA", energy=22, color=PALETTE["butter"][:3])
+```
+
+灯具/炉火用材质自发光（emit 1~2.5，过高必过曝）+ 低能量点光源双保险。
+
+### 软糖感形体
+
+- 全部体块加 Bevel modifier（width 0.02~0.06，segments 3）
+- 软装用压扁球 `ball(squash=0.5~0.6)`；注意压扁后半高 = r×squash，**落地 z 要重算**否则悬空
+- 精确几何（屋顶/异形）不要用"旋转+缩放 primitive"投机——旋转与缩放顺序会打架。直接 `from_pydata` 手工构网格：
+
+```python
+verts = [(-rx, -ry, 0), (rx, -ry, 0), (rx, ry, 0), (-rx, ry, 0),
+         (-RIDGE_X, 0, H), (RIDGE_X, 0, H)]          # 四坡顶：4 檐角 + 2 脊点
+faces = [(0, 1, 5, 4), (2, 3, 4, 5), (1, 2, 5), (3, 0, 4), (0, 3, 2, 1)]
+mesh = bpy.data.meshes.new(name); mesh.from_pydata(verts, [], faces); mesh.update()
+```
+
+- 墙面开洞（门窗）用 boolean DIFFERENCE cutter，应用后删 cutter；玻璃+窗框单独放
+
+---
+
+## 三、Blender 5.1 API 要点
+
+| 事项 | 说明 |
+|------|------|
+| 渲染引擎 | `try: engine="BLENDER_EEVEE_NEXT" except TypeError: "BLENDER_EEVEE"`；EEVEE 有 `use_raytracing` 则开 |
+| `use_nodes` | Material/World 的 `use_nodes=True` 在 5.1 报 DeprecationWarning（6.0 将移除），目前仍必须写 |
+| 玻璃材质 | `Transmission Weight`=1 + `Alpha`≈0.18 + `m.surface_render_method = "BLENDED"`（旧 `blend_method` 已废弃） |
+| 自发光 | Principled 的 `Emission Color` + `Emission Strength` 输入 |
+| 无阴影 | 远景装饰体 `obj.visible_shadow = False`（EEVEE Next 支持），防止云/远景压暗主体 |
+| 平滑 | `polygons.foreach_set("use_smooth", [...])`；球体逐面 `use_smooth=True` |
+| 空场景 | `bpy.ops.wm.read_factory_settings(use_empty=True)` 比逐个删除干净 |
+| 尺寸 | box 用 scale 后 `transform_apply(scale=True)`，避免 modifier 受非均匀 scale 影响 |
+
+---
+
+## 四、官方 Blender MCP（交互辅助线）
+
+> 2026 官方版（projects.blender.org/lab/blender_mcp，包 blmcp）。**与旧社区版 ahujasid/blender-mcp 完全不同**，旧版工具名（get_scene_info / polyhaven / hyper3d 等）已不存在，不要再引用。
+
+### 接入（本机已配好，会话重启即生效）
+
+- `.mcp.json`：`uvx --system-certs --from "git+https://projects.blender.org/lab/blender_mcp.git#subdirectory=mcp" blender-mcp` + `UV_CACHE_DIR` 独立缓存（公司网络证书拦截 + pywin32 缓存锁两坑的解法，详见 memory `blender-mcp-official-setup`）
+- Blender 侧需装官方 add-on（lab.blender.org 拖入 ×2）并启动；旧社区版插件（占 9876 端口）停用
+
+### 常用工具（26 个中的主力）
 
 | 工具 | 用途 |
 |------|------|
-| `mcp__blender__execute_blender_code` | 执行任意 Blender Python 代码（核心工具） |
-| `mcp__blender__get_scene_info` | 获取场景中所有物体信息 |
-| `mcp__blender__get_viewport_screenshot` | 截取当前视口截图，用于预览 |
-| `mcp__blender__get_object_info` | 获取单个物体的详细信息 |
-| `mcp__blender__search_polyhaven_assets` | 搜索 Poly Haven 免费资产（材质/HDRi/模型） |
-| `mcp__blender__download_polyhaven_asset` | 下载 Poly Haven 资产到 Blender |
-| `mcp__blender__search_sketchfab_models` | 搜索 Sketchfab 模型 |
-| `mcp__blender__generate_hyper3d_model_via_text` | 用文字 AI 生成 3D 模型 |
-| `mcp__blender__generate_hyper3d_model_via_images` | 用图片 AI 生成 3D 模型 |
-| `mcp__blender__set_texture` | 给物体设置贴图 |
+| `execute_blender_code` | 在**用户开着的 Blender** 里执行 Python（结果赋给 `result` dict 返回） |
+| `get_objects_summary` / `get_object_detail_summary` | 场景/单物体结构化摘要 |
+| `get_screenshot_of_window_as_image` / `get_screenshot_of_area_as_image` | 截图回看 |
+| `render_thumbnail_to_path` / `render_viewport_to_path` | 渲染到文件 |
+| `*_for_cli` 系列 | 后台 Blender 打开指定 .blend 执行（不依赖 add-on 交互会话） |
+| `search_api_docs` / `get_python_api_docs` / `search_manual_docs` | 内置 API/手册全文检索 |
+
+### 分工原则
+
+- 批量建造/重建 → 无头脚本；给用户实时看效果、对着同一窗口讨论微调 → MCP
+- MCP 里做出的满意改动**必须回灌到建造脚本**，否则下次重建即丢失
 
 ---
 
-## 工作原则
-
-1. **分步执行**：每次 `execute_blender_code` 只做一件事，避免单次代码过长导致出错
-2. **截图确认**：每个关键阶段后调用 `get_viewport_screenshot` 预览
-3. **模型优先**：Three.js 会自己处理灯光，Blender 只需要模型几何体和材质颜色
-4. **导出目标**：最终导出 `.glb` 文件供 Three.js `GLTFLoader` 加载
-
----
-
-## 一、模型创建
-
-### 基础辅助函数（每次代码块开头引入）
+## 五、导出 GLB 与 R3F
 
 ```python
-import bpy
-import math
-
-def make_material(name, color, roughness=0.8, metallic=0.0, alpha=1.0):
-    """创建 PBR 材质"""
-    mat = bpy.data.materials.new(name=name)
-    mat.use_nodes = True
-    bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (*color, 1.0)
-    bsdf.inputs["Roughness"].default_value = roughness
-    bsdf.inputs["Metallic"].default_value = metallic
-    if alpha < 1.0:
-        bsdf.inputs["Alpha"].default_value = alpha
-        bsdf.inputs["Transmission Weight"].default_value = 1.0 - alpha
-        mat.blend_method = 'BLEND'
-    return mat
-
-def assign_mat(obj, mat):
-    """给物体赋材质"""
-    if obj.data.materials:
-        obj.data.materials[0] = mat
-    else:
-        obj.data.materials.append(mat)
-
-def make_box(name, loc, scale, mat, rot=(0,0,0)):
-    """创建 Box 并赋材质"""
-    bpy.ops.mesh.primitive_cube_add(location=loc, rotation=rot)
-    obj = bpy.context.active_object
-    obj.name = name
-    obj.scale = scale
-    assign_mat(obj, mat)
-    return obj
-
-def make_cylinder(name, loc, radius, height, mat, verts=16):
-    """创建圆柱并赋材质"""
-    bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=radius, depth=height, location=loc)
-    obj = bpy.context.active_object
-    obj.name = name
-    assign_mat(obj, mat)
-    return obj
-```
-
-### 清空场景
-
-```python
-import bpy
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.object.delete(use_global=False)
-# 清理孤立数据
-bpy.ops.outliner.orphans_purge(do_recursive=True)
-```
-
-### 玻璃材质
-
-```python
-def make_glass(name, color=(0.75, 0.88, 0.95), alpha=0.2):
-    mat = bpy.data.materials.new(name=name)
-    mat.use_nodes = True
-    bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (*color, 1.0)
-    bsdf.inputs["Roughness"].default_value = 0.05
-    bsdf.inputs["Metallic"].default_value = 0.0
-    bsdf.inputs["Transmission Weight"].default_value = 0.9
-    bsdf.inputs["Alpha"].default_value = alpha
-    mat.blend_method = 'BLEND'
-    return mat
-```
-
----
-
-## 二、材质与贴图
-
-### 给物体应用图片贴图
-
-```python
-import bpy
-
-def apply_image_texture(obj_name, image_path):
-    obj = bpy.data.objects[obj_name]
-    mat = obj.data.materials[0] if obj.data.materials else bpy.data.materials.new("Mat")
-    mat.use_nodes = True
-    nodes = mat.node_tree.nodes
-    links = mat.node_tree.links
-    
-    # 清理已有贴图节点
-    for n in nodes:
-        if n.type == 'TEX_IMAGE':
-            nodes.remove(n)
-    
-    # 加载图片
-    img = bpy.data.images.load(image_path)
-    tex_node = nodes.new('ShaderNodeTexImage')
-    tex_node.image = img
-    tex_node.location = (-300, 300)
-    
-    bsdf = nodes.get("Principled BSDF")
-    links.new(tex_node.outputs["Color"], bsdf.inputs["Base Color"])
-    
-    if not obj.data.materials:
-        obj.data.materials.append(mat)
-    else:
-        obj.data.materials[0] = mat
-
-apply_image_texture("Desk_Top", "C:/path/to/wood_texture.png")
-```
-
-### 从 Poly Haven 下载并应用材质
-
-```python
-# 先搜索
-# mcp__blender__search_polyhaven_assets(query="wood floor", asset_type="textures")
-# 然后下载
-# mcp__blender__download_polyhaven_asset(asset_id="oak_floor", asset_type="textures", resolution="2k")
-# 再用 set_texture 应用
-# mcp__blender__set_texture(object_name="Floor", texture_id="oak_floor")
-```
-
----
-
-## 三、Retopology（重新布线）
-
-Retopology 的目的是将高面数模型（高精度扫描/雕刻）转换为低面数、布线整洁的游戏/实时渲染用网格。
-
-### 方法一：Voxel Remesh（快速，面数可控）
-
-```python
-import bpy
-
-obj = bpy.data.objects["HighPolyMesh"]
-bpy.context.view_layer.objects.active = obj
-
-bpy.ops.object.modifier_add(type='REMESH')
-mod = obj.modifiers[-1]
-mod.mode = 'VOXEL'
-mod.voxel_size = 0.05  # 值越小面数越高，0.05 适合中等细节
-mod.use_smooth_shade = True
-bpy.ops.object.modifier_apply(modifier=mod.name)
-
-print(f"Remesh done: {len(obj.data.polygons)} polys")
-```
-
-### 方法二：Decimate（减面，保持形状）
-
-```python
-import bpy
-
-obj = bpy.data.objects["HighPolyMesh"]
-bpy.context.view_layer.objects.active = obj
-
-bpy.ops.object.modifier_add(type='DECIMATE')
-mod = obj.modifiers[-1]
-mod.ratio = 0.1  # 保留 10% 面数
-bpy.ops.object.modifier_apply(modifier=mod.name)
-
-print(f"Decimate done: {len(obj.data.polygons)} polys")
-```
-
-### 方法三：Quadriflow Remesh（整洁四边面）
-
-```python
-import bpy
-
-obj = bpy.data.objects["HighPolyMesh"]
-bpy.context.view_layer.objects.active = obj
-bpy.ops.object.mode_set(mode='SCULPT')
-
-bpy.ops.sculpt.sample_detail_size(location=(0.5, 0.5), mode='BLENDER_QUADRIFLOW')
-bpy.ops.sculpt.remesh()
-
-bpy.ops.object.mode_set(mode='OBJECT')
-```
-
-### Shrinkwrap（低模贴合高模）
-
-```python
-import bpy
-
-low_poly = bpy.data.objects["LowPoly"]
-high_poly = bpy.data.objects["HighPoly"]
-
-bpy.context.view_layer.objects.active = low_poly
-bpy.ops.object.modifier_add(type='SHRINKWRAP')
-mod = low_poly.modifiers[-1]
-mod.target = high_poly
-mod.wrap_method = 'PROJECT'
-mod.use_project_z = True
-bpy.ops.object.modifier_apply(modifier=mod.name)
-```
-
-### 检查网格问题
-
-```python
-import bpy
-import bmesh
-
-obj = bpy.data.objects["MyMesh"]
-bm = bmesh.new()
-bm.from_mesh(obj.data)
-
-non_manifold = [e for e in bm.edges if not e.is_manifold]
-poles = [v for v in bm.verts if len(v.link_edges) > 5]
-print(f"Non-manifold edges: {len(non_manifold)}")
-print(f"High-pole verts (>5 edges): {len(poles)}")
-print(f"Total polys: {len(bm.faces)}")
-bm.free()
-```
-
----
-
-## 四、骨骼绑定（Rigging）
-
-### 注意事项
-
-- **骨骼只能在 Edit Mode 下创建/编辑**
-- `edit_bones` 与 `pose_bones` 是两套完全不同的对象，不要混用
-- 创建完骨骼后必须回到 Object Mode 才能做父级绑定
-
-### 完整角色绑定流程
-
-```python
-import bpy
-import math
-
-# === 第一步：创建 Armature ===
-arm_data = bpy.data.armatures.new("CharacterArmature")
-arm_obj = bpy.data.objects.new("Armature", arm_data)
-bpy.context.collection.objects.link(arm_obj)
-bpy.context.view_layer.objects.active = arm_obj
-arm_obj.select_set(True)
-
-bpy.ops.object.mode_set(mode='EDIT')
-eb = arm_data.edit_bones
-
-root = eb.new("Root")
-root.head = (0, 0, 0)
-root.tail = (0, 0, 0.1)
-
-spine = eb.new("Spine")
-spine.head = (0, 0, 0.5)
-spine.tail = (0, 0, 0.9)
-spine.parent = root
-
-neck = eb.new("Neck")
-neck.head = (0, 0, 0.9)
-neck.tail = (0, 0, 1.05)
-neck.parent = spine
-
-head = eb.new("Head")
-head.head = (0, 0, 1.05)
-head.tail = (0, 0, 1.3)
-head.parent = neck
-
-upper_arm_l = eb.new("UpperArm_L")
-upper_arm_l.head = (-0.18, 0, 0.88)
-upper_arm_l.tail = (-0.38, 0, 0.70)
-upper_arm_l.parent = spine
-
-lower_arm_l = eb.new("LowerArm_L")
-lower_arm_l.head = (-0.38, 0, 0.70)
-lower_arm_l.tail = (-0.52, 0, 0.52)
-lower_arm_l.parent = upper_arm_l
-
-hand_l = eb.new("Hand_L")
-hand_l.head = (-0.52, 0, 0.52)
-hand_l.tail = (-0.60, 0, 0.44)
-hand_l.parent = lower_arm_l
-
-# 右侧对称
-for bone_name in ["UpperArm_L", "LowerArm_L", "Hand_L"]:
-    src = eb[bone_name]
-    new_name = bone_name.replace("_L", "_R")
-    new_b = eb.new(new_name)
-    new_b.head = (-src.head.x, src.head.y, src.head.z)
-    new_b.tail = (-src.tail.x, src.tail.y, src.tail.z)
-    new_b.parent = eb[src.parent.name.replace("_L", "_R")] if "_L" in src.parent.name else src.parent
-
-upper_leg_l = eb.new("UpperLeg_L")
-upper_leg_l.head = (-0.1, 0, 0.5)
-upper_leg_l.tail = (-0.1, 0, 0.28)
-upper_leg_l.parent = root
-
-lower_leg_l = eb.new("LowerLeg_L")
-lower_leg_l.head = (-0.1, 0, 0.28)
-lower_leg_l.tail = (-0.1, 0, 0.06)
-lower_leg_l.parent = upper_leg_l
-
-foot_l = eb.new("Foot_L")
-foot_l.head = (-0.1, 0, 0.06)
-foot_l.tail = (-0.1, 0.12, 0.0)
-foot_l.parent = lower_leg_l
-
-for bone_name in ["UpperLeg_L", "LowerLeg_L", "Foot_L"]:
-    src = eb[bone_name]
-    new_name = bone_name.replace("_L", "_R")
-    new_b = eb.new(new_name)
-    new_b.head = (-src.head.x, src.head.y, src.head.z)
-    new_b.tail = (-src.tail.x, src.tail.y, src.tail.z)
-    new_b.parent = eb[src.parent.name.replace("_L", "_R")] if "_L" in src.parent.name else src.parent
-
-bpy.ops.object.mode_set(mode='OBJECT')
-print("Armature created!")
-```
-
-### 将 Mesh 绑定到骨骼（Auto Weights）
-
-```python
-import bpy
-
-mesh_obj = bpy.data.objects["CharacterMesh"]
-arm_obj = bpy.data.objects["Armature"]
-
-bpy.ops.object.select_all(action='DESELECT')
-mesh_obj.select_set(True)
-arm_obj.select_set(True)
-bpy.context.view_layer.objects.active = arm_obj
-
-bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-print("Mesh parented to armature with auto weights")
-```
-
----
-
-## 五、导出 GLTF/GLB（供 Three.js 使用）
-
-### 导出整个场景
-
-```python
-import bpy
-import os
-
-output_path = os.path.join(os.path.expanduser("~"), "Desktop", "scene.glb")
-
 bpy.ops.export_scene.gltf(
-    filepath=output_path,
-    export_format='GLB',
-    export_materials='EXPORT',
-    export_colors=True,
-    export_cameras=False,
-    export_lights=False,       # 不导出灯光，Three.js 自己打光
-    export_animations=True,
-    export_skins=True,
-    export_apply=True,
-    export_yup=True,           # Y-up 坐标系（Three.js 标准）
-)
-print(f"Exported to: {output_path}")
+    filepath=path, export_format='GLB',
+    export_materials='EXPORT', export_cameras=False, export_lights=False,  # R3F 自己打光
+    export_animations=True, export_skins=True, export_apply=True, export_yup=True)
 ```
 
-### 只导出选中物体
+- 预算参考：场景 ≤4MB（Draco 后）/ ≤150k tri；无贴图纯色材质天然体积小
+- R3F 加载与材质调整代码见 [reference.md](reference.md)
+- Three.js 侧记得 `renderer.outputColorSpace = THREE.SRGBColorSpace`
 
-```python
-import bpy
-import os
+## 命名规范
 
-bpy.ops.object.select_all(action='DESELECT')
-for name in ["Desk_Top", "DeskLeg_LL_FL", "Monitor_Frame", "Chair_Seat"]:
-    obj = bpy.data.objects.get(name)
-    if obj:
-        obj.select_set(True)
+`区域_物件_部件`（英文），交互热点物件带 `HS_` 段（如 `Desk_HS_Composer_Top`）；Collection 按区域分组。
 
-output_path = os.path.join(os.path.expanduser("~"), "Desktop", "desk_set.glb")
-bpy.ops.export_scene.gltf(
-    filepath=output_path,
-    export_format='GLB',
-    use_selection=True,
-    export_apply=True,
-    export_yup=True,
-)
-print(f"Exported selected to: {output_path}")
-```
+## 常见坑速查
 
----
-
-## 六、在 Three.js / React Three Fiber 中加载
-
-```tsx
-import { useGLTF } from '@react-three/drei'
-
-function StudyRoom() {
-  const { scene } = useGLTF('/assets/models/study_room.glb')
-  return <primitive object={scene} />
-}
-
-useGLTF.preload('/assets/models/study_room.glb')
-```
-
-### 加载后调整材质
-
-```tsx
-import { useGLTF } from '@react-three/drei'
-import { useEffect } from 'react'
-import * as THREE from 'three'
-
-function StudyRoom() {
-  const { scene } = useGLTF('/assets/models/study_room.glb')
-  
-  useEffect(() => {
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true
-        child.receiveShadow = true
-      }
-    })
-  }, [scene])
-  
-  return <primitive object={scene} />
-}
-```
-
----
-
-## 七、完整 Session 工作流
-
-```
-1. get_scene_info          → 了解当前场景
-2. execute_blender_code    → 清空场景
-3. execute_blender_code    → 建地板 + 墙壁
-4. get_viewport_screenshot → 确认结构
-5. execute_blender_code    → 加家具（分批，每次一组）
-6. get_viewport_screenshot → 确认效果
-7. execute_blender_code    → 材质/贴图调整
-8. execute_blender_code    → Retopo（如需要）
-9. execute_blender_code    → 骨骼绑定（如需要动画）
-10. execute_blender_code   → 导出 GLB
-11. 将 GLB 放入项目 public/assets/models/
-12. 在 R3F 中用 useGLTF 加载
-```
-
-### 场景物件命名规范
-
-```
-[类别]_[描述]_[位置/编号]
-例：
-  Room_Floor
-  Desk_Top / Desk_Leg_FL（Front-Left）
-  Chair_Seat / Chair_Back
-  Shelf_Board_01
-  Book_Red_01
-  Window_Glass / Window_Frame_Top
-```
-
----
-
-## 八、常见坑
-
-| 问题 | 解决方法 |
-|------|---------|
-| `BLENDER_EEVEE_NEXT` 找不到 | 用 `BLENDER_EEVEE` 或 `CYCLES` |
-| 骨骼创建报错 | 必须先进 Edit Mode：`bpy.ops.object.mode_set(mode='EDIT')` |
-| 导出路径不存在 | 用绝对路径，`os.path.expanduser("~")` 确保路径有效 |
-| 材质在 Three.js 里颜色偏差 | 检查 `export_yup=True`，并在 Three.js 侧开启 `renderer.outputColorSpace = THREE.SRGBColorSpace` |
-| 玻璃材质不透明 | 设置 `mat.blend_method = 'BLEND'` + `Transmission Weight` |
-| 模型面数过高 | 用 Decimate modifier 减面后再导出 |
+| 问题 | 解法 |
+|------|------|
+| 粉彩全灰 | AgX → Standard 视图变换 |
+| Standard 下过曝白斑 | 降 Sun/Area 能量 + exposure 负补偿 + 自发光 ≤1.5 |
+| 旋转 primitive 再缩放几何错位 | `from_pydata` 手工构网格 |
+| 切面渲染悬空部件 | 隐藏名单改前缀匹配 |
+| 压扁球悬空 | 落地 z = r × squash |
+| 云/远景把主体压暗 | `visible_shadow = False` |
+| 玻璃不透明 | `surface_render_method="BLENDED"` + Transmission + Alpha |
+| 无头跑完用户看不到 | 无头进程与用户 GUI 互不相干——`Start-Process blender.exe <file>` 帮用户打开，或让其 File → Revert 重载 |
