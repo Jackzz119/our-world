@@ -8,5 +8,12 @@ export default defineConfig({
         alias: {
             '@': '/src'
         }
+    },
+    optimizeDeps: {
+        // AV software on this machine blocks writing very large pre-bundle files
+        // (observed: full drei bundle → .js missing, endless 504). Code must
+        // deep-import drei submodules (e.g. @react-three/drei/web/Html) so each
+        // pre-bundle stays small. Production build is unaffected.
+        include: ['@react-three/rapier']
     }
 });

@@ -20,8 +20,8 @@ const ScreenStyles = () => (
     font-size:13px;font-weight:600;color:var(--glass-sub);padding:9px 6px;border-radius:13px;
     display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,color .2s;}
   .tabs button .ic{display:inline-flex;}
-  .tabs button.on{background:var(--glass-hi);color:var(--glass-text);box-shadow:0 2px 9px -3px rgba(20,29,51,.3);}
-  .tabs button:not(.on):hover{color:var(--glass-text);background:var(--glass-bg-2);}
+  .tabs button.on{background:var(--glass-active);color:var(--glass-text);box-shadow:0 2px 9px -3px rgba(20,29,51,.3);}
+  .tabs button:not(.on):hover{color:var(--glass-text);background:var(--glass-hover);}
   .tab-lbl{display:none;}
   @media(min-width:560px){.tab-lbl{display:inline;}}
 
@@ -29,14 +29,14 @@ const ScreenStyles = () => (
      Bright white writing surface (design ref: composer-redesign.html): words
      should sit on paper, not on hazy glass. */
   .compose{border-radius:18px;padding:10px;margin-top:10px;flex:0 0 auto;
-    background:rgba(255,255,255,.86);}
+    background:var(--glass-paper);}
   /* collapsed = an input-field look: the whole pill reads as "type here".
      Kept low — idle it's just a doorway, not a billboard. */
   .compose-collapsed{display:flex;align-items:center;gap:10px;cursor:pointer;height:40px;
-    padding:0 14px 0 6px;border-radius:var(--r-pill);border:1px solid var(--glass-border);
+    padding:0 14px 0 6px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
     background:rgba(255,255,255,.6);transition:border-color .2s,background .2s,box-shadow .2s;}
   .compose-collapsed:hover{border-color:var(--accent);background:#fff;
-    box-shadow:0 4px 14px -6px rgba(79,169,220,.45);}
+    box-shadow:0 4px 14px -6px rgba(47,154,211,.45);}
   .compose-collapsed .pchip{width:28px;height:28px;flex:0 0 auto;}
   .compose-collapsed .ph{color:var(--glass-sub);font-size:13.5px;flex:1;min-width:0;}
   .compose-collapsed .go{color:var(--accent-deep);font-size:11.5px;letter-spacing:.05em;
@@ -55,7 +55,7 @@ const ScreenStyles = () => (
   /* drag-over: highlight the whole surface, no layout shift (a strip popping
      in mid-drag would flicker dragleave) */
   .compose.dropping{border-color:var(--accent-deep);
-    box-shadow:0 0 0 2px rgba(79,169,220,.35),0 12px 30px -14px rgba(20,29,51,.35);}
+    box-shadow:0 0 0 2px rgba(47,154,211,.35),0 12px 30px -14px rgba(20,29,51,.35);}
   .compose-open{display:flex;flex-direction:column;gap:12px;}
   .compose textarea{width:100%;min-height:70px;max-height:220px;overflow-y:auto;resize:none;border:0;
     background:transparent;outline:none;font:inherit;font-size:15px;line-height:1.6;color:var(--glass-text);}
@@ -64,12 +64,12 @@ const ScreenStyles = () => (
   /* picker: empty = one wide drop strip (drag affordance spelled out, biggest
      possible target); picked = thumbnail row + add tile, ×-removable.
      The row IS the upload list. */
-  .pk-strip{height:96px;border-radius:14px;border:1.5px dashed rgba(79,169,220,.45);
+  .pk-strip{height:96px;border-radius:14px;border:1.5px dashed rgba(47,154,211,.45);
     background:rgba(216,239,250,.35);display:flex;align-items:center;justify-content:center;gap:9px;
     color:var(--glass-sub);font-size:12.5px;cursor:pointer;transition:border-color .2s,background .2s;}
   .pk-strip:hover,.compose.dropping .pk-strip{border-color:var(--accent-deep);background:rgba(216,239,250,.6);}
   .pk-strip u{text-underline-offset:2px;}
-  .pk-add{width:64px;height:64px;border-radius:11px;border:1.5px dashed rgba(79,169,220,.5);padding:0;
+  .pk-add{width:64px;height:64px;border-radius:11px;border:1.5px dashed rgba(47,154,211,.5);padding:0;
     cursor:pointer;background:rgba(216,239,250,.35);display:grid;place-items:center;
     color:var(--accent-deep);font-size:22px;font-weight:300;}
   .pk-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
@@ -83,12 +83,12 @@ const ScreenStyles = () => (
   .compose-actions{margin-left:auto;display:flex;gap:9px;align-items:center;}
   .btn-ghost{appearance:none;cursor:pointer;font:inherit;font-weight:600;border-radius:var(--r-pill);
     background:var(--glass-bg-2);color:var(--glass-sub);padding:9px 15px;font-size:13px;
-    border:1px solid var(--glass-border);transition:color .2s,background .2s;}
+    border:1px solid var(--glass-line);transition:color .2s,background .2s;}
   .btn-ghost:hover{color:var(--glass-text);}
   /* publish = the moment-keeping CTA: roomier, glowing, worth pressing */
   .btn-pub{padding:11px 22px;font-size:14px;display:inline-flex;align-items:center;gap:7px;
-    box-shadow:0 8px 22px -8px rgba(79,169,220,.65);}
-  .btn-pub:hover:not(:disabled){box-shadow:0 12px 26px -8px rgba(79,169,220,.75);}
+    box-shadow:0 8px 22px -8px rgba(47,154,211,.65);}
+  .btn-pub:hover:not(:disabled){box-shadow:0 12px 26px -8px rgba(47,154,211,.75);}
 
   /* ── timeline: a co-written diary flow — one centered column, oldest →
      newest (design ref: ai/design_system/cinnaglass/timeline-redesign.html). The spine
@@ -134,7 +134,7 @@ const ScreenStyles = () => (
   .tl .ava{position:absolute;left:-52px;top:4px;width:36px;height:36px;font-size:14px;}
   /* bright paper surface — hazy glass blue washes out the words (mockup A) */
   .tl-card{border-radius:18px;padding:13px 16px;cursor:pointer;transition:transform .16s;
-    background:rgba(255,255,255,.84);
+    background:var(--glass-paper);
     box-shadow:inset 3px 0 0 0 var(--au-ring,transparent);}
   .tl-card:hover{transform:translateY(-2px);}
   .tl-who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
@@ -191,7 +191,7 @@ const ScreenStyles = () => (
     animation:lbIn .22s ease;}
   .pd-card{cursor:auto;width:min(560px,92vw);max-height:86vh;overflow-y:auto;border-radius:22px;
     padding:20px 22px;display:flex;flex-direction:column;gap:14px;
-    background:rgba(255,255,255,.88);}
+    background:var(--glass-paper);}
   .pd-card::-webkit-scrollbar{width:0;}
   .pd-hd{display:flex;align-items:center;gap:11px;}
   .pd-name{font-weight:700;font-size:14px;}
@@ -235,22 +235,22 @@ const ScreenStyles = () => (
   /* ── wishlist ── */
   .wl-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
   .wl-prog{flex:1;height:9px;border-radius:99px;background:var(--glass-bg-2);overflow:hidden;
-    border:1px solid var(--glass-border);}
-  .wl-prog i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#9FD6F4,#5FB0E2);
+    border:1px solid var(--glass-line);}
+  .wl-prog i{display:block;height:100%;border-radius:99px;background:var(--accent-grad);
     transition:width .5s cubic-bezier(.3,.8,.35,1);}
   .wl-count{font-size:12px;color:var(--glass-sub);font-weight:600;white-space:nowrap;}
   .wl-count b{color:var(--accent-deep);}
   .wish{display:flex;align-items:center;gap:12px;border-radius:15px;padding:13px 15px;margin-bottom:10px;
     cursor:pointer;transition:transform .16s,background .2s;}
   .wish:active{transform:scale(.99);}
-  .wish .box{width:24px;height:24px;border-radius:9px;border:2px solid var(--glass-border);flex:0 0 auto;
+  .wish .box{width:24px;height:24px;border-radius:9px;border:2px solid rgba(47,154,211,.45);flex:0 0 auto;
     display:grid;place-items:center;color:#fff;transition:background .25s,border-color .25s,transform .25s;}
   .wish.done .box{background:linear-gradient(135deg,#F8C8D6,#EF9DB4);border-color:transparent;transform:scale(1);}
   .wish .wt{font-size:14.5px;font-weight:500;color:var(--glass-text);transition:opacity .25s;}
   .wish.done .wt{opacity:.5;text-decoration:line-through;text-decoration-color:var(--glass-sub);}
   .wl-add{display:flex;gap:10px;margin-top:6px;}
-  .wl-add input{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-border);
-    background:var(--glass-bg-2);color:var(--glass-text);padding:0 17px;font:inherit;font-size:14px;outline:none;
+  .wl-add input{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
+    background:var(--glass-paper);color:var(--glass-text);padding:0 17px;font:inherit;font-size:14px;outline:none;
     transition:border-color .2s,background .2s;}
   .wl-add input::placeholder{color:var(--glass-sub);}
   .wl-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
@@ -342,7 +342,7 @@ const GUEST_TONES: AuthorTone[] = [
     { ring: 'rgba(241,199,90,.85)', deep: '#B98A2E' },
     { ring: 'rgba(134,201,154,.85)', deep: '#5FA878' },
     { ring: 'rgba(179,157,224,.85)', deep: '#8E76C8' },
-    { ring: 'rgba(111,188,232,.85)', deep: '#4FA9DC' }
+    { ring: 'rgba(111,188,232,.85)', deep: '#2F9AD3' }
 ];
 const toneOf = (authorId: string, currentUserId: string | null, world: World | null): AuthorTone => {
     if (currentUserId && authorId === currentUserId) return MINE_TONE;
@@ -443,7 +443,7 @@ function PostDetail({
 
     return (
         <div className="pd" onClick={onClose}>
-            <div className="pd-card glass" onClick={(e) => e.stopPropagation()}>
+            <div className="pd-card paper" onClick={(e) => e.stopPropagation()}>
                 <div className="pd-hd">
                     <Avatar authorId={post.author_id} profile={profile} ring={tone.ring} />
                     <div>
@@ -574,7 +574,7 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
     if (!open) {
         const hasDraft = !!text.trim() || picked.length > 0;
         return (
-            <div className="compose glass">
+            <div className="compose paper">
                 <div className={`compose-collapsed${hasDraft ? ' draft' : ''}`} onClick={() => setOpen(true)}>
                     <span className="chip-accent pchip">
                         <IPlus size={18} />
@@ -601,7 +601,7 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
         );
     }
     return (
-        <div className={`compose glass${over ? ' dropping' : ''}`} ref={rootRef}>
+        <div className={`compose paper${over ? ' dropping' : ''}`} ref={rootRef}>
             <div className="compose-open" {...dropProps}>
                 <textarea
                     ref={taRef}
@@ -987,7 +987,7 @@ function TimelineBody({ feed, thumbUrls }: { feed: UseFeed; thumbUrls: Record<st
                 style={{ '--au-ring': tone.ring, '--au-deep': tone.deep } as React.CSSProperties}
             >
                 <Avatar authorId={p.author_id} profile={profiles[p.author_id]} ring={tone.ring} />
-                <div className={`tl-card glass${src ? ' has-media' : ''}`} onClick={() => setDetail(p)}>
+                <div className={`tl-card paper${src ? ' has-media' : ''}`} onClick={() => setDetail(p)}>
                     {src && (
                         <div className="tl-media">
                             <image-slot src={src} shape="rect" placeholder=""></image-slot>
@@ -1192,7 +1192,7 @@ function WishlistBody({
                 </div>
             </div>
             {wishes.map((w) => (
-                <div className={`wish glass ${w.done ? 'done' : ''}`} key={w.id} onClick={() => toggle(w.id)}>
+                <div className={`wish paper ${w.done ? 'done' : ''}`} key={w.id} onClick={() => toggle(w.id)}>
                     <span className="box">{w.done && <IHeart size={13} fill="currentColor" sw={0} />}</span>
                     <span className="wt">{w.text}</span>
                 </div>

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Cinnaglass · UI Design System</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- LIVE: 直接引用产品真实的 token 文件。改了 cinnaglass.css，这一页自动跟着变，
+     永远不会变成过期文档。（通过 vite 的 /@fs/ 打开时相对路径成立） -->
+<link rel="stylesheet" href="../../../src/themes/cinnaglass/cinnaglass.css">
+<style>
+  /* ── 文档外壳（不属于产品设计系统，只是这一页的排版） ── */
+  body{margin:0;font:14px/1.65 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    background:#12162c;color:#e8edf7;overflow:auto;padding:0 0 90px}
+  html,body{height:auto;overflow:auto}
+  .doc-hd{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);
+    background:rgba(18,22,44,.86);border-bottom:1px solid rgba(255,255,255,.12);padding:14px 30px}
+  .doc-hd h1{margin:0;font-size:17px;letter-spacing:.02em}
+  .doc-hd p{margin:2px 0 0;font-size:11.5px;color:rgba(232,237,247,.6)}
+  .doc-nav{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px}
+  .doc-nav a{font-size:11.5px;color:#9fd6f4;text-decoration:none;padding:3px 9px;border-radius:99px;
+    border:1px solid rgba(159,214,244,.28)}
+  .doc-nav a:hover{background:rgba(159,214,244,.14)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 30px}
+  section{margin-top:44px}
+  h2{font-size:19px;margin:0 0 4px}
+  h2 .n{color:#9fd6f4;font-family:"Baloo 2",sans-serif;margin-right:9px}
+  .lead{font-size:12.5px;color:rgba(232,237,247,.66);margin:0 0 18px;max-width:820px;line-height:1.8}
+  h3{font-size:13.5px;margin:26px 0 9px;color:#cfe4f5}
+  .docbox{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:20px 22px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;
+    background:rgba(159,214,244,.13);padding:1.5px 6px;border-radius:5px;color:#bfe3f5}
+  .rule{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;margin:9px 0;line-height:1.7}
+  .rule .k{flex:0 0 auto;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+    font-size:11px;font-weight:800;background:rgba(159,214,244,.2);color:#9fd6f4}
+  .warn{border-left:3px solid #f0a0b8;padding-left:12px;color:#ffd3de;font-size:12.5px;line-height:1.75}
+
+  /* ── token 展示 ── */
+  .swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:11px}
+  .tok{border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
+  .tok .tokc{height:52px;position:relative}
+  .tok .tokm{padding:7px 10px 9px}
+  .tok .tokm b{display:block;font-size:11px;font-family:ui-monospace,monospace;color:#cfe4f5}
+  .tok .tokm span{font-style:normal;font-size:10px;color:rgba(232,237,247,.55);display:block;margin-top:2px;line-height:1.5}
+  .checker{background-image:linear-gradient(45deg,#2a3050 25%,transparent 25%),linear-gradient(-45deg,#2a3050 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#2a3050 75%),linear-gradient(-45deg,transparent 75%,#2a3050 75%);
+    background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0}
+
+  /* ── 明度阶梯 ── */
+  .ladder{display:flex;height:44px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.16)}
+  .ladder span{flex:1;display:grid;place-items:center;font-size:11px;font-weight:700}
+
+  /* ── 实时预览台：可切 data-glass / data-mood ── */
+  .lab{border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.14)}
+  .lab-bar{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:11px 16px;
+    background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1)}
+  .lab-bar .grp{display:flex;gap:5px;align-items:center}
+  .lab-bar .lbl{font-size:10.5px;letter-spacing:.1em;color:rgba(232,237,247,.55);margin-right:3px}
+  .lab-bar button{appearance:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:4px 12px;
+    border-radius:99px;border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(232,237,247,.7)}
+  .lab-bar button.on{background:#9fd6f4;color:#12203a;border-color:transparent}
+  /* 舞台：模拟真实场景（明亮的房间）好让玻璃壳有东西可透 */
+  .lab-stage{position:relative;min-height:430px;padding:26px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;
+    background:
+      radial-gradient(46% 40% at 74% 16%, rgba(255,246,214,.9), transparent 70%),
+      radial-gradient(30% 24% at 20% 64%, rgba(206,170,186,.85), transparent 72%),
+      radial-gradient(26% 22% at 84% 74%, rgba(150,178,206,.8), transparent 72%),
+      linear-gradient(168deg,#efe2cc 0%,#e2d1b6 45%,#cdbfa8 100%)}
+  .lab-stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 180px 46px rgba(14,18,40,.4), inset 0 0 64px 12px rgba(14,18,40,.18)}
+  .demo{position:relative;z-index:1}
+  .demo-t{font-size:10.5px;letter-spacing:.1em;font-weight:700;color:rgba(20,26,50,.62);
+    margin-bottom:7px;text-shadow:0 1px 2px rgba(255,255,255,.5)}
+
+  /* ── 组件演示（复刻产品类名的形态，token 全用真实的） ── */
+  .demo-shell{width:222px;border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:8px}
+  .d-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:11px;
+    font-size:12.5px;font-weight:600;color:var(--glass-sub)}
+  .d-row.on{background:var(--glass-active);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-line)}
+  .d-row .bdg{margin-left:auto;min-width:16px;height:16px;border-radius:8px;padding:0 4px;font-size:9.5px;font-weight:800;
+    color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);display:grid;place-items:center}
+  .d-cat{font-size:9.5px;letter-spacing:.15em;font-weight:700;color:var(--glass-sub);padding:6px 10px 2px;text-transform:uppercase}
+  .d-card{border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+  .d-card .av{width:26px;height:26px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.8);
+    background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .d-card b{display:block;font-size:12px;line-height:1.25;color:var(--glass-text)}
+  .d-card i{font-style:normal;font-size:10px;color:var(--glass-sub)}
+  .d-sep{height:1px;background:linear-gradient(90deg,transparent,var(--glass-line) 16%,var(--glass-line) 84%,transparent)}
+  .d-input{height:36px;border-radius:99px;border:1px solid var(--glass-line);background:var(--glass-paper);
+    color:var(--glass-sub);display:flex;align-items:center;padding:0 14px;font-size:12px}
+  .d-btn{appearance:none;border:0;cursor:pointer;font:inherit;font-size:12.5px;font-weight:700;color:#0d2336;
+    height:34px;padding:0 18px;border-radius:99px;background:var(--accent-grad);
+    box-shadow:0 7px 18px -7px var(--accent-glow)}
+  .d-btn.ghost{background:var(--glass-hover);color:var(--glass-sub);border:1px solid var(--glass-line);box-shadow:none}
+  .d-orb{width:40px;height:40px;border-radius:50%;background:var(--accent-orb);display:grid;place-items:center;
+    color:#fff;font-size:17px;box-shadow:0 6px 16px -5px var(--accent-glow)}
+  .d-sw{width:42px;height:25px;border-radius:99px;background:var(--glass-hover);border:1px solid var(--glass-line);
+    position:relative;box-shadow:inset 0 1px 3px rgba(33,57,92,.14)}
+  .d-sw.on{background:var(--accent-grad);border-color:transparent;box-shadow:none}
+  .d-sw i{position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;
+    box-shadow:0 2px 5px rgba(20,29,51,.3)}
+  .d-sw.on i{left:auto;right:2px}
+  .d-seg{display:inline-flex;gap:3px;background:var(--glass-hover);border:1px solid var(--glass-line);
+    border-radius:99px;padding:3px;box-shadow:inset 0 1px 3px rgba(33,57,92,.12)}
+  .d-seg span{font-size:11.5px;font-weight:700;color:var(--glass-sub);padding:5px 12px;border-radius:99px}
+  .d-seg span.on{background:var(--glass-paper);color:var(--paper-text);
+    box-shadow:0 2px 6px -2px rgba(6,10,24,.5), inset 0 1px 0 rgba(255,255,255,.95)}
+  .d-bub{max-width:200px;padding:9px 13px;border-radius:15px;font-size:13px;line-height:1.6;
+    background:var(--glass-paper);border:1px solid var(--glass-line);color:var(--glass-text);box-shadow:var(--paper-shadow)}
+  .d-bub.me{background:var(--accent-grad);color:#0d2336;border-color:transparent}
+  .d-rx{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:2px 9px;border-radius:99px;
+    background:var(--glass-paper);border:1px solid var(--glass-line);color:var(--glass-sub)}
+  .d-pill{width:52px;padding:11px 0;display:flex;flex-direction:column;align-items:center;gap:9px;border-radius:99px;
+    border:1.5px solid transparent;
+    background:var(--glass-shell) padding-box,
+      linear-gradient(160deg,rgba(255,255,255,.98),rgba(142,215,244,.6) 50%,rgba(248,200,214,.5)) border-box;
+    backdrop-filter:blur(16px) saturate(1.4);
+    box-shadow:0 14px 34px -12px rgba(6,10,24,.7), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(248,200,214,.5)}
+  .d-pill .rb{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;
+    font-weight:800;border:2px solid rgba(255,255,255,.75)}
+  .d-pill .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .d-pill .rb.w{background:var(--accent-grad);border-radius:12px;box-shadow:0 0 0 2.5px var(--accent)}
+  .d-photo{height:78px;border-radius:10px;margin:-2px -2px 8px;
+    background:radial-gradient(60% 70% at 30% 40%,#ffd9a8,transparent 70%),linear-gradient(150deg,#f7c8a0,#d59fb4 55%,#8f9bd0)}
+  .d-ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700;
+    border:2px solid rgba(255,255,255,.75);position:relative;box-shadow:0 6px 16px -5px rgba(6,10,24,.6)}
+  .d-ava .dot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#5fcf8e;
+    border:2.5px solid #fff;box-shadow:0 0 7px #5fcf8e}
+  .flexrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top}
+  th{color:#9fd6f4;font-size:11px;letter-spacing:.06em;font-weight:700}
+  td code{white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="doc-hd">
+  <h1>Cinnaglass · UI Design System</h1>
+  <p>Our World 的唯一视觉真源 · token 实时引用 <code>src/themes/cinnaglass/cinnaglass.css</code>，改代码此页自动更新</p>
+  <div class="doc-nav">
+    <a href="#concept">① 设计概念</a><a href="#domains">② 双色域法则</a><a href="#tokens">③ Token 总表</a>
+    <a href="#tiers">④ 光照档 × 材质档</a><a href="#components">⑤ 组件库</a><a href="#maintain">⑥ 维护规则</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section id="concept">
+  <h2><span class="n">①</span>设计概念 · 光照递进</h2>
+  <p class="lead">Our World 是一个<b>记忆空间</b>，不是一个工具面板。视觉的第一使命是让「你们的场景与回忆」成为主角，界面永远是画框而不是画。
+  大耳狗提供性格（柔软天蓝 · 腮红粉 · 圆），光线提供沉浸。
+  <b>UI 的明度跟着世界里的时辰走</b>：黄昏通透、暮色雾灰、入夜沉入石墨——三档是一条连续的阶梯，不是三个孤立主题。
+  设计源：<code>ai/design_system/cinnaglass/mood-progression-codex/</code>（codex 出稿 + 调研报告）。</p>
+
+  <div class="docbox">
+    <h3 style="margin-top:0">明度阶梯 —— 沉浸感的技术定义</h3>
+    <div class="ladder">
+      <span style="background:#fbfcfe;color:#22335a">黄昏 · 外壳 94%</span>
+      <span style="background:#d5d9e6;color:#1e2a4a">暮色 · 外壳 70%</span>
+      <span style="background:#383c4a;color:#edf1f7">夜晚 · 外壳 26%</span>
+    </div>
+    <p class="lead" style="margin:10px 0 0">内容纸恒为纯白 100%，任何时辰都是全场最亮 —— 记忆始终是主角，变的只是包裹它的光。</p>
+    <div class="rule"><span class="k">1</span><span><b>阶梯必须拉开 ≥35%。</b>三层挤在同一明度区 = 画面「平」、眼睛找不到主角（这是 2026-07-13 之前全白版本失败的根因）。</span></div>
+    <div class="rule"><span class="k">2</span><span><b>白色是奖赏，不是底色。</b>纯白只发给记忆内容——照片、日记卡、聊天气泡；导航外壳一律暮色。</span></div>
+    <div class="rule"><span class="k">3</span><span><b>大耳狗活在点缀里。</b>天蓝当发光强调色、腮红粉当情绪点，不再当大面积背景——深色底反而让这两色更鲜活。</span></div>
+    <div class="rule"><span class="k">4</span><span><b>Chrome 中性，Accent 彩色，Paper 纯白。</b>外壳是<b>中性烟熏玻璃</b>（几乎不带色相，只留一丝冷/暖倾向）——饱和的藏蓝/紫外壳会和照片、头像、强调色抢戏且很快看腻。整个界面里唯一该有明确颜色的地方：强调色、选中态、徽章、以及内容本身。</span></div>
+  </div>
+</section>
+
+<section id="domains">
+  <h2><span class="n">②</span>双色域法则（最重要的一条）</h2>
+  <p class="lead">每一个界面表面只属于两个色域之一。搞错色域＝浅色字压浅色底，这是本主题最容易出的 bug。</p>
+
+  <table>
+    <tr><th style="width:96px">色域</th><th>用在哪</th><th>背景</th><th>文字</th></tr>
+    <tr><td><b>SHELL 外壳</b><br><span style="color:rgba(232,237,247,.5)">随时辰变明度</span></td>
+        <td>sidebar 面板与胶囊 rail、所有弹窗外壳、HUD 浮窗、聊天 dock、音乐播放器、登录卡</td>
+        <td><code>.glass</code> → <code>--glass-shell</code></td>
+        <td><code>--glass-text</code><br><span style="color:rgba(232,237,247,.5)">黄昏/暮色 深色 · 夜晚 浅色</span></td></tr>
+    <tr><td><b>PAPER 纸面</b><br><span style="color:rgba(232,237,247,.5)">白瓷内容 · 恒定</span></td>
+        <td>时间线卡、照片卡、聊天气泡、设置分组、成员卡、所有输入框、表情面板</td>
+        <td><code>.paper</code> → <code>--glass-paper</code></td>
+        <td>恒为深色 <code>--paper-text</code></td></tr>
+  </table>
+
+  <div class="docbox" style="margin-top:16px">
+    <h3 style="margin-top:0">实现机制：纸面自动重映射</h3>
+    <p class="lead" style="margin-bottom:10px">组件 CSS 里<b>永远只写 <code>--glass-*</code></b>，不用关心自己在哪个色域。<code>cinnaglass.css</code> 里有一段选择器，凡是纸面表面就把这些变量重指向纸面值：</p>
+    <pre style="margin:0;font-size:11.5px;color:#bfe3f5;background:rgba(159,214,244,.08);padding:12px 14px;border-radius:10px;overflow-x:auto"><code>.paper, .tl-card, .set-group, .chsc-m .bub, input, textarea, … {
+  --glass-text: var(--paper-text);
+  --glass-sub:  var(--paper-sub);
+  --glass-line: var(--paper-line);
+  --glass-hover / --glass-active / --glass-hi …
+}</code></pre>
+    <div class="warn" style="margin-top:12px"><b>新增白底组件时，必须把它的类名加进那份选择器清单</b>，否则会出现「白底上的浅色字」。这是本主题唯一的强制登记动作。</div>
+  </div>
+</section>
+
+<section id="tokens">
+  <h2><span class="n">③</span>Token 总表</h2>
+  <p class="lead">色块由本页实时读取 <code>cinnaglass.css</code> 绘制——你看到的就是产品里真正生效的值。</p>
+
+  <h3>品牌基色 Cinnamoroll</h3>
+  <div class="swgrid">
+    <div class="tok"><div class="tokc" style="background:var(--sky-1)"></div><div class="tokm"><b>--sky-1</b><span>天蓝 · 深</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--sky-2)"></div><div class="tokm"><b>--sky-2</b><span>天蓝 · 中</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--sky-3)"></div><div class="tokm"><b>--sky-3</b><span>天蓝 · 浅</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--cream)"></div><div class="tokm"><b>--cream</b><span>奶油白</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--butter)"></div><div class="tokm"><b>--butter</b><span>黄油 · 黄昏点缀</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--blush)"></div><div class="tokm"><b>--blush</b><span>官方腮红粉</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--navy-1)"></div><div class="tokm"><b>--navy-1</b><span>海军蓝</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--navy-deep)"></div><div class="tokm"><b>--navy-deep</b><span>最深夜蓝</span></div></div>
+  </div>
+
+  <h3>强调色 · 主行动</h3>
+  <div class="swgrid">
+    <div class="tok"><div class="tokc" style="background:var(--accent)"></div><div class="tokm"><b>--accent</b><span>强调色（暮色上会发光）</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--accent-deep)"></div><div class="tokm"><b>--accent-deep</b><span>强调色 · 深</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--accent-grad)"></div><div class="tokm"><b>--accent-grad</b><span>主按钮 / 开关 / 我的气泡</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--accent-orb)"></div><div class="tokm"><b>--accent-orb</b><span>球面渐变 · FAB</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--accent-glow)"></div></div><div class="tokm"><b>--accent-glow</b><span>辉光（夜晚自动加强）</span></div></div>
+  </div>
+
+  <h3>SHELL 外壳色域 <span style="font-weight:400;color:rgba(232,237,247,.55);font-size:11.5px">—— <code>--shell-*</code> 是规范名，<code>--glass-*</code> 是组件写的别名；纸面里别名会被改指，需要退出改指时直接引用 <code>--shell-*</code></span></h3>
+  <div class="swgrid">
+    <div class="tok"><div class="tokc" style="background:var(--shell-bg)"></div><div class="tokm"><b>--shell-bg</b><span>外壳渐变（随光照档变）</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--app-ground)"></div><div class="tokm"><b>--app-ground</b><span>in-flow chrome 身后的底色</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--glass-shell)"></div><div class="tokm"><b>--glass-shell</b><span>别名 → --shell-bg</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--glass-hover)"></div></div><div class="tokm"><b>--glass-hover</b><span>悬停</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--glass-active)"></div></div><div class="tokm"><b>--glass-active</b><span>选中态</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--glass-line)"></div></div><div class="tokm"><b>--glass-line</b><span>发丝分隔线</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--glass-text)"></div><div class="tokm"><b>--glass-text</b><span>外壳正文（浅）</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--glass-sub)"></div></div><div class="tokm"><b>--glass-sub</b><span>外壳副文字</span></div></div>
+  </div>
+
+  <h3>PAPER 纸面色域</h3>
+  <div class="swgrid">
+    <div class="tok"><div class="tokc" style="background:var(--glass-paper)"></div><div class="tokm"><b>--glass-paper</b><span>纸面釉光白</span></div></div>
+    <div class="tok"><div class="tokc" style="background:var(--paper-text)"></div><div class="tokm"><b>--paper-text</b><span>纸面正文（深）</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--paper-sub)"></div></div><div class="tokm"><b>--paper-sub</b><span>纸面副文字</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--paper-line)"></div></div><div class="tokm"><b>--paper-line</b><span>纸面发丝线</span></div></div>
+    <div class="tok"><div class="tokc checker"><div style="position:absolute;inset:0;background:var(--paper-active)"></div></div><div class="tokm"><b>--paper-active</b><span>纸面选中（随光照暖化）</span></div></div>
+  </div>
+
+  <h3>圆角阶梯</h3>
+  <div class="flexrow">
+    <div style="width:88px;height:56px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-lg);display:grid;place-items:center;font-size:11px">--r-lg</div>
+    <div style="width:88px;height:56px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-md);display:grid;place-items:center;font-size:11px">--r-md</div>
+    <div style="width:88px;height:56px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-sm);display:grid;place-items:center;font-size:11px">--r-sm</div>
+    <div style="width:88px;height:56px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-pill);display:grid;place-items:center;font-size:11px">--r-pill</div>
+  </div>
+</section>
+
+<section id="tiers">
+  <h2><span class="n">④</span>光照档（明度）× 材质档（玻璃）</h2>
+  <p class="lead">两个控制轴，各管一件事，互不打架：<br>
+  <b>光照档 <code>data-mood</code></b>（跟随世界里的时辰）决定<b>外壳明度</b>——这是沉浸感的主控。<br>
+  <b>材质档 <code>data-glass</code></b>（用户可选）只决定<b>玻璃本身多厚</b>：模糊半径与透过来的场景色有多鲜。<br>
+  下面的预览台就是真实规则——按钮改的是这两个属性，和产品里一模一样。</p>
+  <div class="lab">
+    <div class="lab-bar">
+      <div class="grp"><span class="lbl">光照 · 明度</span>
+        <button data-m="golden">黄昏</button><button data-m="twilight" class="on">暮色</button><button data-m="night">夜晚</button></div>
+      <div class="grp"><span class="lbl">材质 · 玻璃厚度</span>
+        <button data-g="cloud">云朵 · 厚</button><button data-g="sky" class="on">天空 · 默认</button><button data-g="twilight">暮光 · 薄</button></div>
+    </div>
+    <div class="lab-stage" id="stage" data-glass="sky" data-mood="twilight">
+
+      <div class="demo"><div class="demo-t">胶囊 RAIL（收起态）</div>
+        <div class="d-pill"><span class="rb logo">♥</span><span class="rb w">L</span></div></div>
+
+      <div class="demo"><div class="demo-t">SIDEBAR 面板（外壳）</div>
+        <div class="demo-shell glass">
+          <div class="d-cat">房间</div>
+          <div class="d-row on">🛋️ 客厅 <span class="bdg">2</span></div>
+          <div class="d-row">🌿 阳台</div>
+          <div class="d-cat">成员</div>
+          <div class="d-card paper"><span class="av"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+        </div></div>
+
+      <div class="demo"><div class="demo-t">记忆卡弹窗（外壳 + 纸面内容）</div>
+        <div class="demo-shell glass" style="width:250px;gap:10px">
+          <div class="d-card paper" style="flex-direction:column;align-items:stretch;padding:12px">
+            <div class="d-photo"></div>
+            <b style="font-size:13px">阳台看日落</b>
+            <i style="font-size:11px">昨天 18:42 · 3 张照片</i>
+          </div>
+          <div class="paper" style="border-radius:14px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
+              <span style="flex:1;font-size:12px;font-weight:700">进房自动接语音</span><span class="d-sw on"><i></i></span></div>
+            <div class="d-sep"></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
+              <span style="flex:1;font-size:12px;font-weight:700">玻璃质感</span><span class="d-seg"><span>云朵</span><span class="on">天空</span></span></div>
+          </div>
+          <div class="flexrow"><span class="d-input" style="flex:1">记录此刻的我们…</span><span class="d-orb">➤</span></div>
+        </div></div>
+
+      <div class="demo"><div class="demo-t">聊天气泡 · 表情 · 头像</div>
+        <div class="demo-shell glass" style="width:246px;gap:9px">
+          <div class="d-bub">今晚一起看日落好不好</div>
+          <div class="d-bub me" style="align-self:flex-end">好呀 ☁️</div>
+          <div class="flexrow"><span class="d-rx">💗 2</span><span class="d-rx">🥺 1</span></div>
+          <div class="d-sep"></div>
+          <div class="flexrow">
+            <span class="d-ava" style="background:linear-gradient(135deg,#f8c8d6,#ef9db4)">s<span class="dot"></span></span>
+            <span class="d-ava" style="background:var(--accent-grad)">j<span class="dot"></span></span>
+            <button class="d-btn">保存 ✨</button><button class="d-btn ghost">取消</button>
+          </div>
+        </div></div>
+
+    </div>
+  </div>
+  <table style="margin-top:14px">
+    <tr><th style="width:118px">档位</th><th>语义</th><th>实现</th></tr>
+    <tr><td><b>黄昏</b> 明度</td><td>被夕阳照亮的乳白玻璃。<b>靠 chrome 侧压暗 + keyline 才立得住</b>，提不透明度只会变回白板</td><td><code>[data-mood='golden']</code></td></tr>
+    <tr><td><b>暮色</b> 明度</td><td>雾灰过渡档，明暗之间的铰链。<b>对比度最危险</b>：副文字用实色 <code>#313C58</code>（实测最差 4.73:1），正文 <code>#212C48</code>；不许用半透明灰。<b>改这一档的壳透明度必须连带复测文字对比度</b></td><td><code>[data-mood='twilight']</code></td></tr>
+    <tr><td><b>夜晚</b> 明度</td><td>中性石墨，chrome 沉入夜色，白卡像灯箱。辉光只贴交互控件，半径 &lt; 18px，否则赛博化</td><td><code>[data-mood='night']</code></td></tr>
+    <tr><td>云朵 材质</td><td>最厚最柔：blur 34px / saturate 104%，最私密</td><td><code>[data-glass='cloud']</code></td></tr>
+    <tr><td>天空 材质</td><td>默认：跟随当前时辰的处方值</td><td><code>[data-glass='sky']</code></td></tr>
+    <tr><td>暮光 材质</td><td>最薄最鲜：blur 14px / saturate 142%，房间看得最清</td><td><code>[data-glass='twilight']</code></td></tr>
+  </table>
+</section>
+
+<section id="components">
+  <h2><span class="n">⑤</span>组件库 · 形态与规矩</h2>
+  <p class="lead">上方预览台里的组件都是活的（会随档位变化）。下表是每个组件的归属色域与既定规矩——新做组件先查这张表。</p>
+  <table>
+    <tr><th style="width:130px">组件</th><th style="width:74px">色域</th><th>规矩</th></tr>
+    <tr><td>胶囊 rail</td><td>SHELL</td><td>仅<b>收起态</b>是悬浮胶囊（糖果渐变描边），展开时回到通栏长条；0.45s 形变动画；收起后场景铺满，胶囊无自己的底</td></tr>
+    <tr><td>sidebar 面板</td><td>SHELL</td><td>宽度收合像拉幕布，子元素定宽防文字回流</td></tr>
+    <tr><td>弹窗外壳</td><td>SHELL</td><td><code>.modal</code> + <code>.glass</code>；打开时场景整体降噪（<code>.modal-scrim</code> 带 brightness 0.82）</td></tr>
+    <tr><td>列表行</td><td>SHELL</td><td>hover = <code>--glass-hover</code>，选中 = <code>--glass-active</code> 渐变 + 内描边</td></tr>
+    <tr><td>成员卡 / 世界卡</td><td>PAPER</td><td>白瓷卡浮在外壳上，三层阴影（贴地 + 环境 + 顶部高光）</td></tr>
+    <tr><td>时间线卡 / 照片卡</td><td>PAPER</td><td><b>主角</b>。永远是全场最亮的东西</td></tr>
+    <tr><td>聊天气泡</td><td>PAPER</td><td>对方 = 白纸；我 = <code>--accent-grad</code>（自带深色字重映射）</td></tr>
+    <tr><td>输入框</td><td>PAPER</td><td>一律纸面底，聚焦时描边转 <code>--accent</code></td></tr>
+    <tr><td>主按钮 / FAB</td><td>—</td><td><code>--accent-grad</code> / <code>--accent-orb</code> + 辉光阴影，字色恒为 <code>#0d2336</code></td></tr>
+    <tr><td>开关 / 分段控件</td><td>—</td><td>轨道内凹阴影，开启态 <code>--accent-grad</code>，分段选中钮为白瓷凸起</td></tr>
+    <tr><td>徽章 / 未读点</td><td>—</td><td>腮红粉渐变 <code>#ef9db4→#e0718f</code>，是唯一的暖色警示语言</td></tr>
+    <tr><td>在线绿点</td><td>—</td><td><code>#5fcf8e</code> + 白描边 + 荧光光晕，产品级固定规范</td></tr>
+  </table>
+
+  <h3>场景侧三开关（沉浸感的另一半）</h3>
+  <div class="docbox">
+    <div class="rule"><span class="k">a</span><span><b>暗角 vignette</b> —— <code>.stage::after</code>，四周压暗中心留亮，博物馆打光法则，常开</span></div>
+    <div class="rule"><span class="k">b</span><span><b>UI 侧压暗</b> —— <code>.stage::before</code>，chrome 背后横向渐变，玻璃壳永远有东西可依托</span></div>
+    <div class="rule"><span class="k">c</span><span><b>开记忆时全局降噪</b> —— <code>.modal-scrim</code> 带 <code>brightness(.82)</code>，「进入回忆」的仪式感</span></div>
+  </div>
+</section>
+
+<section id="maintain">
+  <h2><span class="n">⑥</span>维护规则</h2>
+  <div class="docbox">
+    <div class="rule"><span class="k">1</span><span><b>token 只在 <code>cinnaglass.css</code> 的 <code>:root</code> 定义。</b>组件里出现硬编码色值即视为违规，一律收编成 token。</span></div>
+    <div class="rule"><span class="k">2</span><span><b>新增白底组件 → 登记进纸面重映射清单</b>（见 ② 节），否则浅色字压白底。</span></div>
+    <div class="rule"><span class="k">3</span><span><b>本页随改随更。</b>token 是实时引用的（自动同步）；新增组件/规矩要手工补进 ⑤ 节表格。</span></div>
+    <div class="rule"><span class="k">4</span><span><b>视觉裁决先比稿后落码</b>，比稿归档在同目录，拍板结论登记进 <code>.claude/skills/ux/decisions.md</code>。</span></div>
+    <div class="rule"><span class="k">5</span><span><b>比稿背景必须贴真实场景亮度</b>——在浅色文档底上评估透明度会严重失真（2026-07-12 踩过的坑）。</span></div>
+    <div class="rule"><span class="k">6</span><span><b>改半透明外壳的透明度 = 同时改了文字对比度</b>，两者必须一起复测。验证页 <code>impl-three-up.html</code> 直接引用真实 CSS，用 headless Chrome 出图后按像素采样算对比度，不要凭 token 数值心算（codex 审核踩过这个坑）。</span></div>
+    <div class="rule"><span class="k">7</span><span><b>验证页必须复现真实状态</b>：包含打开内容时的 scrim、用 <code>currentColor</code> 的真实图标（emoji 自带颜色，会让对比度验收假阳性）。</span></div>
+  </div>
+  <p class="lead" style="margin-top:14px">相关比稿存档：<code>color-palette.html</code>（白底三方案）· <code>texture-palette.html</code>（质感四件套 / rail 两式）· <code>immersion-palette.html</code>（明度层级 · 本方案来源）</p>
+</section>
+
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  document.querySelectorAll('.lab-bar button').forEach(b => {
+    b.onclick = () => {
+      const attr = b.dataset.g ? 'data-glass' : 'data-mood';
+      const val = b.dataset.g || b.dataset.m;
+      document.querySelectorAll(`.lab-bar button[data-${b.dataset.g ? 'g' : 'm'}]`).forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      stage.setAttribute(attr, val);
+    };
+  });
+</script>
+</body>
+</html>

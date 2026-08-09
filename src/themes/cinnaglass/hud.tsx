@@ -13,6 +13,7 @@ import {
     IGrid,
     IHeart,
     ILock,
+    ILogout,
     IMapPin,
     IMoon,
     IMove,
@@ -26,6 +27,7 @@ import {
 } from './icons';
 import { RoomArt } from './scene';
 import { MusicPlayer } from './music';
+import { daysSince, daysUntilAnniversary } from './profile';
 import type { Density, HudLayout, Mood } from './tweaks';
 import type { Weather, Widgets, WidgetPos } from './model';
 
@@ -49,9 +51,9 @@ const HudStyles = () => (
     transition:transform .18s, box-shadow .2s;}
   .edit-banner:hover{transform:translateX(-50%) translateY(-1px);}
   .edit-banner:active{transform:translateX(-50%) scale(.97);}
-  .edit-banner .eb-done{display:inline-flex;color:#fff;background:linear-gradient(135deg,#9FD6F4,#5FB0E2);
+  .edit-banner .eb-done{display:inline-flex;color:#fff;background:var(--accent-grad);
     border-radius:50%;width:21px;height:21px;align-items:center;justify-content:center;margin-left:2px;
-    box-shadow:0 2px 6px -2px rgba(79,169,220,.6);}
+    box-shadow:0 2px 6px -2px rgba(47,154,211,.6);}
   .edit-banner .ic{display:inline-flex;color:var(--accent-deep);}
 
   .snap-guides{position:absolute;inset:0;pointer-events:none;z-index:26;}
@@ -86,7 +88,7 @@ const HudStyles = () => (
 
   .ambient{display:flex;align-items:center;gap:10px;border-radius:var(--r-pill);padding:8px 15px;}
   .ambient .t{font-size:15px;font-weight:600;letter-spacing:.01em;}
-  .ambient .div{width:1px;height:16px;background:var(--glass-border);}
+  .ambient .div{width:1px;height:16px;background:var(--glass-line);}
   .ambient .w{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--glass-sub);font-weight:500;}
   .ambient .w .ic{color:var(--accent-deep);}
 
@@ -98,12 +100,23 @@ const HudStyles = () => (
   .minimap .lbl-m{position:absolute;left:0;right:0;bottom:5px;text-align:center;font-size:8.5px;
     letter-spacing:.12em;color:var(--glass-text);font-weight:600;text-shadow:0 1px 3px rgba(255,255,255,.6);}
 
+  /* leave room: fixed chrome under the minimap — you leave through where
+     you came in. Exit = back to the lobby (voice will auto-disconnect here
+     once it exists, per ux decisions D-3). */
+  .leave{position:absolute;left:20px;top:128px;display:flex;align-items:center;gap:6px;
+    appearance:none;border:0;cursor:pointer;padding:8px 14px;border-radius:var(--r-pill);
+    font:inherit;font-size:11.5px;font-weight:600;color:var(--glass-sub);
+    transition:color .2s,transform .18s,box-shadow .2s;}
+  .leave:hover{color:#C25A72;transform:translateY(-1px);
+    box-shadow:0 6px 16px -6px rgba(194,90,114,.4);}
+  .leave .ic{display:inline-flex;}
+
   .lighting{position:absolute;left:50%;transform:translateX(-50%);bottom:24px;display:flex;gap:3px;padding:4px;border-radius:var(--r-pill);}
   .lighting button{pointer-events:auto;appearance:none;border:0;background:transparent;cursor:pointer;
     display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:var(--r-pill);
     color:var(--glass-sub);font:inherit;font-size:11.5px;font-weight:600;font-family:inherit;
     transition:background .2s,color .2s;}
-  .lighting button.on{background:var(--glass-hi);color:var(--glass-text);
+  .lighting button.on{background:var(--glass-active);color:var(--glass-text);
     box-shadow:0 2px 8px -2px rgba(20,29,51,.3);}
   .lighting button .ic{display:inline-flex;}
 
@@ -123,32 +136,32 @@ const HudStyles = () => (
   .tb-row{display:flex;align-items:center;gap:11px;padding:9px 9px;border-radius:13px;
     transition:background .16s;}
   .tb-row.live{cursor:pointer;}
-  .tb-row.live:hover{background:var(--glass-bg-2);}
+  .tb-row.live:hover{background:var(--glass-hover);}
   .tb-row.soon{opacity:.6;}
   .tb-row.edit{cursor:pointer;}
-  .tb-row.edit:hover{background:var(--glass-bg-2);}
+  .tb-row.edit:hover{background:var(--glass-hover);}
   .tb-row.req .tb-lock{color:var(--glass-sub);display:inline-flex;opacity:.7;}
   .tb-reset{text-align:center;font-size:12px;font-weight:600;color:var(--accent-deep);padding:8px;
-    margin:2px 9px 6px;border-radius:11px;cursor:pointer;background:var(--glass-bg-2);border:1px solid var(--glass-border);}
-  .tb-reset:hover{background:var(--glass-hi);}
+    margin:2px 9px 6px;border-radius:11px;cursor:pointer;background:var(--glass-bg-2);border:1px solid var(--glass-line);}
+  .tb-reset:hover{background:var(--glass-hover);}
   .tb-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;flex:0 0 auto;
     box-shadow:0 3px 8px -3px rgba(40,90,140,.4);}
   .tb-row .tb-nm{flex:1;font-size:13.5px;font-weight:600;color:var(--glass-text);}
   .tb-soon-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--accent-deep);
-    background:var(--glass-bg-2);border:1px solid var(--glass-border);border-radius:99px;padding:3px 8px;}
+    background:var(--glass-bg-2);border:1px solid var(--glass-line);border-radius:99px;padding:3px 8px;}
 
-  .sw{width:42px;height:25px;border-radius:99px;background:var(--glass-bg-2);border:1px solid var(--glass-border);
+  .sw{width:42px;height:25px;border-radius:99px;background:var(--glass-hover);border:1px solid var(--glass-line);box-shadow:inset 0 1px 3px rgba(33,57,92,.14);
     position:relative;cursor:pointer;flex:0 0 auto;transition:background .22s,border-color .22s;}
-  .sw.on{background:linear-gradient(135deg,#9FD6F4,#5FB0E2);border-color:transparent;}
+  .sw.on{background:var(--accent-grad);border-color:transparent;}
   .sw i{position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;
     box-shadow:0 2px 5px rgba(20,29,51,.3);transition:transform .24s cubic-bezier(.34,1.4,.5,1);}
   .sw.on i{transform:translateX(17px);}
 
   .fab{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
-    color:#fff;background:radial-gradient(120% 120% at 30% 25%, #BFE6FA 0%, #7CC6EC 46%, #4FA9DC 100%);
-    box-shadow:0 10px 26px -6px rgba(79,169,220,.7), 0 2px 8px rgba(30,42,71,.3), inset 0 1.5px 0 rgba(255,255,255,.7);
+    color:#fff;background:var(--accent-orb);
+    box-shadow:0 10px 26px -6px rgba(47,154,211,.7), 0 2px 8px rgba(30,42,71,.3), inset 0 1.5px 0 rgba(255,255,255,.7);
     transition:transform .3s cubic-bezier(.34,1.4,.5,1), box-shadow .25s;}
-  .fab:hover{box-shadow:0 14px 32px -6px rgba(79,169,220,.85), 0 2px 8px rgba(30,42,71,.3), inset 0 1.5px 0 rgba(255,255,255,.7);}
+  .fab:hover{box-shadow:0 14px 32px -6px rgba(47,154,211,.85), 0 2px 8px rgba(30,42,71,.3), inset 0 1.5px 0 rgba(255,255,255,.7);}
   .fab:active{transform:scale(.93);}
   .fab.open{transform:rotate(90deg);}
   `}</style>
@@ -274,18 +287,20 @@ function DraggableFloat({ widgetKey, pos, custom, dragMode, onDrag, onCommit, on
     );
 }
 
-function DaysCard({ density, onClick }: { density: Density; onClick?: () => void }) {
+function DaysCard({ density, anniv, onClick }: { density: Density; anniv: string; onClick?: () => void }) {
+    const d = new Date(anniv + 'T00:00:00');
+    const from = isNaN(d.getTime()) ? '' : `从 ${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} 起`;
     return (
         <div className="card glass tappable" onClick={onClick}>
             <div className="lbl">在一起</div>
             <div className="days-row">
-                <span className="num days-n">365</span>
+                <span className="num days-n">{daysSince(anniv)}</span>
                 <span className="days-u">天</span>
                 <span className="days-heart">
                     <IHeart size={17} fill="currentColor" sw={0} />
                 </span>
             </div>
-            {density === 'rich' && <div className="sub" style={{ marginTop: 6 }}>从 2025.6.4 起</div>}
+            {density === 'rich' && from && <div className="sub" style={{ marginTop: 6 }}>{from}</div>}
         </div>
     );
 }
@@ -303,15 +318,20 @@ function MemoryCard({ density, onClick }: { density: Density; onClick?: () => vo
         </div>
     );
 }
-function AnniversaryChip({ onClick }: { onClick?: () => void }) {
+function AnniversaryChip({ anniv, onClick }: { anniv: string; onClick?: () => void }) {
+    const n = daysUntilAnniversary(anniv);
     return (
         <div className="chip glass tappable" onClick={onClick}>
             <span className="ic">
                 <ISparkle size={16} />
             </span>
-            <span>
-                距纪念日还有 <b className="num">18</b> 天
-            </span>
+            {n === 0 ? (
+                <span>今天是我们的纪念日 ❤</span>
+            ) : (
+                <span>
+                    距纪念日还有 <b className="num">{n}</b> 天
+                </span>
+            )}
         </div>
     );
 }
@@ -377,7 +397,7 @@ const WIDGET_REQUIRED: WidgetDef[] = [
 const WIDGET_ADDONS: WidgetDef[] = [
     { key: 'anniv', label: '日历 · 纪念日', Icon: ICalendar, c: 'linear-gradient(135deg,#D8C2F0,#A98FD6)' },
     { key: 'memory', label: '照片集', Icon: IPhoto, c: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)' },
-    { key: 'ambient', label: '时间 · 闹钟 · 天气', Icon: ICloud, c: 'linear-gradient(135deg,#AEDFF2,#7CC6EC)' },
+    { key: 'ambient', label: '时间 · 闹钟 · 天气', Icon: ICloud, c: 'var(--accent-grad)' },
     { key: 'music', label: '一起听歌 · 播放器', Icon: IMusic, c: 'linear-gradient(135deg,#FCD9A0,#F1B45A)' },
     { key: 'lighting', label: '灯光切换', Icon: ISun, c: 'linear-gradient(135deg,#FCE7B0,#F1C75A)' }
 ];
@@ -411,7 +431,7 @@ function Toolbox({ open, setOpen, widgets, setWidget, dragMode, setDragMode, res
                         <span
                             className="tb-ic"
                             style={{
-                                background: dragMode ? 'linear-gradient(135deg,#9FD6F4,#5FB0E2)' : 'var(--glass-bg-2)',
+                                background: dragMode ? 'var(--accent-grad)' : 'var(--glass-bg-2)',
                                 color: dragMode ? '#fff' : 'var(--accent-deep)'
                             }}
                         >
@@ -527,10 +547,12 @@ type HUDProps = {
     setTbOpen: Dispatch<SetStateAction<boolean>>;
     setMood: (k: Mood) => void;
     onNavigate: (k: string) => void;
+    onLeaveRoom: () => void;
     spaceName: string;
+    anniv: string;
 };
 
-export function HUD({ layout, mood, density, weather, nowTs, widgets, setWidget, tbOpen, setTbOpen, setMood, onNavigate, spaceName }: HUDProps) {
+export function HUD({ layout, mood, density, weather, nowTs, widgets, setWidget, tbOpen, setTbOpen, setMood, onNavigate, onLeaveRoom, spaceName, anniv }: HUDProps) {
     const p = hudPositions(layout);
     const [dragMode, setDragMode] = useState(false);
     const [wpos, setWpos] = useState<Record<string, WidgetPos>>(() => {
@@ -577,12 +599,12 @@ export function HUD({ layout, mood, density, weather, nowTs, widgets, setWidget,
             )}
             {widgets.anniv && (
                 <DraggableFloat {...df('anniv', 'floatB 6s ease-in-out infinite .2s')}>
-                    <AnniversaryChip onClick={nav('calendar')} />
+                    <AnniversaryChip anniv={anniv} onClick={nav('calendar')} />
                 </DraggableFloat>
             )}
             {widgets.days && (
                 <DraggableFloat {...df('days', 'floatA 7.5s ease-in-out infinite')}>
-                    <DaysCard density={density} onClick={nav('timeline')} />
+                    <DaysCard density={density} anniv={anniv} onClick={nav('timeline')} />
                 </DraggableFloat>
             )}
             {widgets.memory && (
@@ -596,6 +618,12 @@ export function HUD({ layout, mood, density, weather, nowTs, widgets, setWidget,
                 </DraggableFloat>
             )}
             {widgets.lighting && <LightingToggle mood={mood} onChange={setMood} />}
+            <button className="leave glass" onClick={onLeaveRoom} title="离开房间，回到大厅">
+                <span className="ic">
+                    <ILogout size={14} />
+                </span>
+                离开房间
+            </button>
             {dragMode && (
                 <div className="edit-banner glass" onClick={() => setDragMode(false)} title="完成编辑">
                     <span className="ic">

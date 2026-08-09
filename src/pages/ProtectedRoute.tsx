@@ -34,9 +34,31 @@ const Splash = () => (
     </div>
 );
 
+// An explicit sign-out (settings → 退出账号) must stick: without this flag a
+// remount would auto-log the dev account right back in. sessionStorage scoped
+// — a fresh tab restores the dev convenience.
+const explicitLogout = (): boolean => {
+    try {
+        return sessionStorage.getItem('ow-explicit-logout') === '1';
+    } catch {
+        return false;
+    }
+};
+
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     const { user, loading } = useAuth();
-    const [devTried, setDevTried] = useState(false);
+    // treat a sticky explicit logout as "already tried": no auto-login retry
+    const [devTried, setDevTried] = useState(explicitLogout);
+
+    // any real session (e.g. manual login afterwards) clears the flag
+    useEffect(() => {
+        if (!user) return;
+        try {
+            sessionStorage.removeItem('ow-explicit-logout');
+        } catch {
+            /* ignore */
+        }
+    }, [user]);
 
     // one-shot dev auto-login, attempted once the initial session check
     // settles with no user; success flips `user` via onAuthStateChange,

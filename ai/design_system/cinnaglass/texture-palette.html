@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Cinnaglass 色彩×质感体系 · 比稿 v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#2a3a5e;
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:1240px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.55);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.75);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,#8ed7f4,#4fb0e4);border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:rgba(42,58,94,.66);margin-bottom:18px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vnote{font-size:12px;color:rgba(42,58,94,.66);margin:10px 0 0;line-height:1.7}
+  .vlabel{font-size:13px;font-weight:800;margin:4px 0 8px}
+
+  /* ── ① technique demos ── */
+  .tech-row{display:flex;gap:14px;flex-wrap:wrap}
+  .tech{flex:1;min-width:200px;border-radius:18px;padding:16px;position:relative;overflow:hidden;
+    background:linear-gradient(180deg,#fff,#f5fafd)}
+  .tech h4{font-size:12.5px;margin-bottom:3px}
+  .tech p{font-size:11px;color:rgba(42,58,94,.62);line-height:1.6}
+  .tech.gb{border:1.5px solid transparent;
+    background:linear-gradient(180deg,#ffffff,#f4fafd) padding-box,
+      linear-gradient(135deg,rgba(255,255,255,.98),rgba(142,215,244,.75) 45%,rgba(248,200,214,.65)) border-box;}
+  .tech.hi{border:1px solid rgba(33,57,92,.1);
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.98), inset 0 -1px 0 rgba(174,223,242,.5),
+      0 10px 26px -14px rgba(30,42,71,.35);}
+  .tech.grain{border:1px solid rgba(33,57,92,.1);}
+  .tech.grain::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .3 0 0 0 0 .45 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .tech.sheen{border:1px solid rgba(33,57,92,.1);}
+  .tech.sheen::before{content:"";position:absolute;inset:-40% -20%;pointer-events:none;
+    background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.75) 48%,transparent 54%);
+    animation:glint 3.6s ease-in-out infinite;}
+  @keyframes glint{0%,60%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+
+  /* ── stages ── */
+  .stage{border-radius:20px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 16px 40px -16px rgba(20,29,51,.5);display:flex;height:390px}
+  .stage.day{background:
+    radial-gradient(78% 60% at 24% 22%, rgba(255,221,160,.62), transparent 62%),
+    radial-gradient(60% 50% at 88% 14%, rgba(255,198,158,.45), transparent 60%),
+    radial-gradient(95% 72% at 84% 92%, rgba(170,155,205,.45), transparent 62%),
+    linear-gradient(165deg,#e2d6ec 0%,#b6acd2 36%,#7d78ac 68%,#4a4d7a 100%)}
+  .bglab{position:absolute;right:12px;top:10px;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.8);font-weight:700;z-index:3}
+
+  /* ══ scheme scaffolding: same components, per-scheme tokens ══ */
+  .sch{position:relative}
+  .sch .grain-layer::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--grain,0);border-radius:inherit;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .3 0 0 0 0 .45 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* rail */
+  .m-rail{width:56px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 0;
+    background:var(--rail-bg);border-right:var(--rail-edge);backdrop-filter:blur(14px) saturate(1.3);position:relative;z-index:2}
+  .m-rail .rb{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;
+    border:2px solid rgba(255,255,255,.8);box-shadow:0 5px 13px -4px rgba(20,29,51,.45)}
+  .m-rail .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .m-rail .rb.w{background:linear-gradient(135deg,#8ed7f4,#4fb0e4)}
+  .m-rail .rb.on{border-radius:14px;box-shadow:0 0 0 2.5px var(--acc),0 5px 13px -4px rgba(20,29,51,.45)}
+  .m-rail .rdiv{width:22px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--line) 25%,var(--line) 75%,transparent)}
+  .m-rail .radd{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--acc-deep);
+    background:var(--chip);border:1.5px dashed var(--line);font-weight:800}
+
+  /* panel */
+  .m-panel{width:216px;flex:0 0 auto;display:flex;flex-direction:column;position:relative;z-index:1;
+    background:var(--shell);backdrop-filter:blur(20px) saturate(1.4);border-right:1px solid var(--line);overflow:hidden}
+  .m-panel .ph{padding:13px 12px 10px;background:var(--shell-hd)}
+  .m-panel .ph .t{font-size:14px;font-weight:800;color:var(--tx)}
+  .m-panel .ph .s{font-size:10.5px;color:var(--tx2)}
+  .m-panel .cat{font-size:9.5px;letter-spacing:.14em;font-weight:700;color:var(--tx2);padding:10px 12px 4px;text-transform:uppercase}
+  .m-panel .row{display:flex;align-items:center;gap:8px;margin:1px 8px;padding:7px 9px;border-radius:11px;
+    font-size:12.5px;font-weight:600;color:var(--tx2)}
+  .m-panel .row.on{background:var(--active);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(255,255,255,.65)}
+  .m-panel .row .bdg{margin-left:auto;min-width:15px;height:15px;border-radius:8px;padding:0 4px;font-size:9px;font-weight:800;
+    color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);display:grid;place-items:center}
+  .m-panel .pcard{margin:3px 8px;padding:8px 10px;border-radius:13px;display:flex;align-items:center;gap:9px;
+    background:var(--paper);border:var(--paper-edge);box-shadow:var(--paper-shadow);position:relative}
+  .m-panel .pcard .av{width:26px;height:26px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.85)}
+  .m-panel .pcard .av.p{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .m-panel .pcard .av.b{background:linear-gradient(135deg,#8ed7f4,#4fb0e4)}
+  .m-panel .pcard b{font-size:12px;color:var(--tx);display:block;line-height:1.25}
+  .m-panel .pcard i{font-style:normal;font-size:10px;color:var(--tx2)}
+  .m-panel .foot{margin-top:auto;padding:9px 10px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);
+    background:var(--paper);}
+  .m-panel .foot .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#fce7b0,#f2c94c);border:2px solid rgba(255,255,255,.85)}
+  .m-panel .foot b{font-size:12px;color:var(--tx)}
+  .m-panel .foot .mic{margin-left:auto;width:24px;height:24px;border-radius:9px;display:grid;place-items:center;font-size:11px;
+    background:var(--chip);border:1px solid var(--line);color:var(--tx2)}
+
+  /* modal (subscreen) */
+  .m-modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:300px;border-radius:20px;z-index:4;
+    background:var(--shell);backdrop-filter:blur(22px) saturate(1.4);border:var(--shell-edge);
+    box-shadow:0 22px 54px -16px rgba(20,29,51,.55), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -1px 0 var(--rim);
+    padding:14px 14px 16px;overflow:hidden}
+  .m-modal h3{font-size:13.5px;color:var(--tx);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .m-modal h3 .si{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:12px;
+    background:linear-gradient(135deg,#8ed7f4,#4fb0e4);box-shadow:0 4px 10px -3px rgba(47,154,211,.55)}
+  .m-modal h3 .x{margin-left:auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;
+    background:var(--chip);border:1px solid var(--line);color:var(--tx2)}
+  .m-group{border-radius:14px;background:var(--paper);border:var(--paper-edge);box-shadow:var(--paper-shadow);overflow:hidden;position:relative}
+  .m-srow{display:flex;align-items:center;gap:10px;padding:10px 12px;position:relative}
+  .m-srow + .m-srow::before{content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line) 16%,var(--line) 84%,transparent)}
+  .m-srow .ico{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:12px;flex:0 0 auto;
+    box-shadow:0 3px 8px -3px rgba(40,90,140,.4)}
+  .m-srow .b{flex:1;min-width:0}
+  .m-srow .t{font-size:12px;font-weight:700;color:var(--tx)}
+  .m-srow .s{font-size:10px;color:var(--tx2)}
+  .m-sw{width:34px;height:20px;border-radius:99px;background:var(--track);border:1px solid var(--line);position:relative;flex:0 0 auto;
+    box-shadow:inset 0 1px 3px rgba(33,57,92,.14)}
+  .m-sw.on{background:linear-gradient(135deg,#8ed7f4,#4fb0e4);border-color:transparent;box-shadow:none}
+  .m-sw i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(20,29,51,.3)}
+  .m-sw.on i{left:auto;right:2px}
+  .m-seg{display:inline-flex;gap:3px;background:var(--track);border:1px solid var(--line);border-radius:99px;padding:3px;
+    box-shadow:inset 0 1px 3px rgba(33,57,92,.12)}
+  .m-seg span{font-size:10.5px;font-weight:700;color:var(--tx2);padding:4px 10px;border-radius:99px}
+  .m-seg span.on{background:var(--paper);color:var(--tx);box-shadow:0 2px 6px -2px rgba(20,29,51,.3), inset 0 1px 0 rgba(255,255,255,.95)}
+  .m-btn{appearance:none;border:0;font:inherit;font-size:11.5px;font-weight:700;color:#0d2336;height:30px;padding:0 16px;
+    border-radius:99px;background:linear-gradient(135deg,#8ed7f4,#4fb0e4);box-shadow:0 6px 16px -6px rgba(47,154,211,.7)}
+
+  /* toast 弹窗 */
+  .m-toast{position:absolute;right:16px;bottom:16px;z-index:4;width:210px;border-radius:16px;padding:12px 14px;
+    background:var(--paper);border:var(--paper-edge);box-shadow:var(--paper-shadow), 0 18px 40px -14px rgba(20,29,51,.5);position:absolute}
+  .m-toast .t{font-size:12px;font-weight:800;color:var(--tx);margin-bottom:2px}
+  .m-toast .s{font-size:10.5px;color:var(--tx2);line-height:1.55;margin-bottom:9px}
+  .m-toast .acts{display:flex;gap:7px}
+  .m-toast .ghost{appearance:none;font:inherit;font-size:11px;font-weight:700;height:28px;padding:0 13px;border-radius:99px;
+    background:var(--chip);border:1px solid var(--line);color:var(--tx2)}
+
+  /* ══ 方案 A 云绒奶油 ══ */
+  .schA{
+    --shell:linear-gradient(168deg,rgba(255,253,248,.95),rgba(255,248,240,.88));
+    --shell-hd:linear-gradient(160deg,rgba(255,255,255,.95),transparent);
+    --shell-edge:1px solid rgba(255,255,255,.92);
+    --rail-bg:linear-gradient(180deg,rgba(255,251,244,.92),rgba(255,246,235,.85));
+    --rail-edge:1px solid rgba(146,112,60,.12);
+    --paper:linear-gradient(180deg,#ffffff 30%,#fffaf2 100%);
+    --paper-edge:1px solid rgba(146,112,60,.14);
+    --paper-shadow:0 1px 2px rgba(120,90,40,.07), 0 10px 24px -14px rgba(120,90,40,.35), inset 0 1px 0 rgba(255,255,255,.95);
+    --line:rgba(146,112,60,.15); --chip:rgba(255,248,238,.8);
+    --active:linear-gradient(135deg,rgba(252,231,176,.75),rgba(255,244,214,.5));
+    --track:rgba(252,231,176,.55);
+    --tx:#4a3a28;--tx2:rgba(90,72,48,.68);--acc:#f2c063;--acc-deep:#d99e2b;
+    --rim:rgba(252,231,176,.6); --grain:.35;
+  }
+  /* ══ 方案 B 晴空水彩 ══ */
+  .schB{
+    --shell:linear-gradient(168deg,rgba(250,253,255,.95) 0%,rgba(240,249,254,.9) 55%,rgba(244,246,253,.88) 100%);
+    --shell-hd:linear-gradient(160deg,rgba(255,255,255,.96),transparent);
+    --shell-edge:1px solid rgba(255,255,255,.92);
+    --rail-bg:linear-gradient(180deg,rgba(240,249,254,.9),rgba(233,242,252,.82));
+    --rail-edge:1px solid rgba(33,57,92,.09);
+    --paper:linear-gradient(180deg,#ffffff 30%,#f5fafd 100%);
+    --paper-edge:1px solid rgba(33,57,92,.1);
+    --paper-shadow:0 1px 2px rgba(30,42,71,.06), 0 10px 26px -14px rgba(30,42,71,.3), inset 0 1px 0 rgba(255,255,255,.95);
+    --line:rgba(33,57,92,.1); --chip:rgba(240,249,254,.75);
+    --active:linear-gradient(135deg,rgba(174,223,242,.72),rgba(216,239,250,.45));
+    --track:rgba(216,239,250,.6);
+    --tx:#22335a;--tx2:rgba(34,51,90,.68);--acc:#59c5ed;--acc-deep:#2f9ad3;
+    --rim:rgba(174,223,242,.5); --grain:0;
+  }
+  /* ══ 方案 C 糖霜琉璃 ══ */
+  .schC{
+    --shell:linear-gradient(168deg,rgba(252,254,255,.96) 0%,rgba(240,248,254,.9) 45%,rgba(250,243,250,.88) 100%);
+    --shell-hd:linear-gradient(160deg,rgba(255,255,255,.97),transparent);
+    --shell-edge:1.5px solid transparent;
+    --rail-bg:linear-gradient(180deg,rgba(248,252,255,.55),rgba(240,246,253,.4));
+    --rail-edge:0;
+    --paper:linear-gradient(180deg,#ffffff 25%,#f6fafe 78%,#fdf6fa 100%);
+    --paper-edge:1.5px solid transparent;
+    --paper-shadow:0 1px 2px rgba(30,42,71,.06), 0 12px 28px -14px rgba(74,77,122,.4), inset 0 1px 0 rgba(255,255,255,.95);
+    --line:rgba(33,57,92,.1); --chip:rgba(243,249,254,.8);
+    --active:linear-gradient(135deg,rgba(174,223,242,.75),rgba(248,200,214,.32));
+    --track:linear-gradient(90deg,rgba(216,239,250,.65),rgba(252,222,232,.5));
+    --tx:#22335a;--tx2:rgba(34,51,90,.68);--acc:#59c5ed;--acc-deep:#2f9ad3;
+    --rim:rgba(248,200,214,.55); --grain:.3;
+  }
+  /* candy gradient borders for C */
+  .schC .m-group,.schC .m-panel .pcard,.schC .m-toast{
+    background:var(--paper) padding-box,
+      linear-gradient(135deg,rgba(255,255,255,.98),rgba(142,215,244,.6) 42%,rgba(248,200,214,.55) 100%) border-box;}
+  .schC .m-modal{
+    background:var(--shell) padding-box,
+      linear-gradient(150deg,rgba(255,255,255,.98),rgba(142,215,244,.65) 45%,rgba(248,200,214,.6)) border-box;}
+  .schC .m-rail{backdrop-filter:blur(10px) saturate(1.5)}
+
+  .duo{display:flex;gap:16px;flex-wrap:wrap}
+  .duo>div{flex:1;min-width:430px}
+
+  /* ── ③ rail integration mock ── */
+  .railstage{border-radius:20px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 16px 40px -16px rgba(20,29,51,.5);height:320px;display:flex;
+    background:
+      radial-gradient(78% 60% at 30% 22%, rgba(255,221,160,.62), transparent 62%),
+      radial-gradient(95% 72% at 84% 92%, rgba(170,155,205,.45), transparent 62%),
+      linear-gradient(165deg,#e2d6ec 0%,#b6acd2 36%,#7d78ac 68%,#4a4d7a 100%)}
+  /* R-A fused gradient rail */
+  .railA{width:60px;height:100%;display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 0;
+    background:linear-gradient(90deg,rgba(250,253,255,.94) 0%,rgba(248,252,255,.82) 70%,rgba(248,252,255,0) 100%);
+    backdrop-filter:blur(12px) saturate(1.35);
+    -webkit-mask-image:linear-gradient(90deg,#000 72%,transparent 100%);
+    mask-image:linear-gradient(90deg,#000 72%,transparent 100%);}
+  /* R-B floating dock pill */
+  .railB{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:52px;padding:11px 0;z-index:2;
+    display:flex;flex-direction:column;align-items:center;gap:9px;border-radius:99px;
+    background:linear-gradient(172deg,rgba(252,254,255,.94),rgba(240,248,254,.86)) padding-box,
+      linear-gradient(160deg,rgba(255,255,255,.98),rgba(142,215,244,.6) 50%,rgba(248,200,214,.5)) border-box;
+    border:1.5px solid transparent;backdrop-filter:blur(16px) saturate(1.4);
+    box-shadow:0 14px 34px -12px rgba(30,42,71,.5), inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(248,200,214,.5);}
+  .railstage .rb{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;
+    border:2px solid rgba(255,255,255,.8);box-shadow:0 5px 13px -4px rgba(20,29,51,.45);flex:0 0 auto}
+  .railstage .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .railstage .rb.w{background:linear-gradient(135deg,#8ed7f4,#4fb0e4)}
+  .railstage .rb.on{border-radius:13px;box-shadow:0 0 0 2.5px #59c5ed,0 5px 13px -4px rgba(20,29,51,.45)}
+  .railstage .rdiv{width:20px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(33,57,92,.14) 25%,rgba(33,57,92,.14) 75%,transparent)}
+  .railstage .fold{margin-top:auto;width:30px;height:30px;border-radius:11px;display:grid;place-items:center;color:rgba(34,51,90,.6);
+    background:rgba(255,255,255,.72);border:1px solid rgba(33,57,92,.1);font-size:12px;cursor:pointer}
+  .railB .fold{margin-top:2px;border-radius:50%}
+</style>
+</head>
+<body>
+<h1>Cinnaglass 色彩 × 质感体系 · 比稿 v2</h1>
+<div class="sub">「太白、单调、没质感」三连修 —— 三套色彩气质 × 渐变描边/颗粒/高光四件套 × rail 融合两式 · 全部压在真实场景渐变上</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">① 质感四件套（先看手法，再看配色）</span>
+    <h2>让白色不塑料的四个技术手段</h2>
+    <p class="note">调研共识（Liquid Glass / glassmorphism 实践派）：纯白面 + 单色细边 = 塑料贴纸感。质感来自光的行为——边缘折光、表面受光、材质颗粒、流动反光。以下四块卡片都是白底，看质感差异。</p>
+    <div class="tech-row">
+      <div class="tech gb"><h4>渐变描边 Gradient Border</h4><p>双层 background-clip：边框走「白 → 天蓝 → 腮红粉」的糖果渐变，模拟玻璃边缘折光。卡片和壳的轮廓从此不再是死线。</p></div>
+      <div class="tech hi"><h4>镜面高光 Specular</h4><p>顶缘 1.5px 纯白内亮线（受光）+ 底缘天蓝 rim light（反光）——上下一对，玻璃的「厚度」就出来了。</p></div>
+      <div class="tech grain"><h4>颗粒 Grain</h4><p>SVG fractalNoise 噪点铺 4~5% 透明度，打破大面积白的光滑塑料感，变成有肌理的「纸/瓷」。</p></div>
+      <div class="tech sheen"><h4>流光 Sheen</h4><p>伪元素斜向白光带缓慢扫过（仅限特殊卡：纪念日、成就），是「玻璃在呼吸」的点睛帧，不能满屏用。</p></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">② 三套色彩气质 · 同组件同场景</span>
+    <h2>sidebar（rail+panel）+ subscreen 弹窗 + toast 弹窗</h2>
+    <p class="note">行业公式（浪漫/治愈系产品）：blush 腮红粉 + cream 奶油 + powder blue 粉蓝。三方案 = 三种「暖度」策略，解决「太白太单调」。文字均为深海军蓝系保读性。</p>
+
+    <div class="vlabel">方案 A —— 云绒奶油 Cream Cloud（暖底：白偏奶油，琥珀/黄油做分层色）</div>
+    <div class="stage day sch schA"><span class="bglab">DAY</span>
+      <div class="m-rail grain-layer"><span class="rb logo">♥</span><span class="rdiv"></span><span class="rb w on">L</span><span class="radd">＋</span></div>
+      <div class="m-panel grain-layer">
+        <div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 404 天</div></div>
+        <div class="cat">房间</div>
+        <div class="row on">🛋️ 客厅<span class="bdg">2</span></div>
+        <div class="row">🌿 阳台</div>
+        <div class="cat">成员</div>
+        <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+        <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div>
+        <div class="foot"><span class="av"></span><b>jack</b><span class="mic">🎙️</span></div>
+      </div>
+      <div class="m-modal grain-layer"><h3><span class="si">⚙️</span>设置<span class="x">✕</span></h3>
+        <div class="m-group">
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#f2c063,#d99e2b)">🔔</span><div class="b"><div class="t">进房自动接语音</div><div class="s">默认闭麦</div></div><span class="m-sw on"><i></i></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#f8c8d6,#ef9db4)">🎨</span><div class="b"><div class="t">玻璃质感</div></div><span class="m-seg"><span>云朵</span><span class="on">天空</span></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#8ed7f4,#4fb0e4)">💾</span><div class="b"><div class="t">保存修改</div></div><button class="m-btn">保存 ✨</button></div>
+        </div>
+      </div>
+      <div class="m-toast grain-layer"><div class="t">🌧️ 有一条没送出去</div><div class="s">网络打了个盹，内容还在，随时重试。</div><div class="acts"><button class="m-btn" style="height:28px">重试</button><button class="ghost">先放着</button></div></div>
+    </div>
+    <div class="vnote">得：最暖最治愈，奶油底 + 琥珀分层像下午茶，和黄昏/夜晚场景天然融。失：离大耳狗的「蓝白」本命色最远，琥珀 active 和蓝色主按钮同框微妙；文字底需换暖棕降低突兀，全局要换字色。</div>
+
+    <div class="vlabel" style="margin-top:22px">方案 B —— 晴空水彩 Sky Wash（现行体系 + 水彩晕染壳：白里透出天蓝→薰衣草的渐变呼吸）<span class="pick">✔ 用户拍板采纳（2026-07-12）· 附加：A 的奶油 active 随黄昏/夜晚光照自动切换</span></div>
+    <div class="stage day sch schB"><span class="bglab">DAY</span>
+      <div class="m-rail grain-layer"><span class="rb logo">♥</span><span class="rdiv"></span><span class="rb w on">L</span><span class="radd">＋</span></div>
+      <div class="m-panel grain-layer">
+        <div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 404 天</div></div>
+        <div class="cat">房间</div>
+        <div class="row on">🛋️ 客厅<span class="bdg">2</span></div>
+        <div class="row">🌿 阳台</div>
+        <div class="cat">成员</div>
+        <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+        <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div>
+        <div class="foot"><span class="av"></span><b>jack</b><span class="mic">🎙️</span></div>
+      </div>
+      <div class="m-modal grain-layer"><h3><span class="si">⚙️</span>设置<span class="x">✕</span></h3>
+        <div class="m-group">
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#8ed7f4,#4fb0e4)">🔔</span><div class="b"><div class="t">进房自动接语音</div><div class="s">默认闭麦</div></div><span class="m-sw on"><i></i></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#f8c8d6,#ef9db4)">🎨</span><div class="b"><div class="t">玻璃质感</div></div><span class="m-seg"><span>云朵</span><span class="on">天空</span></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#a5d8a2,#6db86a)">💾</span><div class="b"><div class="t">保存修改</div></div><button class="m-btn">保存 ✨</button></div>
+        </div>
+      </div>
+      <div class="m-toast grain-layer"><div class="t">🌧️ 有一条没送出去</div><div class="s">网络打了个盹，内容还在，随时重试。</div><div class="acts"><button class="m-btn" style="height:28px">重试</button><button class="ghost">先放着</button></div></div>
+    </div>
+    <div class="vnote">得：大耳狗本命蓝白、和现有实现差异最小（只加壳级水彩渐变，改动可控）。失：仍是单一蓝系，「单调」只解了一半——暖味只有徽章粉一点。</div>
+
+    <div class="vlabel" style="margin-top:22px">方案 C —— 糖霜琉璃 Candy Glaze（白底 + 糖果渐变描边 + 粉/蓝双糖分层 + 颗粒）<span class="pick">✔ UX 推荐</span></div>
+    <div class="stage day sch schC"><span class="bglab">DAY</span>
+      <div class="m-rail grain-layer"><span class="rb logo">♥</span><span class="rdiv"></span><span class="rb w on">L</span><span class="radd">＋</span></div>
+      <div class="m-panel grain-layer">
+        <div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 404 天</div></div>
+        <div class="cat">房间</div>
+        <div class="row on">🛋️ 客厅<span class="bdg">2</span></div>
+        <div class="row">🌿 阳台</div>
+        <div class="cat">成员</div>
+        <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+        <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div>
+        <div class="foot"><span class="av"></span><b>jack</b><span class="mic">🎙️</span></div>
+      </div>
+      <div class="m-modal grain-layer"><h3><span class="si">⚙️</span>设置<span class="x">✕</span></h3>
+        <div class="m-group">
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#8ed7f4,#4fb0e4)">🔔</span><div class="b"><div class="t">进房自动接语音</div><div class="s">默认闭麦</div></div><span class="m-sw on"><i></i></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#f8c8d6,#ef9db4)">🎨</span><div class="b"><div class="t">玻璃质感</div></div><span class="m-seg"><span>云朵</span><span class="on">天空</span></span></div>
+          <div class="m-srow"><span class="ico" style="background:linear-gradient(135deg,#fce7b0,#f2c063)">💾</span><div class="b"><div class="t">保存修改</div></div><button class="m-btn">保存 ✨</button></div>
+        </div>
+      </div>
+      <div class="m-toast grain-layer"><div class="t">🌧️ 有一条没送出去</div><div class="s">网络打了个盹，内容还在，随时重试。</div><div class="acts"><button class="m-btn" style="height:28px">重试</button><button class="ghost">先放着</button></div></div>
+    </div>
+    <div class="vnote">得：解「单调」最彻底——壳有「蓝→薰衣草粉」水彩晕染、卡片有糖果渐变描边（白→天蓝→腮红粉）、纸面底部透一丝粉、active 是蓝粉双糖渐变、控件轨道蓝粉横渐变、颗粒打底；蓝白仍是主体（粉只出现在边缘/尾部，占比 &lt;15%），大耳狗的腮红正是这么用的。失：实现最重（渐变描边要动卡片的 background 结构），token 增 3~4 个。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">③ rail 融合比稿 · 收缩自如</span>
+    <h2>世界列表 rail 怎么不突兀</h2>
+    <p class="note">现状问题：rail 是一根通顶的实心白柱，左缘生硬地切开场景。两个方向：「融」（消掉边界）vs「浮」（承认是独立物体但做成精致悬浮件）。</p>
+    <div class="duo">
+      <div>
+        <div class="vlabel">R-A —— 雾融式（rail 右缘渐隐进 panel，无边界线）</div>
+        <div class="railstage">
+          <div class="railA"><span class="rb logo">♥</span><span class="rdiv"></span><span class="rb w on">L</span><span class="rb w" style="opacity:.7">M</span><span class="fold">⟨</span></div>
+        </div>
+        <div class="vnote">rail 背景「白 → 透明」横向渐变 + mask 渐隐，没有右边界线，像晨雾一样淡进场景/panel。收起 panel 时 rail 独立存在也不突兀（本来就没有硬边）。得：零布局改动、最安静。失：图标悬在半透明上，场景太花时衬底不足。</div>
+      </div>
+      <div>
+        <div class="vlabel">R-B —— 悬浮糖果 dock（脱离边缘的胶囊，收起=只剩这颗胶囊）<span class="pick">✔ 用户拍板采纳（2026-07-12）</span></div>
+        <div class="railstage">
+          <div class="railB"><span class="rb logo">♥</span><span class="rdiv"></span><span class="rb w on">L</span><span class="rb w" style="opacity:.7">M</span><span class="fold">⟩</span></div>
+        </div>
+        <div class="vnote">rail 变成悬浮圆角胶囊（糖果渐变描边 + 高光 + 投影），四周透出场景——它不再「切开」画面而是「放在」画面上。panel 展开时从胶囊右侧滑出（同层玻璃）；收起时整个 UI 只剩这颗胶囊，场景全裸露，「收缩自如」的极致形态。得：最有产品辨识度、收起态最美。失：panel 展开的衔接动画要精做（胶囊 ↔ 通栏的形变），改动量中等。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">④ 裁决点</span>
+    <h2>待拍板</h2>
+    <div class="vnote">
+      1. <b>色彩气质</b>：A 云绒奶油 / B 晴空水彩 / <b>C 糖霜琉璃（UX 推荐）</b>——也可 C 为主、A 的奶油 active 只给「黄昏/夜晚」光照时段做自适应暖化（进阶玩法，后议）<br>
+      2. <b>rail 形态</b>：R-A 雾融 / <b>R-B 悬浮糖果 dock（UX 推荐）</b><br>
+      3. 质感四件套的使用范围：渐变描边+高光+颗粒 = 全局标配；流光 sheen 只给纪念日卡/成就时刻<br>
+      拍板后：token 层扩 --edge-candy（描边渐变）/--grain 等，按 D-9 体系逐文件落地 + 全窗口截图复检。
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

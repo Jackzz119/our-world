@@ -6,7 +6,7 @@
 import { supabase } from '@/lib/supabase.ts';
 import type { World } from '@/types/feed.ts';
 
-const WORLD_COLS = 'id, owner_id, member_id, intimacy_points, created_at';
+const WORLD_COLS = 'id, owner_id, member_id, name, anniversary, icon_emoji, icon_path, intimacy_points, created_at';
 
 // Fetch the current user's world (as owner or member), or null if they have
 // none. World creation is a separate, explicit action (see createWorld) — the
@@ -36,6 +36,18 @@ export const createWorld = async (): Promise<World> => {
     if (!userId) throw new Error('未登录，无法创建世界。');
 
     const { data, error } = await supabase.from('worlds').insert({ owner_id: userId }).select(WORLD_COLS).single();
+    if (error) throw error;
+    return data as World;
+};
+
+// Editable world identity (world settings modal). RLS lets either member
+// write, so edits sync between the couple through the DB row.
+export type WorldPatch = Partial<Pick<World, 'name' | 'anniversary' | 'icon_emoji' | 'icon_path'>>;
+
+// Persist world-settings edits and return the fresh row (the caller swaps it
+// into state so the chrome updates immediately).
+export const updateWorld = async (worldId: string, patch: WorldPatch): Promise<World> => {
+    const { data, error } = await supabase.from('worlds').update(patch).eq('id', worldId).select(WORLD_COLS).single();
     if (error) throw error;
     return data as World;
 };

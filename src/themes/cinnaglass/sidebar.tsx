@@ -14,18 +14,13 @@
 // ChatDock is stage-owned and never opened from here.
 // See ai/Features/sidebar.md + ai/Features/chat.md.
 import { useState, type Dispatch, type SetStateAction } from 'react';
-import { IChat, IChevron, ICog, IHash, IHeart, IMic, IMicOff, IPlus, ISparkle, IUsers, IVolume } from './icons';
+import { IChat, IChevron, ICog, IHash, IHeart, IMic, IMicOff, IPlus, ISparkle, IVolume } from './icons';
 import { ROOM_ICONS, VOICE_DEFAULT } from './rooms';
-import { CONTACTS } from './contacts';
-import { TEXT_CHANNELS } from './chat-data';
+import { FRIENDS_VIEW, type Conv } from './chat-data';
+import type { Channel } from '@/types/chat.ts';
 import type { Profile, Room } from './model';
+import { daysSince } from './profile';
 import type { World } from '@/types/feed.ts';
-
-const daysSince = (iso: string) => {
-    const d = new Date(iso + 'T00:00:00');
-    if (isNaN(d.getTime())) return 0;
-    return Math.max(1, Math.floor((Date.now() - d.getTime()) / 864e5) + 1);
-};
 
 const SidebarStyles = () => (
     <style>{`
@@ -33,40 +28,77 @@ const SidebarStyles = () => (
         stage to the right instead of floating over it ── */
   .owsb2{position:relative;z-index:13;height:100%;flex:0 0 auto;display:flex;}
 
-  /* rail: always-on column — logo (home/DM hub) + world entries */
-  .sb-rail{width:64px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
-    gap:10px;padding:14px 0;border-radius:0;border-left:0;}
+  /* rail two-state morph (texture-palette.html R-B, 2026-07-13 修订 v2):
+     expanded = full-height column fused with the panel;
+     folded   = the zone's width animates to 0 (the scene slides in to fill it)
+     while the pill, overflowing the zero-width zone, floats DIRECTLY on the
+     scene — no strip, no backdrop of its own. */
+  .sb-railzone{position:relative;width:64px;flex:0 0 auto;display:flex;flex-direction:column;
+    align-items:flex-start;justify-content:center;overflow:visible;
+    transition:width .45s cubic-bezier(.3,.8,.35,1);}
+  .owsb2.folded .sb-railzone{width:0;}
+  .sb-rail{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
+    gap:10px;padding:12px 0;width:64px;flex:1 1 auto;margin:0;border-radius:0;overflow:hidden;
+    border:1.5px solid transparent;
+    background:var(--glass-shell) padding-box,
+      var(--rail-candy-border) border-box;
+    box-shadow:inset 0 1px 0 var(--glass-hi);
+    transition:flex-grow .45s cubic-bezier(.3,.8,.35,1), width .45s cubic-bezier(.3,.8,.35,1),
+      margin .45s cubic-bezier(.3,.8,.35,1), border-radius .45s cubic-bezier(.34,1.2,.4,1),
+      box-shadow .45s ease;}
+  .owsb2.folded .sb-rail{flex-grow:0;width:52px;margin:0 0 0 10px;border-radius:99px;
+    backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+    box-shadow:0 14px 34px -12px rgba(30,42,71,.5), inset 0 1.5px 0 rgba(255,255,255,.9),
+      inset 0 -1px 0 rgba(248,200,214,.5);}
+  @media (prefers-reduced-motion: reduce){.sb-railzone,.sb-rail{transition:none}}
   .sb-rail-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
     font-size:17px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.72);
     box-shadow:0 6px 16px -5px rgba(20,29,51,.55);flex:0 0 auto;position:relative;
     transition:border-radius .22s,transform .2s,box-shadow .2s;}
   .sb-rail-btn:hover{border-radius:16px;transform:translateY(-1px);}
   .sb-rail-btn.on{border-radius:16px;box-shadow:0 0 0 2.5px var(--accent),0 6px 16px -5px rgba(20,29,51,.55);}
-  .sb-rail-btn.on::before{content:"";position:absolute;left:-12px;top:50%;transform:translateY(-50%);
-    width:4px;height:22px;border-radius:0 4px 4px 0;background:var(--accent);}
+  /* selection reads via the squircle + accent ring — the old left indicator
+     bar would clip against the pill's rounded edge */
   .sb-rail-btn:disabled{opacity:.45;cursor:default;transform:none;}
   .sb-rail-logo{background:linear-gradient(135deg,#F8C8D6,#EF9DB4);}
-  .sb-rail-div{width:26px;height:2px;border-radius:2px;background:var(--glass-border);flex:0 0 auto;}
-  .sb-rail-add{background:var(--glass-bg-2);color:var(--accent-deep);border:1.5px dashed var(--glass-border);
+  .sb-rail-div{width:26px;height:2px;border-radius:2px;flex:0 0 auto;
+    background:linear-gradient(90deg,transparent,var(--glass-line) 25%,var(--glass-line) 75%,transparent);}
+  .sb-rail-add{background:var(--glass-bg-2);color:var(--accent-deep);border:1.5px dashed var(--glass-line);
     box-shadow:none;font-weight:700;}
   .sb-rail-add:hover{border-color:var(--accent);color:var(--accent);}
   .sb-rail-sp{flex:1;}
   .sb-rail-fold{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;cursor:pointer;
-    color:var(--glass-sub);border:1px solid var(--glass-border);background:var(--glass-bg-2);
+    color:var(--glass-sub);border:1px solid var(--glass-line);background:var(--glass-bg-2);
     transition:color .18s,background .18s;}
-  .sb-rail-fold:hover{color:var(--glass-text);background:var(--glass-hi);}
+  .sb-rail-fold:hover{color:var(--glass-text);background:var(--glass-hover);}
   .sb-rail-fold .ic{display:inline-flex;transition:transform .3s;}
   .sb-rail-fold.folded .ic{transform:rotate(180deg);}
 
-  /* panel: collapsible context column (full height, in-flow) */
+  /* panel: collapsible context column (full height, in-flow) — folds via a
+     width morph in sync with the rail's pill transformation */
   .sb-panel{width:min(252px,calc(100vw - 84px));display:flex;flex-direction:column;min-height:0;
-    border-radius:0;border-left:1px solid var(--glass-border);overflow:hidden;
-    box-shadow:18px 0 50px -18px rgba(20,29,51,.4);animation:sbPanelIn .28s ease both;}
-  @keyframes sbPanelIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
-  @media (prefers-reduced-motion: reduce){.sb-panel{animation:none}}
+    border-radius:0;border-left:1px solid var(--glass-line);overflow:hidden;
+    box-shadow:18px 0 50px -18px rgba(20,29,51,.4);
+    transition:width .45s cubic-bezier(.3,.8,.35,1), opacity .32s ease, border-left-width .45s;}
+  /* children keep their natural width during the fold so text never rewraps —
+     the panel just clips them like a closing curtain */
+  .sb-panel>*{width:min(252px,calc(100vw - 84px));flex-shrink:0;}
+  .sb-panel.closed{width:0;min-width:0;border-left-width:0;opacity:0;pointer-events:none;}
+  @media (prefers-reduced-motion: reduce){.sb-panel{transition:none}}
 
   .sb-hd{padding:16px 14px 12px;background:linear-gradient(160deg,var(--glass-hi),transparent);}
   .sb-hd-top{display:flex;align-items:center;gap:11px;}
+  /* world header doubles as the world-settings entry — the whole
+     icon + name + days strip is one click target (2026-07-13, world.md W-4) */
+  .sb-hd-top.tap{cursor:pointer;border-radius:14px;margin:-6px;padding:6px;transition:background .16s;}
+  .sb-hd-top.tap:hover{background:var(--glass-hover);}
+  .sb-hd-top.tap:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent);}
+
+  /* world icon — image beats emoji beats first letter (world.md §六) */
+  .sb-wic{display:grid;place-items:center;overflow:hidden;color:#fff;font-weight:800;flex:0 0 auto;
+    background:var(--accent-grad);border:2px solid rgba(255,255,255,.72);
+    box-shadow:0 6px 16px -5px rgba(20,29,51,.55);}
+  .sb-wic img{width:100%;height:100%;object-fit:cover;display:block;}
   .sb-avas{display:flex;}
   .sb-avas .ava{width:40px;height:40px;font-size:15px;margin-left:-13px;}
   .sb-avas .ava:first-child{margin-left:0;}
@@ -82,7 +114,7 @@ const SidebarStyles = () => (
 
   .sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 10px 12px;}
   .sb-scroll::-webkit-scrollbar{width:6px;}
-  .sb-scroll::-webkit-scrollbar-thumb{background:var(--glass-border);border-radius:9px;}
+  .sb-scroll::-webkit-scrollbar-thumb{background:var(--glass-line);border-radius:9px;}
 
   .sb-cat{display:flex;align-items:center;justify-content:space-between;
     font-size:10.5px;letter-spacing:.15em;font-weight:700;color:var(--glass-sub);
@@ -92,7 +124,7 @@ const SidebarStyles = () => (
   .sb-cat .cog.on{color:var(--accent-deep);transform:rotate(60deg);}
 
   .sb-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--accent-deep);
-    background:var(--glass-hi);border:1px solid var(--glass-border);border-radius:99px;padding:2px 8px;flex:0 0 auto;}
+    background:var(--glass-hi);border:1px solid var(--glass-line);border-radius:99px;padding:2px 8px;flex:0 0 auto;}
 
   /* shared avatar */
   .ava{position:relative;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;
@@ -114,15 +146,15 @@ const SidebarStyles = () => (
   /* ── DM rows (home panel) ── */
   .sb-dm{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;}
-  .sb-dm:hover{background:var(--glass-bg-2);color:var(--glass-text);}
-  .sb-dm.on{background:var(--glass-hi);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-border);}
+  .sb-dm:hover{background:var(--glass-hover);color:var(--glass-text);}
+  .sb-dm.on{background:var(--glass-active);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-line);}
   .sb-dm .ava{width:30px;height:30px;font-size:12px;}
   .sb-dm .nm{flex:1;font-size:13.5px;font-weight:600;color:var(--glass-text);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .sb-dm .st{font-size:11px;color:var(--glass-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
 
   /* ── lobby: world status cards ── */
-  .sb-rcard{border:1px solid var(--glass-border);background:var(--glass-bg-2);border-radius:16px;
+  .sb-rcard{border:1px solid var(--glass-line);background:var(--glass-paper);border-radius:16px;
     padding:13px 14px;margin:4px 2px 10px;display:flex;flex-direction:column;gap:9px;}
   .sb-rcard .rc-top{display:flex;align-items:center;gap:10px;}
   .sb-rcard .rc-nm{flex:1;min-width:0;font-size:14px;font-weight:800;color:var(--glass-text);
@@ -134,8 +166,8 @@ const SidebarStyles = () => (
   .sb-rcard .rc-ppl .ava:first-child{margin-left:0;}
   .sb-rcard .rc-cnt{flex:1;font-size:11px;color:var(--glass-sub);}
   .sb-rcard .rc-go{appearance:none;border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:700;
-    color:#0d2336;border-radius:99px;padding:6px 14px;background:linear-gradient(135deg,#9fd6f4,#5fb0e2);
-    box-shadow:0 5px 14px -6px rgba(79,169,220,.7);transition:transform .18s;}
+    color:#0d2336;border-radius:99px;padding:6px 14px;background:var(--accent-grad);
+    box-shadow:0 5px 14px -6px rgba(47,154,211,.7);transition:transform .18s;}
   .sb-rcard .rc-go:hover{transform:translateY(-1px);}
   .sb-rcard .rc-go:disabled{opacity:.5;cursor:default;transform:none;}
   .sb-rcard.invite{border-style:dashed;opacity:.85;}
@@ -145,8 +177,8 @@ const SidebarStyles = () => (
   /* ── in-world: rooms / channels / presence ── */
   .sb-room{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;position:relative;}
-  .sb-room:hover{background:var(--glass-bg-2);color:var(--glass-text);}
-  .sb-room.on{background:var(--glass-hi);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-border);}
+  .sb-room:hover{background:var(--glass-hover);color:var(--glass-text);}
+  .sb-room.on{background:var(--glass-active);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-line);}
   .sb-room.on::before{content:"";position:absolute;left:-10px;top:50%;transform:translateY(-50%);
     width:4px;height:20px;border-radius:0 4px 4px 0;background:var(--accent);}
   .sb-room .ic{display:inline-flex;flex:0 0 auto;}
@@ -158,7 +190,7 @@ const SidebarStyles = () => (
 
   .sb-vc-head{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;
     color:var(--glass-sub);transition:background .16s,color .16s;}
-  .sb-vc-head:hover{background:var(--glass-bg-2);color:var(--glass-text);}
+  .sb-vc-head:hover{background:var(--glass-hover);color:var(--glass-text);}
   .sb-vc-head.live{color:var(--glass-text);}
   .sb-vc-head .ic{display:inline-flex;flex:0 0 auto;}
   .sb-vc-head .nm{flex:1;font-size:14px;font-weight:600;}
@@ -169,33 +201,49 @@ const SidebarStyles = () => (
   .sb-vc-m .mc{margin-left:auto;display:inline-flex;color:#5fcf8e;}
   .sb-vc-m .mc.muted{color:#e08aa0;}
 
-  .sb-pcard{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:var(--glass-bg-2);
-    border:1px solid var(--glass-border);margin-bottom:8px;cursor:pointer;transition:background .16s;}
-  .sb-pcard:hover{background:var(--glass-hi);}
+  .sb-pcard{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:var(--glass-paper);
+    border:1px solid var(--glass-line);margin-bottom:8px;cursor:pointer;transition:background .16s;}
+  .sb-pcard:hover{background:var(--glass-hover);}
   .sb-pcard .ava{width:42px;height:42px;font-size:15px;}
   .sb-pcard .pc-b{flex:1;min-width:0;}
   .sb-pcard .pc-nm{font-size:14px;font-weight:700;color:var(--glass-text);display:flex;align-items:center;gap:6px;}
   .sb-pcard .pc-tag{font-size:9px;font-weight:700;letter-spacing:.05em;color:var(--accent-deep);
-    background:var(--glass-hi);border:1px solid var(--glass-border);border-radius:99px;padding:2px 7px;}
+    background:var(--glass-hi);border:1px solid var(--glass-line);border-radius:99px;padding:2px 7px;}
   .sb-pcard .pc-st{font-size:11.5px;color:var(--glass-sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   /* footer user panel */
   .sb-user{display:flex;align-items:center;gap:10px;padding:11px 12px;
-    border-top:1px solid var(--glass-border);background:var(--glass-bg-2);}
+    border-top:1px solid var(--glass-line);background:var(--shell-hover);}
   .sb-user .ava{width:38px;height:38px;font-size:14px;}
   .sb-user .u-b{flex:1;min-width:0;}
   .sb-user .u-nm{font-size:13.5px;font-weight:700;color:var(--glass-text);line-height:1.2;}
   .sb-user .u-st{font:inherit;font-size:11px;color:var(--glass-sub);border:0;background:transparent;outline:none;
     width:100%;padding:2px 4px;margin-left:-4px;border-radius:7px;transition:background .16s;}
-  .sb-user .u-st:hover{background:var(--glass-hi);}
+  .sb-user .u-st:hover{background:var(--glass-hover);}
   .sb-user .u-st:focus{background:var(--glass-card,var(--glass-bg));box-shadow:0 0 0 1.5px var(--accent);}
   .sb-ubtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto;
-    color:var(--glass-sub);border:1px solid var(--glass-border);background:var(--glass-bg);transition:all .18s;}
-  .sb-ubtn:hover{color:var(--glass-text);background:var(--glass-hi);}
+    color:var(--glass-sub);border:1px solid var(--glass-line);background:var(--glass-bg);transition:all .18s;}
+  .sb-ubtn:hover{color:var(--glass-text);background:var(--glass-hover);}
   .sb-ubtn.muted{color:#e08aa0;border-color:rgba(224,138,160,.5);}
+
+  /* ── friends entry + dm list (home panel) ── */
+  .sb-bdg{display:inline-grid;place-items:center;min-width:16px;height:16px;border-radius:8px;padding:0 4px;
+    font-size:9.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);flex:0 0 auto;}
+  .sb-hint{font-size:11px;color:var(--glass-sub);padding:2px 10px 4px;}
   `}</style>
 );
 
 type Person = { id: string; name: string; ini: string; color: string; couple?: boolean; online?: boolean };
+
+// The world's face, three-way fallback: uploaded image (signed URL) > emoji >
+// first letter of the world name on the accent gradient.
+function WorldIcon({ world, iconUrl, name, size, radius, fz }: { world: World; iconUrl: string | null; name: string; size: number; radius: number; fz: number }) {
+    const img = world.icon_path && iconUrl;
+    return (
+        <span className="sb-wic" style={{ width: size, height: size, borderRadius: radius, fontSize: fz }}>
+            {img ? <img src={img} alt="" /> : world.icon_emoji || name.slice(0, 1)}
+        </span>
+    );
+}
 
 function MiniAva({ person, cls = '', size, speaking, onClick }: { person: Person; cls?: string; size?: number; speaking?: boolean; onClick?: () => void }) {
     const s = size
@@ -219,7 +267,9 @@ export function Sidebar({
     profile,
     setProfile,
     onOpenSettings,
+    onOpenWorldSettings,
     world,
+    worldIconUrl,
     lobbyStatus,
     lobbyError,
     busy,
@@ -228,6 +278,9 @@ export function Sidebar({
     onCreateWorld,
     onOpenConv,
     activeConv,
+    channels,
+    dmConvs,
+    pendingCount,
     rooms,
     meRoom,
     onEnterSpace
@@ -237,15 +290,20 @@ export function Sidebar({
     profile: Profile;
     setProfile: Dispatch<SetStateAction<Profile>>;
     onOpenSettings: () => void;
+    onOpenWorldSettings: () => void; // world panel header click (world.md W-4)
     world: World | null;
+    worldIconUrl: string | null; // signed URL for world.icon_path (WorldPage signs)
     lobbyStatus: 'loading' | 'ready' | 'error';
     lobbyError: string | null;
     busy: boolean;
     inWorld: boolean;
     onEnterWorld: () => void;
     onCreateWorld: () => void;
-    onOpenConv: (convId: string) => void; // text channel id OR DM contact id
+    onOpenConv: (convId: string) => void; // channel id / dm id / FRIENDS_VIEW
     activeConv: string | null; // conv active in the chat hub — mirrors highlight
+    channels: Channel[]; // the world's channels (DB-driven, chat.md CH-14)
+    dmConvs: Conv[]; // my DM conversations (account-level, DB-driven)
+    pendingCount: number; // incoming friend requests → badge on the 好友 entry
     rooms: Room[];
     meRoom: string;
     onEnterSpace: (r: Room) => void;
@@ -273,15 +331,16 @@ export function Sidebar({
     const days = daysSince(profile.anniv);
     const worldName = profile.world || '我们的小世界';
     const memberCount = world ? (world.member_id ? 2 : 1) : 0;
-    // all open DM conversations (groups excluded — two-person product)
-    const dms = CONTACTS.filter((c) => !c.group);
 
     return (
         <>
             <SidebarStyles />
-            <div className="owsb2">
-                {/* ── rail: logo (home/DM hub) + world entries, always on ── */}
-                <div className="sb-rail glass">
+            <div className={`owsb2 ${open ? '' : 'folded'}`}>
+                {/* ── rail: expanded = full-height column fused with the panel;
+                       folded = the zone collapses to 0 so the SCENE claims the
+                       full width, and the candy pill floats directly on it. ── */}
+                <div className="sb-railzone">
+                    <div className="sb-rail glass">
                     <button
                         type="button"
                         className={`sb-rail-btn sb-rail-logo ${showHome ? 'on' : ''}`}
@@ -295,11 +354,15 @@ export function Sidebar({
                         <button
                             type="button"
                             className={`sb-rail-btn ${!showHome ? 'on' : ''}`}
-                            style={{ background: 'linear-gradient(135deg,#9fd6f4,#5fb0e2)' }}
+                            style={{ background: 'var(--accent-grad)', overflow: 'hidden', padding: 0 }}
                             title={worldName}
                             onClick={() => setRailSel('world')}
                         >
-                            {worldName.slice(0, 1)}
+                            {world.icon_path && worldIconUrl ? (
+                                <img src={worldIconUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                world.icon_emoji || worldName.slice(0, 1)
+                            )}
                         </button>
                     )}
                     <button
@@ -317,11 +380,13 @@ export function Sidebar({
                             <IChevron size={15} style={{ transform: 'rotate(180deg)' }} />
                         </span>
                     </button>
+                    </div>
                 </div>
 
-                {/* ── panel: collapsible context column ── */}
-                {open && (
-                    <div className="sb-panel glass">
+                {/* ── panel: collapsible context column — stays mounted so the
+                       fold/unfold can play as a width morph in sync with the rail ── */}
+                {(
+                    <div className={`sb-panel glass ${open ? '' : 'closed'}`} aria-hidden={!open}>
                         {showHome ? (
                             <>
                                 {/* home / DM hub — Discord's "私信" column */}
@@ -340,12 +405,12 @@ export function Sidebar({
                                     </div>
                                 </div>
                                 <div className="sb-scroll">
-                                    <div className="sb-room" title="好友列表，敬请期待">
-                                        <span className="ic">
-                                            <IUsers size={17} />
-                                        </span>
+                                    {/* friends entry — opens the friends page in the chat hub
+                                        (Discord-style; management lives there, not here) */}
+                                    <div className={`sb-room ${activeConv === FRIENDS_VIEW ? 'on' : ''}`} onClick={() => onOpenConv(FRIENDS_VIEW)} title="好友">
+                                        <span className="ic">💗</span>
                                         <span className="nm">好友</span>
-                                        <span className="sb-tag">敬请期待</span>
+                                        {pendingCount > 0 && <span className="sb-bdg">{pendingCount}</span>}
                                     </div>
                                     <div className="sb-room" title="商店，敬请期待">
                                         <span className="ic">
@@ -356,24 +421,37 @@ export function Sidebar({
                                     </div>
 
                                     <div className="sb-cat">私信</div>
-                                    {dms.map((c) => (
+                                    {dmConvs.length === 0 && <div className="sb-hint">添加好友后这里会出现私信</div>}
+                                    {dmConvs.map((c) => (
                                         <div key={c.id} className={`sb-dm ${activeConv === c.id ? 'on' : ''}`} onClick={() => onOpenConv(c.id)} title={`私信 ${c.name}`}>
-                                            <MiniAva person={{ id: c.id, name: c.name, ini: c.ini, color: c.color, couple: c.lover, online: c.online }} size={30} />
+                                            <MiniAva person={{ id: c.id, name: c.name, ini: c.ini ?? c.name.slice(0, 1), color: c.color ?? '', online: true }} size={30} />
                                             <span className="nm">{c.name}</span>
-                                            <span className="st">{c.status}</span>
+                                            <span className="st">{c.hint}</span>
                                         </div>
                                     ))}
                                 </div>
                             </>
                         ) : (
                             <>
-                                {/* world column — channels in-world, status card in the lobby */}
+                                {/* world column — channels in-world, status card in the lobby.
+                                    The header strip (icon + name + days) is the world-settings
+                                    entry: the WHOLE strip is one click target (world.md W-4). */}
                                 <div className="sb-hd">
-                                    <div className="sb-hd-top">
-                                        <div className="sb-avas">
-                                            <MiniAva person={her} />
-                                            <MiniAva person={me} />
-                                        </div>
+                                    <div
+                                        className="sb-hd-top tap"
+                                        role="button"
+                                        tabIndex={0}
+                                        title="世界设置"
+                                        aria-label="打开世界设置"
+                                        onClick={onOpenWorldSettings}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                onOpenWorldSettings();
+                                            }
+                                        }}
+                                    >
+                                        {world && <WorldIcon world={world} iconUrl={worldIconUrl} name={worldName} size={40} radius={14} fz={17} />}
                                         <div className="sb-id">
                                             <h3>{worldName}</h3>
                                             <div className="meta">
@@ -423,14 +501,21 @@ export function Sidebar({
                                             {/* text channels — summon buttons for the chat hub;
                                                 highlight mirrors the hub's active conv */}
                                             <div className="sb-cat">文字频道</div>
-                                            {TEXT_CHANNELS.map((ch) => (
-                                                <div key={ch.id} className={`sb-room ${activeConv === ch.id ? 'on' : ''}`} onClick={() => onOpenConv(ch.id)} title={ch.topic}>
-                                                    <span className="ic">
-                                                        <IHash size={17} />
-                                                    </span>
-                                                    <span className="nm">{ch.name}</span>
-                                                </div>
-                                            ))}
+                                            {channels
+                                                .filter((ch) => ch.type === 'text')
+                                                .map((ch) => (
+                                                    <div
+                                                        key={ch.id}
+                                                        className={`sb-room ${activeConv === ch.id ? 'on' : ''}`}
+                                                        onClick={() => onOpenConv(ch.id)}
+                                                        title={ch.topic ?? ''}
+                                                    >
+                                                        <span className="ic">
+                                                            <IHash size={17} />
+                                                        </span>
+                                                        <span className="nm">{ch.name}</span>
+                                                    </div>
+                                                ))}
 
                                             {/* voice channels (mock) — pure voice, no scene bound;
                                                 rooms above are the scene-bound superset (channel.md) */}
@@ -485,7 +570,7 @@ export function Sidebar({
                                             <div className="sb-cat">世界动态</div>
                                             <div className="sb-rcard">
                                                 <div className="rc-top">
-                                                    <IHeart size={15} style={{ color: 'var(--accent-deep)', flex: '0 0 auto' }} />
+                                                    {world && <WorldIcon world={world} iconUrl={worldIconUrl} name={worldName} size={22} radius={8} fz={11} />}
                                                     <span className="rc-nm">{worldName}</span>
                                                 </div>
                                                 <div className="rc-doing">像是在等你回来…</div>

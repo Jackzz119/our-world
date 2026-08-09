@@ -65,7 +65,7 @@
     // ── Custom element ──────────────────────────────────────────────────────
     // Accent for drop highlight / reframe chrome: themeable via --slot-accent
     // (falls back to the surrounding theme's --accent-deep, then a neutral).
-    const ACCENT = 'var(--slot-accent,var(--accent-deep,#4fa9dc))';
+    const ACCENT = 'var(--slot-accent,var(--accent-deep,#2f9ad3))';
     const stylesheet =
         ':host{display:inline-block;position:relative;vertical-align:top;' +
         '  font:13px/1.3 system-ui,-apple-system,sans-serif;color:rgba(0,0,0,.55);width:240px;height:160px}' +

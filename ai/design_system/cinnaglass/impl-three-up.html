@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>实现验证 · 三档光照同屏</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 吃产品真实 token：这一页渲染的就是线上生效的值，不是重画的示意 -->
+<link rel="stylesheet" href="../../../src/themes/cinnaglass/cinnaglass.css">
+<style>
+  body{margin:0;background:#0d1018;color:#e8edf7;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;padding:24px 20px 60px;
+    overflow:auto}
+  html,body{height:auto;overflow:auto}
+  h1{font-size:17px;margin:0 0 4px;text-align:center}
+  .sub{font-size:11.5px;color:rgba(232,237,247,.6);text-align:center;margin:0 0 22px}
+  .row{display:flex;gap:14px;max-width:1340px;margin:0 auto;flex-wrap:wrap}
+  .col{flex:1;min-width:420px}
+  .lab{font-size:12px;font-weight:800;margin:0 0 7px}
+  /* 每格 = 一个真实的 .app（带 data-mood）里放 sidebar + stage */
+  .demo-app{height:360px;border-radius:14px;overflow:hidden;display:flex;position:relative;
+    border:1px solid rgba(255,255,255,.14)}
+  .demo-stage{position:relative;flex:1;min-width:0;overflow:hidden}
+  .sc{position:absolute;inset:0}
+  .sc-golden{background:
+    radial-gradient(48% 42% at 74% 14%, rgba(255,248,214,.95), transparent 70%),
+    radial-gradient(26% 22% at 22% 64%, rgba(206,166,178,.9), transparent 70%),
+    linear-gradient(168deg,#f6e8cd 0%,#eddbbd 42%,#dcc7a8 100%)}
+  .sc-twilight{background:
+    radial-gradient(44% 38% at 74% 16%, rgba(255,226,186,.6), transparent 70%),
+    radial-gradient(26% 22% at 22% 64%, rgba(186,148,166,.7), transparent 70%),
+    linear-gradient(168deg,#cfc3d6 0%,#b3a8c4 45%,#8f89ab 100%)}
+  .sc-night{background:
+    radial-gradient(38% 32% at 72% 22%, rgba(255,214,152,.42), transparent 70%),
+    radial-gradient(28% 22% at 20% 64%, rgba(112,104,152,.5), transparent 72%),
+    linear-gradient(168deg,#2b3358 0%,#212949 45%,#171d33 100%)}
+  /* 真实的场景两开关 */
+  .sw-dim{position:absolute;left:0;top:0;bottom:0;width:60%;z-index:3;pointer-events:none;
+    background:var(--stage-chrome-dim)}
+  .sw-vig{position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:var(--stage-vignette)}
+  /* 与产品 .modal-scrim.show 消费同一组 token */
+  .sw-scrim{position:absolute;inset:0;z-index:4;pointer-events:none;
+    background:var(--stage-content-scrim);
+    -webkit-backdrop-filter:var(--stage-content-filter);backdrop-filter:var(--stage-content-filter)}
+
+  /* 组件：类名与产品一致，样式取真实 token */
+  .sb{width:168px;flex:0 0 auto;display:flex;flex-direction:column;position:relative;z-index:5;
+    border-right:1px solid var(--glass-line)}
+  .sb .hd{padding:11px 11px 8px}
+  .sb .hd b{display:block;font-size:12.5px;font-weight:800;color:var(--glass-text)}
+  .sb .hd i{font-style:normal;font-size:9.5px;color:var(--glass-sub)}
+  .sb .cat{font-size:8.5px;letter-spacing:.14em;font-weight:700;color:var(--glass-sub);
+    padding:8px 11px 3px;text-transform:uppercase}
+  .sb .r .ic{width:14px;height:14px;flex:0 0 auto;color:inherit}
+  .sb .r{display:flex;align-items:center;gap:7px;margin:1px 7px;padding:6px 8px;border-radius:10px;
+    font-size:11.5px;font-weight:600;color:var(--glass-sub)}
+  .sb .r.on{background:var(--glass-active);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-line)}
+  .sb .r .bd{margin-left:auto;min-width:14px;height:14px;border-radius:7px;padding:0 4px;font-size:8.5px;
+    font-weight:800;color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);display:grid;place-items:center}
+  .sb .pc{margin:3px 7px;padding:7px 9px;border-radius:12px;display:flex;align-items:center;gap:8px}
+  .sb .pc .av{width:21px;height:21px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.85)}
+  .sb .pc .av.p{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .sb .pc .av.b{background:var(--accent-grad)}
+  .sb .pc b{display:block;font-size:10.5px;line-height:1.25;color:var(--glass-text)}
+  .sb .pc i{font-style:normal;font-size:9px;color:var(--glass-sub)}
+  .sb .ft{margin-top:auto;padding:8px 10px;display:flex;align-items:center;gap:7px;
+    border-top:1px solid var(--glass-line);background:var(--shell-hover)}
+  .sb .ft .av{width:21px;height:21px;border-radius:50%;border:2px solid rgba(255,255,255,.85);
+    background:linear-gradient(135deg,#fce7b0,#f2c94c)}
+  .sb .ft b{font-size:10.5px;color:var(--glass-text)}
+
+  .pill{position:absolute;left:9px;top:50%;transform:translateY(-50%);z-index:6;width:44px;padding:9px 0;
+    display:flex;flex-direction:column;align-items:center;gap:8px;border-radius:99px;
+    border:1.5px solid transparent;
+    background:var(--glass-shell) padding-box, var(--rail-candy-border) border-box;
+    backdrop-filter:blur(16px) saturate(1.4);
+    box-shadow:0 14px 34px -12px rgba(6,10,24,.6), inset 0 1.5px 0 var(--glass-hi)}
+  .pill .rb{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-size:11px;font-weight:800;border:2px solid rgba(255,255,255,.78)}
+  .pill .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .pill .rb.w{background:var(--accent-grad);border-radius:10px;box-shadow:0 0 0 2px var(--accent)}
+
+  .md{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:214px;z-index:6;
+    border-radius:16px;padding:11px;border-color:var(--shell-focus-border)}
+  .md h3{font-size:11.5px;font-weight:800;color:var(--glass-text);display:flex;align-items:center;
+    gap:7px;margin:0 0 8px}
+  .md h3 .si{width:21px;height:21px;border-radius:7px;display:grid;place-items:center;color:#fff;
+    font-size:9.5px;background:var(--accent-grad)}
+  .card{border-radius:12px;overflow:hidden;margin-bottom:8px}
+  .card .ph{height:64px;background:radial-gradient(60% 70% at 30% 40%,#ffd9a8,transparent 70%),
+    linear-gradient(150deg,#f7c8a0,#d59fb4 55%,#8f9bd0)}
+  .card .tx{padding:7px 9px}
+  .card .tx b{display:block;font-size:11px;color:var(--glass-text)}
+  .card .tx i{font-style:normal;font-size:9.5px;color:var(--glass-sub)}
+  .grp{border-radius:12px;overflow:hidden}
+  .grp .sr{display:flex;align-items:center;gap:8px;padding:8px 10px;position:relative}
+  .grp .sr+.sr::before{content:"";position:absolute;left:10px;right:10px;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--glass-line) 16%,var(--glass-line) 84%,transparent)}
+  .grp .sr .t{flex:1;font-size:10.5px;font-weight:700;color:var(--glass-text)}
+  .msw{width:31px;height:18px;border-radius:99px;background:var(--glass-hover);
+    border:1px solid var(--glass-line);position:relative;flex:0 0 auto;
+    box-shadow:inset 0 1px 3px rgba(33,57,92,.14)}
+  .msw.on{background:var(--accent-grad);border-color:transparent;box-shadow:none}
+  .msw i{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#fff;
+    box-shadow:0 2px 4px rgba(20,29,51,.3)}
+  .mseg{display:inline-flex;gap:2px;background:var(--glass-hover);border:1px solid var(--glass-line);
+    border-radius:99px;padding:2px;box-shadow:inset 0 1px 3px rgba(33,57,92,.12)}
+  .mseg span{font-size:9.5px;font-weight:700;color:var(--glass-sub);padding:3px 9px;border-radius:99px}
+  .mseg span.on{background:var(--glass-paper);color:var(--paper-text);
+    box-shadow:0 2px 5px -2px rgba(20,29,51,.35), inset 0 1px 0 rgba(255,255,255,.98)}
+  .cmp{display:flex;gap:7px;align-items:center;margin-top:8px}
+  .cmp .in{flex:1;height:26px;border-radius:99px;display:flex;align-items:center;padding:0 11px;
+    font-size:9.5px;color:var(--glass-sub)}
+  .cmp .go{width:26px;height:26px;border-radius:50%;background:var(--accent-orb);display:grid;
+    place-items:center;font-size:10px;color:#fff;box-shadow:0 5px 13px -5px var(--accent-glow)}
+</style>
+</head>
+<body>
+<h1>实现验证 · 三档光照同屏</h1>
+<p class="sub">本页 &lt;link&gt; 引用产品真实的 cinnaglass.css —— 看到的即线上生效的 token</p>
+
+<div class="row">
+  <div class="col"><div class="lab">黄昏 Golden</div>
+    <div class="demo-app app" data-mood="golden" data-glass="sky" data-fill data-sc="sc-golden"></div></div>
+  <div class="col"><div class="lab">暮色 Twilight</div>
+    <div class="demo-app app" data-mood="twilight" data-glass="sky" data-fill data-sc="sc-twilight"></div></div>
+  <div class="col"><div class="lab">夜晚 Night</div>
+    <div class="demo-app app" data-mood="night" data-glass="sky" data-fill data-sc="sc-night"></div></div>
+</div>
+
+<template id="ui">
+  <div class="sb glass">
+    <div class="hd"><b>lovelei小屋</b><i>在一起 431 天</i></div>
+    <div class="cat">房间</div>
+    <div class="r on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M3 11h18v6H3z"/><path d="M6 17v2M18 17v2"/></svg>客厅<span class="bd">2</span></div>
+    <div class="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8"/><path d="M12 12c0-4 3-7 7-7 0 4-3 7-7 7Z"/><path d="M12 14c0-3-2.5-5.5-5.5-5.5 0 3 2.5 5.5 5.5 5.5Z"/></svg>阳台</div>
+    <div class="cat">成员</div>
+    <div class="pc paper"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+    <div class="pc paper"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div>
+    <div class="ft"><span class="av"></span><b>jack</b></div>
+  </div>
+  <div class="demo-stage">
+    <div class="sc"></div>
+    <div class="sw-dim"></div><div class="sw-vig"></div><div class="sw-scrim"></div>
+    <div class="pill"><span class="rb logo">♥</span><span class="rb w">L</span></div>
+    <div class="md glass">
+      <h3><span class="si">✦</span>时间线</h3>
+      <div class="card paper"><div class="ph"></div><div class="tx"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+      <div class="grp paper">
+        <div class="sr"><span class="t">进房自动接语音</span><span class="msw on"><i></i></span></div>
+        <div class="sr"><span class="t">玻璃质感</span><span class="mseg"><span>云朵</span><span class="on">天空</span></span></div>
+      </div>
+      <div class="cmp"><span class="in paper">记录此刻的我们…</span><span class="go">➤</span></div>
+    </div>
+  </div>
+</template>
+
+<script>
+  const tpl = document.getElementById('ui');
+  document.querySelectorAll('[data-fill]').forEach(function (host) {
+    host.appendChild(tpl.content.cloneNode(true));
+    host.querySelector('.sc').classList.add(host.dataset.sc);
+  });
+</script>
+</body>
+</html>

@@ -8,6 +8,9 @@ export type GlassStyle = 'cloud' | 'sky' | 'twilight';
 export type HudLayout = 'scatter' | 'cluster' | 'topbar';
 export type Density = 'minimal' | 'rich';
 export type WeatherTweak = 'auto' | 'sun' | 'cloud' | 'rain' | 'snow';
+// chat message alignment: 'left' = everyone left-aligned (Discord-style,
+// default per user decision 2026-07-12); 'sides' = own messages on the right
+export type ChatAlign = 'left' | 'sides';
 
 export type Tweaks = {
     mood: Mood;
@@ -15,6 +18,7 @@ export type Tweaks = {
     glassStyle: GlassStyle;
     density: Density;
     weather: WeatherTweak;
+    chatAlign: ChatAlign;
 };
 
 const STORE_KEY = 'ow-tweaks-v1';
@@ -24,7 +28,8 @@ export const TWEAK_DEFAULTS: Tweaks = {
     hudLayout: 'scatter',
     glassStyle: 'sky',
     density: 'rich',
-    weather: 'auto'
+    weather: 'auto',
+    chatAlign: 'left'
 };
 
 const loadTweaks = (): Tweaks => {

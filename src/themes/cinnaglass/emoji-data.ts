@@ -1,0 +1,210 @@
+// emoji-data.ts — curated emoji set for the EmotePicker (chat.md EMO-4).
+// Self-maintained instead of pulling a full unicode dataset: ~230 entries
+// with Chinese search keywords is plenty for a two-person product, needs no
+// virtual scrolling, and keeps search Chinese-first. Grow freely.
+export type EmojiEntry = { e: string; k: string };
+export type EmojiCategory = { name: string; items: EmojiEntry[] };
+
+export const EMOJI_CATEGORIES: EmojiCategory[] = [
+    {
+        name: '笑脸与情感',
+        items: [
+            { e: '😀', k: '笑 开心 grin' },
+            { e: '😆', k: '大笑 哈哈 laugh' },
+            { e: '🤣', k: '笑哭 爆笑 rofl' },
+            { e: '😂', k: '笑哭 泪 joy' },
+            { e: '🥹', k: '感动 含泪 忍住' },
+            { e: '😊', k: '微笑 开心 smile' },
+            { e: '🥰', k: '喜欢 爱 三颗心 love' },
+            { e: '😍', k: '花痴 爱心眼 heart eyes' },
+            { e: '😘', k: '飞吻 亲亲 kiss' },
+            { e: '😗', k: '亲 嘟嘴 kiss' },
+            { e: '🤭', k: '捂嘴笑 偷笑' },
+            { e: '🤫', k: '嘘 安静 秘密' },
+            { e: '🤔', k: '思考 想 hmm' },
+            { e: '🫠', k: '融化 完蛋 melt' },
+            { e: '😴', k: '睡觉 困 zzz sleep' },
+            { e: '😪', k: '困 想睡' },
+            { e: '🥱', k: '哈欠 困 yawn' },
+            { e: '😮', k: '惊讶 哇 wow' },
+            { e: '😳', k: '脸红 尴尬 惊 blush' },
+            { e: '🥺', k: '可怜 求求 撒娇 pleading' },
+            { e: '😭', k: '大哭 哭 cry' },
+            { e: '😢', k: '哭 伤心 泪 sad' },
+            { e: '😞', k: '失落 难过' },
+            { e: '😤', k: '生气 哼 气鼓鼓' },
+            { e: '😡', k: '愤怒 生气 angry' },
+            { e: '🤯', k: '爆炸 震惊 mind blown' },
+            { e: '🥳', k: '庆祝 派对 party' },
+            { e: '😎', k: '墨镜 酷 cool' },
+            { e: '🤓', k: '书呆子 眼镜 nerd' },
+            { e: '😇', k: '天使 乖 innocent' },
+            { e: '🙃', k: '倒脸 无奈 upside' },
+            { e: '😜', k: '吐舌 调皮 wink' },
+            { e: '🤪', k: '疯 搞怪 crazy' },
+            { e: '😷', k: '口罩 生病 mask' },
+            { e: '🤒', k: '发烧 生病 sick' },
+            { e: '🤗', k: '拥抱 抱抱 hug' }
+        ]
+    },
+    {
+        name: '爱心',
+        items: [
+            { e: '💗', k: '爱心 心动 粉 heart' },
+            { e: '❤️', k: '红心 爱 heart' },
+            { e: '🩷', k: '粉心 heart' },
+            { e: '💙', k: '蓝心 heart' },
+            { e: '💛', k: '黄心 heart' },
+            { e: '💚', k: '绿心 heart' },
+            { e: '💜', k: '紫心 heart' },
+            { e: '🤍', k: '白心 heart' },
+            { e: '💕', k: '两颗心 甜 hearts' },
+            { e: '💞', k: '旋转心 hearts' },
+            { e: '💓', k: '心跳 heartbeat' },
+            { e: '💘', k: '一箭穿心 丘比特 arrow' },
+            { e: '💝', k: '礼物心 蝴蝶结 gift' },
+            { e: '💖', k: '闪亮心 sparkle heart' },
+            { e: '💔', k: '心碎 broken' },
+            { e: '❣️', k: '心叹号 heart' },
+            { e: '💌', k: '情书 信 love letter' },
+            { e: '💋', k: '唇印 吻 kiss' }
+        ]
+    },
+    {
+        name: '手势',
+        items: [
+            { e: '👍', k: '赞 好 点赞 thumbs up' },
+            { e: '👎', k: '踩 不好 thumbs down' },
+            { e: '👏', k: '鼓掌 拍手 clap' },
+            { e: '🙌', k: '举手 欢呼 万岁 raise' },
+            { e: '🫶', k: '比心 双手心 heart hands' },
+            { e: '🤝', k: '握手 成交 handshake' },
+            { e: '🙏', k: '拜托 感谢 祈祷 please' },
+            { e: '✌️', k: '耶 剪刀手 peace' },
+            { e: '🤞', k: '祈祷 好运 fingers crossed' },
+            { e: '👌', k: 'ok 好的' },
+            { e: '🤙', k: '打电话 call' },
+            { e: '💪', k: '加油 肌肉 强 strong' },
+            { e: '👋', k: '挥手 拜拜 你好 wave' },
+            { e: '🫡', k: '敬礼 收到 salute' },
+            { e: '👉', k: '指 右 point' },
+            { e: '👈', k: '指 左 point' },
+            { e: '☝️', k: '指 上 注意' },
+            { e: '✍️', k: '写字 记 writing' }
+        ]
+    },
+    {
+        name: '动物与自然',
+        items: [
+            { e: '🐶', k: '狗 小狗 dog' },
+            { e: '🐱', k: '猫 小猫 cat' },
+            { e: '🐰', k: '兔子 rabbit' },
+            { e: '🐻', k: '熊 bear' },
+            { e: '🐼', k: '熊猫 panda' },
+            { e: '🐹', k: '仓鼠 hamster' },
+            { e: '🦊', k: '狐狸 fox' },
+            { e: '🐥', k: '小鸡 chick' },
+            { e: '🦋', k: '蝴蝶 butterfly' },
+            { e: '🐟', k: '鱼 fish' },
+            { e: '🐳', k: '鲸鱼 whale' },
+            { e: '🌸', k: '樱花 花 sakura' },
+            { e: '🌷', k: '郁金香 花 tulip' },
+            { e: '🌹', k: '玫瑰 花 rose' },
+            { e: '🌻', k: '向日葵 花 sunflower' },
+            { e: '🌿', k: '叶子 绿 leaf' },
+            { e: '🍀', k: '四叶草 幸运 clover' },
+            { e: '🌙', k: '月亮 晚安 moon' },
+            { e: '⭐', k: '星星 star' },
+            { e: '✨', k: '闪亮 星星 sparkle' },
+            { e: '☀️', k: '太阳 晴 sun' },
+            { e: '☁️', k: '云 云朵 cloud' },
+            { e: '🌈', k: '彩虹 rainbow' },
+            { e: '🌧️', k: '下雨 雨 rain' },
+            { e: '❄️', k: '雪花 雪 snow' },
+            { e: '🌊', k: '海浪 海 wave' },
+            { e: '🔥', k: '火 热 fire' },
+            { e: '💫', k: '流星 晕 dizzy' }
+        ]
+    },
+    {
+        name: '食物',
+        items: [
+            { e: '🍰', k: '蛋糕 甜点 cake' },
+            { e: '🎂', k: '生日蛋糕 birthday' },
+            { e: '🧁', k: '纸杯蛋糕 cupcake' },
+            { e: '🍦', k: '冰淇淋 ice cream' },
+            { e: '🍩', k: '甜甜圈 donut' },
+            { e: '🍪', k: '饼干 cookie' },
+            { e: '🍞', k: '面包 bread' },
+            { e: '🥐', k: '牛角包 croissant' },
+            { e: '🧋', k: '奶茶 珍珠 boba' },
+            { e: '☕', k: '咖啡 coffee' },
+            { e: '🍓', k: '草莓 strawberry' },
+            { e: '🍑', k: '桃子 peach' },
+            { e: '🍉', k: '西瓜 watermelon' },
+            { e: '🍜', k: '拉面 面 noodle' },
+            { e: '🍚', k: '米饭 rice' },
+            { e: '🍣', k: '寿司 sushi' },
+            { e: '🍕', k: '披萨 pizza' },
+            { e: '🍟', k: '薯条 fries' },
+            { e: '🍗', k: '鸡腿 chicken' },
+            { e: '🥟', k: '饺子 dumpling' },
+            { e: '🍺', k: '啤酒 beer' },
+            { e: '🥂', k: '干杯 香槟 cheers' }
+        ]
+    },
+    {
+        name: '活动与物品',
+        items: [
+            { e: '🎉', k: '庆祝 彩带 party' },
+            { e: '🎊', k: '彩球 庆祝 confetti' },
+            { e: '🎁', k: '礼物 gift' },
+            { e: '🎈', k: '气球 balloon' },
+            { e: '🎀', k: '蝴蝶结 ribbon' },
+            { e: '🎮', k: '游戏 手柄 game' },
+            { e: '🎵', k: '音乐 音符 music' },
+            { e: '🎧', k: '耳机 听歌 headphone' },
+            { e: '📷', k: '相机 拍照 camera' },
+            { e: '🎬', k: '电影 场记板 movie' },
+            { e: '📚', k: '书 学习 book' },
+            { e: '✈️', k: '飞机 旅行 travel' },
+            { e: '🚗', k: '车 汽车 car' },
+            { e: '🏠', k: '家 房子 home' },
+            { e: '🛏️', k: '床 睡觉 bed' },
+            { e: '🛁', k: '洗澡 浴缸 bath' },
+            { e: '💤', k: '睡觉 zzz sleep' },
+            { e: '💐', k: '花束 bouquet' },
+            { e: '🕯️', k: '蜡烛 candle' },
+            { e: '💍', k: '戒指 求婚 ring' },
+            { e: '🧸', k: '玩具熊 teddy' },
+            { e: '⏰', k: '闹钟 时间 clock' },
+            { e: '📅', k: '日历 约会 calendar' },
+            { e: '💰', k: '钱 money' },
+            { e: '🏆', k: '奖杯 冠军 trophy' },
+            { e: '⚽', k: '足球 soccer' },
+            { e: '🏀', k: '篮球 basketball' }
+        ]
+    },
+    {
+        name: '符号',
+        items: [
+            { e: '💯', k: '满分 100' },
+            { e: '✅', k: '对 完成 check' },
+            { e: '❌', k: '错 叉 x' },
+            { e: '❓', k: '问号 question' },
+            { e: '❗', k: '叹号 注意' },
+            { e: '💢', k: '生气 怒 anger' },
+            { e: '💦', k: '汗 水滴 sweat' },
+            { e: '💨', k: '风 跑 dash' },
+            { e: '🆗', k: 'ok' },
+            { e: '🔜', k: '马上 soon' },
+            { e: '➕', k: '加 plus' },
+            { e: '🚫', k: '禁止 不行 no' },
+            { e: '♾️', k: '无限 永远 infinity' },
+            { e: '☑️', k: '勾选 check' }
+        ]
+    }
+];
+
+// flat index for search
+export const ALL_EMOJI: EmojiEntry[] = EMOJI_CATEGORIES.flatMap((c) => c.items);

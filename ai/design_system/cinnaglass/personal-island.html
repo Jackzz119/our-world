@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>个人小岛 · 独处空间概念稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-2:#bfe3f5; --sky-3:#d8effa; --butter:#fce7b0; --blush:#f8d7df;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc; --pink:#ef9db4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:860px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .vlabel{font-size:13px;font-weight:700;margin:20px 0 10px}
+
+  /* 状态机 */
+  .sm{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin:8px 0 4px}
+  .sm .st{border-radius:18px;padding:14px 20px;text-align:center;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.72)}
+  .sm .st b{display:block;font-size:14px;margin-bottom:2px}
+  .sm .st i{font-style:normal;font-size:11px;color:var(--glass-sub)}
+  .sm .island{border-color:rgba(241,199,90,.7);box-shadow:0 8px 20px -10px rgba(140,110,60,.4)}
+  .sm .world{border-color:rgba(124,198,236,.7);box-shadow:0 8px 20px -10px rgba(79,169,220,.4)}
+  .sm .arr{font-size:12px;color:var(--glass-sub);text-align:center;line-height:1.5}
+
+  /* 小岛场景 mock */
+  .scene{position:relative;height:330px;border-radius:20px;overflow:hidden;border:1px solid var(--glass-border);
+    background:linear-gradient(180deg,#b9c9ec 0%,#cfb3de 70%,#c8a8d6 100%)}
+  .cl{position:absolute;border-radius:999px;background:rgba(255,255,255,.75);filter:blur(1px)}
+  @keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(18px)}}
+  .isl{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%)}
+  @keyframes hover{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 8px))}}
+  .isl{animation:hover 7s ease-in-out infinite}
+  .badge{position:absolute;left:50%;top:16px;transform:translateX(-50%);font-size:11.5px;font-weight:700;
+    color:#8a6d3a;background:linear-gradient(135deg,#fff8ec,var(--butter));border:1px solid rgba(255,255,255,.9);
+    border-radius:999px;padding:5px 16px;letter-spacing:.08em;box-shadow:0 4px 14px -6px rgba(140,110,60,.35)}
+  .hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:11px;
+    color:rgba(255,255,255,.9);background:rgba(42,58,94,.35);border-radius:999px;padding:5px 14px;
+    backdrop-filter:blur(6px);white-space:nowrap}
+  .portal{position:absolute;right:9%;top:38%;text-align:center;font-size:10.5px;color:rgba(255,255,255,.85)}
+
+  /* 对方视角 presence */
+  .mem{display:flex;align-items:center;gap:11px;border-radius:15px;padding:11px 14px;margin-bottom:10px;
+    border:1px solid var(--glass-border);background:rgba(255,255,255,.72);max-width:420px}
+  .mem .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-weight:700;font-size:15px;background:linear-gradient(135deg,#F8C8D6,#EF9DB4);
+    border:2px solid #fff;box-shadow:0 0 0 3px rgba(239,157,180,.8);position:relative}
+  .mem .av .dot{position:absolute;right:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;
+    border:2.5px solid #fff}
+  .dot.idle{background:#f1c75a}
+  .dot.dnd{background:#b39de0}
+  .mem .nm{font-weight:700;font-size:13.5px}
+  .mem .stx{font-size:11.5px;color:var(--glass-sub)}
+  .spec{font-size:12.5px;line-height:2.05;color:var(--glass-text)}
+  .spec b{color:var(--accent-deep)}
+  .foot{color:rgba(255,255,255,.75);font-size:11px;text-align:center;margin-top:8px;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<h1>个人小岛 · 独处空间</h1>
+<div class="sub">「发呆时间」的空间化答案 —— 大厅漂浮岛正名为个人小岛（光遇 Home 同构）</div>
+
+<div class="wrap">
+  <div class="panel">
+    <span class="panel-tag">A · 概念</span>
+    <h2>空间产品用空间解决空间需求：独处是一个「地方」，不是一个开关</h2>
+    <div class="note">调研同构：光遇 Home = 出生小岛 → 进社交 Realm；动森 = 个人岛屿即情绪舒适区；我们现有的大厅漂浮岛已经站在这个位置上——只差正名和赋义。</div>
+    <div class="sm">
+      <div class="st island"><b>🏝 个人小岛</b><i>独处 · 无语音 · 无社交在场</i></div>
+      <div class="arr">←「退出房间」落回这里<br>穿过传送门 →</div>
+      <div class="st world"><b>🏠 世界 · 房间</b><i>社交 · 场景+语音（在场即在语音）</i></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag" style="background:linear-gradient(135deg,#f1c75a,#d9a53a)">B · 小岛</span>
+    <h2>发呆时间长什么样</h2>
+    <div class="note">你现有的漂浮岛 + 角色坐着发呆看云。将来在这里长出自留地仪式：看云 / 听雨 / 浇花 / 撸宠物（动森式 self-driven rituals，也正好是路线图③④的挂载点）。</div>
+    <div class="scene">
+      <span class="badge">☁️ 发呆中 · 我的小岛</span>
+      <span class="cl" style="width:90px;height:26px;left:12%;top:22%;animation:drift 11s ease-in-out infinite"></span>
+      <span class="cl" style="width:60px;height:18px;left:70%;top:15%;animation:drift 14s ease-in-out infinite"></span>
+      <span class="cl" style="width:110px;height:30px;left:42%;top:30%;opacity:.6;animation:drift 17s ease-in-out infinite"></span>
+      <div class="isl">
+        <svg width="300" height="190" viewBox="0 0 300 190" fill="none">
+          <ellipse cx="150" cy="168" rx="95" ry="14" fill="rgba(20,29,51,.18)"/>
+          <path d="M60 100 Q150 80 240 100 L228 132 Q150 158 72 132 Z" fill="#b98d5e"/>
+          <ellipse cx="150" cy="98" rx="92" ry="26" fill="#9fd98f"/>
+          <ellipse cx="105" cy="90" rx="14" ry="9" fill="#8bc97b"/>
+          <ellipse cx="196" cy="94" rx="11" ry="7" fill="#8bc97b"/>
+          <circle cx="212" cy="76" r="13" fill="#7fbf6f"/><rect x="209.5" y="84" width="5" height="12" rx="2" fill="#8a6844"/>
+          <!-- 坐着发呆的云朵小狗（原创，同吉祥物语言） -->
+          <g transform="translate(112,26) scale(.42)">
+            <ellipse cx="30" cy="86" rx="19" ry="46" transform="rotate(16 30 86)" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+            <ellipse cx="170" cy="86" rx="19" ry="46" transform="rotate(-16 170 86)" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+            <ellipse cx="100" cy="148" rx="42" ry="30" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+            <ellipse cx="100" cy="80" rx="60" ry="52" fill="#fff" stroke="#d5e5f2" stroke-width="2.5"/>
+            <path d="M74 78 q5 -5 10 0" stroke="#2a3a5e" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            <path d="M116 78 q5 -5 10 0" stroke="#2a3a5e" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+            <ellipse cx="63" cy="94" rx="9" ry="5" fill="#bfe3f5"/><ellipse cx="137" cy="94" rx="9" ry="5" fill="#bfe3f5"/>
+            <path d="M95 92 Q100 96 105 92" stroke="#2a3a5e" stroke-width="2.2" stroke-linecap="round"/>
+          </g>
+          <text x="196" y="34" font-size="15" fill="rgba(255,255,255,.95)">💭</text>
+        </svg>
+      </div>
+      <div class="portal">🌀<br>传送门<br><span style="opacity:.75">→ 我们的小世界</span></div>
+      <span class="hint">这里没有别人 · 语音不连接 · 想回去时穿过传送门</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag" style="background:linear-gradient(135deg,#f6c3d2,#ef9db4)">C · 对方视角</span>
+    <h2>在场诚实（D-5 原则的延续）：看得见「在独处」，但不被打扰</h2>
+    <div class="note">Discord 的启示：idle（黄，软信号=回复慢）与 DND（紫，硬边界=免打扰）是两档不同力度。对应到小岛：</div>
+
+    <div class="vlabel">档位 1 · 发呆中（默认，软信号）</div>
+    <div class="mem">
+      <span class="av">满<span class="dot idle"></span></span>
+      <div><div class="nm">小满</div><div class="stx">☁️ 在自己的小岛发呆 · 消息照常送达</div></div>
+    </div>
+
+    <div class="vlabel">档位 2 · 想静静（主动开启，硬边界）</div>
+    <div class="mem">
+      <span class="av">满<span class="dot dnd"></span></span>
+      <div><div class="nm">小满</div><div class="stx">🌙 想一个人静静 · 通知为 TA 保留到回来（紧急除外）</div></div>
+    </div>
+
+    <div class="vlabel" style="margin-top:18px">规则拍板稿</div>
+    <div class="spec">
+      · 退出房间（D-4 第一层）→ 落回<b>个人小岛</b>，语音自动断开——「大厅」正名为个人小岛，退出即独处，无需新开关<br>
+      · 小岛上<b>没有社交在场</b>：对方不可见你的岛内活动细节，只能看到状态签<br>
+      · 状态两档：<b>发呆中</b>（默认落岛即是，软信号）/ <b>想静静</b>（主动开启，通知延迟送达）——力度对齐 Discord idle/DND<br>
+      · 在场诚实延续 D-5：独处<b>可见但不可扰</b>，不做「假装离线」<br>
+      · future：岛上自留地仪式（看云/听雨/浇花/宠物）与二人共同仪式（隔岛「放纸飞机」传话?）分层生长
+    </div>
+  </div>
+</div>
+<div class="foot">ai/design_system/cinnaglass/ · personal-island.html · 2026-07-06</div>
+</body>
+</html>

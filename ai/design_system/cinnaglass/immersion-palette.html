@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Cinnaglass 沉浸感 · 明度层级比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#e8edf7;
+    background:linear-gradient(165deg,#1b2340 0%,#232c4e 40%,#2c2a4a 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.7);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:1240px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.06);backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.14);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(0,0,0,.6);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#0d2336;
+    background:linear-gradient(135deg,#8ed7f4,#4fb0e4);border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px;color:#fff}
+  .panel .note{font-size:12px;color:rgba(232,237,247,.72);margin-bottom:18px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#0d2336;letter-spacing:.08em;
+    background:linear-gradient(135deg,#a5e6b4,#6fc98a);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vnote{font-size:12px;color:rgba(232,237,247,.72);margin:10px 0 0;line-height:1.75}
+  .vlabel{font-size:13.5px;font-weight:800;margin:6px 0 9px;color:#fff}
+
+  /* ── ① luminance ladder ── */
+  .ladder{display:flex;gap:20px;flex-wrap:wrap}
+  .lad{flex:1;min-width:260px}
+  .lad h4{font-size:12.5px;margin-bottom:8px;color:#fff}
+  .bar{display:flex;height:38px;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.18)}
+  .bar span{flex:1;display:grid;place-items:center;font-size:10.5px;font-weight:700}
+  .lad .cap{font-size:11px;color:rgba(232,237,247,.62);margin-top:7px;line-height:1.6}
+  .bad{color:#ffb4c4} .good{color:#a5e6b4}
+
+  /* ── stages ── */
+  .duo{display:flex;gap:14px;flex-wrap:wrap}
+  .duo>div{flex:1;min-width:420px}
+  .stage{border-radius:18px;overflow:hidden;position:relative;height:300px;display:flex;
+    border:1px solid rgba(255,255,255,.16);box-shadow:0 16px 40px -16px rgba(0,0,0,.7)}
+  /* 明亮日间房间（拟真：地板+墙+家具块） */
+  .stage.day{background:linear-gradient(170deg,#f2e6d2 0%,#e8d9c0 40%,#dcc9ad 100%)}
+  .stage.day::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(50% 40% at 70% 18%, rgba(255,246,214,.9), transparent 70%),
+      linear-gradient(115deg, transparent 30%, rgba(214,196,168,.6) 31%, rgba(214,196,168,.6) 46%, transparent 47%),
+      radial-gradient(28% 22% at 22% 62%, rgba(196,164,178,.85), transparent 70%),
+      radial-gradient(22% 18% at 80% 70%, rgba(150,178,196,.7), transparent 70%);}
+  /* 夜晚房间 */
+  .stage.night{background:linear-gradient(170deg,#2b3358 0%,#222a4a 45%,#1a2038 100%)}
+  .stage.night::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(40% 32% at 72% 24%, rgba(255,214,152,.5), transparent 70%),
+      radial-gradient(30% 24% at 20% 64%, rgba(120,110,160,.5), transparent 72%),
+      radial-gradient(24% 20% at 82% 72%, rgba(90,120,170,.45), transparent 72%);}
+  .bglab{position:absolute;right:10px;top:8px;font-size:9.5px;letter-spacing:.12em;font-weight:700;z-index:6;
+    color:rgba(255,255,255,.75);text-shadow:0 1px 4px rgba(0,0,0,.5)}
+  /* 场景侧沉浸处理：暗角 + UI 侧压暗 */
+  .vig{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:var(--vig,0);transition:opacity .3s;
+    box-shadow:inset 0 0 120px 34px rgba(24,20,44,.55), inset 0 0 46px 8px rgba(24,20,44,.3);}
+  .sidedim{position:absolute;left:0;top:0;bottom:0;width:300px;pointer-events:none;z-index:2;opacity:var(--sd,0);
+    background:linear-gradient(90deg,rgba(22,26,48,.5),transparent)}
+
+  /* ══ components (same markup across schemes) ══ */
+  .m-pill{position:absolute;left:9px;top:50%;transform:translateY(-50%);z-index:5;width:44px;padding:9px 0;
+    display:flex;flex-direction:column;align-items:center;gap:8px;border-radius:99px;
+    background:var(--shell);backdrop-filter:blur(16px) saturate(1.4);
+    border:1.5px solid transparent;box-shadow:var(--float-shadow), inset 0 1.5px 0 var(--hi), inset 0 -1px 0 var(--rim)}
+  .m-pill .rb{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;
+    border:2px solid rgba(255,255,255,.75)}
+  .m-pill .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .m-pill .rb.w{background:var(--acc-grad);border-radius:10px;box-shadow:0 0 0 2px var(--acc),0 0 14px var(--acc-glow)}
+  .m-pill .rdiv{width:16px;height:2px;border-radius:2px;background:var(--line)}
+
+  .m-panel{width:186px;flex:0 0 auto;display:flex;flex-direction:column;position:relative;z-index:4;
+    background:var(--shell);backdrop-filter:blur(20px) saturate(1.4);border-right:1px solid var(--line);
+    box-shadow:var(--shell-shadow)}
+  .m-panel .ph{padding:11px 11px 8px}
+  .m-panel .ph .t{font-size:12.5px;font-weight:800;color:var(--tx)}
+  .m-panel .ph .s{font-size:9.5px;color:var(--tx2)}
+  .m-panel .cat{font-size:9px;letter-spacing:.14em;font-weight:700;color:var(--tx2);padding:8px 11px 3px}
+  .m-panel .row{display:flex;align-items:center;gap:7px;margin:1px 7px;padding:6px 8px;border-radius:10px;
+    font-size:11.5px;font-weight:600;color:var(--tx2)}
+  .m-panel .row.on{background:var(--active);color:var(--tx-on);box-shadow:inset 0 0 0 1px var(--line)}
+  .m-panel .pcard{margin:3px 7px;padding:7px 9px;border-radius:12px;display:flex;align-items:center;gap:8px;
+    background:var(--paper);border:1px solid var(--paper-line);box-shadow:var(--paper-shadow)}
+  .m-panel .pcard .av{width:22px;height:22px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.85)}
+  .m-panel .pcard .av.p{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .m-panel .pcard .av.b{background:linear-gradient(135deg,#8ed7f4,#4fb0e4)}
+  .m-panel .pcard b{font-size:11px;color:var(--paper-tx);display:block;line-height:1.25}
+  .m-panel .pcard i{font-style:normal;font-size:9.5px;color:var(--paper-tx2)}
+
+  /* memory card = the hero content (photo + words) */
+  .m-modal{position:absolute;left:52%;top:50%;transform:translate(-50%,-50%);width:250px;z-index:5;border-radius:17px;
+    background:var(--shell);backdrop-filter:blur(22px) saturate(1.4);border:1px solid var(--shell-line);
+    box-shadow:var(--float-shadow), inset 0 1.5px 0 var(--hi), inset 0 -1px 0 var(--rim);padding:11px}
+  .m-modal h3{font-size:12px;color:var(--tx);display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .m-modal h3 .si{width:22px;height:22px;border-radius:8px;display:grid;place-items:center;color:#fff;font-size:10px;
+    background:var(--acc-grad);box-shadow:0 0 12px var(--acc-glow)}
+  .m-card{border-radius:13px;background:var(--paper);border:1px solid var(--paper-line);
+    box-shadow:var(--paper-shadow);overflow:hidden}
+  .m-card .photo{height:74px;background:
+    radial-gradient(60% 70% at 30% 40%, #ffd9a8, transparent 70%),
+    linear-gradient(150deg,#f7c8a0,#d59fb4 55%,#8f9bd0);}
+  .m-card .txt{padding:8px 10px}
+  .m-card .txt b{display:block;font-size:11.5px;color:var(--paper-tx);margin-bottom:2px}
+  .m-card .txt i{font-style:normal;font-size:10px;color:var(--paper-tx2);line-height:1.5}
+  .m-modal .foot{display:flex;align-items:center;gap:7px;margin-top:9px}
+  .m-modal .inp{flex:1;height:26px;border-radius:99px;background:var(--input);border:1px solid var(--paper-line);
+    font-size:10px;color:var(--tx2);display:flex;align-items:center;padding:0 10px}
+  .m-modal .go{width:26px;height:26px;border-radius:50%;background:var(--acc-grad);display:grid;place-items:center;
+    font-size:10px;color:#0d2336;box-shadow:0 0 14px var(--acc-glow)}
+
+  /* ══ scheme A 晨雾白（现状） ══ */
+  .schA{--shell:linear-gradient(168deg,rgba(250,253,255,.95),rgba(240,249,254,.91) 55%,rgba(243,244,252,.9));
+    --shell-line:rgba(255,255,255,.9);--line:rgba(33,57,92,.1);--hi:rgba(255,255,255,.95);--rim:rgba(174,223,242,.3);
+    --paper:linear-gradient(180deg,#fff 30%,#f7fbfe);--paper-line:rgba(33,57,92,.1);--paper-tx:#22335a;--paper-tx2:rgba(34,51,90,.68);
+    --paper-shadow:0 1px 2px rgba(30,42,71,.06),0 10px 26px -14px rgba(30,42,71,.3),inset 0 1px 0 rgba(255,255,255,.95);
+    --shell-shadow:18px 0 50px -18px rgba(20,29,51,.4);--float-shadow:0 14px 34px -12px rgba(30,42,71,.5);
+    --tx:#22335a;--tx2:rgba(34,51,90,.68);--tx-on:#22335a;--input:rgba(255,255,255,.9);
+    --active:linear-gradient(135deg,rgba(174,223,242,.72),rgba(216,239,250,.45));
+    --acc:#59c5ed;--acc-grad:linear-gradient(135deg,#8ed7f4,#4fb0e4);--acc-glow:rgba(89,197,237,0);--vig:0;--sd:0}
+  /* ══ scheme B 薄暮纱（雾蓝灰壳 + 场景暗角） ══ */
+  .schB{--shell:linear-gradient(168deg,rgba(206,216,236,.82),rgba(190,202,228,.78) 55%,rgba(196,198,228,.78));
+    --shell-line:rgba(255,255,255,.55);--line:rgba(28,40,72,.16);--hi:rgba(255,255,255,.7);--rim:rgba(174,223,242,.35);
+    --paper:linear-gradient(180deg,#fff 30%,#f7fbfe);--paper-line:rgba(33,57,92,.12);--paper-tx:#22335a;--paper-tx2:rgba(34,51,90,.68);
+    --paper-shadow:0 1px 2px rgba(20,29,51,.12),0 12px 28px -14px rgba(20,29,51,.5),inset 0 1px 0 rgba(255,255,255,.95);
+    --shell-shadow:18px 0 50px -18px rgba(14,20,40,.6);--float-shadow:0 16px 38px -12px rgba(14,20,40,.65);
+    --tx:#1e2c4e;--tx2:rgba(30,44,78,.72);--tx-on:#16233f;--input:rgba(255,255,255,.85);
+    --active:linear-gradient(135deg,rgba(174,223,242,.85),rgba(216,239,250,.6));
+    --acc:#59c5ed;--acc-grad:linear-gradient(135deg,#8ed7f4,#4fb0e4);--acc-glow:rgba(89,197,237,.35);--vig:.75;--sd:.55}
+  /* ══ scheme C 星夜书房（夜蓝壳 + 白纸内容 + 发光 accent） ══ */
+  .schC{--shell:linear-gradient(168deg,rgba(44,58,98,.78),rgba(32,44,78,.75) 55%,rgba(40,42,80,.76));
+    --shell-line:rgba(174,223,242,.28);--line:rgba(190,220,245,.18);--hi:rgba(214,239,250,.35);--rim:rgba(124,198,236,.35);
+    --paper:linear-gradient(180deg,#fff 30%,#f6fbfe);--paper-line:rgba(255,255,255,.5);--paper-tx:#22335a;--paper-tx2:rgba(34,51,90,.66);
+    --paper-shadow:0 2px 4px rgba(6,10,24,.35),0 14px 30px -12px rgba(6,10,24,.7),inset 0 1px 0 rgba(255,255,255,.95);
+    --shell-shadow:18px 0 54px -16px rgba(6,10,24,.75);--float-shadow:0 18px 42px -12px rgba(6,10,24,.8);
+    --tx:#eaf3fb;--tx2:rgba(214,233,247,.72);--tx-on:#f4fbff;--input:rgba(255,255,255,.14);
+    --active:linear-gradient(135deg,rgba(124,198,236,.42),rgba(174,223,242,.2));
+    --acc:#9fd6f4;--acc-grad:linear-gradient(135deg,#9fd6f4,#6fbce8);--acc-glow:rgba(159,214,244,.55);--vig:.55;--sd:.3}
+</style>
+</head>
+<body>
+<h1>沉浸感 · 明度层级比稿</h1>
+<div class="sub">诊断「场景亮 + UI 更亮 = 没有前后关系」· 三方案 × 日间/夜晚双场景 · 记忆内容卡为主角</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">① 诊断：明度阶梯错了</span>
+    <h2>沉浸 = 外框沉下去，内容浮上来</h2>
+    <p class="note">行业共识（Spotify / Netflix / Apple Photos / Day One）：<b>暗的外框让内容成为主角</b>——影院、博物馆都是这个原理。暗背景上照片和文字会显得更鲜活，界面「退到幕后」。当前问题不是白色本身，而是明度阶梯：UI 比场景还亮，两者互抢，画面变成一张「过曝的白纸」。</p>
+    <div class="ladder">
+      <div class="lad">
+        <h4 class="bad">✕ 现状：UI 最亮，压过记忆</h4>
+        <div class="bar">
+          <span style="background:#fafdff;color:#22335a">UI 壳 96%</span>
+          <span style="background:#ffffff;color:#22335a">内容纸 100%</span>
+          <span style="background:#e3d4bd;color:#5a4a34">场景 82%</span>
+        </div>
+        <div class="cap">三层挤在高明度区，差值 &lt;20%。眼睛找不到主角，画面「平」且刺眼——沉浸感消失的根因。</div>
+      </div>
+      <div class="lad">
+        <h4 class="good">✓ 目标：壳最暗 → 场景中 → 内容最亮</h4>
+        <div class="bar">
+          <span style="background:#2c3a62;color:#dbe7f5">UI 壳 26%</span>
+          <span style="background:#9aa2c4;color:#1c2340">场景 62%</span>
+          <span style="background:#ffffff;color:#22335a">内容纸 100%</span>
+        </div>
+        <div class="cap">阶梯拉开 &gt;35%：外框沉进暮色，场景成为「房间」，白色的记忆卡片像放在暗室里的照片一样跳出来。</div>
+      </div>
+    </div>
+    <div class="vnote"><b>大耳狗怎么办？</b>——它本来就有夜晚形象：躺在弯月上、抱着小熊、睡在星空里。<b>大耳狗 ≠ 只能白底</b>，它的灵魂是「柔软的天蓝 + 腮红粉 + 圆形」。把天蓝从「背景色」升级为「发光的点缀色」，深蓝夜空当底，反而更像它的星空插画。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">② 三方案实景对比</span>
+    <h2>同组件 · 日间明亮房间 vs 夜晚房间</h2>
+    <p class="note">组件：悬浮胶囊 rail + sidebar + 记忆卡弹窗（照片 + 文字 = 本产品真正的主角）。观察点：眼睛第一眼落在哪里？UI 是「框」还是「墙」？</p>
+
+    <div class="vlabel">方案 A —— 晨雾白（现状）</div>
+    <div class="duo">
+      <div><div class="stage day schA"><span class="bglab">DAY</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+      <div><div class="stage night schA"><span class="bglab">NIGHT</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+    </div>
+    <div class="vnote">白墙糊在场景上；夜晚尤其伤——深蓝房间里插进一块惨白面板，像半夜开了顶灯。记忆卡片和 UI 壳一样白，主角消失。</div>
+
+    <div class="vlabel" style="margin-top:24px">方案 B —— 薄暮纱（雾蓝灰壳 + 场景暗角，保守档）</div>
+    <div class="duo">
+      <div><div class="stage day schB"><span class="bglab">DAY</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+      <div><div class="stage night schB"><span class="bglab">NIGHT</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+    </div>
+    <div class="vnote">壳降到雾蓝灰（~78% 明度），文字仍是深海军蓝（黑字，可读性零损失）；场景加暗角 + UI 侧压暗。白色记忆卡开始「浮」起来了。得：改动最小（只调 token + 加两层场景滤镜），黑字白卡的既有体系全保留。失：中间明度最难讨好，日间偏「灰扑扑」，夜晚沉浸只到一半。</div>
+
+    <div class="vlabel" style="margin-top:24px">方案 C —— 星夜书房（夜蓝玻璃壳 + 纯白记忆卡 + 发光天蓝）<span class="pick">✔ UX 推荐</span></div>
+    <div class="duo">
+      <div><div class="stage day schC"><span class="bglab">DAY</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+      <div><div class="stage night schC"><span class="bglab">NIGHT</span><div class="vig"></div><div class="sidedim"></div>
+        <div class="m-panel"><div class="ph"><div class="t">lovelei小屋</div><div class="s">在一起 405 天</div></div>
+          <div class="cat">房间</div><div class="row on">🛋️ 客厅</div><div class="row">🌿 阳台</div>
+          <div class="cat">成员</div>
+          <div class="pcard"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+          <div class="pcard"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div></div>
+        <div class="m-modal"><h3><span class="si">✦</span>时间线</h3>
+          <div class="m-card"><div class="photo"></div><div class="txt"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+          <div class="foot"><span class="inp">记录此刻的我们…</span><span class="go">➤</span></div></div>
+      </div></div>
+    </div>
+    <div class="vnote">壳是半透的夜蓝玻璃（透出身后场景的光，不是死板的深色板），文字浅色；<b>但内容卡依然是纯白纸 + 深蓝黑字</b>——照片和日记像放在暗室书桌上的实体照片一样跳出来（Apple Photos / Day One 的经典结构）。天蓝 accent 带辉光，成员的粉蓝头像在深色上更鲜亮，大耳狗的腮红粉终于有了对比度舞台。得：沉浸感最强、日夜都成立、可读性靠白纸卡完全保住。失：需要把 twilight 那套深色 token 提为主力（已有基础，工作量中等）。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">③ 场景侧的两个开关</span>
+    <h2>不只改 UI —— 场景也要学会「让位」</h2>
+    <div class="vnote">
+      <b>a. 暗角 vignette</b>：场景四周压暗，中心保持明亮 —— 眼睛自动看向房间中央的你们俩。博物馆打光法则。<br>
+      <b>b. UI 侧局部压暗</b>：sidebar/弹窗背后横向渐变压暗一条，玻璃壳身后不再是刺眼高光，浮起感立刻成立。<br>
+      <b>c. 记忆卡打开时全局降噪</b>：打开时间线/照片时，场景整体亮度 ×0.8 —— 「进入回忆」的仪式感（现有 modal-scrim 已有雏形，加大即可）。<br>
+      这三个开关对 A/B/C 任一方案都适用，本比稿里 B/C 已开启，A 保持关闭作对照。
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">④ 裁决点</span>
+    <h2>待拍板</h2>
+    <div class="vnote">
+      1. <b>明度方向</b>：A 维持现状 / B 薄暮纱（保守，改 token + 场景滤镜）/ <b>C 星夜书房（UX 推荐，沉浸最强）</b><br>
+      2. <b>是否随光照自动切换</b>：黄昏/夜晚走 C 的夜蓝壳，正午/晴天走 B 的雾蓝壳 —— 「UI 明度永远比场景低一档」的动态规则（已有 data-mood 基建，纯 CSS 可实现）<br>
+      3. <b>场景三开关</b>：暗角 / UI 侧压暗 / 打开记忆时全局降噪 —— 建议全开<br>
+      拍板后：token 层新增暗色壳档 + 场景滤镜层，按 D-9/D-10 体系逐文件落地 + 全窗口截图复检。
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

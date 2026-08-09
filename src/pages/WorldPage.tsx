@@ -2,13 +2,19 @@
 // Ported from the design prototype's app.jsx: live clock, real weather,
 // tweaks, navigation, and all shared state (profile, rooms, current room,
 // events, alarms, widgets) + localStorage persistence.
-import { useEffect, useState } from 'react';
-import { RoomScene } from '@/themes/cinnaglass/scene';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import type { MetaspaceHotspot } from '@/themes/cinnaglass/metaspace';
+
+// three.js is heavy — the 3D scene loads its own chunk on demand
+const MetaspaceScene = lazy(() =>
+    import('@/themes/cinnaglass/metaspace').then((m) => ({ default: m.MetaspaceScene }))
+);
 import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
 import { HUD } from '@/themes/cinnaglass/hud';
 import { SubScreen, type TabKey } from '@/themes/cinnaglass/screens';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { SettingsScreen } from '@/themes/cinnaglass/settings';
+import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
 import { Sidebar } from '@/themes/cinnaglass/sidebar';
 import { SpaceScreen } from '@/themes/cinnaglass/space';
@@ -17,9 +23,11 @@ import { ChannelScreen } from '@/themes/cinnaglass/channel-screen';
 import { useChatThreads } from '@/themes/cinnaglass/chat-data';
 import { ROOMS_DEFAULT, owLoad } from '@/themes/cinnaglass/rooms';
 import { useTweaks, type Mood } from '@/themes/cinnaglass/tweaks';
-import type { Alarm, CalEvent, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
+import type { Alarm, CalEvent, Profile, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
 import { getMyWorld, createWorld } from '@/lib/worlds.ts';
-import type { World } from '@/types/feed.ts';
+import { signImageUrls } from '@/lib/storage.ts';
+import { getProfilesByIds } from '@/lib/profiles.ts';
+import type { FeedProfile, World } from '@/types/feed.ts';
 import { getEnvFlag } from '@/utils';
 
 // Entry switch (see .env.example). AUTO_ENTER skips the lobby on mount when
@@ -82,12 +90,10 @@ const WorldPage = () => {
     const [tbOpen, setTbOpen] = useState(false);
     // sidebar panel expanded state — persisted (the rail itself is always on)
     const [sbOpen, setSbOpen] = useState<boolean>(() => owLoad('ow-sbopen-v1', true));
-    // chat (see ai/Features/chat.md): one thread store, two surfaces, two
-    // owners — the sidebar only opens the covering conversation window
-    // (channels + DMs); the dock is stage-owned (chat button / Enter only).
-    const { threads, typingId, send } = useChatThreads();
     const [dockSolid, setDockSolid] = useState(false);
-    const [dockActive, setDockActive] = useState('ch-chat');
+    // channel uuids come from the DB now — '' just means "first available
+    // conversation" (both surfaces fall back through convsFor)
+    const [dockActive, setDockActive] = useState('');
     const [convOpen, setConvOpen] = useState<string | null>(null);
     const [screen, setScreen] = useState<string | null>(null);
     const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
@@ -106,6 +112,14 @@ const WorldPage = () => {
     // channel.md). NOT the in-world scene rooms mock above (living/bedroom
     // lighting + navigation, local).
     const [world, setWorld] = useState<World | null>(null);
+    // signed display URL for world.icon_path (private bucket) — see effect below
+    const [worldIconUrl, setWorldIconUrl] = useState<string | null>(null);
+    const [uid, setUid] = useState<string | null>(null);
+    // DB profiles of the world's members, by id — display names for the
+    // chrome and for chat message authorship; fall back to the localStorage
+    // profile until fetched (or on failure)
+    const [profiles, setProfiles] = useState<Record<string, FeedProfile>>({});
+    const [memberNames, setMemberNames] = useState<{ me?: string; her?: string }>({});
     const [lobbyStatus, setLobbyStatus] = useState<LobbyStatus>('loading');
     const [lobbyError, setLobbyError] = useState<string | null>(null);
     const [lobbyBusy, setLobbyBusy] = useState(false);
@@ -113,12 +127,45 @@ const WorldPage = () => {
     const [entered, setEntered] = useState(false);
     const [lobbyTick, setLobbyTick] = useState(0);
 
+    // chat (see ai/Features/chat.md): one thread store, two surfaces, two
+    // owners — the sidebar only opens the covering conversation window
+    // (channels + DMs); the dock is stage-owned (chat button / Enter only).
+    // Channel messages are real (DB + world broadcast topic); DMs stay mock.
+    const {
+        channels,
+        dmConvs,
+        friends,
+        requestsIn,
+        requestsOut,
+        threads,
+        reads,
+        emoteViews,
+        send,
+        sendStickerTo,
+        retrySend,
+        discardFailed,
+        editMessage,
+        deleteMsg,
+        toggleReaction,
+        markRead,
+        loadOlder,
+        reachedStart,
+        addFriend,
+        acceptRequest,
+        removeFriend,
+        searchWeb,
+        importEmoteUrl,
+        addEmoteFile,
+        removeEmoteById
+    } = useChatThreads(world?.id ?? null, uid, profiles);
+
     useEffect(() => {
         let cancelled = false;
         getMyWorld()
-            .then(({ world }) => {
+            .then(({ world, userId }) => {
                 if (cancelled) return;
                 setWorld(world);
+                setUid(userId);
                 setLobbyStatus('ready');
                 if (AUTO_ENTER && world) setEntered(true);
             })
@@ -131,6 +178,32 @@ const WorldPage = () => {
             cancelled = true;
         };
     }, [lobbyTick]);
+
+    // World icon lives in the private memories bucket, so display needs a
+    // signed URL. Re-sign every 40min (TTL is 1h — same margin as timeline's
+    // image renewal) so a long-lived tab never shows a broken icon.
+    const iconPath = world?.icon_path ?? null;
+    useEffect(() => {
+        if (!iconPath) {
+            setWorldIconUrl(null);
+            return;
+        }
+        let cancelled = false;
+        const sign = () =>
+            signImageUrls([iconPath])
+                .then((m) => {
+                    if (!cancelled) setWorldIconUrl(m[iconPath] ?? null);
+                })
+                .catch(() => {
+                    /* keep the last URL; emoji/letter fallback covers first load */
+                });
+        sign();
+        const id = setInterval(sign, 40 * 60 * 1000);
+        return () => {
+            cancelled = true;
+            clearInterval(id);
+        };
+    }, [iconPath]);
 
     // live clock
     useEffect(() => {
@@ -285,6 +358,58 @@ const WorldPage = () => {
     };
     const inWorld = entered && world !== null;
 
+    // S-4 step 2: identity now lives in the DB. Fetch the two members'
+    // display names once the world is known; render keeps working off the
+    // localStorage fallback if this fails.
+    useEffect(() => {
+        if (!world) return;
+        let cancelled = false;
+        getProfilesByIds([world.owner_id, world.member_id])
+            .then((m) => {
+                if (cancelled) return;
+                setProfiles(m);
+                const otherId = [world.owner_id, world.member_id].find((i) => i && i !== uid);
+                setMemberNames({
+                    me: (uid && m[uid]?.display_name) || undefined,
+                    her: (otherId && m[otherId]?.display_name) || undefined
+                });
+            })
+            .catch(() => {
+                /* keep localStorage names */
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [world, uid]);
+
+    // What the chrome (sidebar/HUD/space) displays: DB world identity first,
+    // localStorage as fallback. Settings still edits the raw local profile —
+    // the write-back to worlds/profiles is S-4 step 3.
+    const liveProfile: Profile = {
+        ...profile,
+        world: world?.name ?? profile.world,
+        anniv: world?.anniversary ?? profile.anniv,
+        me: memberNames.me ?? profile.me,
+        her: memberNames.her ?? profile.her
+    };
+
+    // World-settings save: swap in the fresh DB row (chrome updates at once)
+    // and sync the localStorage profile buffer so offline fallbacks agree
+    // (S-4 step 3 — the DB is now the source of truth for these fields).
+    const onWorldSaved = (w: World) => {
+        setWorld(w);
+        setProfile((o) => ({ ...o, world: w.name, anniv: w.anniversary ?? o.anniv }));
+    };
+
+    // Leave the room back to the lobby (exit layer 1 of ux decisions D-4).
+    // Voice + shared music will auto-disconnect here once they exist (D-3:
+    // presence and voice are coupled — leaving the scene ends both).
+    const leaveRoom = () => {
+        setEntered(false);
+        setScreen(null); // world modals don't outlive the room
+        setTbOpen(false);
+    };
+
     // any pointer-down on the stage outside the chat surfaces ghosts the dock
     const onStageDown = (e: React.PointerEvent) => {
         if (!dockSolid) return;
@@ -300,10 +425,12 @@ const WorldPage = () => {
             <Sidebar
                 open={sbOpen}
                 setOpen={setSbOpen}
-                profile={profile}
+                profile={liveProfile}
                 setProfile={setProfile}
                 onOpenSettings={() => navigate('settings')}
+                onOpenWorldSettings={() => navigate('world-settings')}
                 world={world}
+                worldIconUrl={worldIconUrl}
                 lobbyStatus={lobbyStatus}
                 lobbyError={lobbyError}
                 busy={lobbyBusy}
@@ -312,13 +439,25 @@ const WorldPage = () => {
                 onCreateWorld={createAndEnter}
                 onOpenConv={(id) => setConvOpen(id)}
                 activeConv={convOpen}
+                channels={channels}
+                dmConvs={dmConvs}
+                pendingCount={requestsIn.length}
                 rooms={rooms}
                 meRoom={meRoom}
                 onEnterSpace={enterSpace}
             />
             <div className="stage" onPointerDownCapture={onStageDown}>
                 {inWorld ? (
-                    <RoomScene weather={weather.kind} />
+                    <Suspense fallback={null}>
+                        <MetaspaceScene
+                            active={screen === null}
+                            onHotspot={(h: MetaspaceHotspot) =>
+                                setScreen(
+                                    ({ Composer: 'timeline', PhotoWall: 'photos', Wishlist: 'wishlist' } as const)[h]
+                                )
+                            }
+                        />
+                    </Suspense>
                 ) : (
                     <LobbyScene
                         status={lobbyStatus}
@@ -342,14 +481,17 @@ const WorldPage = () => {
                         setTbOpen={setTbOpen}
                         setMood={(k) => setTweak('mood', k)}
                         onNavigate={navigate}
+                        onLeaveRoom={leaveRoom}
                         spaceName={curRoom ? curRoom.name : ''}
+                        anniv={liveProfile.anniv}
                     />
                 )}
-                <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={profile} />
+                <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={liveProfile} />
                 <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
                 <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
                 <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
                 <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
+                <WorldSettingsScreen open={screen === 'world-settings'} onClose={() => setScreen(null)} world={world} iconUrl={worldIconUrl} onSaved={onWorldSaved} />
                 {/* in-scene ambient chat (WoW-style) — follows the stage when squeezed */}
                 <ChatDock
                     solid={dockSolid}
@@ -357,9 +499,11 @@ const WorldPage = () => {
                     active={dockActive}
                     setActive={setDockActive}
                     inWorld={inWorld}
+                    channels={channels}
+                    dmConvs={dmConvs}
                     threads={threads}
-                    typingId={typingId}
                     onSend={send}
+                    onSeen={markRead}
                 />
                 {/* covering chat hub — the sidebar's only chat trigger (text
                     channels AND DMs); switches conversations internally */}
@@ -367,10 +511,34 @@ const WorldPage = () => {
                     convId={convOpen}
                     onSelect={(id) => setConvOpen(id)}
                     inWorld={inWorld}
+                    channels={channels}
+                    dmConvs={dmConvs}
+                    friends={friends}
+                    requestsIn={requestsIn}
+                    requestsOut={requestsOut}
+                    onAddFriend={addFriend}
+                    onAcceptFriend={acceptRequest}
+                    onRemoveFriend={removeFriend}
                     onClose={() => setConvOpen(null)}
                     threads={threads}
-                    typingId={typingId}
                     onSend={send}
+                    onLoadOlder={loadOlder}
+                    reachedStart={reachedStart}
+                    reads={reads}
+                    onRetry={retrySend}
+                    onDiscard={discardFailed}
+                    onEdit={editMessage}
+                    onDelete={deleteMsg}
+                    onReact={toggleReaction}
+                    emotes={emoteViews}
+                    hasWorld={world !== null}
+                    onSendSticker={sendStickerTo}
+                    onSearchWeb={searchWeb}
+                    onImportUrl={importEmoteUrl}
+                    onImportFile={addEmoteFile}
+                    onRemoveEmote={removeEmoteById}
+                    onSeen={markRead}
+                    chatAlign={t.chatAlign}
                 />
             </div>
         </div>

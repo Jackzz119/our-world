@@ -28,6 +28,10 @@ export type World = {
     id: string;
     owner_id: string;
     member_id: string | null;
+    name: string;
+    anniversary: string | null; // 'YYYY-MM-DD', the day the couple counts from
+    icon_emoji: string | null; // world icon as an emoji (fallback form)
+    icon_path: string | null; // world icon image in storage.memories — beats emoji
     intimacy_points: number;
     created_at: string | null;
 };

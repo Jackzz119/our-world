@@ -68,7 +68,7 @@ const MusicStyles = () => (
   .mp-btn:hover{color:var(--accent-deep);transform:scale(1.12);}
   .mp-btn:active{transform:scale(.92);}
   .mp-play{width:42px;height:42px;border-radius:50%;color:#0d2336;
-    background:linear-gradient(135deg,#9FD6F4,#5FB0E2);box-shadow:0 5px 13px -4px rgba(79,169,220,.6);}
+    background:var(--accent-grad);box-shadow:0 5px 13px -4px rgba(47,154,211,.6);}
   .mp-play:hover{color:#0d2336;filter:brightness(1.05);}
   .mp-vol{position:absolute;right:14px;color:var(--glass-sub);}
   .mp-ctrl-wrap{position:relative;display:flex;align-items:center;justify-content:center;}

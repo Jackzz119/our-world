@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>好友页面（聊天中心内）· 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-2:#bfe3f5; --sky-3:#d8effa; --butter:#fce7b0; --blush:#f8d7df;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:900px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:10px 0 0}
+
+  /* hub shell mock: left nav + right page */
+  .hub{display:flex;border-radius:20px;overflow:hidden;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.6);box-shadow:0 16px 44px -16px rgba(20,29,51,.45);min-height:340px}
+  .nav{width:176px;flex:0 0 auto;border-right:1px solid var(--glass-border);padding:12px 9px;
+    background:linear-gradient(160deg,rgba(255,255,255,.5),transparent)}
+  .nav .friends-entry{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;cursor:pointer;
+    font-weight:700;font-size:13.5px;color:var(--glass-text)}
+  .nav .friends-entry.on{background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 1px var(--glass-border)}
+  .nav .friends-entry .bdg{margin-left:auto;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;
+    font-size:9.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);padding:0 4px}
+  .nav .cat{font-size:10.5px;letter-spacing:.15em;font-weight:700;color:var(--glass-sub);padding:12px 8px 5px;text-transform:uppercase}
+  .nav .dm{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:11px;cursor:pointer;color:var(--glass-sub)}
+  .nav .dm:hover{background:rgba(255,255,255,.5)}
+  .nav .ava{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;
+    font-weight:700;border:1.5px solid rgba(255,255,255,.75);flex:0 0 auto;position:relative}
+  /* online dot = 产品既定 .odot 规范（sidebar.tsx）：#5fcf8e + 白描边 + 荧光光晕 */
+  .nav .ava .dot{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;
+    background:#5fcf8e;border:2px solid #fff;box-shadow:0 0 7px #5fcf8e}
+  .nav .b{flex:1;min-width:0}
+  .nav .nm{font-size:12.5px;font-weight:600;color:var(--glass-text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav .st{font-size:10px;color:var(--glass-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .g-pink{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .g-blue{background:linear-gradient(135deg,#9fd6f4,#5fb0e2)}
+  .g-mint{background:linear-gradient(135deg,#c9e8c2,#86c99a)}
+
+  .page{flex:1;min-width:0;display:flex;flex-direction:column}
+  .page-hd{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid var(--glass-border)}
+  .page-hd .ttl{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:7px}
+  .page-hd .sep{width:1px;height:18px;background:var(--glass-border);margin:0 4px}
+  .tab{appearance:none;border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:700;color:var(--glass-sub);
+    padding:4px 12px;border-radius:999px;background:transparent}
+  .tab:hover{color:var(--glass-text)}
+  .tab.on{background:rgba(255,255,255,.8);color:var(--glass-text);box-shadow:inset 0 0 0 1px var(--glass-border)}
+  .tab .bdg{display:inline-grid;place-items:center;min-width:15px;height:15px;border-radius:8px;font-size:9px;color:#fff;
+    background:linear-gradient(135deg,#ef9db4,#e0718f);margin-left:4px;padding:0 4px;vertical-align:1px}
+  .tab.add{color:#fff;background:linear-gradient(135deg,#86c99a,#5fa878)}
+  .page-bd{flex:1;padding:12px 16px}
+  .sec-l{font-size:10.5px;letter-spacing:.12em;font-weight:700;color:var(--glass-sub);margin:6px 2px 6px;text-transform:uppercase}
+  .frow{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:13px}
+  .frow:hover{background:rgba(255,255,255,.6)}
+  .frow .ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;
+    font-weight:700;border:2px solid rgba(255,255,255,.75);position:relative;flex:0 0 auto}
+  .frow .ava .dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;
+    background:#5fcf8e;border:2.5px solid #fff;box-shadow:0 0 7px #5fcf8e}
+  .frow .ava .dot.off{background:#c6cdd8;box-shadow:none}
+  .frow .b{flex:1;min-width:0}
+  .frow .nm{font-size:13.5px;font-weight:700}
+  .frow .st{font-size:11px;color:var(--glass-sub)}
+  .frow .acts{display:flex;gap:6px}
+  .frow .acts button{width:30px;height:30px;border-radius:10px;border:1px solid var(--glass-border);cursor:pointer;
+    background:rgba(255,255,255,.7);display:grid;place-items:center;font-size:13px;padding:0}
+  .frow .acts button:hover{background:#fff}
+  /* add-friend view */
+  .addv{padding:18px 6px}
+  .addv h4{font-size:14px;margin-bottom:3px}
+  .addv .d{font-size:12px;color:var(--glass-sub);margin-bottom:12px}
+  .addv .line{display:flex;gap:8px;max-width:420px}
+  .addv input{flex:1;height:38px;border-radius:12px;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.85);padding:0 12px;font:inherit;font-size:13px;outline:none}
+  .addv button{appearance:none;border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:700;padding:0 18px;
+    border-radius:12px;color:#fff;background:linear-gradient(135deg,#86c99a,#5fa878)}
+  /* steam-style group head */
+  .ghead{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--glass-sub);
+    padding:8px 4px 3px;cursor:pointer}
+  .ghead .tri{font-size:9px}
+</style>
+</head>
+<body>
+<h1>好友页面（聊天中心内）· 比稿</h1>
+<div class="sub">修订前提（用户 2026-07-10 拍板）：好友管理与 DM 会话列表分开 —— 左栏 = 好友入口 + 已打开的私信；右侧 = 好友页面</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">方案 A · Discord 式 tab 过滤页</span>
+    <h2>顶部功能键切换视图：全部 / 待处理 / 添加好友 <span class="pick">✔ 推荐（用户背书）</span></h2>
+    <p class="note">左栏「好友」入口置顶（待处理申请挂红点）、下方是已打开的私信；点好友 → 右侧整页切换，页头 tab 键切视图，「添加好友」是绿色动作键（Discord 原版位置）。「在线」tab 预留——等在场 presence 基建落地后启用，现阶段不做假在线。</p>
+    <div class="hub">
+      <div class="nav">
+        <div class="friends-entry on">💗 好友 <span class="bdg">1</span></div>
+        <div class="cat">私信</div>
+        <div class="dm"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">今晚一起看日落好不好</div></div></div>
+      </div>
+      <div class="page">
+        <div class="page-hd">
+          <span class="ttl">💗 好友</span><span class="sep"></span>
+          <button class="tab on">全部</button>
+          <button class="tab">待处理<span class="bdg">1</span></button>
+          <button class="tab" title="presence 基建后启用" style="opacity:.45">在线</button>
+          <button class="tab add">＋ 添加好友</button>
+        </div>
+        <div class="page-bd">
+          <div class="sec-l">全部好友 — 1</div>
+          <div class="frow">
+            <span class="ava g-pink">s<span class="dot"></span></span>
+            <div class="b"><div class="nm">sherry</div><div class="st">你们已是好友 · 2026-07-10 起</div></div>
+            <div class="acts"><button title="发私信">💬</button><button title="解除好友">✕</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vnote">「待处理」视图 = 收到的申请（✓/✕）+ 发出的申请（等待中 · 可取消）；「＋添加好友」视图 = 邮箱输入 + 发送申请（下图）。行尾动作：💬 开私信（跳到左栏对应会话）、✕ 解除（confirm 提示保留聊天记录）。</div>
+    <div class="hub" style="min-height:150px;margin-top:14px">
+      <div class="page">
+        <div class="page-hd">
+          <span class="ttl">💗 好友</span><span class="sep"></span>
+          <button class="tab">全部</button><button class="tab">待处理<span class="bdg">1</span></button><button class="tab add" style="box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)">＋ 添加好友</button>
+        </div>
+        <div class="page-bd addv">
+          <h4>添加好友</h4>
+          <div class="d">输入对方的注册邮箱，向 ta 发送好友申请</div>
+          <div class="line"><input placeholder="somebody@email.com"><button>发送申请 ✨</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">方案 B · Steam 式分组单页</span>
+    <h2>不用 tab：一页看全，按状态分组折叠</h2>
+    <p class="note">待处理申请自动置顶成组，好友按 在线/离线 分组（presence 后），组头可折叠；添加好友是页头唯一按钮。Steam/PSN 的做法——好友多时一眼总览。另借鉴调研发现：Discord 用户长期抱怨没有「置顶好友」，Steam 的收藏分组是解法，将来可加「特别关心」组。</p>
+    <div class="hub" style="min-height:230px">
+      <div class="nav">
+        <div class="friends-entry on">💗 好友 <span class="bdg">1</span></div>
+        <div class="cat">私信</div>
+        <div class="dm"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">今晚一起看日落好不好</div></div></div>
+      </div>
+      <div class="page">
+        <div class="page-hd">
+          <span class="ttl">💗 好友 — 1</span><span style="flex:1"></span>
+          <button class="tab add">＋ 添加好友</button>
+        </div>
+        <div class="page-bd">
+          <div class="ghead"><span class="tri">▼</span> 待处理 — 1</div>
+          <div class="frow">
+            <span class="ava g-mint">乐</span>
+            <div class="b"><div class="nm">阿乐</div><div class="st">想加你为好友</div></div>
+            <div class="acts"><button>✓</button><button>✕</button></div>
+          </div>
+          <div class="ghead"><span class="tri">▼</span> 好友 — 1</div>
+          <div class="frow">
+            <span class="ava g-pink">s<span class="dot"></span></span>
+            <div class="b"><div class="nm">sherry</div><div class="st">你们已是好友</div></div>
+            <div class="acts"><button title="发私信">💬</button><button title="解除好友">✕</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vnote">得：零切换、总览感强；申请一来就顶在最上面不会漏。失：添加好友挤在页头；好友只有个位数时分组显得空；tab 模型对将来加「在线」「特别关心」等视图的扩展更整洁。</div>
+  </div>
+
+</div>
+</body>
+</html>

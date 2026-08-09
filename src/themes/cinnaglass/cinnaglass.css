@@ -8,24 +8,89 @@
   --sky-3: #d8effa;
   --cream: #fbfcfe;
   --butter: #fce7b0;
-  --blush: #f8d7df;
+  --blush: #fdd5e7; /* official Cinnamoroll blush pink */
   --navy-1: #2a3a5e;
   --navy-2: #1e2a47;
   --navy-deep: #141d33;
 
-  /* glass tokens (overridden per glass style) */
-  --glass-bg: rgba(255, 255, 255, 0.66);
-  --glass-bg-2: rgba(255, 255, 255, 0.42);
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-hi: rgba(255, 255, 255, 0.85);
-  --glass-blur: 22px;
-  --glass-sat: 150%;
-  --glass-shadow: 0 18px 44px -12px rgba(30, 42, 71, 0.42), 0 4px 14px -6px rgba(30, 42, 71, 0.3);
-  --glass-text: #2a3a5e;
-  --glass-sub: rgba(42, 58, 94, 0.62);
-  --glass-glow: rgba(174, 223, 242, 0.55);
-  --accent: #7cc6ec;
-  --accent-deep: #4fa9dc;
+  /* ══ 光照递进 scheme (codex design, user-approved 2026-08-07) ══
+     Design source: ai/design_system/cinnaglass/mood-progression-codex/
+     (codex-report.md + golden/twilight/night-1440x900.png)
+
+     LUMINANCE FOLLOWS THE LIGHT. The shell brightness is driven by
+     [data-mood] — the in-world time of day — forming one continuous ladder:
+       黄昏 golden    warm near-white glass, the room is lit
+       暮色 twilight  misty slate, the hinge between light and dark
+       夜晚 night     neutral graphite, chrome sinks and memories glow
+     PAPER never moves: white content is the brightest thing at every hour,
+     so a memory always reads as the subject and the UI as its frame.
+
+     TWO COLOR DOMAINS — mind which one a surface belongs to:
+       SHELL = .glass surfaces: sidebar, modals, HUD, dock
+       PAPER = .paper surfaces + anything painted --glass-paper
+     --shell-* holds the canonical shell values. --glass-* aliases them, and
+     PAPER surfaces re-map --glass-* to their paper counterparts (see the
+     ".paper token remap" block), so component CSS can keep writing --glass-*
+     and stay correct in both domains. A shell element nested inside a paper
+     surface opts back out by referencing --shell-* directly. */
+
+  /* SHELL — base tier is 暮色 twilight; [data-mood] overrides it below */
+  --shell-bg: linear-gradient(168deg, rgba(226, 229, 238, 0.66) 0%, rgba(201, 205, 219, 0.6) 55%, rgba(184, 189, 207, 0.58) 100%);
+  --shell-border: rgba(255, 255, 255, 0.48);
+  --shell-line: rgba(46, 58, 89, 0.16);
+  --shell-hi: rgba(255, 255, 255, 0.52);
+  --shell-hover: rgba(255, 255, 255, 0.28);
+  --shell-active: linear-gradient(135deg, rgba(89, 197, 237, 0.22), rgba(89, 197, 237, 0.09));
+  --shell-shadow: 0 26px 66px -24px rgba(26, 30, 48, 0.5), 0 8px 24px -14px rgba(26, 30, 48, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  --shell-text: #212c48;
+  --shell-sub: #313c58; /* solid, never translucent — the misty tier is the contrast risk */
+  --shell-focus-border: var(--shell-border); /* only night lifts this to a cool rim */
+  --glass-blur: 24px;
+  --glass-sat: 112%;
+
+  /* PAPER — fixed at every hour, the brightest layer on screen */
+  --glass-paper: #ffffff;
+  --paper-text: #22335a;
+  --paper-sub: #667087;
+  --paper-line: rgba(33, 57, 92, 0.1);
+  --paper-hover: rgba(216, 239, 250, 0.6);
+  --paper-active: linear-gradient(135deg, rgba(89, 197, 237, 0.24), rgba(216, 239, 250, 0.48));
+  --paper-shadow: 0 2px 4px rgba(6, 10, 24, 0.16), 0 16px 34px -14px rgba(6, 10, 24, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.98);
+
+  /* ACCENT — Cinnamoroll sky blue, the only hue allowed on the shell */
+  --accent: #59c5ed;
+  --accent-deep: #268fbe;
+  --accent-glow: rgba(89, 197, 237, 0.28); /* keep glow radius under 18px — wider reads neon */
+  --accent-grad: linear-gradient(135deg, #8ed7f4, #4fb0e4);
+  --accent-orb: radial-gradient(120% 120% at 30% 25%, #c2ecfc 0%, #59c5ed 46%, #2f9ad3 100%);
+  --rail-candy-border: linear-gradient(180deg, #ffffff 0%, #59c5ed 52%, #fdd5e7 100%);
+
+  /* SCENE — the other half of immersion; constant across the three hours */
+  --stage-vignette: inset 0 0 180px 46px rgba(14, 18, 40, 0.4), inset 0 0 64px 12px rgba(14, 18, 40, 0.18);
+  --stage-chrome-dim: linear-gradient(90deg, rgba(14, 20, 42, 0.4), rgba(14, 20, 42, 0.12) 45%, transparent);
+  /* opening a memory pushes the world back — tokenised so the design-system
+     verification page can reproduce the exact same state as the product */
+  --stage-content-scrim: rgba(12, 18, 38, 0.58);
+  --stage-content-filter: blur(5px) brightness(0.82);
+  /* The sidebar is IN-FLOW, so what sits behind its glass is the app ground,
+     not the scene. The ground travels with the hour AND stays a gradient:
+     a flat fill gives backdrop-filter nothing to work with and the shell
+     collapses into a plain panel (codex audit 2026-08-08, High #3). */
+  --app-ground: linear-gradient(168deg, #73798d 0%, #5f657c 58%, #42485c 100%);
+
+  /* --glass-* aliases: what component CSS actually writes */
+  --glass-shell: var(--shell-bg);
+  --glass-bg: rgba(201, 205, 219, 0.6); /* flat fallback when --glass-shell is unset */
+  --glass-bg-2: rgba(184, 189, 207, 0.58);
+  --glass-border: var(--shell-border);
+  --glass-hi: var(--shell-hi);
+  --glass-shadow: var(--shell-shadow);
+  --glass-text: var(--shell-text);
+  --glass-sub: var(--shell-sub);
+  --glass-line: var(--shell-line);
+  --glass-hover: var(--shell-hover);
+  --glass-active: var(--shell-active);
+  --glass-glow: var(--accent-glow);
 
   --r-lg: 24px;
   --r-md: 18px;
@@ -54,6 +119,11 @@ body {
   position: fixed;
   inset: 0;
 }
+/* the ground the in-flow chrome composites against (see --app-ground) */
+.app {
+  background: var(--app-ground);
+  transition: background 0.9s ease;
+}
 .num {
   font-family: 'Baloo 2', 'Noto Sans SC', system-ui, sans-serif;
   font-feature-settings: 'tnum';
@@ -67,51 +137,212 @@ body {
   height: 100%;
   overflow: hidden;
 }
+/* scene switches (a) + (b), applied at stage level so EVERY scene type gets
+   them — the 2D diorama, the lobby island and the 3D metaspace alike.
+   Both sit at z-3: above the scene, below the HUD (z-5).
+   (b) a soft dim behind the chrome column, so the glass shell never floats
+       over a blown-out highlight — it always has something to sit on */
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 380px;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--stage-chrome-dim);
+}
+/* (a) museum vignette — edges fall away, the middle of the room stays lit.
+   Not decoration: the golden tier's near-white shell depends on both of
+   these to keep an edge against a bright room. */
+.stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: var(--stage-vignette);
+}
 
-/* ════ GLASS STYLES ════ */
+/* ════ LUMINANCE TIERS — driven by [data-mood], the in-world hour ════
+   One continuous ladder: 黄昏 near-white → 暮色 misty slate → 夜晚 graphite.
+   Only SHELL moves; PAPER and the scene switches stay put. */
+[data-mood='golden'] {
+  /* 黄昏 — UI reads as milk glass lit by the setting sun. It survives the
+     bright room only because --stage-chrome-dim and the keyline hold its
+     edge; raising opacity instead would turn it back into a white slab. */
+  --shell-bg: linear-gradient(168deg, rgba(255, 255, 255, 0.82) 0%, rgba(248, 246, 241, 0.74) 55%, rgba(240, 236, 231, 0.7) 100%);
+  --shell-border: rgba(255, 255, 255, 0.78);
+  --shell-line: rgba(36, 50, 79, 0.12);
+  --shell-hi: rgba(255, 255, 255, 0.88);
+  --shell-hover: rgba(255, 255, 255, 0.42);
+  --shell-active: linear-gradient(135deg, rgba(89, 197, 237, 0.24), rgba(89, 197, 237, 0.1));
+  --shell-shadow: 0 24px 64px -24px rgba(54, 39, 32, 0.46), 0 8px 24px -14px rgba(36, 50, 79, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --shell-text: #24324f;
+  --shell-sub: #58647b;
+  --glass-bg: rgba(248, 246, 241, 0.74);
+  --glass-bg-2: rgba(240, 236, 231, 0.7);
+  --accent-deep: #2e9fd0;
+  --accent-glow: rgba(89, 197, 237, 0.3);
+  --app-ground: linear-gradient(168deg, #b8aa9d 0%, #a9988c 58%, #81766f 100%);
+  --glass-blur: 26px;
+  --glass-sat: 118%;
+}
+[data-mood='twilight'] {
+  /* 暮色 — the hinge. Identical to the :root base, spelled out so the tier
+     is legible next to its siblings. */
+  /* alphas lowered from the first pass: at .78/.74/.72 this tier read as a
+     LIGHT theme and the step down to night became a cliff. It has to sit
+     between its neighbours, not next to golden (codex audit, High #1). */
+  --shell-bg: linear-gradient(168deg, rgba(226, 229, 238, 0.66) 0%, rgba(201, 205, 219, 0.6) 55%, rgba(184, 189, 207, 0.58) 100%);
+  --shell-border: rgba(255, 255, 255, 0.48);
+  --shell-line: rgba(46, 58, 89, 0.16);
+  --shell-hi: rgba(255, 255, 255, 0.52);
+  --shell-hover: rgba(255, 255, 255, 0.28);
+  --shell-active: linear-gradient(135deg, rgba(89, 197, 237, 0.22), rgba(89, 197, 237, 0.09));
+  --shell-shadow: 0 26px 66px -24px rgba(26, 30, 48, 0.5), 0 8px 24px -14px rgba(26, 30, 48, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  --shell-text: #212c48;
+  /* darkened from #414D66: that only reached 4.33:1 against the gradient's
+     dark end — under the 4.5 floor for the small labels that live there */
+  --shell-sub: #313c58;
+  --glass-bg: rgba(201, 205, 219, 0.6);
+  --glass-bg-2: rgba(184, 189, 207, 0.58);
+  --accent-deep: #268fbe;
+  --accent-glow: rgba(89, 197, 237, 0.28);
+  --app-ground: linear-gradient(168deg, #73798d 0%, #5f657c 58%, #42485c 100%);
+  --glass-blur: 24px;
+  --glass-sat: 112%;
+}
+[data-mood='night'] {
+  /* 夜晚 — chrome sinks into the dark, memories read like lightboxes */
+  --shell-bg: linear-gradient(168deg, rgba(47, 51, 64, 0.84) 0%, rgba(34, 38, 51, 0.82) 55%, rgba(27, 31, 46, 0.84) 100%);
+  --shell-border: rgba(231, 238, 248, 0.22);
+  --shell-line: rgba(228, 235, 244, 0.14);
+  --shell-hi: rgba(255, 255, 255, 0.18);
+  --shell-hover: rgba(232, 238, 246, 0.1);
+  --shell-active: linear-gradient(135deg, rgba(89, 197, 237, 0.3), rgba(89, 197, 237, 0.12));
+  --shell-shadow: 0 28px 70px -22px rgba(4, 7, 18, 0.72), 0 8px 24px -12px rgba(4, 7, 18, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --shell-text: #f2f5fa;
+  --shell-sub: rgba(230, 236, 245, 0.72);
+  --glass-bg: rgba(34, 38, 51, 0.82);
+  --glass-bg-2: rgba(27, 31, 46, 0.84);
+  --accent-deep: #83d8f5;
+  --accent-glow: rgba(89, 197, 237, 0.5);
+  --app-ground: linear-gradient(168deg, #14171f 0%, #11151e 58%, #0c1018 100%);
+  /* raised focus shells (open modal / HUD) get a cool rim so they separate
+     from ordinary dark chrome — never applied to the whole sidebar */
+  --shell-focus-border: rgba(131, 216, 245, 0.34);
+  --glass-blur: 22px;
+  --glass-sat: 125%;
+}
+
+/* Re-alias on the mood host. A `--glass-x: var(--shell-x)` declaration is
+   substituted where it is DECLARED, so the copies on :root are frozen to the
+   base tier — re-declaring them here lets them resolve against whichever
+   --shell-* the current [data-mood] just set. Without this the night tier
+   gets a dark shell but keeps the daytime dark text. */
+[data-mood] {
+  --glass-shell: var(--shell-bg);
+  --glass-border: var(--shell-border);
+  --glass-hi: var(--shell-hi);
+  --glass-shadow: var(--shell-shadow);
+  --glass-text: var(--shell-text);
+  --glass-sub: var(--shell-sub);
+  --glass-line: var(--shell-line);
+  --glass-hover: var(--shell-hover);
+  --glass-active: var(--shell-active);
+  --glass-glow: var(--accent-glow);
+}
+
+/* ════ MATERIAL TIERS — [data-glass] is now purely about the GLASS ITSELF ════
+   Luminance moved to [data-mood] above, so this control no longer fights it:
+   it only decides how thick the glass is (blur) and how vividly the scene
+   bleeds through (saturate). Same three names, honest new meaning. */
 [data-glass='cloud'] {
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-bg-2: rgba(255, 255, 255, 0.44);
-  --glass-border: rgba(255, 255, 255, 0.82);
-  --glass-hi: rgba(255, 255, 255, 0.92);
-  --glass-text: #2a3a5e;
-  --glass-sub: rgba(42, 58, 94, 0.6);
-  --glass-glow: rgba(255, 255, 255, 0.6);
-  --accent: #8ad0f2;
-  --accent-deep: #54a6d8;
+  /* 云朵 — thickest, calmest: the most diffused, most private glass */
+  --glass-blur: 34px;
+  --glass-sat: 104%;
 }
 [data-glass='sky'] {
-  --glass-bg: rgba(196, 230, 248, 0.56);
-  --glass-bg-2: rgba(214, 239, 250, 0.38);
-  --glass-border: rgba(255, 255, 255, 0.7);
-  --glass-hi: rgba(255, 255, 255, 0.8);
-  --glass-text: #234063;
-  --glass-sub: rgba(35, 64, 99, 0.62);
-  --glass-glow: rgba(174, 223, 242, 0.7);
-  --accent: #7cc6ec;
-  --accent-deep: #3f98cf;
+  /* 天空 — the default: whatever the current hour prescribes */
 }
 [data-glass='twilight'] {
-  --glass-bg: rgba(42, 58, 94, 0.52);
-  --glass-bg-2: rgba(30, 42, 71, 0.4);
-  --glass-border: rgba(190, 220, 245, 0.36);
-  --glass-hi: rgba(214, 239, 250, 0.45);
-  --glass-text: #eef6fc;
-  --glass-sub: rgba(216, 233, 247, 0.72);
-  --glass-glow: rgba(124, 198, 236, 0.5);
-  --accent: #9fd6f4;
-  --accent-deep: #6fbce8;
-  --glass-shadow: 0 20px 48px -12px rgba(10, 16, 32, 0.6), 0 4px 14px -6px rgba(10, 16, 32, 0.5);
+  /* 暮光 — thinnest, most vivid: the room reads clearly through the panel */
+  --glass-blur: 14px;
+  --glass-sat: 142%;
 }
 
-/* frosted glass surface mixin */
+/* ── .paper token remap: inside a paper surface the color domain flips, so
+   every --glass-* a component already uses resolves to its paper value.
+   Add any new white-backed surface to this list. ── */
+.paper,
+.sb-rcard,
+.sb-pcard,
+.tl-card,
+.compose,
+.pd-card,
+.wish,
+.set-group,
+.cal-anniv,
+.ev-row,
+.alarm,
+.chsc-m .bub,
+.chsc-rx .rx,
+.chsc-pick,
+.abar,
+.epk,
+.field,
+input,
+textarea,
+select {
+  --glass-text: var(--paper-text);
+  --glass-sub: var(--paper-sub);
+  --glass-line: var(--paper-line);
+  --glass-hover: var(--paper-hover);
+  --glass-active: var(--paper-active);
+  --glass-hi: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.85);
+}
+/* my own chat bubble is an accent-gradient surface, not paper */
+.chsc-m.me .bub {
+  --glass-text: #0d2336;
+  --glass-sub: rgba(13, 35, 54, 0.62);
+}
+/* the sidebar's account bar is CHROME, not content — it stays in the shell
+   domain (a full-width white strip would out-shout the memories). Its inline
+   status input must opt back out of the generic input remap above, which is
+   what the canonical --shell-* names exist for. */
+.sb-user .u-st {
+  --glass-text: var(--shell-text);
+  --glass-sub: var(--shell-sub);
+  --glass-hi: var(--shell-hi);
+  --glass-hover: var(--shell-hover);
+  --glass-line: var(--shell-line);
+}
+
+/* frosted glass surface mixin — SHELLS ONLY (sidebar, modals, HUD, dock).
+   Content inside a glass shell sits on .paper; never nest glass in glass. */
 .glass {
-  background: linear-gradient(160deg, var(--glass-bg), var(--glass-bg-2));
+  background: var(--glass-shell, linear-gradient(160deg, var(--glass-bg), var(--glass-bg-2)));
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  /* specular top edge + a whisper of cool rim light along the bottom — the glaze */
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi), inset 0 -1px 0 rgba(206, 224, 240, 0.2);
   color: var(--glass-text);
+}
+
+/* paper surface mixin — CONTENT layer (cards, rows, bubbles, inputs inside a
+   glass shell). Near-solid so text never fights the scene behind the shell. */
+.paper {
+  background: var(--glass-paper);
+  border: 1px solid var(--glass-line);
+  /* three-layer depth: contact shadow, ambient shadow, specular top highlight.
+     Shadows are deep here on purpose — white paper must read as LIFTED off
+     the dusk shell, the way a print sits on a dark desk. */
+  box-shadow: var(--paper-shadow);
+  color: var(--paper-text);
 }
 
 /* ════ SHARED UI PRIMITIVES ════
@@ -127,8 +358,8 @@ body {
   font-weight: 700;
   color: #0d2336;
   border-radius: var(--r-pill);
-  background: linear-gradient(135deg, #9fd6f4, #5fb0e2);
-  box-shadow: 0 7px 18px -7px rgba(79, 169, 220, 0.7);
+  background: var(--accent-grad);
+  box-shadow: 0 7px 18px -7px rgba(47,154,211, 0.7);
   transition: transform 0.18s, filter 0.2s;
 }
 .btn-primary:hover {
@@ -153,8 +384,8 @@ body {
   height: 46px;
   padding: 0 16px;
   border-radius: var(--r-pill);
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg-2);
+  border: 1px solid var(--glass-line);
+  background: var(--glass-paper);
   color: var(--glass-sub);
   transition: border-color 0.2s, background 0.2s;
 }
@@ -180,15 +411,16 @@ body {
   width: 42px;
   height: 25px;
   border-radius: 99px;
-  background: var(--glass-bg-2);
-  border: 1px solid var(--glass-border);
+  background: var(--glass-hover);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 3px rgba(33, 57, 92, 0.14); /* recessed glass track */
   position: relative;
   cursor: pointer;
   flex: 0 0 auto;
   transition: background 0.22s, border-color 0.22s;
 }
 .sw.on {
-  background: linear-gradient(135deg, #9fd6f4, #5fb0e2);
+  background: var(--accent-grad);
   border-color: transparent;
 }
 .sw i {
@@ -220,20 +452,22 @@ body {
   place-items: center;
   color: #fff;
   cursor: pointer;
-  background: radial-gradient(120% 120% at 30% 25%, #bfe6fa, #7cc6ec 46%, #4fa9dc);
-  box-shadow: 0 5px 14px -5px rgba(79, 169, 220, 0.6);
+  background: var(--accent-orb);
+  box-shadow: 0 5px 14px -5px rgba(47,154,211, 0.6);
 }
 
 /* ════ MODAL SHELL ════
    居中弹窗外壳，被 SubScreen / 日历 / 时钟 / 设置 / 空间切换器 共用。
    （原先散落在 screens.tsx + calendar.tsx，靠组件挂载才生效，现提为全局。） */
+/* scene switch (c): opening a memory dims the whole world — the "stepping
+   into a recollection" beat. Deeper + blurrier than a plain modal scrim. */
 .modal-scrim {
   position: absolute;
   inset: 0;
   z-index: 20;
-  background: rgba(20, 29, 51, 0.4);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
+  background: var(--stage-content-scrim);
+  -webkit-backdrop-filter: var(--stage-content-filter);
+  backdrop-filter: var(--stage-content-filter);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.34s ease;
@@ -263,6 +497,11 @@ body {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   pointer-events: auto;
+}
+/* a raised focus shell separates from ordinary chrome by its rim, not by
+   going brighter — at night that rim turns cool blue (codex audit, Med #2) */
+.modal.glass {
+  border-color: var(--shell-focus-border);
 }
 .modal.mini {
   width: min(520px, calc(100vw - 32px));
@@ -303,7 +542,7 @@ body {
 }
 .modal-x {
   appearance: none;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--glass-line);
   background: var(--glass-bg-2);
   color: var(--glass-text);
   width: 34px;
@@ -315,7 +554,7 @@ body {
   transition: background 0.2s, transform 0.2s;
 }
 .modal-x:hover {
-  background: var(--glass-hi);
+  background: var(--glass-hover);
 }
 .modal-x:active {
   transform: scale(0.9);
@@ -398,8 +637,11 @@ body {
 .mood-glow {
   mix-blend-mode: screen;
 }
+/* scene switch (a): a museum vignette is ALWAYS on — edges fall away, the
+   centre of the room stays lit, so the eye lands on the two of you. Mood
+   variants below only deepen or tint it. */
 .mood-vignette {
-  box-shadow: inset 0 0 200px 40px rgba(20, 29, 51, 0);
+  box-shadow: inset 0 0 170px 44px rgba(18, 22, 46, 0.34), inset 0 0 60px 10px rgba(18, 22, 46, 0.16);
   transition: box-shadow 0.9s ease;
 }
 
@@ -412,7 +654,7 @@ body {
   opacity: 0.9;
 }
 [data-mood='golden'] .mood-vignette {
-  box-shadow: inset 0 0 220px 30px rgba(70, 40, 30, 0.28);
+  box-shadow: inset 0 0 200px 44px rgba(70, 40, 30, 0.4), inset 0 0 66px 12px rgba(70, 40, 30, 0.18);
 }
 
 [data-mood='twilight'] .mood-tint {
@@ -425,7 +667,7 @@ body {
   opacity: 0.9;
 }
 [data-mood='twilight'] .mood-vignette {
-  box-shadow: inset 0 0 240px 50px rgba(20, 29, 51, 0.45);
+  box-shadow: inset 0 0 220px 54px rgba(20, 29, 51, 0.55), inset 0 0 70px 12px rgba(20, 29, 51, 0.22);
 }
 
 [data-mood='night'] .mood-tint {

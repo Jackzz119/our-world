@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>聊天消息状态体系 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-2:#bfe3f5; --sky-3:#d8effa; --butter:#fce7b0; --blush:#f8d7df;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+    --warn:#ef9db4; --warn-deep:#e0718f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:760px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vlabel{font-size:13px;font-weight:700;margin:22px 0 8px}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:-4px 0 12px}
+
+  /* ── message bubbles (mirrors .chsc-m / .bub in channel-screen.tsx) ── */
+  .flow{display:flex;flex-direction:column;gap:12px;padding:6px 2px}
+  .m{display:flex;flex-direction:column;max-width:72%;position:relative}
+  .m.me{align-self:flex-end;align-items:flex-end}
+  .m .meta{font-size:11px;color:var(--glass-sub);margin:0 6px 3px}
+  .m .bub{position:relative;padding:9px 13px;border-radius:15px;font-size:13.5px;line-height:1.6;color:var(--glass-text);
+    background:rgba(255,255,255,.86);border:1px solid var(--glass-border);
+    box-shadow:0 8px 20px -12px rgba(20,29,51,.3)}
+  .m.me .bub{background:linear-gradient(135deg,#9fd6f4,#5fb0e2);color:#0d2336;border-color:transparent}
+
+  /* ① sending — plan A: translucent + pulsing cloud */
+  .m.sending .bub{opacity:.58;animation:sendPulse 1.4s ease-in-out infinite}
+  @keyframes sendPulse{0%,100%{opacity:.58}50%{opacity:.78}}
+  .send-cloud{position:absolute;right:-22px;bottom:2px;font-size:13px;opacity:.75;animation:cloudBob 1.4s ease-in-out infinite}
+  @keyframes cloudBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  /* ① sending — plan B: whatsapp-style clock tick */
+  .tick{font-size:10.5px;color:var(--glass-sub);margin:2px 6px 0}
+
+  /* ② failed */
+  .m.failed .bub{background:linear-gradient(135deg,rgba(248,215,223,.92),rgba(239,157,180,.82));
+    border:1.5px solid var(--warn-deep);color:#5e2a3a;box-shadow:0 8px 22px -10px rgba(224,113,143,.55)}
+  .fail-row{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--warn-deep);margin:4px 6px 0;font-weight:600}
+  .fail-row .lnk{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .fail-row .lnk.mute{color:var(--glass-sub);font-weight:500}
+
+  /* ③ read cursor avatar (plan A) vs text receipt (plan B) */
+  .read-cursor{align-self:flex-end;display:flex;align-items:center;gap:5px;margin:-6px 4px 0}
+  .read-cursor .ava{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-size:8.5px;font-weight:700;background:linear-gradient(135deg,#f8c8d6,#ef9db4);
+    border:1.5px solid rgba(255,255,255,.85);box-shadow:0 3px 8px -3px rgba(224,113,143,.6)}
+  .read-text{align-self:flex-end;font-size:10.5px;color:var(--glass-sub);margin:-4px 8px 0}
+
+  /* ④ hover action bar */
+  .abar{position:absolute;top:-16px;right:8px;display:flex;gap:2px;padding:3px 5px;border-radius:12px;
+    background:rgba(255,255,255,.92);border:1px solid var(--glass-border);
+    box-shadow:0 10px 24px -10px rgba(20,29,51,.4);backdrop-filter:blur(10px)}
+  .abar button{appearance:none;border:0;background:transparent;cursor:pointer;font-size:14px;line-height:1;
+    width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--glass-sub)}
+  .abar button:hover{background:var(--sky-3);color:var(--glass-text)}
+  .m .bub:hover .abar{display:flex}
+
+  /* ⑤ reaction chips */
+  .rx-row{display:flex;gap:5px;margin:4px 4px 0;flex-wrap:wrap}
+  .m.me .rx-row{justify-content:flex-end}
+  .rx{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:2px 8px;border-radius:999px;cursor:pointer;
+    background:rgba(255,255,255,.72);border:1px solid var(--glass-border);color:var(--glass-sub)}
+  .rx.on{background:linear-gradient(135deg,rgba(159,214,244,.55),rgba(216,239,250,.75));
+    border-color:var(--accent);color:var(--glass-text);font-weight:700}
+
+  /* ⑥ inline edit */
+  .edit-box{width:340px;max-width:100%}
+  .edit-box textarea{width:100%;resize:none;border-radius:13px;border:1.5px solid var(--accent);outline:none;
+    background:rgba(255,255,255,.95);font:inherit;font-size:13.5px;line-height:1.6;padding:9px 13px;color:var(--glass-text)}
+  .edit-hint{font-size:10.5px;color:var(--glass-sub);margin:3px 6px 0}
+  .edited{font-size:10px;color:var(--glass-sub);margin-left:5px}
+  .m.me .edited{color:rgba(13,35,54,.55)}
+
+  /* ⑧ reply quote */
+  .reply-pill{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--glass-sub);
+    background:rgba(255,255,255,.72);border:1px solid var(--glass-border);border-radius:12px 12px 0 0;
+    padding:7px 12px;max-width:480px;border-bottom:0;}
+  .reply-pill b{color:var(--accent-deep);font-weight:700;}
+  .reply-pill .txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .reply-pill .x{cursor:pointer;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;
+    background:rgba(42,58,94,.12);font-size:11px;flex:0 0 auto;}
+  .compose-mock{display:flex;gap:9px;max-width:480px;}
+  .compose-mock .in{flex:1;height:40px;border-radius:0 0 13px 13px;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.86);color:var(--glass-sub);padding:0 14px;font-size:13px;display:flex;align-items:center;}
+  .quote{display:flex;gap:7px;align-items:baseline;font-size:11.5px;line-height:1.5;margin-bottom:5px;cursor:pointer;
+    padding:4px 9px;border-left:2.5px solid var(--accent-deep);border-radius:4px 8px 8px 4px;
+    background:rgba(255,255,255,.45);color:var(--glass-sub);max-width:100%;}
+  .quote b{color:var(--accent-deep);flex:0 0 auto;}
+  .quote .qt{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .m.me .quote{border-left-color:rgba(13,35,54,.5);background:rgba(255,255,255,.32);color:rgba(13,35,54,.72);}
+  .m.me .quote b{color:rgba(13,35,54,.85);}
+
+  /* ⑦ delete particles demo */
+  .demo-stage{position:relative;min-height:96px}
+  canvas.dust{position:absolute;inset:0;pointer-events:none}
+  .btn-demo{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;color:#fff;font-size:12.5px;
+    padding:8px 16px;border-radius:999px;background:linear-gradient(135deg,#9FD6F4,#4fa9dc);
+    box-shadow:0 8px 22px -8px rgba(79,169,220,.65);margin-top:12px}
+</style>
+</head>
+<body>
+<h1>聊天消息状态体系 · 比稿</h1>
+<div class="sub">chat.md 消息体验阶段 · 发送中 / 失败 / 已读 / 操作条 / reaction / 编辑 / 删除粒子 —— 同 token 演示</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">① 发送中</span>
+    <h2>乐观上屏的等待表现 <span class="pick">✔ 选 A：半透明 + 云朵</span></h2>
+    <p class="note">消息一发立即上屏（乐观渲染），未确认期间要「看得出还在路上」但不打扰。玻璃拟态里透明度就是现成的状态语言。</p>
+    <div class="vlabel">方案 A —— 气泡半透明微光 + 小云朵伴飞（Discord 乐观渲染 × 大耳狗）</div>
+    <div class="flow">
+      <div class="m me sending"><div class="bub">今晚一起看日落好不好 <span class="send-cloud">☁️</span></div></div>
+    </div>
+    <div class="vlabel">方案 B —— WhatsApp 式时钟→对勾（落选：状态挤在 meta 行，玻璃气泡上存在感太弱）</div>
+    <div class="flow">
+      <div class="m me"><div class="bub">今晚一起看日落好不好</div><div class="tick">🕐 发送中…</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">② 发送失败</span>
+    <h2>失败要显眼，但内容永不丢失</h2>
+    <p class="note">沿用 D-2 原则：隐式动作永不销毁内容。失败气泡整体转腮红粉警示态，附「重试 / 删除」显式操作；重试前文字一直都在。</p>
+    <div class="flow">
+      <div class="m me failed">
+        <div class="bub">这条没发出去的悄悄话</div>
+        <div class="fail-row">🌧️ 没送出去 <span class="lnk">重试</span> <span class="lnk mute">删除</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">③ 已读提示</span>
+    <h2>游标头像形态 <span class="pick">✔ 选 A</span><span class="pick" style="background:linear-gradient(135deg,#ef9db4,#e0718f)">修订：仅私聊，频道不显示</span></h2>
+    <p class="note">2026-07-10 用户裁决修订：<b>世界频道不显示任何已读状态</b>，本形态仅用于私聊（DM 阶段实现）。频道仍静默记录自己的已读游标（channel_reads），供未读红点与 DM 复用。原调研：情侣产品（Between / 恋爱记）已读是双向对等的陪伴感；Messenger 游标头像可扩展多人。</p>
+    <div class="vlabel">方案 A —— 已读游标：对方 mini 头像停在读到的位置（Messenger 式）</div>
+    <div class="flow">
+      <div class="m me"><div class="bub">那就 6 点在老地方等你</div></div>
+      <div class="read-cursor"><span class="ava">She</span></div>
+    </div>
+    <div class="vnote">头像动画：新已读时从上一位置滑落到新位置，带一点果冻回弹。hover 显示「已读 21:04」。</div>
+    <div class="vlabel">方案 B —— 文字回执（iMessage 式，落选：占一行、信息密度低、多人不可扩展）</div>
+    <div class="flow">
+      <div class="m me"><div class="bub">那就 6 点在老地方等你</div></div>
+      <div class="read-text">已读 21:04</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">④+⑤+⑥ 操作条 · reaction · 编辑</span>
+    <h2>hover 浮出操作条（Discord 式），一切消息操作的唯一入口</h2>
+    <p class="note">桌面主力场景 hover 即现（移动端换长按，later）。操作条 = 快捷表情 ×3 + 完整表情 picker（接将来的世界表情库）+ 编辑（仅自己的消息）+ 删除（仅自己的）+ 回复（占位，reply 阶段启用）。</p>
+    <div class="flow" style="padding-top:26px">
+      <div class="m">
+        <div class="meta">sherry · 20:58</div>
+        <div class="bub">周末去海边好不好！我查了天气是晴天☀️
+          <div class="abar"><button>💗</button><button>😆</button><button>🥺</button><button>➕</button><button title="回复">↩︎</button></div>
+        </div>
+        <div class="rx-row"><span class="rx on">💗 2</span><span class="rx">😆 1</span></div>
+      </div>
+      <div class="m me">
+        <div class="meta">我 · 21:00</div>
+        <div class="bub">好！！我来订车 <span class="edited">(已编辑)</span>
+          <div class="abar"><button>💗</button><button>😆</button><button>🥺</button><button>➕</button><button title="编辑">✏️</button><button title="删除">🗑️</button><button title="回复">↩︎</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="vnote">reaction chips 贴气泡下缘：自己点过的高亮蓝框（再点取消）；hover chip 显示是谁点的。编辑 = 气泡原位变输入框：</div>
+    <div class="flow">
+      <div class="m me edit-box">
+        <textarea rows="2">好！！我来订车，顺便带上野餐垫</textarea>
+        <div class="edit-hint">Enter 保存 · Esc 取消</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">⑦ 删除 · 粒子消散</span>
+    <h2>Telegram 式 thanos 尘埃，配色换玻璃碎星（用户已拍板要粒子）</h2>
+    <p class="note">删除即双端同删（DB 单一事实源 + DELETE 广播）；本端立即播放粒子，对端收到广播同样播放。粒子 = 气泡采样成蓝粉星尘，向上飘散渐隐 ~600ms。点按钮试试 ↓</p>
+    <div class="demo-stage" id="stage">
+      <div class="flow">
+        <div class="m me" id="victim"><div class="bub">这条消息将化作星尘 ✨</div></div>
+      </div>
+      <canvas class="dust" id="dust"></canvas>
+    </div>
+    <button class="btn-demo" id="boom">删除（播放粒子）</button>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">⑧ 回复引用（reply · 规划中）</span>
+    <h2>Telegram / Discord 式引用条：贴气泡顶部、可点跳回原文</h2>
+    <p class="note">发起 = hover 操作条 ↩︎（现为禁用占位）→ composer 上方出现「回复中」pill（× 取消，Esc 同）；发出后气泡顶部带引用条，点击滚动到原消息并高亮一闪。<b>原消息被删除后引用条直接消失</b>（reply_to_id 置 null，不显示墓碑——2026-07-10 用户裁决）；已删除的消息不可被回复。数据：<code>messages.reply_to_id</code>（自引用外键）。排期在 DM 真实化 + 表情系统之后。</p>
+    <div class="vlabel">发起回复 —— composer 上方的回复中 pill</div>
+    <div class="reply-pill">↩︎ 回复 <b>sherry</b><span class="txt">周末去海边好不好！我查了天气是晴天☀️</span><span class="x">×</span></div>
+    <div class="compose-mock"><div class="in">好！！我来订车…</div></div>
+    <div class="vlabel">消息里的引用条（点击跳转原消息）</div>
+    <div class="flow">
+      <div class="m me">
+        <div class="bub">
+          <div class="quote"><b>sherry</b><span class="qt">周末去海边好不好！我查了天气是晴天☀️</span></div>
+          好！！我来订车
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const stage = document.getElementById('stage');
+  const canvas = document.getElementById('dust');
+  const ctx = canvas.getContext('2d');
+  const COLORS = ['#9fd6f4','#5fb0e2','#f8c8d6','#ef9db4','#ffffff','#fce7b0'];
+  let parts = [], raf = null;
+
+  function explode(el){
+    const sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+    canvas.width = sr.width; canvas.height = sr.height;
+    const x0 = r.left - sr.left, y0 = r.top - sr.top;
+    parts = [];
+    const cols = Math.floor(r.width / 7), rows = Math.floor(r.height / 7);
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+      parts.push({
+        x: x0 + i * 7 + Math.random() * 4, y: y0 + j * 7 + Math.random() * 4,
+        vx: (Math.random() - .3) * 1.6, vy: -Math.random() * 1.8 - .4,
+        r: Math.random() * 2.2 + .8, a: 1, da: .012 + Math.random() * .02,
+        c: COLORS[Math.floor(Math.random() * COLORS.length)],
+        delay: (i / cols) * 18   // dissolve left→right like telegram
+      });
+    }
+    el.style.transition = 'opacity .35s'; el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 380);
+    cancelAnimationFrame(raf); tick();
+  }
+  function tick(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    for (const p of parts) {
+      if (p.delay > 0) { p.delay--; alive = true; continue; }
+      p.x += p.vx; p.y += p.vy; p.vy -= .01; p.a -= p.da;
+      if (p.a <= 0) continue;
+      alive = true;
+      ctx.globalAlpha = p.a;
+      ctx.fillStyle = p.c;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (alive) raf = requestAnimationFrame(tick);
+  }
+  document.getElementById('boom').onclick = () => {
+    const v = document.getElementById('victim');
+    if (v.style.display === 'none') { // reset for repeat demos
+      v.style.display = ''; v.style.opacity = '1';
+      setTimeout(() => explode(v), 350);
+    } else explode(v);
+  };
+</script>
+</body>
+</html>

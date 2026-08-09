@@ -81,6 +81,32 @@ export const uploadMemoryImage = async (
     return { originalPath };
 };
 
+// Upload a world icon: downscaled to a small square-ish webp (icons render at
+// 40px, 256 covers hi-dpi) under a unique name so signed-URL caches never go
+// stale. Returns the storage path to persist in worlds.icon_path; superseded
+// icons are left behind (a couple of KB, not worth a cleanup pass yet).
+const ICON_MAX = 256;
+export const uploadWorldIcon = async (worldId: string, file: File): Promise<{ iconPath: string }> => {
+    const bitmap = await createImageBitmap(file); // throws on non-image input
+    let dataUrl: string;
+    try {
+        const scale = Math.min(1, ICON_MAX / Math.max(bitmap.width, bitmap.height));
+        const w = Math.max(1, Math.round(bitmap.width * scale));
+        const h = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d')?.drawImage(bitmap, 0, 0, w, h);
+        dataUrl = canvas.toDataURL('image/webp', 0.9);
+    } finally {
+        bitmap.close?.();
+    }
+    const iconPath = `${worldId}/icon-${newId()}.webp`;
+    const { error } = await supabase.storage.from(BUCKET).upload(iconPath, dataUrlToBlob(dataUrl), { contentType: 'image/webp', upsert: false });
+    if (error) throw error;
+    return { iconPath };
+};
+
 // Batch-sign private storage paths for display. Returns a path -> signed URL
 // map; paths that fail to sign are omitted.
 export const signImageUrls = async (paths: string[]): Promise<Record<string, string>> => {

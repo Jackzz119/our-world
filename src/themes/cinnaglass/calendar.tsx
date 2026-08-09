@@ -26,9 +26,9 @@ const CalClockStyles = () => (
 
   .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .cal-nav .mlabel{font-size:16px;font-weight:700;}
-  .cal-nav button{appearance:none;border:1px solid var(--glass-border);background:var(--glass-bg-2);color:var(--glass-text);
+  .cal-nav button{appearance:none;border:1px solid var(--glass-line);background:var(--glass-bg-2);color:var(--glass-text);
     width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .15s;}
-  .cal-nav button:hover{background:var(--glass-hi);}
+  .cal-nav button:hover{background:var(--glass-hover);}
   .cal-nav button:active{transform:scale(.9);}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
   .cal-wk{text-align:center;font-size:11px;color:var(--glass-sub);font-weight:600;padding:4px 0 6px;}
@@ -36,26 +36,26 @@ const CalClockStyles = () => (
     font-size:13.5px;font-weight:500;color:var(--glass-text);position:relative;cursor:pointer;border:1.5px solid transparent;
     transition:background .16s,border-color .16s,transform .14s;}
   .cal-cell.blank{cursor:default;}
-  .cal-cell:not(.blank):hover{background:var(--glass-bg-2);}
-  .cal-cell.today{background:linear-gradient(135deg,#9FD6F4,#5FB0E2);color:#0d2336;font-weight:700;}
+  .cal-cell:not(.blank):hover{background:var(--glass-hover);}
+  .cal-cell.today{background:var(--accent-grad);color:#0d2336;font-weight:700;}
   .cal-cell.sel{border-color:var(--accent-deep);}
   .cal-cell.anniv{color:#E76A8A;font-weight:700;}
   .cal-cell .dots{display:flex;gap:3px;margin-top:3px;height:5px;}
   .cal-cell .dots i{width:5px;height:5px;border-radius:50%;}
-  .cal-cell .dots .ev{background:#7CC6EC;}
+  .cal-cell .dots .ev{background:var(--accent);}
   .cal-cell .dots .an{background:#EF9DB4;}
   .cal-cell.today .dots i{background:#0d2336;}
 
   .cal-add{display:flex;gap:9px;margin:16px 0 6px;}
-  .cal-add input{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-border);
-    background:var(--glass-bg-2);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
+  .cal-add input{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
+    background:var(--glass-paper);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
   .cal-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
   .cal-add input::placeholder{color:var(--glass-sub);}
   .cal-add .day{display:flex;align-items:center;padding:0 14px;height:44px;border-radius:var(--r-pill);
     background:var(--glass-hi);font-size:13px;font-weight:600;color:var(--accent-deep);white-space:nowrap;flex:0 0 auto;}
   .cal-add button{width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;
-    background:radial-gradient(120% 120% at 30% 25%,#BFE6FA,#7CC6EC 46%,#4FA9DC);flex:0 0 auto;
-    box-shadow:0 5px 14px -5px rgba(79,169,220,.6);transition:transform .18s;}
+    background:var(--accent-orb);flex:0 0 auto;
+    box-shadow:0 5px 14px -5px rgba(47,154,211,.6);transition:transform .18s;}
   .cal-add button:hover{transform:scale(1.06);}
   .cal-add button:disabled{opacity:.45;}
 
@@ -86,14 +86,14 @@ const CalClockStyles = () => (
   .alarm .del{appearance:none;border:0;background:transparent;color:var(--glass-sub);cursor:pointer;padding:4px;border-radius:8px;opacity:.55;}
   .alarm .del:hover{opacity:1;color:#E76A8A;}
   .alarm-add{display:flex;gap:9px;margin-top:6px;align-items:center;}
-  .alarm-add input[type=time]{height:44px;border-radius:14px;border:1px solid var(--glass-border);background:var(--glass-bg-2);
+  .alarm-add input[type=time]{height:44px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass-paper);
     color:var(--glass-text);padding:0 12px;font:inherit;font-size:15px;font-family:"Baloo 2",sans-serif;outline:none;}
-  .alarm-add input[type=text]{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-border);
-    background:var(--glass-bg-2);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
+  .alarm-add input[type=text]{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
+    background:var(--glass-paper);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
   .alarm-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
   .alarm-add button{width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;
-    background:radial-gradient(120% 120% at 30% 25%,#BFE6FA,#7CC6EC 46%,#4FA9DC);flex:0 0 auto;
-    box-shadow:0 5px 14px -5px rgba(79,169,220,.6);transition:transform .18s;}
+    background:var(--accent-orb);flex:0 0 auto;
+    box-shadow:0 5px 14px -5px rgba(47,154,211,.6);transition:transform .18s;}
   .alarm-add button:hover{transform:scale(1.06);}
   `}</style>
 );
@@ -204,7 +204,7 @@ export function CalendarScreen({
                     </button>
                 </div>
                 <div className="modal-body">
-                    <div className="cal-anniv glass">
+                    <div className="cal-anniv paper">
                         <span className="ring">
                             <IHeart size={24} fill="#fff" sw={0} />
                         </span>
@@ -260,7 +260,7 @@ export function CalendarScreen({
                     {upcoming.map((e) => {
                         const [, m, d] = e.date.split('-');
                         return (
-                            <div className="ev-row glass" key={e.id}>
+                            <div className="ev-row paper" key={e.id}>
                                 <div className="dt">
                                     <div className="d">{Number(d)}</div>
                                     <div className="mo">{Number(m)} 月</div>
@@ -349,7 +349,7 @@ export function ClockScreen({
 
                     <div className="alarm-sec">闹钟与提醒</div>
                     {alarms.map((a) => (
-                        <div className={`alarm glass ${a.on ? '' : 'off'}`} key={a.id}>
+                        <div className={`alarm paper ${a.on ? '' : 'off'}`} key={a.id}>
                             <span className="at num">{a.time}</span>
                             <div className="body">
                                 <div className="lab">{a.label}</div>

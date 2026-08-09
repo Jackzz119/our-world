@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>光照递进 · 黄昏 → 暮色 → 夜晚</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.65 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#0f1327;color:#e8edf7;padding:30px 26px 70px}
+  h1{font-size:19px;text-align:center;margin-bottom:5px}
+  .sub{text-align:center;font-size:12px;color:rgba(232,237,247,.6);margin-bottom:26px}
+  .wrap{max-width:1300px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:22px 24px 26px;margin-bottom:26px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.1em;color:#0d2336;
+    background:linear-gradient(135deg,#8ed7f4,#4fb0e4);border-radius:99px;padding:3px 12px;margin-bottom:6px}
+  h2{font-size:16px;margin-bottom:3px}
+  .lead{font-size:12px;color:rgba(232,237,247,.66);line-height:1.75;margin-bottom:16px;max-width:900px}
+  .vlabel{font-size:12.5px;font-weight:800;margin:0 0 8px}
+  .vnote{font-size:11.5px;color:rgba(232,237,247,.62);line-height:1.7;margin-top:9px}
+
+  /* 明度阶梯 */
+  .ladder{display:flex;height:40px;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.16);margin-bottom:6px}
+  .ladder span{flex:1;display:grid;place-items:center;font-size:11px;font-weight:700}
+
+  .row3{display:flex;gap:14px;flex-wrap:wrap}
+  .col{flex:1;min-width:400px}
+
+  /* ── 舞台 ── */
+  .stage{position:relative;height:340px;border-radius:16px;overflow:hidden;display:flex;
+    border:1px solid rgba(255,255,255,.14);box-shadow:0 14px 36px -14px rgba(0,0,0,.7)}
+  .stage .lab{position:absolute;right:10px;top:8px;z-index:9;font-size:9.5px;letter-spacing:.12em;font-weight:700;
+    color:rgba(255,255,255,.8);text-shadow:0 1px 4px rgba(0,0,0,.6)}
+  /* 场景：三档光线的房间 */
+  .sc-golden{background:linear-gradient(168deg,#f6e8cd 0%,#eddbbd 42%,#dcc7a8 100%)}
+  .sc-golden::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(48% 42% at 74% 14%, rgba(255,248,214,.95), transparent 70%),
+    linear-gradient(112deg, transparent 32%, rgba(212,192,162,.55) 33%, rgba(212,192,162,.55) 47%, transparent 48%),
+    radial-gradient(26% 22% at 22% 64%, rgba(206,166,178,.9), transparent 70%),
+    radial-gradient(20% 17% at 80% 72%, rgba(152,180,200,.75), transparent 70%)}
+  .sc-twilight{background:linear-gradient(168deg,#cfc3d6 0%,#b3a8c4 45%,#8f89ab 100%)}
+  .sc-twilight::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(44% 38% at 74% 16%, rgba(255,226,186,.6), transparent 70%),
+    radial-gradient(26% 22% at 22% 64%, rgba(186,148,166,.7), transparent 70%),
+    radial-gradient(20% 17% at 80% 72%, rgba(126,140,180,.6), transparent 70%)}
+  .sc-night{background:linear-gradient(168deg,#2b3358 0%,#212949 45%,#171d33 100%)}
+  .sc-night::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(38% 32% at 72% 22%, rgba(255,214,152,.42), transparent 70%),
+    radial-gradient(28% 22% at 20% 64%, rgba(112,104,152,.5), transparent 72%),
+    radial-gradient(22% 18% at 82% 72%, rgba(84,112,164,.42), transparent 72%)}
+  /* 场景侧处理：暗角 + chrome 侧压暗（强度随场景亮度反比） */
+  .vig{position:absolute;inset:0;pointer-events:none;z-index:2;box-shadow:var(--vig)}
+  .sdim{position:absolute;left:0;top:0;bottom:0;width:56%;pointer-events:none;z-index:2;background:var(--sdim)}
+
+  /* ── 组件（同源模板，只换 token） ── */
+  .pill{position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:6;width:42px;padding:9px 0;
+    display:flex;flex-direction:column;align-items:center;gap:8px;border-radius:99px;border:1.5px solid transparent;
+    background:var(--shell) padding-box, var(--pill-edge) border-box;backdrop-filter:blur(15px) saturate(1.3);
+    box-shadow:var(--float-sh), inset 0 1.5px 0 var(--hi), inset 0 -1px 0 var(--rim)}
+  .pill .rb{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:800;
+    border:2px solid rgba(255,255,255,.78)}
+  .pill .rb.logo{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .pill .rb.w{background:var(--acc-grad);border-radius:9px;box-shadow:0 0 0 2px var(--acc)}
+
+  .side{width:150px;flex:0 0 auto;display:flex;flex-direction:column;position:relative;z-index:5;
+    background:var(--shell);backdrop-filter:blur(20px) saturate(1.35);border-right:1px solid var(--line);
+    box-shadow:var(--shell-sh)}
+  .side .hd{padding:11px 11px 8px}
+  .side .hd b{font-size:12.5px;font-weight:800;color:var(--tx);display:block}
+  .side .hd i{font-style:normal;font-size:9.5px;color:var(--tx2)}
+  .side .cat{font-size:8.5px;letter-spacing:.14em;font-weight:700;color:var(--tx2);padding:8px 11px 3px;text-transform:uppercase}
+  .side .r{display:flex;align-items:center;gap:7px;margin:1px 7px;padding:6px 8px;border-radius:10px;
+    font-size:11.5px;font-weight:600;color:var(--tx2)}
+  .side .r.on{background:var(--active);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line)}
+  .side .r .bd{margin-left:auto;min-width:14px;height:14px;border-radius:7px;padding:0 4px;font-size:8.5px;font-weight:800;
+    color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);display:grid;place-items:center}
+  .side .pc{margin:3px 7px;padding:7px 9px;border-radius:12px;display:flex;align-items:center;gap:8px;
+    background:var(--paper);border:1px solid var(--paper-line);box-shadow:var(--paper-sh)}
+  .side .pc .av{width:21px;height:21px;border-radius:50%;flex:0 0 auto;border:2px solid rgba(255,255,255,.85)}
+  .side .pc .av.p{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .side .pc .av.b{background:var(--acc-grad)}
+  .side .pc b{font-size:10.5px;color:var(--paper-tx);display:block;line-height:1.25}
+  .side .pc i{font-style:normal;font-size:9px;color:var(--paper-tx2)}
+  .side .ft{margin-top:auto;padding:8px 10px;display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);
+    background:var(--ft-bg)}
+  .side .ft .av{width:21px;height:21px;border-radius:50%;background:linear-gradient(135deg,#fce7b0,#f2c94c);border:2px solid rgba(255,255,255,.85)}
+  .side .ft b{font-size:10.5px;color:var(--tx)}
+
+  .modal{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:208px;z-index:6;border-radius:16px;padding:11px;
+    background:var(--shell);backdrop-filter:blur(22px) saturate(1.35);border:1px solid var(--shell-line);
+    box-shadow:var(--float-sh), inset 0 1.5px 0 var(--hi), inset 0 -1px 0 var(--rim)}
+  .modal h3{font-size:11.5px;color:var(--tx);display:flex;align-items:center;gap:7px;margin-bottom:8px;font-weight:800}
+  .modal h3 .si{width:21px;height:21px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:9.5px;
+    background:var(--acc-grad)}
+  .mcard{border-radius:12px;background:var(--paper);border:1px solid var(--paper-line);box-shadow:var(--paper-sh);overflow:hidden;margin-bottom:8px}
+  .mcard .ph{height:66px;background:radial-gradient(60% 70% at 30% 40%,#ffd9a8,transparent 70%),linear-gradient(150deg,#f7c8a0,#d59fb4 55%,#8f9bd0)}
+  .mcard .tx{padding:7px 9px}
+  .mcard .tx b{display:block;font-size:11px;color:var(--paper-tx)}
+  .mcard .tx i{font-style:normal;font-size:9.5px;color:var(--paper-tx2)}
+  .mgrp{border-radius:12px;background:var(--paper);border:1px solid var(--paper-line);box-shadow:var(--paper-sh);overflow:hidden}
+  .mgrp .sr{display:flex;align-items:center;gap:8px;padding:8px 10px;position:relative}
+  .mgrp .sr+.sr::before{content:"";position:absolute;left:10px;right:10px;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--paper-line) 16%,var(--paper-line) 84%,transparent)}
+  .mgrp .sr span.t{flex:1;font-size:10.5px;font-weight:700;color:var(--paper-tx)}
+  .sw{width:31px;height:18px;border-radius:99px;background:var(--paper-track);border:1px solid var(--paper-line);position:relative;flex:0 0 auto;
+    box-shadow:inset 0 1px 3px rgba(33,57,92,.14)}
+  .sw.on{background:var(--acc-grad);border-color:transparent;box-shadow:none}
+  .sw i{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(20,29,51,.3)}
+  .sw.on i{left:auto;right:2px}
+  .seg{display:inline-flex;gap:2px;background:var(--paper-track);border:1px solid var(--paper-line);border-radius:99px;padding:2px;
+    box-shadow:inset 0 1px 3px rgba(33,57,92,.12)}
+  .seg span{font-size:9.5px;font-weight:700;color:var(--paper-tx2);padding:3px 9px;border-radius:99px}
+  .seg span.on{background:#fff;color:var(--paper-tx);box-shadow:0 2px 5px -2px rgba(20,29,51,.35), inset 0 1px 0 #fff}
+  .cmp{display:flex;gap:7px;align-items:center;margin-top:8px}
+  .cmp .in{flex:1;height:26px;border-radius:99px;background:var(--paper);border:1px solid var(--paper-line);
+    display:flex;align-items:center;padding:0 11px;font-size:9.5px;color:var(--paper-tx2)}
+  .cmp .go{width:26px;height:26px;border-radius:50%;background:var(--acc-orb);display:grid;place-items:center;font-size:10px;color:#fff;
+    box-shadow:0 5px 13px -5px var(--acc-glow)}
+
+  /* ══ 三档 token ══ */
+  .m-golden{
+    --shell:linear-gradient(168deg,rgba(253,254,255,.94) 0%,rgba(247,250,254,.91) 55%,rgba(250,249,253,.91) 100%);
+    --shell-line:rgba(255,255,255,.9);--line:rgba(30,42,70,.1);--hi:rgba(255,255,255,.95);--rim:rgba(255,236,200,.55);
+    --tx:#22335a;--tx2:rgba(34,51,90,.6);--ft-bg:rgba(30,42,70,.035);
+    --paper:#fff;--paper-line:rgba(30,42,70,.09);--paper-tx:#22335a;--paper-tx2:rgba(34,51,90,.6);
+    --paper-track:rgba(216,239,250,.6);
+    --paper-sh:0 1px 2px rgba(60,48,34,.07), 0 12px 26px -14px rgba(60,48,34,.32), inset 0 1px 0 #fff;
+    --shell-sh:16px 0 44px -16px rgba(60,48,34,.4);--float-sh:0 14px 34px -12px rgba(60,48,34,.45);
+    --active:linear-gradient(135deg,rgba(174,223,242,.62),rgba(216,239,250,.34));
+    --acc:#59c5ed;--acc-grad:linear-gradient(135deg,#8ed7f4,#4fb0e4);
+    --acc-orb:radial-gradient(120% 120% at 30% 25%,#c2ecfc,#59c5ed 46%,#2f9ad3);--acc-glow:rgba(47,154,211,.55);
+    --pill-edge:linear-gradient(160deg,rgba(255,255,255,.98),rgba(142,215,244,.55) 50%,rgba(248,200,214,.45));
+    --vig:inset 0 0 150px 44px rgba(70,48,26,.4), inset 0 0 56px 10px rgba(70,48,26,.18);
+    --sdim:linear-gradient(90deg,rgba(58,42,26,.34),rgba(58,42,26,.08) 55%,transparent)}
+  .m-twilight{
+    --shell:linear-gradient(168deg,rgba(218,222,235,.88) 0%,rgba(201,207,223,.86) 55%,rgba(207,208,226,.86) 100%);
+    --shell-line:rgba(255,255,255,.6);--line:rgba(26,34,60,.15);--hi:rgba(255,255,255,.72);--rim:rgba(206,224,240,.42);
+    --tx:#1e2a4a;--tx2:rgba(30,42,74,.64);--ft-bg:rgba(26,34,60,.05);
+    --paper:#fff;--paper-line:rgba(26,34,60,.11);--paper-tx:#1e2a4a;--paper-tx2:rgba(30,42,74,.62);
+    --paper-track:rgba(216,239,250,.62);
+    --paper-sh:0 1px 3px rgba(20,26,52,.14), 0 13px 28px -14px rgba(20,26,52,.5), inset 0 1px 0 #fff;
+    --shell-sh:16px 0 46px -16px rgba(20,26,52,.55);--float-sh:0 16px 38px -12px rgba(20,26,52,.6);
+    --active:linear-gradient(135deg,rgba(174,223,242,.78),rgba(216,239,250,.44));
+    --acc:#59c5ed;--acc-grad:linear-gradient(135deg,#8ed7f4,#4fb0e4);
+    --acc-orb:radial-gradient(120% 120% at 30% 25%,#c2ecfc,#59c5ed 46%,#2f9ad3);--acc-glow:rgba(47,154,211,.6);
+    --pill-edge:linear-gradient(160deg,rgba(255,255,255,.98),rgba(142,215,244,.6) 50%,rgba(248,200,214,.5));
+    --vig:inset 0 0 165px 46px rgba(26,26,54,.42), inset 0 0 60px 12px rgba(26,26,54,.2);
+    --sdim:linear-gradient(90deg,rgba(24,24,50,.3),rgba(24,24,50,.07) 55%,transparent)}
+  .m-night{
+    --shell:linear-gradient(168deg,rgba(56,60,74,.8) 0%,rgba(45,48,61,.78) 55%,rgba(50,52,66,.79) 100%);
+    --shell-line:rgba(228,235,244,.2);--line:rgba(228,235,244,.14);--hi:rgba(240,246,252,.26);--rim:rgba(159,214,244,.3);
+    --tx:#edf1f7;--tx2:rgba(230,236,245,.66);--ft-bg:rgba(255,255,255,.06);
+    --paper:#fff;--paper-line:rgba(255,255,255,.6);--paper-tx:#22335a;--paper-tx2:rgba(34,51,90,.64);
+    --paper-track:rgba(216,239,250,.65);
+    --paper-sh:0 2px 4px rgba(6,10,24,.35), 0 14px 30px -12px rgba(6,10,24,.66), inset 0 1px 0 #fff;
+    --shell-sh:16px 0 48px -16px rgba(6,10,24,.7);--float-sh:0 18px 42px -12px rgba(6,10,24,.75);
+    --active:linear-gradient(135deg,rgba(159,214,244,.4),rgba(159,214,244,.15));
+    --acc:#9fd6f4;--acc-grad:linear-gradient(135deg,#9fd6f4,#6fbce8);
+    --acc-orb:radial-gradient(120% 120% at 30% 25%,#d6efff,#9fd6f4 46%,#6fbce8);--acc-glow:rgba(159,214,244,.66);
+    --pill-edge:linear-gradient(160deg,rgba(255,255,255,.9),rgba(142,215,244,.55) 50%,rgba(248,200,214,.42));
+    --vig:inset 0 0 150px 40px rgba(6,8,20,.4), inset 0 0 54px 10px rgba(6,8,20,.2);
+    --sdim:linear-gradient(90deg,rgba(6,8,20,.28),rgba(6,8,20,.06) 55%,transparent)}
+  /* 对照：黄昏关掉场景处理 */
+  .no-treat{--vig:none;--sdim:none}
+</style>
+</head>
+<body>
+<h1>光照递进 · 黄昏 → 暮色 → 夜晚</h1>
+<div class="sub">UI 明度跟着一天的光线走 · 同源组件模板，三档只换 token · 白不是问题，场景侧没处理才是</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="tag">① 概念</span>
+    <h2>三档是一条明度阶梯，不是三个孤立主题</h2>
+    <p class="lead">此前的错误是把三档做成「同一种暗色的深浅」——用户感受不到时间流动。正确模型：<b>UI 是房间里的光</b>，黄昏时界面明亮通透、暮色时转为雾灰、入夜后沉入石墨。
+    每一档内部仍然遵守「内容纸最亮、外壳次之、场景被压暗收边」，所以三档都有沉浸感，但沉浸的<b>色温和明度不同</b>——这正是 Stripe 那种「同一套设计语言、明暗两副面孔」的做法，只是我们把两档扩成三档并绑定到产品的光线时段。</p>
+    <div class="ladder">
+      <span style="background:#fbfcfe;color:#22335a">黄昏 · 外壳 94%</span>
+      <span style="background:#d5d9e6;color:#1e2a4a">暮色 · 外壳 70%</span>
+      <span style="background:#383c4a;color:#edf1f7">夜晚 · 外壳 26%</span>
+    </div>
+    <div class="vnote">内容纸恒为纯白 100%，永远是全场最亮 —— 记忆始终是主角；变的是<b>包裹它的光</b>。</div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">② 三档实景</span>
+    <h2>同一套组件 · 三种光线</h2>
+    <p class="lead">观察点：三格连看是否读得出「天色渐暗」的连续感；每一格里记忆卡是否仍是视觉焦点；黄昏格的白外壳有没有因为场景处理而立住（不再是「白糊白」）。</p>
+    <div class="row3">
+      <div class="col"><div class="vlabel">黄昏 Golden · 明亮通透</div>
+        <div class="stage sc-golden m-golden" data-fill><span class="lab">GOLDEN</span></div></div>
+      <div class="col"><div class="vlabel">暮色 Twilight · 雾灰过渡</div>
+        <div class="stage sc-twilight m-twilight" data-fill><span class="lab">TWILIGHT</span></div></div>
+      <div class="col"><div class="vlabel">夜晚 Night · 石墨沉静</div>
+        <div class="stage sc-night m-night" data-fill><span class="lab">NIGHT</span></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="tag">③ 关键对照</span>
+    <h2>白外壳失败过一次，问题在场景侧不在白</h2>
+    <p class="lead">同样是黄昏白外壳：左边关掉暗角与 chrome 侧压暗（＝之前线上那版），右边打开。左边白 UI 糊在亮场景上、层次全无；右边白 UI 立刻立住并浮起来。</p>
+    <div class="row3">
+      <div class="col"><div class="vlabel">✕ 场景处理 OFF（旧版失败态）</div>
+        <div class="stage sc-golden m-golden no-treat" data-fill><span class="lab">OFF</span></div></div>
+      <div class="col"><div class="vlabel">✓ 场景处理 ON（暗角 + chrome 侧压暗）</div>
+        <div class="stage sc-golden m-golden" data-fill><span class="lab">ON</span></div></div>
+    </div>
+  </div>
+
+</div>
+
+<template id="ui">
+  <div class="vig"></div><div class="sdim"></div>
+  <div class="side">
+    <div class="hd"><b>lovelei小屋</b><i>在一起 430 天</i></div>
+    <div class="cat">房间</div>
+    <div class="r on">🛋️ 客厅<span class="bd">2</span></div>
+    <div class="r">🌿 阳台</div>
+    <div class="cat">成员</div>
+    <div class="pc"><span class="av p"></span><span><b>sherry</b><i>在看窗外发呆</i></span></div>
+    <div class="pc"><span class="av b"></span><span><b>jack</b><i>在你身边</i></span></div>
+    <div class="ft"><span class="av"></span><b>jack</b></div>
+  </div>
+  <div class="pill"><span class="rb logo">♥</span><span class="rb w">L</span></div>
+  <div class="modal">
+    <h3><span class="si">✦</span>时间线</h3>
+    <div class="mcard"><div class="ph"></div><div class="tx"><b>阳台看日落</b><i>昨天 18:42 · 3 张照片</i></div></div>
+    <div class="mgrp">
+      <div class="sr"><span class="t">进房自动接语音</span><span class="sw on"><i></i></span></div>
+      <div class="sr"><span class="t">玻璃质感</span><span class="seg"><span>云朵</span><span class="on">天空</span></span></div>
+    </div>
+    <div class="cmp"><span class="in">记录此刻的我们…</span><span class="go">➤</span></div>
+  </div>
+</template>
+
+<script>
+  const tpl = document.getElementById('ui');
+  document.querySelectorAll('[data-fill]').forEach(st => st.appendChild(tpl.content.cloneNode(true)));
+</script>
+</body>
+</html>

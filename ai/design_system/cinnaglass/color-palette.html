@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Cinnaglass 配色体系 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#2a3a5e;
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:1180px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.75);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,#7cc6ec,#4fa9dc);border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:rgba(42,58,94,.62);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vnote{font-size:12px;color:rgba(42,58,94,.62);margin:10px 0 0}
+
+  /* ── reference swatches ── */
+  .swrow{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px}
+  .sw{width:118px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.8);
+    box-shadow:0 8px 20px -10px rgba(20,29,51,.35);background:rgba(255,255,255,.85)}
+  .sw .c{height:52px}
+  .sw .t{font-size:10.5px;padding:6px 9px;line-height:1.45}
+  .sw .t b{display:block;font-size:11px}
+
+  /* ── scheme demo: each .scheme scope re-declares the token set ── */
+  .scheme{margin-bottom:26px}
+  .scheme-hd{display:flex;align-items:baseline;gap:10px;margin:0 0 10px}
+  .scheme-hd .nm{font-size:14.5px;font-weight:800}
+  .scheme-hd .d{font-size:12px;color:rgba(42,58,94,.62)}
+  .stages{display:flex;gap:14px;flex-wrap:wrap}
+  .stage{flex:1;min-width:420px;border-radius:20px;overflow:hidden;position:relative;
+    border:1px solid rgba(255,255,255,.6);box-shadow:0 16px 40px -16px rgba(20,29,51,.5);
+    display:flex;padding:0;height:340px}
+  .stage.day{background:
+    radial-gradient(78% 60% at 24% 22%, rgba(255,221,160,.62), transparent 62%),
+    radial-gradient(60% 50% at 88% 14%, rgba(255,198,158,.45), transparent 60%),
+    radial-gradient(95% 72% at 84% 92%, rgba(170,155,205,.45), transparent 62%),
+    linear-gradient(165deg,#e2d6ec 0%,#b6acd2 36%,#7d78ac 68%,#4a4d7a 100%)}
+  .stage.night{background:
+    radial-gradient(48% 40% at 30% 42%, rgba(255,212,152,.5), transparent 65%),
+    radial-gradient(85% 62% at 80% 94%, rgba(72,104,176,.42), transparent 65%),
+    linear-gradient(165deg,#3a4a78 0%,#25325a 45%,#161f3b 78%,#0e1430 100%)}
+  .stage .bglab{position:absolute;right:12px;top:10px;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.75);font-weight:700}
+
+  /* glass mixin per scheme scope */
+  .scheme .glass{background:linear-gradient(160deg,var(--g-bg),var(--g-bg2));
+    backdrop-filter:blur(20px) saturate(var(--g-sat,1.5));-webkit-backdrop-filter:blur(20px) saturate(var(--g-sat,1.5));
+    border:1px solid var(--g-border);
+    box-shadow:0 18px 44px -12px rgba(30,42,71,.42), inset 0 1px 0 var(--g-hi);color:var(--g-text)}
+
+  /* mini sidebar */
+  .msb{width:196px;flex:0 0 auto;display:flex;flex-direction:column;padding:12px 10px;gap:2px;border-radius:0;border-right:1px solid var(--g-border)}
+  .msb .hd{font-size:13.5px;font-weight:800;padding:4px 8px 10px;display:flex;align-items:center;gap:8px}
+  .msb .hd .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#f8c8d6,#ef9db4);
+    border:2px solid rgba(255,255,255,.8);flex:0 0 auto}
+  .msb .cat{font-size:10px;letter-spacing:.14em;font-weight:700;color:var(--g-sub);padding:8px 8px 4px;text-transform:uppercase}
+  .msb .row{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:11px;cursor:pointer;
+    font-size:12.5px;font-weight:600;color:var(--g-sub)}
+  .msb .row .ic{font-size:13px}
+  .msb .row.on{background:var(--g-hi);color:var(--g-text);box-shadow:inset 0 0 0 1px var(--g-border)}
+  .msb .row:hover:not(.on){background:var(--g-bg2)}
+  .msb .row .badge{margin-left:auto;min-width:15px;height:15px;border-radius:8px;padding:0 4px;
+    font-size:9px;font-weight:800;color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);
+    display:grid;place-items:center}
+  .msb .dm{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:11px;font-size:12.5px;color:var(--g-sub)}
+  .msb .dm .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#9fd6f4,#5fb0e2);
+    border:2px solid rgba(255,255,255,.75);flex:0 0 auto}
+  .msb .dm b{color:var(--g-text);font-size:12.5px}
+  .msb .dm .st{font-size:10px;display:block;line-height:1.3}
+
+  /* mini subscreen modal */
+  .mmod{flex:1;margin:26px 22px;border-radius:18px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  .mmod .mh{display:flex;align-items:center;gap:9px;padding:12px 14px 10px;flex:0 0 auto}
+  .mmod .mh .si{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:13px;
+    background:linear-gradient(135deg,var(--g-accent),var(--g-accent-deep));box-shadow:0 5px 13px -4px rgba(40,90,140,.5)}
+  .mmod .mh h3{font-size:14.5px;font-weight:700;flex:1}
+  .mmod .mh .x{width:26px;height:26px;border-radius:50%;border:1px solid var(--g-border);background:var(--g-bg2);
+    display:grid;place-items:center;font-size:11px;color:var(--g-text);cursor:pointer}
+  .mmod .mb{flex:1;overflow:hidden;padding:2px 14px 14px;display:flex;flex-direction:column;gap:9px}
+  /* content card = paper layer */
+  .mmod .pcard{border-radius:13px;padding:10px 13px;background:var(--g-paper);
+    border:1px solid var(--g-border);box-shadow:0 6px 16px -10px rgba(20,29,51,.25)}
+  .mmod .pcard .tt{font-size:13px;font-weight:700;margin-bottom:1px}
+  .mmod .pcard .dd{font-size:11.5px;color:var(--g-sub);line-height:1.55}
+  .mmod .srow{display:flex;align-items:center;gap:10px;border-radius:13px;padding:9px 13px;
+    background:var(--g-paper);border:1px solid var(--g-border)}
+  .mmod .srow .lb{flex:1;font-size:12.5px;font-weight:600}
+  .mmod .srow .hint{font-size:10.5px;color:var(--g-sub)}
+  .msw{width:36px;height:21px;border-radius:99px;background:var(--g-bg2);border:1px solid var(--g-border);position:relative;flex:0 0 auto}
+  .msw.on{background:linear-gradient(135deg,var(--g-accent),var(--g-accent-deep));border-color:transparent}
+  .msw i{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;
+    box-shadow:0 2px 5px rgba(20,29,51,.3)}
+  .msw.on i{left:auto;right:2px}
+  .mmod .btns{display:flex;gap:8px;margin-top:auto}
+  .mbtn{appearance:none;border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:700;height:32px;
+    padding:0 16px;border-radius:999px;color:#0d2336;
+    background:linear-gradient(135deg,var(--g-accent-2,#9fd6f4),var(--g-accent-deep));
+    box-shadow:0 7px 18px -7px rgba(79,169,220,.7)}
+  .mbtn.ghost{background:var(--g-bg2);color:var(--g-sub);border:1px solid var(--g-border);box-shadow:none}
+
+  /* ── scheme token sets ── */
+  .scheme.sA{--g-bg:rgba(196,230,248,.56);--g-bg2:rgba(214,239,250,.38);--g-border:rgba(255,255,255,.7);
+    --g-hi:rgba(255,255,255,.8);--g-text:#234063;--g-sub:rgba(35,64,99,.62);
+    --g-accent:#7cc6ec;--g-accent-2:#9fd6f4;--g-accent-deep:#3f98cf;--g-paper:rgba(255,255,255,.62);--g-sat:1.5}
+  .scheme.sB{--g-bg:rgba(255,255,255,.86);--g-bg2:rgba(255,255,255,.66);--g-border:rgba(255,255,255,.95);
+    --g-hi:rgba(255,255,255,.98);--g-text:#26365c;--g-sub:rgba(38,54,92,.68);
+    --g-accent:#59c5ed;--g-accent-2:#8ed7f4;--g-accent-deep:#2f9ad3;--g-paper:rgba(255,255,255,.96);--g-sat:1.2}
+  .scheme.sC{--g-bg:rgba(255,255,255,.74);--g-bg2:rgba(240,249,254,.52);--g-border:rgba(255,255,255,.88);
+    --g-hi:rgba(255,255,255,.95);--g-text:#22335a;--g-sub:rgba(34,51,90,.7);
+    --g-accent:#59c5ed;--g-accent-2:#8ed7f4;--g-accent-deep:#2f9ad3;--g-paper:rgba(255,255,255,.92);--g-sat:1.6}
+</style>
+</head>
+<body>
+<h1>Cinnaglass 配色体系 · 比稿</h1>
+<div class="sub">sidebar + subscreen 背景重定调 · 大耳狗官方色 × Apple Liquid Glass 分层法则 · 同组件同场景三方案</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">① 调研基线</span>
+    <h2>两条外部依据，指向同一个方向</h2>
+    <p class="note">大耳狗官方形象：白色身体占绝对大面积，天蓝只出现在眼睛/logo，腮红粉是唯一暖点缀 —— 白是主角，蓝是灵魂，粉是表情。
+    Apple Liquid Glass（WWDC25）：玻璃材质只留给<b>导航层</b>；内容要坐在可读的实底上；玻璃叠玻璃是明确反模式；玻璃在浅色内容上要变亮、前景文字要变深。</p>
+    <div class="swrow">
+      <div class="sw"><div class="c" style="background:#ffffff"></div><div class="t"><b>#FFFFFF</b>大耳狗本体白 · 主面积</div></div>
+      <div class="sw"><div class="c" style="background:#59c5ed"></div><div class="t"><b>#59C5ED</b>官方天蓝 · logo/眼睛</div></div>
+      <div class="sw"><div class="c" style="background:#bee1fa"></div><div class="t"><b>#BEE1FA</b>浅云蓝 · 辅助底</div></div>
+      <div class="sw"><div class="c" style="background:#fdd5e7"></div><div class="t"><b>#FDD5E7</b>腮红粉 · 点缀</div></div>
+      <div class="sw"><div class="c" style="background:#2f9ad3"></div><div class="t"><b>#2F9AD3</b>深天蓝 · 按钮/强调</div></div>
+      <div class="sw"><div class="c" style="background:#22335a"></div><div class="t"><b>#22335A</b>深海军蓝 · 正文字</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">② 三方案同景对比</span>
+    <h2>同一个 sidebar + subscreen，压在白天/夜晚两种场景上</h2>
+    <p class="note">方案间只换 design token，组件结构完全一致。重点看：正文字与副文字的清晰度、面板与场景的分离感、玻璃气质是否还在。</p>
+
+    <div class="scheme sA">
+      <div class="scheme-hd"><span class="nm">方案 A —— 现状（sky 天空玻璃）</span><span class="d">蓝染 56% 玻璃：场景底色大量透入，副文字发灰，夜景下面板发闷</span></div>
+      <div class="stages">
+        <div class="stage day"><span class="bglab">DAY</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="stage night"><span class="bglab">NIGHT</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="vnote">得：玻璃感最强、和天空场景融为一体。失：可读性最差 —— 底色一花，文字就得跟背景抢；蓝染让白色 UI 元素（开关球、按钮字）显脏。</div>
+    </div>
+
+    <div class="scheme sB">
+      <div class="scheme-hd"><span class="nm">方案 B —— 云纸瓷白（全面白底）</span><span class="d">面板整体提到 86% 白：可读性天花板，代价是玻璃气质大幅减弱</span></div>
+      <div class="stages">
+        <div class="stage day"><span class="bglab">DAY</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="stage night"><span class="bglab">NIGHT</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="vnote">得：黑字白底、对比度拉满，最贴大耳狗「白为主体」。失：模糊透出的场景几乎看不见了，「住在天空里」的沉浸感被切断 —— 面板像贴上去的白纸板。</div>
+    </div>
+
+    <div class="scheme sC">
+      <div class="scheme-hd"><span class="nm">方案 C —— 晴空琉璃（Liquid Glass 分层）</span><span class="d">导航层 74% 白玻璃 + 内容层 92% 白纸：Apple 分层法则 × 大耳狗白</span><span class="pick">✔ 用户拍板采纳（2026-07-12，以 DAY 格观感为准）</span></div>
+      <div class="stages">
+        <div class="stage day"><span class="bglab">DAY</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="stage night"><span class="bglab">NIGHT</span>
+          <div class="msb glass"><div class="hd"><span class="av"></span>我们的世界</div>
+            <div class="cat">房间</div>
+            <div class="row on"><span class="ic">🏠</span>小客厅</div>
+            <div class="row"><span class="ic">🌿</span>阳台花园<span class="badge">2</span></div>
+            <div class="cat">好友</div>
+            <div class="dm"><span class="av"></span><span><b>sherry</b><span class="st">今晚一起看日落好不好</span></span></div>
+          </div>
+          <div class="mmod glass"><div class="mh"><span class="si">⚙️</span><h3>设置</h3><span class="x">✕</span></div>
+            <div class="mb">
+              <div class="pcard"><div class="tt">这里是内容卡片</div><div class="dd">副文字的可读性是本次比稿的核心指标，眯起眼看看这行字够不够清楚。</div></div>
+              <div class="srow"><span class="lb">进房自动接语音</span><span class="hint">默认闭麦</span><span class="msw on"><i></i></span></div>
+              <div class="btns"><button class="mbtn">保存 ✨</button><button class="mbtn ghost">取消</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="vnote">得：外壳 74% 白玻璃保留 blur 与场景光晕（saturate 1.6 让透进来的色彩更鲜、更像 Liquid Glass 的折光），内容卡 92% 白纸让字坐实；正文加深到 #22335A、副文字提到 70% —— 可读性接近 B，玻璃气质接近 A。失：面板内出现两种材质，实现上要求「卡在玻璃里」的层级纪律（本来也该有）。</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">③ Token 落地对照</span>
+    <h2>方案 C 的 token 变更清单（cinnaglass.css）</h2>
+    <p class="note">三套玻璃风格保留（cloud 更瓷白 / sky 保留淡蓝但整体提亮 / twilight 夜用不动大格局），下面是默认 + sky 的核心变化。新增 --glass-paper 给内容层用。</p>
+    <div class="swrow">
+      <div class="sw"><div class="c" style="background:rgba(255,255,255,.74);backdrop-filter:blur(4px)"></div><div class="t"><b>--glass-bg .74白</b>旧 .66 白 / sky 蓝染 .56</div></div>
+      <div class="sw"><div class="c" style="background:rgba(240,249,254,.52)"></div><div class="t"><b>--glass-bg-2</b>微蓝白 .52，替代蓝染</div></div>
+      <div class="sw"><div class="c" style="background:rgba(255,255,255,.92)"></div><div class="t"><b>--glass-paper 新增</b>内容卡实底白 .92</div></div>
+      <div class="sw"><div class="c" style="background:#22335a"></div><div class="t"><b>--glass-text</b>#2A3A5E → #22335A 加深</div></div>
+      <div class="sw"><div class="c" style="background:rgba(34,51,90,.7)"></div><div class="t"><b>--glass-sub</b>62% → 70% 提对比</div></div>
+      <div class="sw"><div class="c" style="background:#59c5ed"></div><div class="t"><b>--accent</b>#7CC6EC → 官方 #59C5ED</div></div>
+      <div class="sw"><div class="c" style="background:#2f9ad3"></div><div class="t"><b>--accent-deep</b>#4FA9DC → #2F9AD3</div></div>
+      <div class="sw"><div class="c" style="background:#fdd5e7"></div><div class="t"><b>--blush</b>#F8D7DF → 官方 #FDD5E7</div></div>
+    </div>
+    <div class="vnote">纪律（写进 ui-system 文档）：<b>玻璃只给外壳</b>（sidebar、modal、HUD 浮窗、dock）；<b>壳内的内容面一律 --glass-paper</b>（列表卡、设置行、气泡、输入框）；玻璃壳内不再套第二层玻璃。</div>
+    <div class="vnote" style="margin-top:14px"><b>落地修正 v2（2026-07-12 实景校准，以此为准）：</b>比稿的浅底背景骗了透明度——真实场景偏深紫，半透明白压上去发灰。最终 token：壳提到近实底白（默认 .94/.87，sky 带一丝天蓝 rgba(240,249,254,.94)，saturate 降回 1.5）；--glass-paper = 纯白 #fff；新增三个 token 承担「白底上的分层」：<b>--glass-line</b> rgba(33,57,92,.1) 发丝分隔线/卡边、<b>--glass-hover</b> rgba(216,239,250,.6) 浅天蓝悬停、<b>--glass-active</b> rgba(174,223,242,.6) 天蓝选中。白当底，蓝分层——白色元素之间的间隔全部交给蓝，不再靠白色边框（白上白隐形）。</div>
+  </div>
+
+</div>
+</body>
+</html>

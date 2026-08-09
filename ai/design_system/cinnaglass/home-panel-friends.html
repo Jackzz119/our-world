@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Home 面板 · 好友栏 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --sky-2:#bfe3f5; --sky-3:#d8effa; --butter:#fce7b0; --blush:#f8d7df;
+    --glass-border:rgba(255,255,255,.75);
+    --glass-text:#2a3a5e; --glass-sub:rgba(42,58,94,.62);
+    --accent:#7cc6ec; --accent-deep:#4fa9dc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:860px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-border);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .duo{display:flex;gap:26px;flex-wrap:wrap}
+  .col{flex:1;min-width:280px}
+  .vlabel{font-size:13px;font-weight:700;margin:4px 0 10px}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:8px 0 0}
+
+  /* mini sidebar panel mock */
+  .sbp{width:252px;border-radius:18px;border:1px solid var(--glass-border);overflow:hidden;
+    background:rgba(255,255,255,.62);box-shadow:0 14px 36px -14px rgba(20,29,51,.4);padding:12px 10px 14px}
+  .cat{display:flex;align-items:center;font-size:10.5px;letter-spacing:.15em;font-weight:700;color:var(--glass-sub);
+    padding:10px 8px 5px;text-transform:uppercase}
+  .cat .sp{flex:1}
+  .cat .plus{width:20px;height:20px;border-radius:7px;border:1px solid var(--glass-border);cursor:pointer;
+    background:rgba(255,255,255,.6);display:grid;place-items:center;font-size:12px;color:var(--accent-deep);font-weight:800}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;cursor:pointer;color:var(--glass-sub)}
+  .row:hover{background:rgba(255,255,255,.55)}
+  .row .ava{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;
+    font-weight:700;border:2px solid rgba(255,255,255,.72);flex:0 0 auto;position:relative}
+  /* online dot = 产品既定 .odot 规范（sidebar.tsx）：#5fcf8e + 白描边 + 荧光光晕 */
+  .row .ava .dot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;
+    background:#5fcf8e;border:2.5px solid #fff;box-shadow:0 0 7px #5fcf8e}
+  .row .b{flex:1;min-width:0}
+  .row .nm{font-size:13.5px;font-weight:600;color:var(--glass-text);line-height:1.25;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .st{font-size:11px;color:var(--glass-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .tm{font-size:10px;color:var(--glass-sub);flex:0 0 auto;align-self:flex-start;margin-top:2px}
+  .g-pink{background:linear-gradient(135deg,#f8c8d6,#ef9db4)}
+  .g-blue{background:linear-gradient(135deg,#9fd6f4,#5fb0e2)}
+
+  /* function shelf (plan B) */
+  .shelf{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 4px 2px}
+  .shelf .card{border-radius:14px;border:1px solid var(--glass-border);background:rgba(255,255,255,.55);
+    padding:10px 8px;text-align:center;cursor:pointer;transition:transform .15s}
+  .shelf .card:hover{transform:translateY(-1px)}
+  .shelf .card .ic{font-size:18px;line-height:1}
+  .shelf .card .t{font-size:11.5px;font-weight:700;margin-top:4px}
+  .shelf .card .s{font-size:9.5px;color:var(--glass-sub)}
+  .shelf .card.dis{opacity:.55;cursor:default}
+  /* function list rows (plan A) */
+  .fn-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;cursor:pointer;color:var(--glass-sub)}
+  .fn-row:hover{background:rgba(255,255,255,.55)}
+  .fn-row .nm{flex:1;font-size:13px;font-weight:600;color:var(--glass-text)}
+  .fn-row .tag{font-size:9.5px;font-weight:700;color:var(--accent-deep)}
+
+  /* add-friend: inline expand (plan A) */
+  .addline{display:flex;gap:6px;padding:4px 6px 2px;animation:slideDown .2s ease both}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .addline input{flex:1;min-width:0;height:30px;border-radius:9px;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.8);padding:0 9px;font:inherit;font-size:12px;outline:none;color:var(--glass-text)}
+  .addline button{appearance:none;border:0;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;
+    padding:0 11px;border-radius:9px;color:#0d2336;background:linear-gradient(135deg,#9fd6f4,#5fb0e2)}
+
+  /* add-friend: pop card (plan B) */
+  .popwrap{position:relative;height:170px}
+  .popcard{position:absolute;left:12px;top:8px;width:224px;border-radius:16px;padding:14px;
+    background:rgba(255,255,255,.95);border:1px solid var(--glass-border);
+    box-shadow:0 18px 44px -14px rgba(20,29,51,.5)}
+  .popcard h4{font-size:13px;margin-bottom:2px}
+  .popcard .d{font-size:11px;color:var(--glass-sub);margin-bottom:10px}
+  .popcard input{width:100%;height:32px;border-radius:10px;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.9);padding:0 10px;font:inherit;font-size:12px;outline:none;margin-bottom:8px}
+  .popcard .btn{width:100%;appearance:none;border:0;cursor:pointer;font:inherit;font-size:12px;font-weight:700;
+    height:32px;border-radius:10px;color:#0d2336;background:linear-gradient(135deg,#9fd6f4,#5fb0e2)}
+  .popcard .sec{font-size:10px;letter-spacing:.1em;font-weight:700;color:var(--glass-sub);margin:12px 0 4px}
+  .popcard .req{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0}
+  .popcard .req .mini{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:700}
+  .popcard .req .n{flex:1}
+  .popcard .req button{width:22px;height:22px;border-radius:7px;border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.7);cursor:pointer;font-size:11px;padding:0}
+
+  .badge{display:inline-grid;place-items:center;min-width:16px;height:16px;border-radius:8px;padding:0 4px;
+    font-size:9.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#ef9db4,#e0718f);margin-left:5px}
+</style>
+</head>
+<body>
+<h1>Home 面板 · 好友栏 · 比稿</h1>
+<div class="sub">⚠️ 归档：②③ 已被 D-8 推翻（好友/DM 分离，见 friends-page.html）；①「面板功能入口形态」2026-07-12 拍板选 A 列表流（B 收藏架存档备查）</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">① 面板整体结构</span>
+    <h2>Home = 私人收藏栏：功能怎么摆 <span class="pick">推荐 B 收藏架</span></h2>
+    <p class="note">Home 栏的定位是"我的私人空间"：好友、商店、未来的收藏/相册/小游戏都从这里进。功能入口的形态决定这个栏目的气质。</p>
+    <div class="duo">
+      <div class="col">
+        <div class="vlabel">方案 A —— 列表流（Discord 式，功能是一行行按钮）</div>
+        <div class="sbp">
+          <div class="fn-row"><span>🛍️</span><span class="nm">商店</span><span class="tag">敬请期待</span></div>
+          <div class="fn-row"><span>🎁</span><span class="nm">收藏</span><span class="tag">敬请期待</span></div>
+          <div class="cat">好友<span class="sp"></span><span class="plus">＋</span></div>
+          <div class="row"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">在线</div></div></div>
+        </div>
+        <div class="vnote">得：结构简单、和世界栏语言一致。失：功能多了以后一长列文字行，没有"收藏栏"的珍藏感。</div>
+      </div>
+      <div class="col">
+        <div class="vlabel">方案 B —— 收藏架（功能是 2 列小卡片，像置物架）</div>
+        <div class="sbp">
+          <div class="shelf">
+            <div class="card dis"><div class="ic">🛍️</div><div class="t">商店</div><div class="s">敬请期待</div></div>
+            <div class="card dis"><div class="ic">🎁</div><div class="t">收藏</div><div class="s">敬请期待</div></div>
+          </div>
+          <div class="cat">好友<span class="sp"></span><span class="plus">＋</span></div>
+          <div class="row"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">在线</div></div></div>
+        </div>
+        <div class="vnote">得：一眼"我的小空间"的置物架感，功能扩展时往架子上加格子（游戏机/相册/花园…），玻璃卡片正好发挥 theme 长处。失：占纵向空间略多。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">② 添加好友入口</span>
+    <h2>+ 按钮点开之后发生什么 <span class="pick">推荐 B 弹出卡</span></h2>
+    <p class="note">约束：不常驻输入框。+ 位于「好友」分类标题右侧（Discord 在分类行放 + 的成熟位）。</p>
+    <div class="duo">
+      <div class="col">
+        <div class="vlabel">方案 A —— 就地展开一行输入（轻量）</div>
+        <div class="sbp">
+          <div class="cat">好友<span class="sp"></span><span class="plus" style="background:var(--sky-3)">＋</span></div>
+          <div class="addline"><input placeholder="输入对方邮箱…"><button>发申请</button></div>
+          <div class="row"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">在线</div></div></div>
+        </div>
+        <div class="vnote">得：零跳转、代码最省。失：申请管理（收到的/发出的）还得挤在列表里；输入框展开会推挤下方列表。</div>
+      </div>
+      <div class="col">
+        <div class="vlabel">方案 B —— 弹出小卡 = 好友管理中心（申请收发都住这）</div>
+        <div class="sbp popwrap">
+          <div class="cat">好友<span class="sp"></span><span class="plus" style="background:var(--sky-3)">＋</span></div>
+          <div class="popcard">
+            <h4>添加好友</h4>
+            <div class="d">输入对方的注册邮箱</div>
+            <input placeholder="somebody@email.com">
+            <button class="btn">发送申请 ✨</button>
+            <div class="sec">待处理 · 1</div>
+            <div class="req"><span class="mini g-blue">阿</span><span class="n">阿乐 想加你</span><button>✓</button><button>✕</button></div>
+          </div>
+        </div>
+        <div class="vnote">得：申请收发有了固定的家，主列表永远只有干净的好友行（红点挂在 + 上提示待处理）；将来加"通过用户名/二维码"也进这张卡。失：多一层弹层。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">③ 好友行形态</span>
+    <h2>合并后好友行 = 会话行，显示什么 <span class="pick">推荐 B 最后消息</span></h2>
+    <p class="note">好友行就是 DM 入口（点击开大窗），行内副标题决定它读起来像"通讯录"还是"会话列表"。</p>
+    <div class="duo">
+      <div class="col">
+        <div class="vlabel">方案 A —— 状态语（通讯录感）</div>
+        <div class="sbp">
+          <div class="cat">好友<span class="sp"></span><span class="plus">＋</span></div>
+          <div class="row"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry</div><div class="st">在线</div></div></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="vlabel">方案 B —— 最后一条消息 + 时间（会话感，微信/Telegram 式）</div>
+        <div class="sbp">
+          <div class="cat">好友<span class="sp"></span><span class="plus">＋</span></div>
+          <div class="row"><span class="ava g-pink">s<span class="dot"></span></span><div class="b"><div class="nm">sherry<span class="badge">2</span></div><div class="st">今晚一起看日落好不好</div></div><span class="tm">21:04</span></div>
+        </div>
+        <div class="vnote">得：一眼看到"她说了什么"，天然承载未来的未读红点（名字旁数字）与最近活跃排序。失：需要多取一条最后消息（数据已在本地，零成本）。</div>
+      </div>
+    </div>
+    <div class="vnote" style="margin-top:14px">通用细节（两案共享）：hover 行尾浮出 ✕ 解除好友（confirm 提示保留聊天记录）；在线小绿点挂头像右下；收到申请时「好友」标题的 + 上挂粉色红点。</div>
+  </div>
+
+</div>
+</body>
+</html>

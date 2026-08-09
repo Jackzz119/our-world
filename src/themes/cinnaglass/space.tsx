@@ -81,7 +81,7 @@ export function SpaceScreen({
             <div className={`modal-scrim ${open ? 'show' : ''}`} onClick={onClose} />
             <div className={`modal mini glass ${open ? 'show' : ''}`} aria-hidden={!open}>
                 <div className="modal-hd">
-                    <span className="si" style={{ background: 'linear-gradient(135deg,#BFE6FA,#7CC6EC)' }}>
+                    <span className="si" style={{ background: 'var(--accent-grad)' }}>
                         <IMapPin size={18} />
                     </span>
                     <h2>空间</h2>

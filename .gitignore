@@ -28,3 +28,6 @@ dist-ssr
 .claude/settings.local.json
 
 .env
+
+# blender auto-backup
+*.blend1

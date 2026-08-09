@@ -6,7 +6,7 @@
 -- NOTE: Solo worlds are created by the app ("创建世界" in the lobby:
 -- createWorld — owner = current user, member null, status 'pending'). You only
 -- need this script to manually pair a second person into a world until the
--- Discord-style "invite a member" UI lands. See ai/Features/room.md R-6.
+-- Discord-style "invite a member" UI lands. See ai/Features/world.md R-6.
 --
 -- Run in Supabase SQL Editor (or via MCP execute_sql once authenticated).
 

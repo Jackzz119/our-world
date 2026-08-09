@@ -123,6 +123,32 @@ mockup：`ai/design_system/cinnaglass/texture-palette.html`（三色彩气质 ×
 
 全窗口自检：大厅胶囊态/收起态、世界内、黄昏奶油 active、夜晚暖灯 active、暮色保持蓝 —— 截图全过。
 
+## D-12 光照递进定稿：明度交给时辰，玻璃档退回材质档（2026-08-07/08 codex 设计 + 审核 + 迭代）
+
+**推翻 D-11 的「全局中性暗色」**：用户裁定「黄昏不够白，之前的白其实不错，问题在场景光暗；三档应是递进，有 Stripe 明暗双主题的感觉」。设计与审核均由 codex（`codex-visual` skill）执行，Claude 给上下文、定标准、复核并落码。
+
+设计稿与报告：`ai/design_system/cinnaglass/mood-progression-codex/`（3 张 1440×900 + codex-report.md，含 Stripe/Linear/Apple HIG/Day One/Sanrio 调研）。
+
+### 架构
+
+1. **明度由 `[data-mood]` 驱动**（黄昏近白 → 暮色雾灰 → 夜晚石墨），PAPER 恒为 `#FFFFFF` 不随时辰变——记忆永远是全场最亮
+2. **`[data-glass]` 退回材质档**，只管 blur/saturate（云朵厚 34px/104% · 天空默认 · 暮光薄 14px/142%），消除与明度轴的语义重叠
+3. **`--shell-*` 为规范名，`--glass-*` 为别名**；纸面重映射改的是别名，需要退出重映射的元素引用 `--shell-*`
+4. **新增 `--app-ground`**（codex token 表没有，因它不知道本产品布局）：sidebar 是 in-flow，玻璃背后是 app 底色而非场景。**必须是渐变不能是实色**——实色让 backdrop-filter 无输入，玻璃塌成平板（codex 审核 High #3）
+5. 新增 `--stage-content-scrim` / `--stage-content-filter`，产品 `.modal-scrim` 与验证页共用
+6. 新增 `--shell-focus-border`：夜晚档给打开的 modal 一圈冷蓝 rim，与普通暗 chrome 拉开层级；**不给整条 sidebar**
+
+### 两个必须记住的坑
+
+- **CSS 变量别名在声明处求值**：`:root{--glass-text:var(--shell-text)}` 会被冻结在基准档，夜晚档出现「暗壳深字」。解法是在 `[data-mood]` 宿主上重新声明一遍别名
+- **改半透明壳的透明度 = 同时改了文字对比度**。codex 让压暗暮色壳、又给了基于旧亮壳算出的副文字色 `#414D66`，两条建议互相打架，实测掉到 3.84:1。最终按像素采样反解：壳 alpha .66/.60/.58，正文 `#212C48`，副文字 `#313C58`，实测最差 4.73:1 通过
+
+### 验收方法（已固化）
+
+`ai/design_system/cinnaglass/impl-three-up.html` —— `<link>` 直接引用真实 `cinnaglass.css` 的三档同屏验证页，headless Chrome 出图后**像素采样算对比度**，再交 codex audit。验证页必须复现打开内容的 scrim、用 `currentColor` 真实图标（emoji 自带颜色会造成对比度假阳性）。
+
+**遗留**（codex 标注、本轮未做）：Golden 色温略冷（他建议先只改 app-ground，二次再议）、验证页应直接挂产品组件而非缩小替身、夜晚长时间观看舒适度需真机暗室实测。
+
 ## D-11 沉浸感转向「星夜书房」+ UI Design System 建册（2026-07-13 调研 + 用户拍板）
 
 mockup：`ai/design_system/cinnaglass/immersion-palette.html`。**推翻 D-9/D-10 的白色外壳路线**（白底方向本身没错，错在只优化可读性、丢了明度层级）。

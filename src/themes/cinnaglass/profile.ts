@@ -20,3 +20,25 @@ export const gload = (k: string, fb: Profile): Profile => {
         return fb;
     }
 };
+
+// ── relationship date math (world.anniversary / profile.anniv, 'YYYY-MM-DD') ──
+
+// Days together, counting the anniversary itself as day 1.
+export const daysSince = (iso: string | null | undefined): number => {
+    if (!iso) return 0;
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return 0;
+    return Math.max(1, Math.floor((Date.now() - d.getTime()) / 864e5) + 1);
+};
+
+// Days until the next yearly recurrence of the anniversary (0 = today).
+export const daysUntilAnniversary = (iso: string | null | undefined): number => {
+    if (!iso) return 0;
+    const d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return 0;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const next = new Date(now.getFullYear(), d.getMonth(), d.getDate());
+    if (next.getTime() < today.getTime()) next.setFullYear(next.getFullYear() + 1);
+    return Math.round((next.getTime() - today.getTime()) / 864e5);
+};

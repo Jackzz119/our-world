@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>表情面板 · 比稿</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --glass-line:rgba(255,255,255,.75);
+    --glass-text:#22335A; --glass-sub:rgba(34,51,90,.70);
+    --accent:#59C5ED; --accent-deep:#2F9AD3; --blush:#FDD5E7;
+    --paper:rgba(255,255,255,.95);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--glass-text);
+    background:linear-gradient(160deg,#c3b8e8 0%,#b9c9ec 30%,#cfa9d8 100%);min-height:100vh;padding:36px 20px 80px}
+  h1{font-size:20px;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(30,42,71,.35);margin-bottom:6px}
+  .sub{color:rgba(255,255,255,.85);text-align:center;font-size:12px;margin-bottom:30px;letter-spacing:.05em}
+  .wrap{max-width:860px;margin:0 auto}
+  .panel{background:rgba(255,255,255,.5);backdrop-filter:blur(18px) saturate(1.4);
+    border:1px solid var(--glass-line);border-radius:24px;
+    box-shadow:0 22px 60px -18px rgba(20,29,51,.4);padding:26px 30px 30px;margin-bottom:34px}
+  .panel-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));border-radius:999px;padding:4px 13px;margin-bottom:6px}
+  .panel h2{font-size:16px;margin-bottom:2px}
+  .panel .note{font-size:12px;color:var(--glass-sub);margin-bottom:20px}
+  .pick{display:inline-block;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.08em;
+    background:linear-gradient(135deg,#86c99a,#5fa878);border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+  .vnote{font-size:12px;color:var(--glass-sub);margin:10px 0 0}
+
+  /* composer row mock */
+  .stage{position:relative;padding:130px 14px 14px;border-radius:16px;background:rgba(255,255,255,.35);
+    border:1px solid var(--glass-line)}
+  .crow{display:flex;gap:9px;align-items:center}
+  .emo-btn{width:42px;height:42px;border-radius:13px;border:1px solid var(--glass-line);cursor:pointer;
+    background:var(--paper);font-size:18px;display:grid;place-items:center;flex:0 0 auto}
+  .cin{flex:1;height:42px;border-radius:13px;border:1px solid var(--glass-line);background:var(--paper);
+    color:var(--glass-sub);padding:0 14px;font-size:13px;display:flex;align-items:center}
+  .send{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;flex:0 0 auto;
+    background:linear-gradient(135deg,#59C5ED,#2F9AD3)}
+
+  /* plan A: light grid (current, corrected anchor) */
+  .pop-a{position:absolute;bottom:66px;left:14px;display:grid;grid-template-columns:repeat(8,30px);gap:2px;
+    padding:8px;border-radius:14px;background:var(--paper);border:1px solid var(--glass-line);
+    box-shadow:0 14px 34px -12px rgba(20,29,51,.5)}
+  .pop-a span{width:30px;height:30px;display:grid;place-items:center;font-size:16px;border-radius:8px;cursor:pointer}
+  .pop-a span:hover{background:rgba(89,197,237,.15)}
+
+  /* plan B: full picker */
+  .pop-b{position:absolute;bottom:66px;left:14px;width:316px;border-radius:16px;overflow:hidden;
+    background:var(--paper);border:1px solid var(--glass-line);box-shadow:0 18px 44px -14px rgba(20,29,51,.5)}
+  .pb-search{margin:10px 10px 8px;display:flex;align-items:center;gap:7px;height:32px;border-radius:10px;
+    background:rgba(34,51,90,.06);padding:0 10px;font-size:12px;color:var(--glass-sub)}
+  .pb-tabs{display:flex;gap:2px;padding:0 10px 6px;border-bottom:1px solid rgba(34,51,90,.08)}
+  .pb-tab{flex:1;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;cursor:pointer}
+  .pb-tab.on{background:rgba(89,197,237,.18);box-shadow:inset 0 -2px 0 var(--accent-deep)}
+  .pb-sec{font-size:10px;letter-spacing:.1em;font-weight:700;color:var(--glass-sub);padding:8px 12px 2px;text-transform:uppercase}
+  .pb-grid{display:grid;grid-template-columns:repeat(8,34px);gap:1px;padding:2px 10px 10px}
+  .pb-grid span{width:34px;height:34px;display:grid;place-items:center;font-size:19px;border-radius:8px;cursor:pointer}
+  .pb-grid span:hover{background:rgba(89,197,237,.15)}
+  .pb-emote{width:34px;height:34px;border-radius:8px;object-fit:contain;background:var(--blush);
+    display:grid;place-items:center;font-size:10px;color:#b0577e;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>表情面板 · 比稿</h1>
+<div class="sub">锚定规则（bug 修正已落码）：面板永远从触发按钮一侧展开（😊 在输入行左端 → 面板左对齐）· 面板 = 纸面实底（D-9：玻璃壳内容坐纸，不叠玻璃）</div>
+<div class="wrap">
+
+  <div class="panel">
+    <span class="panel-tag">方案 A · 轻量网格 +「最近使用」</span>
+    <h2>现状的最小增强（过渡态）</h2>
+    <p class="note">固定 16 格 → 顶部加一行「最近使用」（本地记录，Slack/Discord 共识里权重最高的分区）；锚点修正为左对齐。实现成本 ≈ 半小时，但没有搜索、装不下世界表情库。</p>
+    <div class="stage">
+      <div class="pop-a">
+        <span style="grid-column:1/-1;justify-self:start;font-size:10px;color:var(--glass-sub);width:auto;height:auto;font-weight:700;letter-spacing:.1em">最近使用</span>
+        <span>💗</span><span>😆</span><span>☁️</span><span>🥺</span><span>✨</span><span>🫶</span><span>🍰</span><span>🌙</span>
+        <span style="grid-column:1/-1;justify-self:start;font-size:10px;color:var(--glass-sub);width:auto;height:auto;font-weight:700;letter-spacing:.1em">全部</span>
+        <span>💗</span><span>😆</span><span>🥺</span><span>😭</span><span>😳</span><span>🥰</span><span>😤</span><span>👍</span>
+        <span>👀</span><span>🎉</span><span>✨</span><span>☁️</span><span>🍰</span><span>🌙</span><span>⭐</span><span>🫶</span>
+      </div>
+      <div class="crow"><div class="emo-btn">😊</div><div class="cin">发给 sherry…</div><div class="send">➤</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">方案 B · 完整 picker（Slack/Discord 式）</span>
+    <h2>搜索 + 分类 tab + 世界表情库的家 <span class="pick">✔ 推荐（= 表情系统阶段的目标形态）</span></h2>
+    <p class="note">结构取 Slack/Discord 共识：搜索框（按名字过滤）→ 分类 tab（🕐 最近 / 😊 emoji / 💗 世界表情 / 🎞️ GIF 占位）→ 分区网格。「世界表情」tab 就是将来网上搜图导入的世界专属表情库的入口——reaction 操作条的 ➕ 与 composer 😊 共用这一个面板组件。emoji 量大后用虚拟滚动（Slack 工程博客：少渲染 85% 节点）。</p>
+    <div class="stage" style="padding-top:262px">
+      <div class="pop-b">
+        <div class="pb-search">🔍 搜索表情…</div>
+        <div class="pb-tabs">
+          <div class="pb-tab" title="最近使用">🕐</div>
+          <div class="pb-tab on" title="Emoji">😊</div>
+          <div class="pb-tab" title="世界表情（你们的专属表情库）">💗</div>
+          <div class="pb-tab" title="GIF（后续）" style="opacity:.4">🎞️</div>
+        </div>
+        <div class="pb-sec">笑脸与情感</div>
+        <div class="pb-grid">
+          <span>😆</span><span>🥰</span><span>🥺</span><span>😭</span><span>😳</span><span>😤</span><span>🤭</span><span>😴</span>
+        </div>
+        <div class="pb-sec">世界表情 · lovelei小屋</div>
+        <div class="pb-grid">
+          <span class="pb-emote">自定1</span><span class="pb-emote">自定2</span><span class="pb-emote">自定3</span><span style="border:1.5px dashed rgba(34,51,90,.25);border-radius:8px;font-size:14px;color:var(--glass-sub)">＋</span>
+        </div>
+      </div>
+      <div class="crow"><div class="emo-btn">😊</div><div class="cin">发给 sherry…</div><div class="send">➤</div></div>
+    </div>
+    <div class="vnote">得：搜索可达性（Discord 经验：名字前几个字母决定一切）、最近使用置顶、世界表情与 GIF 有扩展位、一个组件三处复用（composer / reaction ➕ / 将来 dock）。失：需要引入完整 emoji 数据集（名字索引）+ 虚拟滚动，是表情系统阶段的正经工程量。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">B-1 · 世界表情是什么形态</span>
+    <h2>贴纸单轨（LINE 模式） vs 双轨制（贴纸 + 行内小表情） <span class="pick">✔ 推荐单轨贴纸起步</span></h2>
+    <p class="note">这是整个表情系统最重的架构决策。<b>单轨贴纸</b>：网上搜来的图和原装大耳狗套装都是「贴纸」——点击即发送，作为独立消息渲染（LINE 的情侣聊天王者模式；消息类型 sticker，实现是干净的新消息类型）。<b>双轨制</b>：另设 Discord 式「小表情」可混排进文字、可当 reaction——但这要求消息正文支持 <code>:名字:</code> 解析成行内图片（富文本渲染改造）+ reaction 系统扩表，工程量 ×3。</p>
+    <div style="display:flex;gap:26px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">单轨贴纸：聊天里的裸贴纸（无气泡，LINE/Telegram 式）</div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <div style="padding:9px 13px;border-radius:15px;background:linear-gradient(135deg,#9fd6f4,#59C5ED);color:#0d2336;font-size:13px">今天想你了</div>
+          <div style="width:110px;height:110px;border-radius:18px;background:var(--blush);display:grid;place-items:center;color:#b0577e;font-weight:700;font-size:12px;box-shadow:0 10px 24px -12px rgba(20,29,51,.4)">🐶 贴纸<br>110px 裸渲染</div>
+          <div style="font-size:10px;color:var(--glass-sub)">21:04</div>
+        </div>
+        <div class="vnote">reaction 保持 unicode emoji（贴纸当 reaction 是 Telegram 付费功能的领域，v2 再说）。</div>
+      </div>
+      <div style="flex:1;min-width:260px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">双轨制（落选 v1）：行内小表情混排</div>
+        <div style="padding:9px 13px;border-radius:15px;background:var(--paper);border:1px solid var(--glass-line);font-size:13px;max-width:250px">
+          好耶 <span style="display:inline-grid;place-items:center;width:20px;height:20px;background:var(--blush);border-radius:5px;font-size:8px;color:#b0577e;vertical-align:-4px">狗</span> 周六出发 <span style="display:inline-grid;place-items:center;width:20px;height:20px;background:#d8effa;border-radius:5px;font-size:8px;color:#2F9AD3;vertical-align:-4px">云</span>
+        </div>
+        <div class="vnote">需要 :name: 富文本解析 + 消息渲染管线改造 + reaction 扩表——列为表情系统 v2，数据模型预留 kind 字段即可。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">B-2 · 网上搜图怎么进世界表情库</span>
+    <h2>picker 内置搜图（Tenor/GIPHY API） vs 上传/贴 URL <span class="pick">✔ 推荐内置搜图 + 上传兜底</span></h2>
+    <p class="note">你的原话是「网上搜索表情添加到世界」——内置搜图是本体。可行性：<b>Tenor（Google）/GIPHY 有免费官方 API</b>，专供表情包/贴纸/GIF 搜索场景，经 Edge Function 代理调用（key 不进前端）。选中结果落库：图片转存进自己的 Storage 桶（不依赖外链存活）+ `world_emotes` 表记名字/来源。上传本地图/粘贴 URL 作为兜底入口并排放。</p>
+    <div class="stage" style="padding:14px;min-height:0">
+      <div style="width:316px;border-radius:16px;background:var(--paper);border:1px solid var(--glass-line);box-shadow:0 18px 44px -14px rgba(20,29,51,.5)">
+        <div class="pb-search" style="margin:10px 10px 8px">🔍 搜表情加进你们的世界…（Tenor）</div>
+        <div class="pb-grid" style="grid-template-columns:repeat(4,68px);gap:6px;padding:4px 10px 8px">
+          <span class="pb-emote" style="width:68px;height:68px;border-radius:12px">结果1</span>
+          <span class="pb-emote" style="width:68px;height:68px;border-radius:12px;background:#d8effa;color:#2F9AD3">结果2</span>
+          <span class="pb-emote" style="width:68px;height:68px;border-radius:12px;background:#fce7b0;color:#a07b23">结果3</span>
+          <span class="pb-emote" style="width:68px;height:68px;border-radius:12px;background:#c9e8c2;color:#4c7a58">结果4</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:0 12px 10px;font-size:11px;color:var(--glass-sub)">
+          点选即入库 · 或 <span style="text-decoration:underline;cursor:pointer;color:var(--accent-deep)">上传图片</span> / <span style="text-decoration:underline;cursor:pointer;color:var(--accent-deep)">粘贴图片链接</span>
+        </div>
+      </div>
+    </div>
+    <div class="vnote">入库时命名（给搜索用的 :别名:，默认取搜索词）；库是**世界级共享**——任一成员添加、两人都能用（「让这个世界有独有的表情库」）；管理 = picker 里长按/右键贴纸 → 重命名/移出库。原装大耳狗套装 = 预置的官方世界表情（新世界自动带，视觉走独立 mockup 比稿，表情系统阶段一起做）。</div>
+  </div>
+
+  <div class="panel">
+    <span class="panel-tag">B-3 · 贴纸的聊天呈现与回退</span>
+    <h2>裸贴纸 110px + 长按预览；网络失败按普通图片消息规则走</h2>
+    <p class="note">贴纸消息无气泡裸渲染（110px，hover 微弹跳）；连发贴纸不合并（每张独立，LINE 式）；dock ghost 里显示为「[我] 发送了一个贴纸 🐶:别名:」文字行（dock 保持轻量）；加载失败显示占位毛玻璃块 + 重试。发送管线复用消息状态体系：乐观上屏（半透明）→ echo 转正 → 失败腮红粉警示，与 D-7 完全一致。</p>
+  </div>
+
+</div>
+</body>
+</html>
