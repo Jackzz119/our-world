@@ -6,7 +6,7 @@ import { IHeadset, IMusic, IMute, IPause, IPlay, ISkipB, ISkipF, IVolume } from 
 
 type Track = { title: string; artist: string; root: number; chord: number[]; dur: number; cover: string };
 
-const TRACKS: Track[] = [
+export const TRACKS: Track[] = [
     { title: '云朵上的下午', artist: '小满 & 知夏', root: 261.63, chord: [0, 4, 7, 11], dur: 214, cover: 'linear-gradient(145deg,#FCE3B0,#F5B774)' },
     { title: '雨天的窗边', artist: 'Lo-fi 时光', root: 220.0, chord: [0, 3, 7, 10], dur: 198, cover: 'linear-gradient(145deg,#BFD0F2,#8C9DDB)' },
     { title: '暖灯电台', artist: '夜晚频率', root: 196.0, chord: [0, 4, 7, 11], dur: 236, cover: 'linear-gradient(145deg,#E7C4F0,#B68FD9)' },

@@ -2,28 +2,27 @@
 // Ported from the design prototype's app.jsx: live clock, real weather,
 // tweaks, navigation, and all shared state (profile, rooms, current room,
 // events, alarms, widgets) + localStorage persistence.
-import { lazy, Suspense, useEffect, useState } from 'react';
-import type { MetaspaceHotspot } from '@/themes/cinnaglass/metaspace';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
-// three.js is heavy — the 3D scene loads its own chunk on demand
-const MetaspaceScene = lazy(() =>
-    import('@/themes/cinnaglass/metaspace').then((m) => ({ default: m.MetaspaceScene }))
+// the pixi room compositor loads its own chunk on demand (pixi.js is chunky)
+const RoomScene = lazy(() =>
+    import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene }))
 );
 import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
-import { HUD } from '@/themes/cinnaglass/hud';
 import { SubScreen, type TabKey } from '@/themes/cinnaglass/screens';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
-import { Sidebar } from '@/themes/cinnaglass/sidebar';
-import { SpaceScreen } from '@/themes/cinnaglass/space';
-import { ChatDock } from '@/themes/cinnaglass/chat-dock';
+import { Rail, type RailKey } from '@/themes/cinnaglass/shell/rail';
+import { Ambience } from '@/themes/cinnaglass/shell/ambience';
+import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
+import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { ChannelScreen } from '@/themes/cinnaglass/channel-screen';
-import { useChatThreads } from '@/themes/cinnaglass/chat-data';
-import { ROOMS_DEFAULT, owLoad } from '@/themes/cinnaglass/rooms';
-import { useTweaks, type Mood } from '@/themes/cinnaglass/tweaks';
-import type { Alarm, CalEvent, Profile, Room, Weather, Widgets } from '@/themes/cinnaglass/model';
+import { useChatThreads, convsFor } from '@/themes/cinnaglass/chat-data';
+import { owLoad } from '@/themes/cinnaglass/rooms';
+import { useTweaks } from '@/themes/cinnaglass/tweaks';
+import type { Alarm, CalEvent, Profile, Weather, Widgets } from '@/themes/cinnaglass/model';
 import { getMyWorld, createWorld } from '@/lib/worlds.ts';
 import { signImageUrls } from '@/lib/storage.ts';
 import { getProfilesByIds } from '@/lib/profiles.ts';
@@ -87,21 +86,14 @@ const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'wishlist'];
 
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
-    const [tbOpen, setTbOpen] = useState(false);
-    // sidebar panel expanded state — persisted (the rail itself is always on)
-    const [sbOpen, setSbOpen] = useState<boolean>(() => owLoad('ow-sbopen-v1', true));
-    const [dockSolid, setDockSolid] = useState(false);
-    // channel uuids come from the DB now — '' just means "first available
-    // conversation" (both surfaces fall back through convsFor)
-    const [dockActive, setDockActive] = useState('');
+    // v2 shell (concept-c): narrow rail + floating widgets. The chat card is
+    // the stage-side chat surface; the covering hub stays one expand away.
+    const [chatOpen, setChatOpen] = useState(false);
+    const [musicOpen, setMusicOpen] = useState(false);
+    const [unread, setUnread] = useState(false);
     const [convOpen, setConvOpen] = useState<string | null>(null);
     const [screen, setScreen] = useState<string | null>(null);
     const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
-    // rooms (living/bedroom …) — scene-bound voice channels inside the world
-    // (channel.md); listed in the sidebar and the map module, both switching
-    // the scene via enterSpace. Config editing returns with the map feature.
-    const [rooms] = useState<Room[]>(() => owLoad('ow-rooms-v1', ROOMS_DEFAULT));
-    const [meRoom, setMeRoom] = useState<string>(() => owLoad('ow-meroom-v1', 'living'));
     const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
     const [nowTs, setNowTs] = useState(() => Date.now());
     const [weather, setWeather] = useState<Weather>({ kind: 'cloud', label: '多云', temp: 22, place: '' });
@@ -210,21 +202,47 @@ const WorldPage = () => {
         const id = setInterval(() => setNowTs(Date.now()), 1000);
         return () => clearInterval(id);
     }, []);
-    // WoW-style: bare Enter (no input focused) solidifies the chat dock.
-    // Layer gate (chat.md): while any UI-layer surface is open (conversation
-    // window, modal screens) ALL scene shortcuts are disabled — Enter today,
-    // movement/interaction keys later.
+    // Bare Enter (no input focused) opens the chat card. Layer gate: while
+    // any UI-layer surface is open, scene shortcuts stay disabled.
     useEffect(() => {
         if (convOpen || screen) return; // UI layer open — scene shortcuts off
         const onKey = (e: KeyboardEvent) => {
             if (e.key !== 'Enter') return;
             const el = document.activeElement;
             if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
-            setDockSolid(true);
+            setChatOpen(true);
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [convOpen, screen]);
+
+    // unread pip on the rail: a partner message landed while the chat card
+    // was closed. Opening any chat surface clears it.
+    const worldConvId = convsFor(entered && world !== null, channels, dmConvs)[0]?.id ?? '';
+    const lastMsg = (threads[worldConvId] || []).at(-1);
+    useEffect(() => {
+        if (!lastMsg) return;
+        if (chatOpen || convOpen) {
+            setUnread(false);
+            return;
+        }
+        if (lastMsg.from !== 'me') setUnread(true);
+    }, [lastMsg, chatOpen, convOpen]);
+
+    // her message surfaces in the world first: a short-lived speech bubble
+    // over her character (codex audit M2 / ai/UX.md §4 — world-first chat)
+    const [bubble, setBubble] = useState<{ seatId: string; text: string; key: number } | null>(null);
+    const lastBubbledId = useRef<string | null>(null);
+    useEffect(() => {
+        if (!lastMsg || lastMsg.from === 'me' || lastMsg.pending) return;
+        if (lastBubbledId.current === lastMsg.id) return;
+        lastBubbledId.current = lastMsg.id;
+        const text = lastMsg.kind === 'sticker' ? '发来一张贴纸' : (lastMsg.text ?? '');
+        if (!text) return;
+        setBubble({ seatId: 'pink', text, key: Date.now() });
+        const id = setTimeout(() => setBubble(null), 4500);
+        return () => clearTimeout(id);
+    }, [lastMsg]);
     useEffect(() => {
         try {
             localStorage.setItem('ow-dates-v1', JSON.stringify(events));
@@ -246,27 +264,6 @@ const WorldPage = () => {
             /* ignore */
         }
     }, [profile]);
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-rooms-v1', JSON.stringify(rooms));
-        } catch {
-            /* ignore */
-        }
-    }, [rooms]);
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-meroom-v1', JSON.stringify(meRoom));
-        } catch {
-            /* ignore */
-        }
-    }, [meRoom]);
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-sbopen-v1', JSON.stringify(sbOpen));
-        } catch {
-            /* ignore */
-        }
-    }, [sbOpen]);
 
     // weather: manual override OR real-time (geolocation → open-meteo)
     useEffect(() => {
@@ -322,15 +319,22 @@ const WorldPage = () => {
             return next;
         });
     };
-    const navigate = (k: string) => {
-        setScreen(k);
-        setTbOpen(false);
+    const navigate = (k: string) => setScreen(k);
+
+    // rail actions → surfaces (both entry channels open the same surface)
+    const onRail = (k: RailKey) => {
+        if (k === 'chat') setChatOpen(true);
+        else if (k === 'photos') navigate('photos');
+        else if (k === 'timeline') navigate('timeline');
+        else if (k === 'music') setMusicOpen(true);
+        else if (k === 'settings') navigate('settings');
     };
-    const enterSpace = (r: Room) => {
-        setMeRoom(r.id);
-        if (r.mood) setTweak('mood', r.mood as Mood);
+    // furniture hotspots → the very same surfaces (ai/UX.md §2)
+    const onHotspot = (id: string) => {
+        if (id === 'timeline' || id === 'photos' || id === 'wishlist') navigate(id);
+        else if (id === 'clock') navigate('clock');
+        else if (id === 'music') setMusicOpen(true);
     };
-    const curRoom = rooms.find((r) => r.id === meRoom) || rooms[0];
 
     // Lobby → world flow. retryLobby resets in the event handler (not the
     // effect body) and bumps the tick so the effect refetches.
@@ -401,61 +405,37 @@ const WorldPage = () => {
         setProfile((o) => ({ ...o, world: w.name, anniv: w.anniversary ?? o.anniv }));
     };
 
-    // Leave the room back to the lobby (exit layer 1 of ux decisions D-4).
-    // Voice + shared music will auto-disconnect here once they exist (D-3:
-    // presence and voice are coupled — leaving the scene ends both).
+    // Leave the world back to the lobby. Voice + shared music will
+    // auto-disconnect here once they exist.
     const leaveRoom = () => {
         setEntered(false);
         setScreen(null); // world modals don't outlive the room
-        setTbOpen(false);
-    };
-
-    // any pointer-down on the stage outside the chat surfaces ghosts the dock
-    const onStageDown = (e: React.PointerEvent) => {
-        if (!dockSolid) return;
-        const el = e.target as HTMLElement;
-        if (el.closest('.cdk') || el.closest('.chsc')) return;
-        setDockSolid(false);
+        setChatOpen(false);
     };
 
     return (
-        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-            {/* sidebar shares the layout layer with the stage: opening it
-                squeezes the scene right instead of floating over it */}
-            <Sidebar
-                open={sbOpen}
-                setOpen={setSbOpen}
-                profile={liveProfile}
-                setProfile={setProfile}
-                onOpenSettings={() => navigate('settings')}
-                onOpenWorldSettings={() => navigate('world-settings')}
-                world={world}
-                worldIconUrl={worldIconUrl}
-                lobbyStatus={lobbyStatus}
-                lobbyError={lobbyError}
-                busy={lobbyBusy}
-                inWorld={inWorld}
-                onEnterWorld={enterWorld}
-                onCreateWorld={createAndEnter}
-                onOpenConv={(id) => setConvOpen(id)}
-                activeConv={convOpen}
-                channels={channels}
-                dmConvs={dmConvs}
-                pendingCount={requestsIn.length}
-                rooms={rooms}
-                meRoom={meRoom}
-                onEnterSpace={enterSpace}
-            />
-            <div className="stage" onPointerDownCapture={onStageDown}>
+        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0 }}>
+            {/* v2 shell (concept-c): the scene owns the full viewport; every
+                chrome piece floats above it. The Discord-era sidebar/HUD
+                retired with the idle-companion pivot (ai/UX.md). */}
+            <div className="stage" style={{ position: 'absolute', inset: 0 }}>
                 {inWorld ? (
                     <Suspense fallback={null}>
-                        <MetaspaceScene
+                        <RoomScene
                             active={screen === null}
-                            onHotspot={(h: MetaspaceHotspot) =>
-                                setScreen(
-                                    ({ Composer: 'timeline', PhotoWall: 'photos', Wishlist: 'wishlist' } as const)[h]
-                                )
-                            }
+                            mood={t.mood}
+                            weatherKind={weather.kind}
+                            onHotspot={onHotspot}
+                            bubble={bubble}
+                            presence={{
+                                pink: {
+                                    name: liveProfile.her,
+                                    // placeholder copy until Realtime Presence
+                                    // lands (TODO R1) — layout is final
+                                    status: '在你身边',
+                                    online: true
+                                }
+                            }}
                         />
                     </Suspense>
                 ) : (
@@ -469,44 +449,52 @@ const WorldPage = () => {
                     />
                 )}
                 {inWorld && (
-                    <HUD
-                        layout={t.hudLayout}
-                        mood={t.mood}
-                        density={t.density}
-                        weather={weather}
-                        nowTs={nowTs}
-                        widgets={widgets}
-                        setWidget={setWidget}
-                        tbOpen={tbOpen}
-                        setTbOpen={setTbOpen}
-                        setMood={(k) => setTweak('mood', k)}
-                        onNavigate={navigate}
-                        onLeaveRoom={leaveRoom}
-                        spaceName={curRoom ? curRoom.name : ''}
-                        anniv={liveProfile.anniv}
-                    />
+                    <>
+                        <Rail
+                            unread={unread}
+                            activeRoom="study"
+                            onRoom={() => {
+                                /* single room today — switch lands with the gameroom/garden scenes */
+                            }}
+                            onAction={onRail}
+                            widgets={widgets}
+                            setWidget={setWidget}
+                            onLeaveWorld={leaveRoom}
+                        />
+                        <Ambience
+                            mood={t.mood}
+                            setMood={(k) => setTweak('mood', k)}
+                            wx={t.weather}
+                            setWx={(k) => setTweak('weather', k)}
+                        />
+                        {widgets.anniv !== false && (
+                            <MomentCard anniv={liveProfile.anniv} onHide={() => setWidget('anniv', false)} />
+                        )}
+                        {widgets.music !== false && (
+                            <MusicMini spaceName={liveProfile.world} open={musicOpen} setOpen={setMusicOpen} />
+                        )}
+                        <ChatCard
+                            open={chatOpen}
+                            onClose={() => setChatOpen(false)}
+                            onExpand={() => {
+                                setChatOpen(false);
+                                setConvOpen(worldConvId || null);
+                            }}
+                            inWorld={inWorld}
+                            channels={channels}
+                            dmConvs={dmConvs}
+                            threads={threads}
+                            onSend={send}
+                            onSeen={markRead}
+                        />
+                    </>
                 )}
-                <SpaceScreen open={screen === 'space'} onClose={() => setScreen(null)} rooms={rooms} meRoom={meRoom} enterSpace={enterSpace} profile={liveProfile} />
                 <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
                 <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
                 <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
                 <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
                 <WorldSettingsScreen open={screen === 'world-settings'} onClose={() => setScreen(null)} world={world} iconUrl={worldIconUrl} onSaved={onWorldSaved} />
-                {/* in-scene ambient chat (WoW-style) — follows the stage when squeezed */}
-                <ChatDock
-                    solid={dockSolid}
-                    setSolid={setDockSolid}
-                    active={dockActive}
-                    setActive={setDockActive}
-                    inWorld={inWorld}
-                    channels={channels}
-                    dmConvs={dmConvs}
-                    threads={threads}
-                    onSend={send}
-                    onSeen={markRead}
-                />
-                {/* covering chat hub — the sidebar's only chat trigger (text
-                    channels AND DMs); switches conversations internally */}
+                {/* covering chat hub — one expand away from the chat card */}
                 <ChannelScreen
                     convId={convOpen}
                     onSelect={(id) => setConvOpen(id)}
