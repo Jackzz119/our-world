@@ -137,6 +137,7 @@ friendships       # 好友（账号级规范序对；accepted → 自动建 DM�
 
 - `ai/TODO.md` — 任务唯一来源
 - `ai/STYLE.md` — 风格效果基准（概念图/角色/光照/声音/UI/验收标准）
+- `ai/UX.md` — UI 交互体系基准（三档密度架构/入口地图/动效音效参数/反模式，2026-08-10 提案）
 - `ai/concept/` — **定稿概念图正式存放处**（六张 + codex 报告；后续新概念稿也入此处）
 - `ai/reboot/` — 重定位启动归档（市场调研/产品愿景/技术方案/概念图解读，2026-08-09）
 - `ai/design_system/cinnaglass/` — 大耳狗主题 UI 设计系统资产，留作参考（`ui-system.html` 为 token 活文档真源）
