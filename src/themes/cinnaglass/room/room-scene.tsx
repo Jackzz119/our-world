@@ -156,18 +156,22 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     key={bubble.key}
                     className="room-bubble"
                     style={{
+                        // codex spec §5.9: in-scene bubbles are dark glass with a
+                        // warm-white keyline, not white paper
                         position: 'absolute',
                         left: tagPos[bubble.seatId].x,
-                        top: tagPos[bubble.seatId].y - 44,
+                        top: tagPos[bubble.seatId].y - 52,
                         transform: 'translate(-50%, -100%)',
                         maxWidth: 240,
-                        padding: '9px 13px',
-                        borderRadius: 16,
+                        padding: '10px 14px',
+                        borderRadius: 18,
                         fontSize: 13,
                         lineHeight: 1.4,
-                        color: '#2A3040',
-                        background: 'rgba(250,252,255,0.96)',
-                        boxShadow: '0 6px 20px rgba(8,12,30,0.3)',
+                        color: '#EEEAF0',
+                        background: 'rgba(82,76,91,0.83)',
+                        border: '1px solid rgba(242,220,224,0.66)',
+                        boxShadow: '0 6px 12px rgba(15,8,15,0.28)',
+                        backdropFilter: 'blur(10px)',
                         pointerEvents: 'none',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -193,23 +197,25 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                             key={seatId}
                             className="presence-tag"
                             style={{
+                                // codex spec §5.5: 50px pill r25, 17px green dot,
+                                // pink heart at the right end
                                 position: 'absolute',
                                 left: pos.x,
                                 top: pos.y,
                                 transform: 'translate(-50%, -100%)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 8,
-                                padding: '9px 15px',
-                                borderRadius: 999,
-                                fontSize: 13,
-                                color: 'rgba(244,248,255,0.96)',
-                                background:
-                                    'linear-gradient(160deg,rgba(64,72,110,0.6),rgba(38,44,74,0.58))',
-                                border: '1px solid rgba(255,255,255,0.24)',
-                                backdropFilter: 'blur(14px) saturate(1.2)',
+                                gap: 12,
+                                height: 50,
+                                padding: '0 16px',
+                                borderRadius: 25,
+                                fontSize: 14,
+                                color: 'var(--cg-icon, #F8F8F9)',
+                                background: 'rgba(55,56,84,0.8)',
+                                border: '1px solid var(--cg-stroke, rgba(233,231,242,0.54))',
+                                backdropFilter: 'blur(12px) saturate(112%)',
                                 boxShadow:
-                                    '0 6px 20px rgba(8,12,30,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
+                                    '0 10px 24px rgba(3,3,12,0.32), inset 0 1px 0 rgba(255,255,255,0.23)',
                                 pointerEvents: 'none',
                                 whiteSpace: 'nowrap',
                                 transition: 'left 600ms linear, top 600ms linear, opacity 300ms ease'
@@ -217,15 +223,21 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                         >
                             <span
                                 style={{
-                                    width: 9,
-                                    height: 9,
+                                    width: 17,
+                                    height: 17,
                                     borderRadius: '50%',
-                                    background: p.online ? '#7FD8A4' : 'rgba(200,205,220,0.4)',
-                                    boxShadow: p.online ? '0 0 8px rgba(127,216,164,0.9)' : 'none'
+                                    background: p.online ? '#73EF82' : 'rgba(200,205,220,0.4)',
+                                    border: p.online ? '2px solid #A6E7B5' : '2px solid transparent',
+                                    boxShadow: p.online ? '0 0 6px rgba(115,239,130,0.8)' : 'none'
                                 }}
                             />
                             {p.name && <b style={{ fontWeight: 600 }}>{p.name}</b>}
-                            <span style={{ opacity: 0.75 }}>{p.status}</span>
+                            <span style={{ opacity: 0.78 }}>{p.status}</span>
+                            <span style={{ color: '#F9ABBD', filter: 'drop-shadow(0 0 5px rgba(249,171,189,0.7))', display: 'flex' }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#F9ABBD">
+                                    <path d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
+                                </svg>
+                            </span>
                         </div>
                     );
                 })}

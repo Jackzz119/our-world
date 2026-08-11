@@ -25,6 +25,12 @@ export const Ico = ({ d, size = 20, sw = 1.8, fill = 'none', children, ...p }: I
     </svg>
 );
 
+export const IBag = (p: IcoProps) => (
+    <Ico {...p}>
+        <path d="M6 8h12l1.2 11.2a1.8 1.8 0 0 1-1.8 2H6.6a1.8 1.8 0 0 1-1.8-2L6 8z" />
+        <path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10" />
+    </Ico>
+);
 export const IHeart = (p: IcoProps) => (
     <Ico {...p} d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
 );

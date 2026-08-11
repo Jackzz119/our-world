@@ -11,7 +11,7 @@
 //   │   ├─ rain container          ← masked by window-pane Graphics
 //   │   ├─ clock (shadow + hands)  ← mood tint
 //   │   └─ characters              ← mood tint + contact shadow
-//   └─ light (wash/glow/breath/vignette, rebuilt per mood, alpha fade)
+//   └─ light (wash/glow/breath, rebuilt per mood, alpha fade)
 
 import {
     Application,
@@ -51,7 +51,6 @@ type LightRecipe = {
     glowColor: string;
     glowAlpha: number;
     breathAlpha: number; // cloud-cover light breathing (rain only)
-    vignetteAlpha: number;
 };
 
 const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
@@ -65,7 +64,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(255,205,140,1)',
             glowAlpha: 0.42,
             breathAlpha: 0,
-            vignetteAlpha: 0.05
         },
         rain: {
             actorTint: 0xd8dde8,
@@ -76,11 +74,10 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(205,220,238,1)',
             glowAlpha: 0.28,
             breathAlpha: 0.30,
-            vignetteAlpha: 0.10
         }
     },
     // codex audit M3: dim less globally, keep faces warm — washes dropped
-    // ~15%, actor tints lifted toward lamp-warm, vignette carries the mood
+    // ~15%, actor tints lifted toward lamp-warm
     twilight: {
         sun: {
             actorTint: 0xf8ddd2,
@@ -91,7 +88,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(250,170,130,1)',
             glowAlpha: 0.34,
             breathAlpha: 0,
-            vignetteAlpha: 0.14
         },
         rain: {
             actorTint: 0xd4d2e4,
@@ -102,7 +98,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(190,200,228,1)',
             glowAlpha: 0.24,
             breathAlpha: 0.34,
-            vignetteAlpha: 0.18
         }
     },
     night: {
@@ -115,7 +110,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(165,195,245,1)',
             glowAlpha: 0.20,
             breathAlpha: 0,
-            vignetteAlpha: 0.26
         },
         rain: {
             actorTint: 0xb8c0dd,
@@ -126,7 +120,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             glowColor: 'rgba(150,180,235,1)',
             glowAlpha: 0.18,
             breathAlpha: 0.28,
-            vignetteAlpha: 0.3
         }
     }
 };
@@ -443,30 +436,9 @@ export async function buildScene(
             c.addChild(breath);
         }
 
-        if (rec.vignetteAlpha > 0) {
-            const vig = new Graphics();
-            const steps = 24;
-            for (let i = 0; i < steps; i++) {
-                const t = i / steps;
-                vig.rect(
-                    (baseW / 2) * t * 0.5,
-                    (baseH / 2) * t * 0.5,
-                    baseW - baseW * t * 0.5,
-                    baseH - baseH * t * 0.5
-                );
-            }
-            // cheap vignette: layered translucent frame rectangles
-            const frame = new Graphics();
-            const fw = baseW * 0.18;
-            frame
-                .rect(0, 0, baseW, fw)
-                .rect(0, baseH - fw, baseW, fw)
-                .rect(0, 0, fw, baseH)
-                .rect(baseW - fw, 0, fw, baseH)
-                .fill({ color: 0x0a0e22, alpha: rec.vignetteAlpha * 0.5 });
-            frame.filters = [new AdjustmentFilter({ brightness: 1 })];
-            c.addChild(frame);
-        }
+        // vignette retired (2026-08-11 user call): the frame-rect version
+        // read as a black overlay hugging the edges — the design comps have
+        // no edge darkening at all, so the light pass ends here.
         return c;
     };
 
@@ -651,10 +623,15 @@ export async function buildScene(
     }
 
     /* ---------- cover-fit layout ---------- */
+    // the shipped base art carries a painted ~20px rounded dark frame (a
+    // concept-era window prop); over-scaling the cover pushes it off-canvas
+    // until frameless art lands. All anchors share root's transform, so
+    // hotspots/seats stay aligned.
+    const EDGE_CROP = 1.035;
     const resize = () => {
         const w = app.renderer.width / app.renderer.resolution;
         const h = app.renderer.height / app.renderer.resolution;
-        const s = Math.max(w / baseW, h / baseH); // cover
+        const s = Math.max(w / baseW, h / baseH) * EDGE_CROP; // cover + crop
         root.scale.set(s);
         root.position.set((w - baseW * s) / 2, (h - baseH * s) / 2);
     };

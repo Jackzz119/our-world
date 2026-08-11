@@ -14,7 +14,7 @@ import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
-import { Rail, type RailKey } from '@/themes/cinnaglass/shell/rail';
+import { Rail, RoomHandle, type RailKey } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
@@ -34,7 +34,11 @@ import { getEnvFlag } from '@/utils';
 // and enter through the portal). Defaults to false when unset.
 // VITE_DEV (dev auto-login with a real session) lives in ProtectedRoute —
 // by the time this page renders, a session always exists.
-const AUTO_ENTER = getEnvFlag('VITE_AUTO_ENTER');
+const AUTO_ENTER =
+    getEnvFlag('VITE_AUTO_ENTER') ||
+    // ?enter=1 — headless screenshot convenience, skips the lobby without
+    // touching .env (dev verification only)
+    new URLSearchParams(window.location.search).has('enter');
 
 // addon widgets are removable; required stay on always
 const REQUIRED = ['days', 'minimap'];
@@ -325,7 +329,7 @@ const WorldPage = () => {
     const onRail = (k: RailKey) => {
         if (k === 'chat') setChatOpen(true);
         else if (k === 'photos') navigate('photos');
-        else if (k === 'timeline') navigate('timeline');
+        else if (k === 'calendar') navigate('calendar');
         else if (k === 'music') setMusicOpen(true);
         else if (k === 'settings') navigate('settings');
     };
@@ -473,6 +477,11 @@ const WorldPage = () => {
                         {widgets.music !== false && (
                             <MusicMini spaceName={liveProfile.world} open={musicOpen} setOpen={setMusicOpen} />
                         )}
+                        <RoomHandle
+                            onTap={() => {
+                                /* room carousel arrives with the gameroom/garden scenes */
+                            }}
+                        />
                         <ChatCard
                             open={chatOpen}
                             onClose={() => setChatOpen(false)}

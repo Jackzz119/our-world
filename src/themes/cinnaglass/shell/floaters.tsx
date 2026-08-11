@@ -1,14 +1,15 @@
-// floaters.tsx — the fixed-layout floating widgets of the v2 shell
-// (concept-c): the anniversary "moment card" (top-right) and the music
-// mini bar (bottom-right, expands into the full MusicPlayer). Layouts are
-// fixed by design — the drag editor retired with the old HUD (ai/UX.md §2).
+// floaters.tsx — fixed-layout floating widgets of the v2 shell, rebuilt 1:1
+// against the codex pixel spec: the anniversary moment card (§5.4, 233×105)
+// and the music player bar (§5.7, 437×88 — one title line, one progress
+// track, a big pause button; the comp has NO second info line and NO volume
+// rail, so neither exists here). Materials come from the --cg-* tokens.
 
 import { useMemo } from 'react';
-import { IChevron, IEyeOff, IHeart, IPause, IPlay } from '../icons';
+import { IChevron, IEye, IHeart, IPause, IPlay } from '../icons';
 import { MusicPlayer, TRACKS } from '../music';
 
 /* ------------------------------------------------------------------ */
-/* moment card                                                         */
+/* moment card (spec §5.4)                                             */
 /* ------------------------------------------------------------------ */
 
 type MomentCardProps = {
@@ -34,27 +35,32 @@ export function MomentCard({ anniv, onHide }: MomentCardProps) {
     return (
         <div className="moment-card">
             <FloaterStyles />
-            {/* codex audit M1: an emotional anchor, not a system glyph */}
+            {/* spec: 67×62 raster cake illustration zone, no plate */}
             <span className="mc-icon" aria-hidden>
                 🎂
             </span>
             <div className="mc-lines">
                 <span className="mc-line">
-                    在一起 <b className="mc-big num">{days}</b> 天 <IHeart size={12} />
+                    在一起 <b className="mc-big num">{days}</b> 天
                 </span>
                 <span className="mc-line sub">
                     距纪念日还有 <b className="num">{toNext}</b> 天
                 </span>
             </div>
-            <button className="mc-hide" title="隐藏（可在悬浮组件里找回）" onClick={onHide}>
-                <IEyeOff size={14} />
-            </button>
+            <div className="mc-side">
+                <button className="mc-side-btn" title="隐藏（可在悬浮组件里找回）" onClick={onHide}>
+                    <IEye size={19} sw={2.5} />
+                </button>
+                <span className="mc-side-heart">
+                    <IHeart size={17} sw={2.5} />
+                </span>
+            </div>
         </div>
     );
 }
 
 /* ------------------------------------------------------------------ */
-/* music mini bar                                                      */
+/* music player bar (spec §5.7)                                        */
 /* ------------------------------------------------------------------ */
 
 export function MusicMini({
@@ -66,12 +72,9 @@ export function MusicMini({
     open: boolean;
     setOpen: (v: boolean) => void;
 }) {
-    // codex audit H3: the bar must carry media identity (cover + title) and
-    // one confident primary control. Track selection persists in
-    // localStorage; the play glyph expands the player — the audio engine
-    // stays inside MusicPlayer (mounted below, hidden when collapsed), so
-    // collapsing never cuts the music. Real remote control lands with the
-    // shared-playback rework.
+    // The audio engine lives inside MusicPlayer; it stays mounted (hidden)
+    // so collapsing never cuts the music. The big pause/play button expands
+    // the full player — real remote control lands with shared playback.
     const track = useMemo(() => {
         try {
             const s = JSON.parse(localStorage.getItem('ow-music-v1') || '{}');
@@ -84,91 +87,117 @@ export function MusicMini({
     }, [open]);
 
     return (
-        <div className="music-mini-wrap">
+        <div className="music-wrap">
             <FloaterStyles />
             <div className="music-full" style={{ display: open ? 'block' : 'none' }}>
                 <MusicPlayer spaceName={spaceName} />
             </div>
-            <button className="music-mini" onClick={() => setOpen(!open)} title="一起听">
-                <span className={`mm-cover ${open ? 'spin' : ''}`} style={{ background: track.cover }}>
-                    <span className="mm-hole" />
+            <div className="music-bar">
+                <span className={`mb-disc ${open ? 'spin' : ''}`}>
+                    <img src="/ui/disc-cover.png" alt="" draggable={false} />
                 </span>
-                <span className="mm-meta">
-                    <span className="mm-title">{track.title}</span>
-                    <span className="mm-sub">{open ? '播放器已展开' : '一起听 · 点击展开'}</span>
-                </span>
-                <span className="mm-main">{open ? <IPause size={16} /> : <IPlay size={16} />}</span>
-                <span className={`mm-chev ${open ? 'up' : ''}`}>
-                    <IChevron size={11} />
-                </span>
-            </button>
+                <div className="mb-mid">
+                    <span className="mb-title">{track.title}</span>
+                    <span className="mb-track">
+                        <span className="mb-fill" />
+                        <span className="mb-knob" />
+                    </span>
+                </div>
+                <button className="mb-main" title={open ? '收起播放器' : '打开播放器'} onClick={() => setOpen(!open)}>
+                    {open ? <IPause size={22} sw={3} /> : <IPlay size={22} sw={3} />}
+                </button>
+                <span className="mb-vr" />
+                <button className="mb-fold" title={open ? '收起' : '展开'} onClick={() => setOpen(!open)}>
+                    <span className={`mb-chev ${open ? 'up' : ''}`}>
+                        <IChevron size={15} sw={3.5} />
+                    </span>
+                </button>
+            </div>
         </div>
     );
 }
 
 const FloaterStyles = () => (
     <style>{`
-    /* L-shell (info card, ~80px tall) — shell scale ladder: S pill / M bar / L card */
+    /* ══ moment card — spec §5.4: 233×105 r19 ══ */
     .moment-card{
-        position:absolute;top:14px;right:14px;z-index:35;
-        display:flex;align-items:center;gap:11px;padding:13px 14px;
-        border-radius:20px;color:rgba(242,246,255,0.94);
-        background:linear-gradient(160deg,rgba(64,72,110,0.52),rgba(38,44,74,0.5));
-        border:1px solid rgba(255,255,255,0.22);
-        backdrop-filter:blur(20px) saturate(1.2);
-        box-shadow:0 8px 26px rgba(8,12,30,0.3),
-                   inset 0 1px 0 rgba(255,255,255,0.16);
+        position:absolute;top:41px;right:27px;z-index:35;
+        width:233px;height:105px;border-radius:19px;
+        display:flex;align-items:center;gap:12px;
+        padding:0 12px 0 19px;
+        color:var(--cg-icon);
+        background:var(--cg-panel);
+        border:1px solid var(--cg-stroke);
+        backdrop-filter:var(--cg-blur);
+        box-shadow:var(--cg-shadow), var(--cg-inset);
     }
-    .mc-icon{font-size:22px;line-height:1;filter:drop-shadow(0 2px 4px rgba(8,12,30,0.3));}
-    .mc-lines{display:flex;flex-direction:column;gap:2px;}
-    .mc-line{display:flex;align-items:center;gap:4px;font-size:13px;color:#F6C6D0;}
-    .mc-line b.mc-big{font-size:19px;color:#fff;}
-    .mc-line b.num{line-height:1;}
-    .mc-line.sub{font-size:12px;opacity:0.68;color:rgba(242,246,255,0.94);}
-    .mc-hide{
-        appearance:none;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
-        width:32px;height:32px;border-radius:10px;background:transparent;color:rgba(238,242,252,0.5);
-        transition:background 160ms ease,color 160ms ease;
+    .mc-icon{font-size:44px;line-height:1;flex:none;
+        filter:drop-shadow(0 2px 4px rgba(8,12,30,0.3));}
+    .mc-lines{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+    .mc-line{display:flex;align-items:baseline;gap:4px;font-size:13px;color:var(--cg-pink);white-space:nowrap;}
+    .mc-line b.mc-big{font-size:20px;color:var(--cg-icon);line-height:1;}
+    .mc-line.sub{font-size:12px;color:var(--cg-icon-muted);}
+    .mc-line.sub b{color:var(--cg-icon);}
+    .mc-side{display:flex;flex-direction:column;align-items:center;gap:9px;flex:none;}
+    .mc-side-btn{
+        appearance:none;border:0;cursor:pointer;display:flex;padding:3px;
+        background:transparent;color:var(--cg-icon);border-radius:8px;
+        transition:color 160ms ease,transform 120ms ease;
     }
-    .mc-hide:hover{background:rgba(255,255,255,0.12);color:rgba(238,242,252,0.95);}
+    .mc-side-btn:hover{transform:translateY(-1px);}
+    .mc-side-heart{display:flex;color:#AC9AA3;}
 
-    .music-mini-wrap{position:absolute;right:14px;bottom:14px;z-index:35;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+    /* ══ music bar — spec §5.7: 437×88 r22 ══ */
+    .music-wrap{position:absolute;right:27px;bottom:39px;z-index:35;
+        display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
     .music-full{filter:drop-shadow(0 16px 40px rgba(8,12,30,0.4));}
-    .music-mini{
-        appearance:none;border:0;cursor:pointer;
-        display:flex;align-items:center;gap:10px;
-        width:264px;padding:9px 12px 9px 10px;
-        border-radius:18px;color:rgba(242,246,255,0.94);
-        background:linear-gradient(160deg,rgba(64,72,110,0.52),rgba(38,44,74,0.5));
-        border:1px solid rgba(255,255,255,0.22);
-        backdrop-filter:blur(20px) saturate(1.2);
-        box-shadow:0 8px 26px rgba(8,12,30,0.3),
-                   inset 0 1px 0 rgba(255,255,255,0.16);
-        transition:transform 120ms ease,filter 160ms ease;
-        text-align:left;
+    .music-bar{
+        width:437px;height:88px;border-radius:22px;
+        display:flex;align-items:center;
+        padding:0 10px 0 13px;
+        background:var(--cg-panel-dense);
+        border:1px solid var(--cg-stroke);
+        backdrop-filter:var(--cg-blur);
+        box-shadow:var(--cg-shadow), var(--cg-inset);
     }
-    .music-mini:hover{filter:brightness(1.06);transform:translateY(-1px);}
-    .music-mini:active{transform:scale(0.97);}
-    .mm-cover{
-        flex:none;width:38px;height:38px;border-radius:50%;position:relative;
+    .mb-disc{flex:none;width:66px;height:66px;border-radius:50%;overflow:hidden;
+        box-shadow:0 0 0 1px rgba(220,220,235,0.4), 0 3px 10px rgba(8,12,30,0.35);}
+    .mb-disc img{display:block;width:100%;height:100%;}
+    .mb-disc.spin{animation:mbspin 6s linear infinite;}
+    @keyframes mbspin{to{transform:rotate(360deg);}}
+    @media (prefers-reduced-motion: reduce){ .mb-disc.spin{animation:none;} }
+    .mb-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;
+        padding:0 14px 0 12px;}
+    .mb-title{font-size:14px;font-weight:600;color:var(--cg-icon);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    /* spec: one 193×8 r4 track, fill #F5F4F7, 18px knob — nothing else */
+    .mb-track{position:relative;width:193px;height:8px;border-radius:4px;background:#555772;}
+    .mb-fill{position:absolute;left:0;top:0;bottom:0;width:34%;border-radius:4px;background:#F5F4F7;}
+    .mb-knob{position:absolute;left:calc(34% - 9px);top:50%;transform:translateY(-50%);
+        width:18px;height:18px;border-radius:50%;background:#F8F8FA;
+        box-shadow:0 2px 6px rgba(8,12,30,0.4);}
+    .mb-main{
+        flex:none;appearance:none;border:0;cursor:pointer;
+        width:58px;height:58px;border-radius:50%;
         display:flex;align-items:center;justify-content:center;
-        box-shadow:inset 0 0 0 1px rgba(255,255,255,0.28),0 2px 8px rgba(8,12,30,0.3);
+        background:var(--cg-control-strong);color:var(--cg-icon);
+        border:1px solid var(--cg-stroke);
+        box-shadow:var(--cg-inset);
+        transition:filter 160ms ease,transform 120ms ease;
     }
-    .mm-cover.spin{animation:mmspin 6s linear infinite;}
-    @keyframes mmspin{to{transform:rotate(360deg);}}
-    .mm-hole{width:9px;height:9px;border-radius:50%;background:rgba(26,30,52,0.9);
-        box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.35);}
-    .mm-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
-    .mm-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mm-sub{font-size:11px;opacity:0.6;}
-    .mm-main{
-        flex:none;display:flex;align-items:center;justify-content:center;
-        width:36px;height:36px;border-radius:50%;
-        background:rgba(255,255,255,0.14);
-        box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);
+    .mb-main:hover{filter:brightness(1.1);}
+    .mb-main:active{transform:scale(0.94);}
+    .mb-vr{flex:none;width:2px;height:61px;margin:0 12px;
+        background:linear-gradient(90deg,#64667C 50%,#3E3F55 50%);}
+    .mb-fold{
+        flex:none;appearance:none;border:0;cursor:pointer;
+        width:52px;height:52px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        background:rgba(105,106,137,0.35);color:var(--cg-icon);
+        transition:filter 160ms ease,transform 120ms ease;
     }
-    .mm-chev{display:inline-flex;transform:rotate(-90deg);transition:transform 200ms ease;opacity:0.6;}
-    .mm-chev.up{transform:rotate(90deg);}
-    @media (prefers-reduced-motion: reduce){ .mm-cover.spin{animation:none;} }
+    .mb-fold:hover{filter:brightness(1.1);}
+    .mb-chev{display:inline-flex;transform:rotate(-90deg);transition:transform 200ms ease;}
+    .mb-chev.up{transform:rotate(90deg);}
     `}</style>
 );
