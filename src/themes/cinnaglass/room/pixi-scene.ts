@@ -165,6 +165,53 @@ function radialGradientTexture(color: string, innerAlpha = 1): Texture {
     return Texture.from(c);
 }
 
+/**
+ * Four-point star sparkle: long soft cross rays + a bright core + a faint
+ * halo. Drawn once on an offscreen canvas, reused by every particle.
+ */
+function sparkleTexture(): Texture {
+    const S = 96;
+    const c = document.createElement('canvas');
+    c.width = S;
+    c.height = S;
+    const ctx = c.getContext('2d')!;
+    const m = S / 2;
+
+    // color tiers per the sparkle spec: core #FFF8E8, rays #FFE6B5, halo #FFC978
+    const ray = (len: number, w: number, angle: number) => {
+        ctx.save();
+        ctx.translate(m, m);
+        ctx.rotate(angle);
+        const g = ctx.createLinearGradient(-len, 0, len, 0);
+        g.addColorStop(0, 'rgba(255,230,181,0)');
+        g.addColorStop(0.5, 'rgba(255,230,181,0.95)');
+        g.addColorStop(1, 'rgba(255,230,181,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, len, w, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    };
+    // halo — low-alpha warm amber only, never a solid orange blob
+    const halo = ctx.createRadialGradient(m, m, 2, m, m, m * 0.8);
+    halo.addColorStop(0, 'rgba(255,201,120,0.4)');
+    halo.addColorStop(1, 'rgba(255,201,120,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, S, S);
+    // long vertical/horizontal rays, short diagonals
+    ray(m * 0.9, m * 0.1, 0);
+    ray(m * 0.9, m * 0.1, Math.PI / 2);
+    ray(m * 0.42, m * 0.07, Math.PI / 4);
+    ray(m * 0.42, m * 0.07, -Math.PI / 4);
+    // core
+    const core = ctx.createRadialGradient(m, m, 0, m, m, m * 0.16);
+    core.addColorStop(0, 'rgba(255,255,248,1)');
+    core.addColorStop(1, 'rgba(255,244,214,0)');
+    ctx.fillStyle = core;
+    ctx.fillRect(0, 0, S, S);
+    return Texture.from(c);
+}
+
 /* ------------------------------------------------------------------ */
 /* rain particles (ported from the canvas prototype)                   */
 /* ------------------------------------------------------------------ */
@@ -357,8 +404,11 @@ export async function buildScene(
         hands.tint = tint;
     };
 
-    /* ---------- furniture hotspots (hover glow + tap) ---------- */
-    type Hot = { glow: Sprite; hovered: boolean };
+    /* ---------- furniture hotspots (sparkles + hover glow + tap) ----------
+       The idle ring is gone (2026-08-12 user call: white borders read as UI
+       chrome). Clickability is now whispered by wandering gold sparkles —
+       rare while idle, eager while hovered. */
+    type Hot = { rect: (typeof room.hotspots)[number]['rect']; glow: Sprite; hovered: boolean; nextSparkleAt: number };
     const hots: Hot[] = [];
     const hotLayer = new Container();
     world.addChild(hotLayer);
@@ -367,14 +417,6 @@ export async function buildScene(
         zone.eventMode = 'static';
         zone.cursor = 'pointer';
         zone.hitArea = new Rectangle(h.rect.x, h.rect.y, h.rect.w, h.rect.h);
-
-        // codex audit M2: a faint idle ring so "furniture is clickable"
-        // reads from the very first frame, without lighting up the room
-        const ring = new Graphics();
-        ring.roundRect(h.rect.x + 4, h.rect.y + 4, h.rect.w - 8, h.rect.h - 8, 16);
-        ring.stroke({ width: 2, color: 0xfff0d8, alpha: 1 });
-        ring.alpha = 0.1;
-        zone.addChild(ring);
 
         // warm watercolor bloom, silent until hover (ai/UX.md §5)
         const glow = new Sprite(radialGradientTexture('rgba(255,236,200,1)'));
@@ -386,9 +428,16 @@ export async function buildScene(
         glow.alpha = 0;
         zone.addChild(glow);
 
-        const hot: Hot = { glow, hovered: false };
+        const hot: Hot = {
+            rect: h.rect,
+            glow,
+            hovered: false,
+            nextSparkleAt: rand(1, 6) // desynced first twinkles
+        };
         zone.on('pointerover', () => {
             hot.hovered = true; // ticker breathes the bloom while hovered
+            // spec: greet the pointer with one peak spark right away
+            hot.nextSparkleAt = -1;
         });
         zone.on('pointerout', () => {
             hot.hovered = false;
@@ -398,6 +447,44 @@ export async function buildScene(
         hots.push(hot);
         hotLayer.addChild(zone);
     }
+
+    /* ---------- sparkle affordance (replaces the idle ring) ----------
+       Tuning follows the sparkle mockup brief: warm gold, 6–16px, sine
+       fade in/out, ≤8 visible at once across the room. */
+    type Spark = { sprite: Sprite; born: number; life: number; size: number; spin: number; drift: number };
+    const sparks: Spark[] = [];
+    const sparkTex = sparkleTexture();
+    const sparkLayer = new Container();
+    world.addChild(sparkLayer);
+    // rhythm per the sparkle spec: idle 0–1 per spot (3–6 visible room-wide),
+    // hover ≤2 per spot at a calm 0.9–1.4s pace — never a pulse train
+    const IDLE_GAP: [number, number] = [2.8, 6.5];
+    const HOVER_GAP: [number, number] = [0.9, 1.4];
+    const MAX_SPARKS = 8;
+
+    const spawnSpark = (hot: Hot, t: number) => {
+        if (sparks.length >= MAX_SPARKS + 4) return; // hard cap incl. hover bursts
+        const s = new Sprite(sparkTex);
+        s.anchor.set(0.5);
+        // biased toward the object's center so sparks sit ON the furniture
+        const bx = 0.22 + Math.random() * 0.56;
+        const by = 0.22 + Math.random() * 0.56;
+        s.position.set(hot.rect.x + hot.rect.w * bx, hot.rect.y + hot.rect.h * by);
+        s.blendMode = 'add';
+        s.alpha = 0;
+        const size = rand(7, 16);
+        s.width = size;
+        s.height = size;
+        sparkLayer.addChild(s);
+        sparks.push({
+            sprite: s,
+            born: t,
+            life: rand(1.6, 2.4), // spec: 1.6–2.4s with natural jitter
+            size,
+            spin: rand(-0.5, 0.5),
+            drift: rand(0.5, 3) // px/s upward — twinkle in place, no flight path
+        });
+    };
 
     // weather grading for the whole world (art included)
     const weatherFilter = new AdjustmentFilter();
@@ -594,6 +681,33 @@ export async function buildScene(
         // hovered hotspot blooms breathe gently
         for (const h of hots) {
             if (h.hovered) h.glow.alpha = 0.5 + 0.1 * Math.sin(elapsed * 2.2);
+        }
+
+        // sparkle affordance: rare twinkles while idle, a shimmer on hover
+        for (const h of hots) {
+            if (elapsed >= h.nextSparkleAt) {
+                const idleBudget = sparks.length < MAX_SPARKS;
+                if (h.hovered || idleBudget) spawnSpark(h, elapsed);
+                const [lo, hi] = h.hovered ? HOVER_GAP : IDLE_GAP;
+                h.nextSparkleAt = elapsed + rand(lo, hi);
+            }
+        }
+        for (let i = sparks.length - 1; i >= 0; i--) {
+            const sp = sparks[i];
+            const t = (elapsed - sp.born) / sp.life;
+            if (t >= 1) {
+                sp.sprite.parent?.removeChild(sp.sprite);
+                sp.sprite.destroy();
+                sparks.splice(i, 1);
+                continue;
+            }
+            // spec scale curve 0.35→1.0→0.25: bloom in, peak, melt away
+            const a = Math.sin(Math.PI * t);
+            sp.sprite.alpha = a;
+            const sc = (0.3 + 0.7 * a) * (sp.size / sparkTex.width);
+            sp.sprite.scale.set(sc);
+            sp.sprite.rotation = sp.spin * t;
+            sp.sprite.y -= sp.drift * dt; // gentle upward shimmer
         }
     };
 
