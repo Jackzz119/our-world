@@ -404,14 +404,44 @@ export async function buildScene(
         hands.tint = tint;
     };
 
-    /* ---------- furniture hotspots (sparkles + hover glow + tap) ----------
-       The idle ring is gone (2026-08-12 user call: white borders read as UI
-       chrome). Clickability is now whispered by wandering gold sparkles —
-       rare while idle, eager while hovered. */
-    type Hot = { rect: (typeof room.hotspots)[number]['rect']; glow: Sprite; hovered: boolean; nextSparkleAt: number };
+    /* ---------- furniture hotspots (golden outline + sparkles + tap) ----------
+       Affordance v3 (2026-08-15 user direction): a golden glow hugging the
+       furniture silhouette. Three states — silent → periodic hint (outline
+       breathes once + a burst of larger sparkles) → hover (outline fully
+       lit + shimmer). The outline strokes the hand-traced polygon three
+       times (wide faint → mid warm → thin bright) to fake a soft light edge
+       without filters. */
+    type Hot = {
+        rect: (typeof room.hotspots)[number]['rect'];
+        glow: Sprite;
+        outline: Graphics;
+        hovered: boolean;
+        nextSparkleAt: number;
+        hintPhase: number; // >0 while the periodic hint plays (start time)
+        hoverAt: number; // when the pointer entered (drives the 200ms ease-in)
+    };
     const hots: Hot[] = [];
     const hotLayer = new Container();
     world.addChild(hotLayer);
+
+    const strokeOutline = (g: Graphics, pts: { x: number; y: number }[] | null, rect: Hot['rect']) => {
+        const path = () => {
+            if (pts) {
+                g.poly(pts.map((p) => [p.x, p.y]).flat(), true);
+            } else {
+                // no trace (round clock) → circle synthesized from the rect
+                g.circle(rect.x + rect.w / 2, rect.y + rect.h / 2, Math.min(rect.w, rect.h) / 2 - 6);
+            }
+        };
+        // wide faint halo → mid warm band → thin bright gold line
+        path();
+        g.stroke({ width: 12, color: 0xffc978, alpha: 0.16, join: 'round', cap: 'round' });
+        path();
+        g.stroke({ width: 6, color: 0xffd9a0, alpha: 0.34, join: 'round', cap: 'round' });
+        path();
+        g.stroke({ width: 2.5, color: 0xffe6b5, alpha: 0.95, join: 'round', cap: 'round' });
+    };
+
     for (const h of room.hotspots) {
         const zone = new Container();
         zone.eventMode = 'static';
@@ -428,25 +458,50 @@ export async function buildScene(
         glow.alpha = 0;
         zone.addChild(glow);
 
+        // silhouette-hugging golden edge (hint + hover states light it)
+        const outline = new Graphics();
+        strokeOutline(outline, h.outline ?? null, h.rect);
+        outline.blendMode = 'add';
+        outline.alpha = 0;
+        zone.addChild(outline);
+
         const hot: Hot = {
             rect: h.rect,
             glow,
+            outline,
             hovered: false,
-            nextSparkleAt: rand(1, 6) // desynced first twinkles
+            nextSparkleAt: rand(1, 6), // desynced first twinkles
+            hintPhase: 0,
+            hoverAt: 0
         };
         zone.on('pointerover', () => {
-            hot.hovered = true; // ticker breathes the bloom while hovered
-            // spec: greet the pointer with one peak spark right away
-            hot.nextSparkleAt = -1;
+            hot.hovered = true; // ticker lights the outline + breathes the bloom
+            hot.hintPhase = 0;
+            hot.hoverAt = elapsed;
+            hot.nextSparkleAt = -1; // greet the pointer with one spark right away
         });
         zone.on('pointerout', () => {
             hot.hovered = false;
             startFade(glow, 0, 260);
+            startFade(outline, 0, 320);
         });
-        zone.on('pointertap', () => onHotspot?.(h.id));
+        zone.on('pointertap', () => {
+            // a real interaction satisfies curiosity — quiet the hints a while
+            nextHintAt = elapsed + rand(18, 30);
+            onHotspot?.(h.id);
+        });
         hots.push(hot);
         hotLayer.addChild(zone);
     }
+
+    // periodic hint scheduler: one furniture piece takes a turn to whisper
+    // "I'm tappable" — outline breathes once + a burst of larger sparkles.
+    // Research-tuned pacing (affordance survey 2026-08-15): first hint after
+    // 8–12s idle, then 22–45s between hints — companion products hint slower
+    // than puzzle games, and any tap resets the clock (hints must never nag).
+    let nextHintAt = rand(8, 12);
+    const HINT_EVERY: [number, number] = [22, 45];
+    const HINT_DUR = 2.6; // fade in 0.6 + hold/breathe 1.3 + fade out 0.7
 
     /* ---------- sparkle affordance (replaces the idle ring) ----------
        Tuning follows the sparkle mockup brief: warm gold, 6–16px, sine
@@ -462,8 +517,8 @@ export async function buildScene(
     const HOVER_GAP: [number, number] = [0.9, 1.4];
     const MAX_SPARKS = 8;
 
-    const spawnSpark = (hot: Hot, t: number) => {
-        if (sparks.length >= MAX_SPARKS + 4) return; // hard cap incl. hover bursts
+    const spawnSpark = (hot: Hot, t: number, sizeRange: [number, number] = [12, 22]) => {
+        if (sparks.length >= MAX_SPARKS + 6) return; // hard cap incl. bursts
         const s = new Sprite(sparkTex);
         s.anchor.set(0.5);
         // biased toward the object's center so sparks sit ON the furniture
@@ -472,7 +527,7 @@ export async function buildScene(
         s.position.set(hot.rect.x + hot.rect.w * bx, hot.rect.y + hot.rect.h * by);
         s.blendMode = 'add';
         s.alpha = 0;
-        const size = rand(7, 16);
+        const size = rand(sizeRange[0], sizeRange[1]);
         s.width = size;
         s.height = size;
         sparkLayer.addChild(s);
@@ -678,16 +733,57 @@ export async function buildScene(
             }
         }
 
-        // hovered hotspot blooms breathe gently
+        // hovered hotspot: bloom breathes + outline eases in (200ms), then
+        // holds a lit shimmer — no zero-ms state snaps (research: cheap feel)
         for (const h of hots) {
-            if (h.hovered) h.glow.alpha = 0.5 + 0.1 * Math.sin(elapsed * 2.2);
+            if (h.hovered) {
+                const ease = Math.min(1, (elapsed - h.hoverAt) / 0.2);
+                h.glow.alpha = ease * (0.5 + 0.1 * Math.sin(elapsed * 2.2));
+                h.outline.alpha = ease * (0.88 + 0.12 * Math.sin(elapsed * 3));
+            }
+        }
+
+        // periodic hint: one spot at a time breathes its golden outline and
+        // bursts a few larger sparkles — "you can tap me", said politely
+        if (elapsed >= nextHintAt) {
+            const candidates = hots.filter((h) => !h.hovered && h.hintPhase === 0);
+            if (candidates.length) {
+                const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                pick.hintPhase = elapsed;
+                // mockup: 4–5 visible stars sell the "look here" moment
+                for (let n = 0; n < 4; n++) spawnSpark(pick, elapsed + n * 0.12, [18, 30]);
+            }
+            nextHintAt = elapsed + rand(HINT_EVERY[0], HINT_EVERY[1]);
+        }
+        for (const h of hots) {
+            if (h.hintPhase > 0 && !h.hovered) {
+                const t = elapsed - h.hintPhase;
+                if (t >= HINT_DUR) {
+                    h.hintPhase = 0;
+                    h.outline.alpha = 0;
+                } else if (t < 0.6) {
+                    h.outline.alpha = (t / 0.6) * 0.75; // fade in
+                } else if (t < 1.9) {
+                    h.outline.alpha = 0.6 + 0.15 * Math.sin((t - 0.6) * 4.8); // breathe
+                } else {
+                    h.outline.alpha = 0.75 * (1 - (t - 1.9) / 0.7); // fade out
+                }
+            }
         }
 
         // sparkle affordance: rare twinkles while idle, a shimmer on hover
         for (const h of hots) {
             if (elapsed >= h.nextSparkleAt) {
+                const greeting = h.hovered && h.nextSparkleAt === -1;
                 const idleBudget = sparks.length < MAX_SPARKS;
-                if (h.hovered || idleBudget) spawnSpark(h, elapsed);
+                if (h.hovered || idleBudget) {
+                    spawnSpark(h, elapsed, h.hovered ? [16, 28] : [12, 22]);
+                    if (greeting) {
+                        // mockup hover state: a small ring of stars greets the pointer
+                        spawnSpark(h, elapsed + 0.1, [14, 22]);
+                        spawnSpark(h, elapsed + 0.22, [10, 18]);
+                    }
+                }
                 const [lo, hi] = h.hovered ? HOVER_GAP : IDLE_GAP;
                 h.nextSparkleAt = elapsed + rand(lo, hi);
             }

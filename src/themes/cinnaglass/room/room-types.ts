@@ -62,6 +62,12 @@ export type HotspotSpec = {
     id: string;
     /** Interactive region in base-image pixels. */
     rect: PxRect;
+    /**
+     * Hand-traced silhouette polygon (base-image px) hugging the furniture —
+     * the golden hint/hover outline strokes this path. Omitted → a rounded
+     * rect derived from `rect` is used as a fallback.
+     */
+    outline?: PxPoint[];
 };
 
 export type RoomTemplate = {
