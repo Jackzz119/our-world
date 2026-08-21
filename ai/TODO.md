@@ -72,6 +72,7 @@
 
 - [x] 已删（2026-08-10/11）：metaspace.tsx（3D）、sidebar.tsx、hud.tsx、space.tsx、chat-dock.tsx、public/models、public/draco、three 全家依赖
 - [ ] 仍待清：channel-screen 的服务器式布局简化、lobby 场景翻新、scene.tsx（旧 SVG 房间，lobby 还在用则保留）、rooms.ts mock 残留、死样式清扫
+- [ ] 死文件清理（2026-08-21 扫出）：`src/types/database.ts`（只声明项目里不存在的 `todos` 表，全库零引用）、根目录 `timeline_3d_posts.html`（4 月 3D 场景时代遗留的独立实验页）
 - [ ] 好友/DM UI 收起（数据层冻结保留）
 
 ## 📦 Phase R2 — Electron 壳
@@ -100,7 +101,10 @@
 - [ ] 昵称编辑写回 `profiles.display_name`（个人设置目前仍本地缓冲）
 - [ ] TENOR_API_KEY 配置（免费申请 → Supabase Secrets，贴纸搜图 tab 即活）
 - [ ] member 测试数据清理（【测试数据】前缀 ×6，上线前删）
-- [ ] 回忆链路边界测试：上传失败 / 签名 URL 过期 / 断网重试
+- [~] 回忆链路边界测试（2026-07-08 浏览器实测一轮，结论 2026-08-21 复核仍成立）：非图片 mime 被选择器过滤 ✓、超 25MB 上传失败且草稿保留 ✓、断网失败且草稿保留 ✓、签名过期由 40 分钟续签覆盖 ✓。**剩两处文案 bug 待修**：
+   - 超限上传把 Storage 英文原文直接抛给用户（`The object exceeded the maximum allowed size`）→ 应映射中文
+   - 断网时 `createPost` 里 `auth.getUser()` 先失败，被误报成「未登录，无法发帖」→ 应区分网络错误（TypeError）提示「网络好像断了」
+   - 未覆盖：无世界账号的 error 态（注册已关，需 Dashboard 建测试号）、双人视角 shared 帖复验（需对方账号登录）
 - [ ] 聊天双端联调残项：互删粒子/reaction 同步/断网重试/贴纸互发（原 CH-23/DM-8/EMO 验收）
 
 ---

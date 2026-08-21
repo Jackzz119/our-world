@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」。2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 三件套：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/STYLE.md`（风格效果基准）。
-> 最后更新：2026-08-09
+> 最后更新：2026-08-21（数据库章节与 timeline 状态按代码实况核对刷新）
 
 ## 产品定位（PRD）
 
@@ -81,7 +81,9 @@ src/
 > v1（Discord-like 时代）已完成且**继续服役**的功能。旧过程文档已清理，此处为技术事实存档。
 
 - **auth 地基**：登录页 + 路由守卫 + 忘记密码/重置 + 登出；白名单 = Supabase 关闭注册开关（已验证 422 拦截）；dev 模式 `VITE_DEV` = 自动**真登录**（`VITE_DEV_EMAIL/PASSWORD`，无会话则 RLS 全空）；手动加账号走 Dashboard「Add user」/Admin API，不 SQL 直插
-- **timeline 时间线**：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新）；Composer 多图受控选择器（所见即所传）+ 草稿（点外收起保草稿，取消是唯一清空）+ textarea 自动长高；作者色身份系统（我=蓝 accent、对方=粉 `#EF9DB4`，打在光环/名字/边线）；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
+- **timeline 时间线**（2026-08-21 代码核对：以下全部在役）：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新、日期手帐贴纸、点线小路、头像贴纸挂卡）；Composer 多图受控选择器（所见即所传，上限 9 张）+ 草稿（点外/Esc 收起保草稿，取消是唯一清空，折叠条显示草稿预览）+ textarea 自动长高（220px 后内滚）；卡片 6 行 clamp + `overflow-wrap:anywhere` 防长串穿框，全文进详情弹层；作者色身份系统（我=蓝 accent、对方=粉，打在光环/名字/边线）；宽屏 ≥1200px 两侧原创云朵小狗吉祥物；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
+  - **入口**：书房书桌上的日记本热点 → `SubScreen('timeline')`，与照片墙/心愿单同一弹窗三 tab（`MODAL_TABS`）
+  - **外壳待翻新**：SubScreen 仍是 v1 的 `.modal glass tall` 玻璃弹窗，**未收敛到 concept-c 白纸功能卡规范**（见 TODO R1「白纸功能卡收敛」）——这是 timeline 目前唯一的已知视觉欠账
 - **照片墙**：自然纵横比 polaroid 拼贴（白框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载
 - **聊天全链路**：Broadcast from Database（写库 + trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除粒子/reaction chips/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function Tenor 代理转存 + EmotePicker 自维护 230 emoji 中文索引）；DM = channels `type='dm'`（账号级 topic `user:{uid}`）——**DM/好友 UI 在新方向收起，数据层冻结保留**
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 图存 memories 桶 256px webp）；纪念日/在一起天数从 DB 实时计算；**欠：昵称编辑写回 profiles.display_name**（个人设置仍本地缓冲）
@@ -92,27 +94,37 @@ src/
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
 
 > 全部继续服役，零迁移开工。翻新只做渐进清理（见下备注）。
+>
+> **核对时点 2026-08-21**：下表按前端数据层实际读写**反查确认**——`src/lib/*.ts` 的 `*_COLS` 常量就是应用真正依赖的列。核对当次 Supabase MCP 离线，**未做线上 DDL 复核**，若与线上有差异以线上为准。另注：**schema 变更历史不在仓库**（历次迁移都经 MCP 直接应用到线上），`sql/` 目录只剩两份早期脚本（`dev-create-world.sql`、`storage-memories-bucket.sql`），不代表当前结构。
 
-```
-allowed_emails    # 访问白名单（email PK / note）；RLS: select 仅自己
-profiles          # 用户资料（FK auth.users / display_name / avatar_url）
-                  # [trigger] on_auth_user_created → handle_new_user()
-worlds            # 两人世界：owner_id / member_id / status(pending|active) / intimacy_points
-                  # + name / anniversary / icon_emoji / icon_path（世界属性）
-                  # 约束: no_self_pair、active_requires_member；trigger: 每人限一世界
-posts             # 回忆：author/world/content/images[]/privacy(shared|locked|private)/unlock_cost
-                  # [RPC] get_feed_posts(p_world_id)：隐私/解锁服务端解析
-post_unlocks      # locked 帖解锁记录
-storage.memories  # 私有图片桶 <world_id>/<uuid>.<ext>（+.thumb.webp、emotes/、icon）
-channels          # 频道：world 型(text|voice|room) + dm 型(dm_user_a/b 规范序对)
-                  # 新方向 UI 无频道概念，表保留当聊天管道；trigger: 新世界自动建默认频道
-messages          # 消息：content(≤4000)/kind(text|sticker)/emote_id/edited_at
-                  # [trigger] set_world 回填 + broadcast(I/U/D → topic world:{id})
-message_reactions # 表情回应（PK message/user/emoji）
-channel_reads     # 已读游标（只进不退 guard）
-world_emotes      # 世界共享贴纸库（LINE 单轨模式）；[Edge Function] emotes：Tenor 搜图+转存
-friendships       # 好友（账号级规范序对；accepted → 自动建 DM）——新方向冻结不删
-```
+### 表（列以前端实际 select 为准）
+
+| 表 | 应用读写的列 | 备注 |
+| --- | --- | --- |
+| `allowed_emails` | email(PK) / note / created_at | 白名单表；**实际拦截靠 Dashboard 关闭注册开关**，当前**无任何代码引用** |
+| `profiles` | id(FK auth.users) / display_name / avatar_url | trigger `on_auth_user_created → handle_new_user()` 自动建档 |
+| `worlds` | id / owner_id / member_id / name / anniversary / icon_emoji / icon_path / intimacy_points / created_at | 另有 `status`(pending\|active) 列存在但前端不 select；约束 no_self_pair、active_requires_member；trigger 每人限一世界 |
+| `posts` | author_id / world_id / content / images[] / privacy(shared\|locked\|private) / unlock_cost / created_at / updated_at | **写直插、读只走 RPC** |
+| `post_unlocks` | post_id / user_id / unlocked_at | locked 帖解锁记录，解锁经济未启用 |
+| `channels` | id / world_id / type(text\|voice\|room\|dm) / name / topic / scene_id / position / dm_user_a / dm_user_b | world 型 + dm 型（规范序对）；trigger 新世界自动建默认频道。新方向 UI 无频道概念，表保留当聊天管道 |
+| `messages` | id / channel_id / world_id / author_id / content(≤4000) / created_at / edited_at / kind(text\|sticker) / emote_id | trigger `set_world` 回填 world_id + 广播 |
+| `message_reactions` | message_id / user_id / world_id / emoji / created_at | PK(message, user, emoji) |
+| `channel_reads` | channel_id / user_id / world_id / last_read_at | 已读游标，只进不退 guard |
+| `world_emotes` | id / world_id / name / storage_path / source_url / added_by / created_at | 世界共享贴纸库（LINE 单轨模式） |
+| `friendships` | user_a / user_b / requested_by / status / created_at / responded_at | 账号级规范序对；accepted → 自动建 DM。**新方向 UI 冻结，数据层保留不删** |
+
+### RPC / Edge Function / Storage / Realtime
+
+- **RPC** `get_feed_posts(p_world_id, p_before, p_limit)` — 时间线读链路唯一入口；服务端解析隐私/解锁 + 游标分页（`p_before` 为独占游标，传 null 取最新页）
+- **RPC** `find_profile_by_email(p_email)` — 按邮箱找人（好友流程用）
+- **Edge Function** `emotes` — Tenor 搜图 + 转存（`action:'search'` 等）；**待配 TENOR_API_KEY**
+- **Storage** 私有桶 `memories`：`<world_id>/<uuid>.<ext>` 原图 + `<uuid>.thumb.webp`（长边 1024）· `emotes/` 贴纸 · 世界 icon 256px webp；展示走 signed URL（TTL 1h），前端 40 分钟自动续签 + tab 重可见重签
+- **Realtime = Broadcast from Database**：客户端从不主动广播，DB trigger 把 I/U/D 推到 private topic `world:{id}`（世界内消息/回应/已读）与 `user:{uid}`（账号级 DM/好友）；**Presence 通道尚未接**（R1 待办）
+
+### 代码侧不一致（清理项）
+
+- `src/types/database.ts` 是**死文件**：里面只声明了一张项目里根本不存在的 `todos` 表（Supabase 模板残留），全库零引用 → 删
+- 真实使用中的类型在 `src/types/feed.ts`（World/FeedPost/FeedProfile）与 `src/types/chat.ts`
 
 ### 待执行的审计遗留（原 supabase.md 审计要点，2026-07-04 顾问扫描）
 
