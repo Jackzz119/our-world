@@ -53,6 +53,7 @@ export const STUDY_ROOM: RoomTemplate = {
         {
             id: 'timeline', // open diary on the desk
             rect: { x: 790, y: 480, w: 260, h: 130 },
+            glowBox: { x: 742, y: 432, w: 356, h: 226 },
             outline: [
                 { x: 806, y: 560 },
                 { x: 824, y: 512 },
@@ -67,6 +68,7 @@ export const STUDY_ROOM: RoomTemplate = {
         {
             id: 'photos', // photo frames on the shelf
             rect: { x: 930, y: 35, w: 250, h: 165 },
+            glowBox: { x: 882, y: 0, w: 346, h: 248 },
             outline: [
                 { x: 952, y: 168 },
                 { x: 956, y: 58 },
@@ -79,11 +81,13 @@ export const STUDY_ROOM: RoomTemplate = {
         },
         {
             id: 'clock', // round wall clock — circle synthesized below
-            rect: { x: 1290, y: 42, w: 190, h: 190 }
+            rect: { x: 1290, y: 42, w: 190, h: 190 },
+            glowBox: { x: 1242, y: 0, w: 286, h: 280 }
         },
         {
             id: 'music', // turntable case on the low table
             rect: { x: 840, y: 740, w: 260, h: 175 },
+            glowBox: { x: 792, y: 692, w: 356, h: 271 },
             outline: [
                 { x: 880, y: 798 },
                 { x: 930, y: 704 },
@@ -97,6 +101,7 @@ export const STUDY_ROOM: RoomTemplate = {
         {
             id: 'wishlist', // star jar
             rect: { x: 1225, y: 405, w: 150, h: 245 },
+            glowBox: { x: 1177, y: 357, w: 246, h: 341 },
             outline: [
                 { x: 1286, y: 606 },
                 { x: 1270, y: 540 },

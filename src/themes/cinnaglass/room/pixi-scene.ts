@@ -272,6 +272,22 @@ export async function buildScene(
     const charUrls = Object.values(charAssets).flatMap((a) => [a.open, a.closed]);
     const textures = await Assets.load<Texture>([...artUrls, ...charUrls]);
 
+    // baked hover-glow art, one per hotspot. Painted on the room canvas and
+    // cropped to `glowBox`, so it blits back pixel-perfect. Loaded one by one
+    // and allowed to fail: a room whose glow art has not shipped yet falls
+    // back to the programmatic outline instead of breaking the whole scene.
+    const glowTex: Record<string, Texture | null> = {};
+    await Promise.all(
+        room.hotspots.map(async (h) => {
+            if (!h.glowBox) return;
+            try {
+                glowTex[h.id] = await Assets.load<Texture>(`/rooms/${room.id}/glow-${h.id}.png`);
+            } catch {
+                glowTex[h.id] = null;
+            }
+        })
+    );
+
     /* ---------- tree ---------- */
     const root = new Container();
     const world = new Container();
@@ -404,16 +420,21 @@ export async function buildScene(
         hands.tint = tint;
     };
 
-    /* ---------- furniture hotspots (golden outline + sparkles + tap) ----------
-       Affordance v3 (2026-08-15 user direction): a golden glow hugging the
-       furniture silhouette. Three states — silent → periodic hint (outline
-       breathes once + a burst of larger sparkles) → hover (outline fully
-       lit + shimmer). The outline strokes the hand-traced polygon three
-       times (wide faint → mid warm → thin bright) to fake a soft light edge
-       without filters. */
+    /* ---------- furniture hotspots (baked glow + sparkles + tap) ----------
+       Affordance v4 (2026-08-22 user direction). Three states:
+         silent  — nothing at all, the room is just a painting
+         hint    — sparkles ONLY, a touch dimmer than hover (the golden edge
+                   was too loud as a broadcast in a quiet cozy scene)
+         hover   — the baked golden edge lights up: painted art, not a stroke,
+                   because programmatic outlines read mechanical next to
+                   watercolor (affordance survey §7)
+       `outline` (hand-traced polygon, three strokes) survives only as the
+       fallback for rooms whose glow art has not been painted yet. */
     type Hot = {
         rect: (typeof room.hotspots)[number]['rect'];
         glow: Sprite;
+        /** baked glow art when available, else the polygon stroke */
+        edge: Sprite | Graphics;
         outline: Graphics;
         hovered: boolean;
         nextSparkleAt: number;
@@ -458,16 +479,29 @@ export async function buildScene(
         glow.alpha = 0;
         zone.addChild(glow);
 
-        // silhouette-hugging golden edge (hint + hover states light it)
+        // silhouette-hugging golden edge — baked art first, stroke as fallback
         const outline = new Graphics();
         strokeOutline(outline, h.outline ?? null, h.rect);
         outline.blendMode = 'add';
         outline.alpha = 0;
-        zone.addChild(outline);
+
+        let edge: Sprite | Graphics = outline;
+        const baked = glowTex[h.id];
+        if (baked && h.glowBox) {
+            const gs = new Sprite(baked);
+            gs.position.set(h.glowBox.x, h.glowBox.y);
+            gs.width = h.glowBox.w;
+            gs.height = h.glowBox.h;
+            gs.blendMode = 'add'; // it is light spilling off the object
+            gs.alpha = 0;
+            edge = gs;
+        }
+        zone.addChild(edge);
 
         const hot: Hot = {
             rect: h.rect,
             glow,
+            edge,
             outline,
             hovered: false,
             nextSparkleAt: rand(1, 6), // desynced first twinkles
@@ -475,7 +509,7 @@ export async function buildScene(
             hoverAt: 0
         };
         zone.on('pointerover', () => {
-            hot.hovered = true; // ticker lights the outline + breathes the bloom
+            hot.hovered = true; // ticker lights the edge + breathes the bloom
             hot.hintPhase = 0;
             hot.hoverAt = elapsed;
             hot.nextSparkleAt = -1; // greet the pointer with one spark right away
@@ -483,7 +517,7 @@ export async function buildScene(
         zone.on('pointerout', () => {
             hot.hovered = false;
             startFade(glow, 0, 260);
-            startFade(outline, 0, 320);
+            startFade(edge, 0, 320);
         });
         zone.on('pointertap', () => {
             // a real interaction satisfies curiosity — quiet the hints a while
@@ -495,7 +529,8 @@ export async function buildScene(
     }
 
     // periodic hint scheduler: one furniture piece takes a turn to whisper
-    // "I'm tappable" — outline breathes once + a burst of larger sparkles.
+    // "I'm tappable" — a burst of big sparkles, no edge (v4: the golden edge
+    // is hover-only, so the quiet scene never gets broadcast at).
     // Research-tuned pacing (affordance survey 2026-08-15): first hint after
     // 8–12s idle, then 22–45s between hints — companion products hint slower
     // than puzzle games, and any tap resets the clock (hints must never nag).
@@ -506,7 +541,7 @@ export async function buildScene(
     /* ---------- sparkle affordance (replaces the idle ring) ----------
        Tuning follows the sparkle mockup brief: warm gold, 6–16px, sine
        fade in/out, ≤8 visible at once across the room. */
-    type Spark = { sprite: Sprite; born: number; life: number; size: number; spin: number; drift: number };
+    type Spark = { sprite: Sprite; born: number; life: number; size: number; spin: number; drift: number; peak: number };
     const sparks: Spark[] = [];
     const sparkTex = sparkleTexture();
     const sparkLayer = new Container();
@@ -517,7 +552,9 @@ export async function buildScene(
     const HOVER_GAP: [number, number] = [0.9, 1.4];
     const MAX_SPARKS = 8;
 
-    const spawnSpark = (hot: Hot, t: number, sizeRange: [number, number] = [12, 22]) => {
+    // `peak` caps a spark's brightness so the three states stay ranked:
+    // idle whisper < periodic hint < hover confirmation (v4 user direction)
+    const spawnSpark = (hot: Hot, t: number, sizeRange: [number, number] = [12, 22], peak = 0.78) => {
         if (sparks.length >= MAX_SPARKS + 6) return; // hard cap incl. bursts
         const s = new Sprite(sparkTex);
         s.anchor.set(0.5);
@@ -537,7 +574,8 @@ export async function buildScene(
             life: rand(1.6, 2.4), // spec: 1.6–2.4s with natural jitter
             size,
             spin: rand(-0.5, 0.5),
-            drift: rand(0.5, 3) // px/s upward — twinkle in place, no flight path
+            drift: rand(0.5, 3), // px/s upward — twinkle in place, no flight path
+            peak
         });
     };
 
@@ -733,42 +771,31 @@ export async function buildScene(
             }
         }
 
-        // hovered hotspot: bloom breathes + outline eases in (200ms), then
-        // holds a lit shimmer — no zero-ms state snaps (research: cheap feel)
+        // hovered hotspot: bloom breathes + the golden edge eases in (200ms),
+        // then holds a lit shimmer — no zero-ms state snaps (cheap feel)
         for (const h of hots) {
             if (h.hovered) {
                 const ease = Math.min(1, (elapsed - h.hoverAt) / 0.2);
                 h.glow.alpha = ease * (0.5 + 0.1 * Math.sin(elapsed * 2.2));
-                h.outline.alpha = ease * (0.88 + 0.12 * Math.sin(elapsed * 3));
+                h.edge.alpha = ease * (0.88 + 0.12 * Math.sin(elapsed * 3));
             }
         }
 
-        // periodic hint: one spot at a time breathes its golden outline and
-        // bursts a few larger sparkles — "you can tap me", said politely
+        // periodic hint: one spot at a time bursts a few big sparkles —
+        // "you can tap me", said politely. No edge here (v4).
         if (elapsed >= nextHintAt) {
             const candidates = hots.filter((h) => !h.hovered && h.hintPhase === 0);
             if (candidates.length) {
                 const pick = candidates[Math.floor(Math.random() * candidates.length)];
                 pick.hintPhase = elapsed;
                 // mockup: 4–5 visible stars sell the "look here" moment
-                for (let n = 0; n < 4; n++) spawnSpark(pick, elapsed + n * 0.12, [18, 30]);
+                for (let n = 0; n < 4; n++) spawnSpark(pick, elapsed + n * 0.12, [18, 30], 0.88);
             }
             nextHintAt = elapsed + rand(HINT_EVERY[0], HINT_EVERY[1]);
         }
+        // release the hint slot once its sparkle burst has lived out
         for (const h of hots) {
-            if (h.hintPhase > 0 && !h.hovered) {
-                const t = elapsed - h.hintPhase;
-                if (t >= HINT_DUR) {
-                    h.hintPhase = 0;
-                    h.outline.alpha = 0;
-                } else if (t < 0.6) {
-                    h.outline.alpha = (t / 0.6) * 0.75; // fade in
-                } else if (t < 1.9) {
-                    h.outline.alpha = 0.6 + 0.15 * Math.sin((t - 0.6) * 4.8); // breathe
-                } else {
-                    h.outline.alpha = 0.75 * (1 - (t - 1.9) / 0.7); // fade out
-                }
-            }
+            if (h.hintPhase > 0 && elapsed - h.hintPhase >= HINT_DUR) h.hintPhase = 0;
         }
 
         // sparkle affordance: rare twinkles while idle, a shimmer on hover
@@ -777,11 +804,11 @@ export async function buildScene(
                 const greeting = h.hovered && h.nextSparkleAt === -1;
                 const idleBudget = sparks.length < MAX_SPARKS;
                 if (h.hovered || idleBudget) {
-                    spawnSpark(h, elapsed, h.hovered ? [16, 28] : [12, 22]);
+                    spawnSpark(h, elapsed, h.hovered ? [16, 28] : [12, 22], h.hovered ? 1 : 0.78);
                     if (greeting) {
                         // mockup hover state: a small ring of stars greets the pointer
-                        spawnSpark(h, elapsed + 0.1, [14, 22]);
-                        spawnSpark(h, elapsed + 0.22, [10, 18]);
+                        spawnSpark(h, elapsed + 0.1, [14, 22], 1);
+                        spawnSpark(h, elapsed + 0.22, [10, 18], 1);
                     }
                 }
                 const [lo, hi] = h.hovered ? HOVER_GAP : IDLE_GAP;
@@ -799,7 +826,7 @@ export async function buildScene(
             }
             // spec scale curve 0.35→1.0→0.25: bloom in, peak, melt away
             const a = Math.sin(Math.PI * t);
-            sp.sprite.alpha = a;
+            sp.sprite.alpha = a * sp.peak;
             const sc = (0.3 + 0.7 * a) * (sp.size / sparkTex.width);
             sp.sprite.scale.set(sc);
             sp.sprite.rotation = sp.spin * t;

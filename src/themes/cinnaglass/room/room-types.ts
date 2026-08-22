@@ -63,11 +63,18 @@ export type HotspotSpec = {
     /** Interactive region in base-image pixels. */
     rect: PxRect;
     /**
-     * Hand-traced silhouette polygon (base-image px) hugging the furniture —
-     * the golden hint/hover outline strokes this path. Omitted → a rounded
-     * rect derived from `rect` is used as a fallback.
+     * Hand-traced silhouette polygon (base-image px) hugging the furniture.
+     * Only used as the fallback edge when no baked glow art is available —
+     * programmatic strokes read mechanical against watercolor.
      */
     outline?: PxPoint[];
+    /**
+     * Placement box (base-image px) for the baked hover glow texture at
+     * `/rooms/<roomId>/glow-<hotspotId>.png`. The art is painted on the room
+     * canvas and cropped to this exact box, so blitting it back here lands
+     * pixel-perfect. Omitted → the polygon fallback is used.
+     */
+    glowBox?: PxRect;
 };
 
 export type RoomTemplate = {
