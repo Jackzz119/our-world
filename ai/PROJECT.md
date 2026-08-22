@@ -78,14 +78,17 @@ src/
 
 ## 已有功能资产（v1 保留部分的技术事实）
 
-> v1（Discord-like 时代）已完成且**继续服役**的功能。旧过程文档已清理，此处为技术事实存档。
+> v1（Discord-like 时代）已完成且**继续服役**的功能，此处为技术事实**摘要**。
+>
+> **功能细节的载体是 `ai/Features/*.md`**（`CLAUDE.md` 文档维护规则）——2026-08-09 提交 `7c93c3c` 曾把该目录一刀全删（与 `ai/reboot/tech-plan.md` §119「保留 timeline/chat/supabase」的计划相悖），已于 2026-08-22 恢复 timeline / chat / supabase 三份。channel / sidebar / ui-system / settings / world / world-space-ui / image-slot / handoff 等随 Discord 壳层作废，不恢复。
 
 - **auth 地基**：登录页 + 路由守卫 + 忘记密码/重置 + 登出；白名单 = Supabase 关闭注册开关（已验证 422 拦截）；dev 模式 `VITE_DEV` = 自动**真登录**（`VITE_DEV_EMAIL/PASSWORD`，无会话则 RLS 全空）；手动加账号走 Dashboard「Add user」/Admin API，不 SQL 直插
 - **timeline 时间线**（2026-08-21 代码核对：以下全部在役）：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新、日期手帐贴纸、点线小路、头像贴纸挂卡）；Composer 多图受控选择器（所见即所传，上限 9 张）+ 草稿（点外/Esc 收起保草稿，取消是唯一清空，折叠条显示草稿预览）+ textarea 自动长高（220px 后内滚）；卡片 6 行 clamp + `overflow-wrap:anywhere` 防长串穿框，全文进详情弹层；作者色身份系统（我=蓝 accent、对方=粉，打在光环/名字/边线）；宽屏 ≥1200px 两侧原创云朵小狗吉祥物；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
   - **入口**：书房书桌上的日记本热点 → `SubScreen('timeline')`，与照片墙/心愿单同一弹窗三 tab（`MODAL_TABS`）
   - **外壳待翻新**：SubScreen 仍是 v1 的 `.modal glass tall` 玻璃弹窗，**未收敛到 concept-c 白纸功能卡规范**（见 TODO R1「白纸功能卡收敛」）——这是 timeline 目前唯一的已知视觉欠账
+  - **📄 细节文档**：`ai/Features/timeline.md`（链路/模块/数据模型/ST-A~V 实现记录/测试记录；视觉与功能迭代在该文档继续）
 - **照片墙**：自然纵横比 polaroid 拼贴（白框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载
-- **聊天全链路**：Broadcast from Database（写库 + trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除粒子/reaction chips/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function Tenor 代理转存 + EmotePicker 自维护 230 emoji 中文索引）；DM = channels `type='dm'`（账号级 topic `user:{uid}`）——**DM/好友 UI 在新方向收起，数据层冻结保留**
+- **聊天全链路**：Broadcast from Database（写库 + trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除粒子/reaction chips/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function Tenor 代理转存 + EmotePicker 自维护 230 emoji 中文索引）；DM = channels `type='dm'`（账号级 topic `user:{uid}`）——**DM/好友 UI 在新方向收起，数据层冻结保留**。**📄 细节文档**：`ai/Features/chat.md`（v1 双形态论述读时注意 ChatDock 已被 concept-c 聊天窄卡 + 头顶气泡取代）
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 图存 memories 桶 256px webp）；纪念日/在一起天数从 DB 实时计算；**欠：昵称编辑写回 profiles.display_name**（个人设置仍本地缓冲）
 - **双实例调试**：`pnpm dev2` 双端口双账号（jack/sherry）互发验收
 - **UI 基建**：弹窗壳 `.modal` 全局唯一、`.btn-primary/.chip-accent` 收敛、image-slot token 化；光照递进 token 体系（`[data-mood]` 明度轴 + `[data-glass]` 材质轴 + 纸面重映射）——**直接成为新时辰系统的 UI 侧**
@@ -94,6 +97,8 @@ src/
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
 
 > 全部继续服役，零迁移开工。翻新只做渐进清理（见下备注）。
+>
+> **📄 细节文档**：`ai/Features/supabase.md`（结构审计 + 安全/性能顾问发现）。**该文正文仍是 2026-07-04 快照**，待 2026-08-22 连 MCP 拉真实结构后回填；回填完成即由它接管「后端结构唯一真源」，本节缩为摘要 + 引用。在那之前，**下表是当前结构的临时真源**。
 >
 > **核对时点 2026-08-21**：下表按前端数据层实际读写**反查确认**——`src/lib/*.ts` 的 `*_COLS` 常量就是应用真正依赖的列。核对当次 Supabase MCP 离线，**未做线上 DDL 复核**，若与线上有差异以线上为准。另注：**schema 变更历史不在仓库**（历次迁移都经 MCP 直接应用到线上），`sql/` 目录只剩两份早期脚本（`dev-create-world.sql`、`storage-memories-bucket.sql`），不代表当前结构。
 
@@ -148,6 +153,10 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
+- `ai/Features/` — **功能细节文档载体**（`CLAUDE.md` 规则：细节写这里，PROJECT.md 只留摘要 + 引用）
+  - `timeline.md` — 回忆链路（时间线/照片墙/Composer/Storage）🟢 在役，视觉与功能迭代记于此
+  - `chat.md` — 聊天系统 🟢 在役（UI 形态已换 concept-c，数据层不变）
+  - `supabase.md` — 后端结构审计 🟡 正文待 MCP 复核回填
 - `ai/STYLE.md` — 风格效果基准（概念图/角色/光照/声音/UI/验收标准）
 - `ai/UX.md` — UI 交互体系基准（三档密度架构/入口地图/动效音效参数/反模式，2026-08-10 提案）
 - `ai/concept/` — **定稿概念图正式存放处**（六张 + codex 报告；后续新概念稿也入此处）

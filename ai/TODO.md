@@ -97,7 +97,8 @@
 
 ## 🧾 继承待办（v1 遗留，与新方向无关但仍要做）
 
-- [ ] **Supabase 审计遗留 migration**（要点已收录 PROJECT.md 数据库章节）：⚠️ worlds 外键 CASCADE→SET NULL（member 删号不该灭世界）+ 安全加固包（search_path/revoke/GraphQL/泄露密码保护）+ 性能包（RLS initplan×13 + FK 索引×4）
+- [ ] **连 Supabase MCP 拉真实表结构回填 `ai/Features/supabase.md`**（2026-08-22 计划）：拉表/列/RLS/触发器/RPC 实况 → 回填该文第一章 → 它接管后端结构唯一真源，PROJECT.md 数据库章节缩为摘要 + 引用
+- [ ] **Supabase 审计遗留 migration**（要点已收录 PROJECT.md 数据库章节 + `ai/Features/supabase.md` 三/四章）：⚠️ worlds 外键 CASCADE→SET NULL（member 删号不该灭世界）+ 安全加固包（search_path/revoke/GraphQL/泄露密码保护）+ 性能包（RLS initplan×13 + FK 索引×4）
 - [ ] 昵称编辑写回 `profiles.display_name`（个人设置目前仍本地缓冲）
 - [ ] TENOR_API_KEY 配置（免费申请 → Supabase Secrets，贴纸搜图 tab 即活）
 - [ ] member 测试数据清理（【测试数据】前缀 ×6，上线前删）
@@ -114,4 +115,5 @@
 - **v1 全部成果**（2026-06~08，Discord-like 时代）：Supabase 后端全套 + auth 地基 + timeline/照片墙/聊天全链路真后端 + 世界属性入库 + cinnaglass UI 体系——保留服役部分的技术事实见 `ai/PROJECT.md`「已有功能资产」
 - **配色光照递进定稿 + UI Design System 建册**（2026-08-07/08，决策 D-9~D-12）：真源 `ai/design_system/cinnaglass/ui-system.html`
 - **产品重定位启动包**（2026-08-09）：四路调研 + 六张概念图 + `ai/reboot/` 四文档，用户拍板转向放置陪伴
-- **文档体系 v2 重构**（2026-08-09）：旧 TODO/PRD/Features 清理，新三件套（PROJECT/TODO/STYLE）上线
+- **文档体系 v2 重构**（2026-08-09）：旧 TODO/PRD 清理，新三件套（PROJECT/TODO/STYLE）上线
+- **Features 体系恢复**（2026-08-22）：`7c93c3c` 曾把 `ai/Features/` 一刀全删（与 tech-plan §119「保留 timeline/chat/supabase」相悖），现原文恢复该三份并加状态头；CLAUDE/AGENTS 规则维持不变，功能细节仍以 Features 为载体
