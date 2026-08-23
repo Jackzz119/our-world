@@ -166,6 +166,29 @@ function radialGradientTexture(color: string, innerAlpha = 1): Texture {
 }
 
 /**
+ * Cut an ellipse region of the base art and un-squash it into an upright
+ * circular texture. Spinning that texture inside a container that re-applies
+ * the squash + tilt puts a LIVING disc back into the painting — pixels stay
+ * identical to the base art, so nothing reads as pasted on.
+ */
+function circleFromBase(img: HTMLImageElement | ImageBitmap | HTMLCanvasElement, cx: number, cy: number, rx: number, ry: number, tilt: number): Texture {
+    const D = Math.ceil(rx * 2);
+    const c = document.createElement('canvas');
+    c.width = D;
+    c.height = D;
+    const ctx = c.getContext('2d')!;
+    ctx.beginPath();
+    ctx.arc(D / 2, D / 2, rx - 1, 0, Math.PI * 2);
+    ctx.clip();
+    // inverse of the scene-side transform: translate → un-tilt → un-squash
+    ctx.translate(D / 2, D / 2);
+    ctx.scale(1, rx / ry);
+    ctx.rotate(-tilt);
+    ctx.drawImage(img, -cx, -cy);
+    return Texture.from(c);
+}
+
+/**
  * Four-point star sparkle: long soft cross rays + a bright core + a faint
  * halo. Drawn once on an offscreen canvas, reused by every particle.
  */
@@ -304,6 +327,35 @@ export async function buildScene(
         s.alpha = 0;
         world.addChild(s);
         baseSprites.set(url, s);
+    }
+
+    /* ---------- living props (pilot: the spinning vinyl) ----------
+       Proof for the "living diorama" direction (2026-08-22): the turntable
+       disc is carved straight out of the base art (ellipse → un-squashed
+       circle), then spun inside a container that re-applies the perspective
+       squash + tilt. Zero new assets, zero seams. The tonearm is baked into
+       the same pixels for now — the visible smear at its tip is exactly WHY
+       the layered-parts asset pipeline is next. Hovering the music hotspot
+       doubles the spin (prop state > glow swap). */
+    const VINYL = { cx: 963, cy: 855, rx: 66, ry: 30, tilt: -0.12 };
+    let vinylSpin: Sprite | null = null;
+    let vinylSpeed = (Math.PI * 2) / 9; // idle: one turn / 9s
+    {
+        // the loaded art texture's source is a decoded image we can sample
+        const artSrc = textures[resolveRoomArt(room, 'twilight')] ?? Object.values(textures)[0];
+        const img = (artSrc as Texture).source.resource as HTMLImageElement | ImageBitmap;
+        if (img) {
+            const discTex = circleFromBase(img, VINYL.cx, VINYL.cy, VINYL.rx, VINYL.ry, VINYL.tilt);
+            const pivot = new Container();
+            pivot.position.set(VINYL.cx, VINYL.cy);
+            pivot.rotation = VINYL.tilt;
+            pivot.scale.set(1, VINYL.ry / VINYL.rx); // back into the table plane
+            const disc = new Sprite(discTex);
+            disc.anchor.set(0.5);
+            pivot.addChild(disc);
+            world.addChild(pivot);
+            vinylSpin = disc;
+        }
     }
 
     /* ---------- rain (masked to glass panes) ---------- */
@@ -769,6 +821,15 @@ export async function buildScene(
                 const rec = RECIPES[mood][weather];
                 breath.alpha = rec.breathAlpha * (0.5 + 0.5 * Math.sin((elapsed / 11) * Math.PI * 2));
             }
+        }
+
+        // living props: the vinyl never stops; hovering the turntable's
+        // hotspot leans on the platter a little (speed, not a glow swap)
+        if (vinylSpin) {
+            const musicHot = hots[room.hotspots.findIndex((h) => h.id === 'music')];
+            const target = musicHot?.hovered ? (Math.PI * 2) / 4 : (Math.PI * 2) / 9;
+            vinylSpeed += (target - vinylSpeed) * Math.min(1, dt * 3); // soft ramp
+            vinylSpin.rotation += vinylSpeed * dt;
         }
 
         // hovered hotspot: bloom breathes + the golden edge eases in (200ms),
