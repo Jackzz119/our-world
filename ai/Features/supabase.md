@@ -10,6 +10,8 @@
 >
 > **待办（2026-08-22 计划）**：连上 Supabase MCP 拉一次真实表结构/RLS/触发器，回填进本文第一章，届时本文重新成为后端结构的唯一真源，PROJECT.md 改为摘要 + 引用。
 >
+> **2026-08-22 执行尝试记录**：当日会话为长寿旧会话，MCP 服务器中途断开后**工具不会向已开会话重新注册**，两次 ToolSearch 均无果；改试 PostgREST OpenAPI 自省（`GET /rest/v1/` + anon key）被平台拒——**该端点现仅接受 service_role**（`Only the service_role API key can be used for this endpoint`，实测 401）。这顺带确认了一个正面安全事实：REST 结构对匿名/普通用户不可枚举。**回填须在带 supabase MCP 的新会话执行**，步骤：`list_tables(verbose)` + `pg_policies`/触发器/函数三查 + `list_edge_functions` + `get_advisors` 刷新三/四章 → 回填本文 §一 → PROJECT.md 数据库节缩为摘要引用。
+>
 > **三、四章的审计发现仍然有效未修复**（CASCADE 外键、search_path、RLS initplan、FK 索引），要点同步在 `ai/TODO.md` 继承待办。
 
 > 最后更新：2026-07-04
