@@ -17,7 +17,7 @@
 
 ## Bugs
 
-（无未修复 bug；发现即记录到此处）
+- [ ] **`--accent-deep` 双真源**（2026-09-05 Codex 比稿发现、Claude 核实）：`cinnaglass.css` 根值 `#268fbe`，而 `--accent-orb` 尾色与 `screens.tsx` guest tone 用 D-9 定稿的 `#2f9ad3`——二选一后同步 `ui-system.html`
 
 ---
 
@@ -54,6 +54,7 @@
    - [ ] 许愿罐：星星 idle 漂浮、hover 更亮更快（分层资产：玻璃/5-8 颗星/丝带/光晕，codex 出件 + 差分校验）
    - [ ] P2 程序化件：台灯光晕呼吸、咖啡热气、窗帘微飘（MeshPlane 扰动）
 - [ ] 白纸功能卡收敛：单卡居中、宽 ≤54-60%、场景压暗+blur 退后、不遮挡任一角色（概念图 04 规范）——SubScreen/弹窗族仍是旧样式
+   - [~] **timeline v2 重做比稿完成，待拍板**（2026-09-05）：Codex 三方向 + 策划（`codex-visual/20260905-215344Z/`），推荐方向 3「系回日记本的长纸」；Claude 复核与 6 个决策点见 `ai/Features/timeline.md` 七。拍板后按 Phase 0→3 落地（拆三 tab / 删吉祥物 / DiarySurface / 三断点 / origin 开合 / Esc 栈）
 - [x] 聊天气泡浮对方角色头顶（2026-08-10）：对方新消息 → 头顶白气泡 4.5s（wobble 入场），贴纸显示「发来一张贴纸」
 - [ ] 兜底提示：长按/双击场景空白 → 全部热点亮轮廓 2s（UX §5，触屏后备）
 
@@ -84,6 +85,7 @@
 - [ ] Electron 打包：无边框置顶窗 + 系统托盘 + 开机自启（同一套 web 代码）
 - [ ] 贴边小窗形态（Rusty's Retirement 式屏幕角/边停靠）
 - [ ] 性能验收：静止时不持续渲染、失焦暂停、对标 Desktop Mate 低画质档 1-2% CPU
+   - 已知隐患（2026-09-05 记）：pixi ticker 固定 30fps 常渲染，静止画面也在烧；方案 = 按需渲染 / 自适应帧率（有活物件在动 30，只剩秒针+呼吸时降到 12-15，hover 期间可临时 60）；另测 5-6 块 backdrop-filter 玻璃面板叠在 30fps canvas 上的合成开销
 
 ## 📦 Phase R3 — 桌宠模式
 
