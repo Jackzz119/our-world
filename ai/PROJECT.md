@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」。2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 三件套：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/STYLE.md`（风格效果基准）。
-> 最后更新：2026-08-21（数据库章节与 timeline 状态按代码实况核对刷新）
+> 最后更新：2026-09-05（活物件首件：唱片机转盘透视真旋转落地；hover 光晕/描边/换图方案全部退役）
 
 ## 产品定位（PRD）
 
@@ -53,8 +53,8 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router v7，包管理 pnpm，格式化 Prettier
 - **样式**: 自有 CSS 体系（无框架）——四载体契约见 `ai/STYLE.md` §8；主题 `src/themes/cinnaglass/`（玻璃拟态 + 大耳狗色调）
-- **场景层（新）**: 媒介待拍板（静态图 / 静态+微动效 / 3渲2 分层，见 TODO R1 首条）；若走 3渲2，Blender 管线已有（`ai/blender/`、blender-create skill）
-- **角色层（新）**: 候选 Rive（runtime MIT、状态机）或 sprite 帧动画——样板实测后定（依据见 ai/reboot/tech-plan.md §2）
+- **场景层**: PixiJS v8 WebGL 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`（底图×时辰交叉淡化 + 雨层 mask 到玻璃格 + 真实走时挂钟 + 角色 + 光照配方 mood×weather + 星星提示 + 热点点击）。**活物件（living props）**：家具直接从底图抠出来自己动，hover 只改参数不换图——唱片机转盘用「外沿椭圆 + 圆心」像素级量测得到的单应矩阵做**透视真旋转**（`PerspectiveMesh`，圆心与外沿转动时都不漂），唱臂/唱针抠成静止贴片，宽幅高光拆成静态加色层，hover = 转速提升 + 唱臂弹簧摆动。量测工具 `scripts/fit-disc-ellipse.py`；方案研究 `ai/design_system/research/living-props.md`
+- **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸 scaleY / 摇摆 / 随机眨眼），在 pixi 合成器内与场景共享同一套光照；动作丰富化阶段再评估 Rive/Spine（依据见 ai/reboot/tech-plan.md §2）
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——**新产品功能 100% 命中已有后端，零迁移**
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
 - **实时架构**: 产品拓扑 = 无数隔离的 2 人房间，Supabase Realtime 足够，不需要权威游戏服务器

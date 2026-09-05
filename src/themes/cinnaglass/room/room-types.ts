@@ -20,6 +20,55 @@ export type PxPoint = {
     y: number;
 };
 
+/**
+ * A circle lying on a painted surface, seen in perspective — an ellipse in
+ * base-image px. `tilt` is the long-axis angle in radians, positive =
+ * clockwise on screen (pixi's rotation convention), so it can be assigned
+ * to a container's `rotation` as is.
+ */
+export type PxEllipse = {
+    cx: number;
+    cy: number;
+    /** Semi-axis along the tilt direction (the long axis of a flat disc). */
+    rx: number;
+    /** Semi-axis across it — the foreshortened one. */
+    ry: number;
+    tilt: number;
+};
+
+/** Turntable prop: a painted platter that really spins (living props, see ai/design_system/research/living-props.md). */
+export type TurntableSpec = {
+    /** Outer rim of the vinyl. Fit with scripts/fit-disc-ellipse.py — never eyeballed. */
+    platter: PxEllipse;
+    /**
+     * Where the disc's TRUE center is painted (label center / spindle foot).
+     * Under perspective it sits off the ellipse center, toward the far side;
+     * rim + center together pin down the disc plane, so the spin can be
+     * rendered as a real perspective rotation instead of a flat one.
+     */
+    center: PxPoint;
+    /** Tonearm post center; the arm patch swings around it on hover. */
+    armPivot: PxPoint;
+    /**
+     * Hand-traced polygon covering the tonearm from post to headshell with a
+     * few px of margin. It is re-cut from the base art and drawn above the
+     * spinning platter so the arm holds still while the vinyl turns.
+     */
+    armPatch: PxPoint[];
+    /**
+     * Other painted details sitting on the platter that must not turn with
+     * it (the spindle, a fixed sheen). Each is inpainted out of the spinning
+     * cut — grooves are concentric, so same-radius pixels fill seamlessly —
+     * and re-laid on top as a static patch.
+     */
+    stills?: PxPoint[][];
+};
+
+/** Furniture that moves on its own (idle) and reacts to hover with a state change, never an image swap. */
+export type RoomProps = {
+    turntable?: TurntableSpec;
+};
+
 export type ClockSpec = {
     /** Dial center in base-image pixels. */
     center: PxPoint;
@@ -56,25 +105,16 @@ export type SeatAnchor = {
     headRatio: number;
 };
 
-/** A clickable furniture region that opens a feature (ai/UX.md §2/§5). */
+/**
+ * A clickable furniture region that opens a feature (ai/UX.md §2/§5).
+ * Affordance is sparkles plus the furniture's own living-prop motion — no
+ * outlines, no glow art, no image swaps (user direction 2026-08-22).
+ */
 export type HotspotSpec = {
     /** Feature key the shell maps to a surface (timeline/photos/clock/…). */
     id: string;
     /** Interactive region in base-image pixels. */
     rect: PxRect;
-    /**
-     * Hand-traced silhouette polygon (base-image px) hugging the furniture.
-     * Only used as the fallback edge when no baked glow art is available —
-     * programmatic strokes read mechanical against watercolor.
-     */
-    outline?: PxPoint[];
-    /**
-     * Placement box (base-image px) for the baked hover glow texture at
-     * `/rooms/<roomId>/glow-<hotspotId>.png`. The art is painted on the room
-     * canvas and cropped to this exact box, so blitting it back here lands
-     * pixel-perfect. Omitted → the polygon fallback is used.
-     */
-    glowBox?: PxRect;
 };
 
 export type RoomTemplate = {
@@ -89,6 +129,8 @@ export type RoomTemplate = {
     clock: ClockSpec;
     seats: SeatAnchor[];
     hotspots: HotspotSpec[];
+    /** Living props; a room without any simply stays still. */
+    props?: RoomProps;
 };
 
 /** Resolve the art path for a mood, following the fallback chain once. */

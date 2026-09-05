@@ -16,14 +16,16 @@
 import {
     Application,
     Assets,
+    CanvasSource,
     Container,
     Graphics,
+    PerspectiveMesh,
     Rectangle,
     Sprite,
     Texture
 } from 'pixi.js';
 import { AdjustmentFilter } from 'pixi-filters';
-import type { RoomMood, RoomTemplate, RoomWeather } from './room-types';
+import type { PxEllipse, PxPoint, PxRect, RoomMood, RoomTemplate, RoomWeather } from './room-types';
 import { resolveRoomArt } from './room-types';
 
 export type CharacterAssets = Record<string, { open: string; closed: string }>;
@@ -165,27 +167,324 @@ function radialGradientTexture(color: string, innerAlpha = 1): Texture {
     return Texture.from(c);
 }
 
+/* ------------------------------------------------------------------ */
+/* living props: cuts taken from the base art itself                   */
+/* ------------------------------------------------------------------ */
+
+type ArtImage = HTMLImageElement | ImageBitmap | HTMLCanvasElement;
+
+/** Texture over an offscreen canvas drawn at `res`× so rotation resampling stays crisp. */
+function canvasTexture(c: HTMLCanvasElement, res: number): Texture {
+    return new Texture({ source: new CanvasSource({ resource: c, resolution: res }) });
+}
+
+/* --- tiny 3×3 homography kit (row-major) --- */
+type Mat3 = [number, number, number, number, number, number, number, number, number];
+
+function mul3(a: Mat3, b: Mat3): Mat3 {
+    const r = new Array(9).fill(0) as Mat3;
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j];
+    return r;
+}
+
+function inv3(m: Mat3): Mat3 {
+    const [a, b, c, d, e, f, g, h, i] = m;
+    const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g;
+    const det = a * A + b * B + c * C;
+    return [A, -(b * i - c * h), b * f - c * e, B, a * i - c * g, -(a * f - c * d), C, -(a * h - b * g), a * e - b * d].map((v) => v / det) as Mat3;
+}
+
+/** Apply a homography to a point (with the perspective divide). */
+function apply3(m: Mat3, x: number, y: number): [number, number] {
+    const w = m[6] * x + m[7] * y + m[8];
+    return [(m[0] * x + m[1] * y + m[2]) / w, (m[3] * x + m[4] * y + m[5]) / w];
+}
+
 /**
- * Cut an ellipse region of the base art and un-squash it into an upright
- * circular texture. Spinning that texture inside a container that re-applies
- * the squash + tilt puts a LIVING disc back into the painting — pixels stay
- * identical to the base art, so nothing reads as pasted on.
+ * Homography from disc-plane coordinates (unit circle = the vinyl rim,
+ * origin = its true center) to base-image px. The painted rim ellipse fixes
+ * the plane up to a circle-preserving projective map; the painted center
+ * pins that down to a Klein-model translation, leaving exactly one freedom:
+ * the spin angle — the thing we animate. Flat (affine) spinning cannot keep
+ * both the rim AND the label still under real perspective, this can.
  */
-function circleFromBase(img: HTMLImageElement | ImageBitmap | HTMLCanvasElement, cx: number, cy: number, rx: number, ry: number, tilt: number): Texture {
-    const D = Math.ceil(rx * 2);
+function discHomography(e: PxEllipse, center: PxPoint): Mat3 {
+    const cos = Math.cos(e.tilt);
+    const sin = Math.sin(e.tilt);
+    // affine part: unit circle → painted rim ellipse
+    const A: Mat3 = [e.rx * cos, -e.ry * sin, e.cx, e.rx * sin, e.ry * cos, e.cy, 0, 0, 1];
+    const [px, py] = apply3(inv3(A), center.x, center.y); // painted center inside the unit disc
+    const a = Math.hypot(px, py);
+    if (a < 1e-4 || a >= 0.98) return A; // no measurable perspective (or a bad measurement)
+    const phi = Math.atan2(py, px);
+    const s = Math.sqrt(1 - a * a);
+    // hyperbolic translation of the unit disc taking the origin to (a, 0)
+    const B: Mat3 = [1, 0, a, 0, s, 0, a, 0, 1];
+    const R: Mat3 = [Math.cos(phi), -Math.sin(phi), 0, Math.sin(phi), Math.cos(phi), 0, 0, 0, 1];
+    const Rt: Mat3 = [Math.cos(phi), Math.sin(phi), 0, -Math.sin(phi), Math.cos(phi), 0, 0, 0, 1];
+    return mul3(A, mul3(R, mul3(B, Rt)));
+}
+
+type Corners = [number, number, number, number, number, number, number, number];
+
+/**
+ * Screen corners of the disc-plane unit square turned by `spin`, in the
+ * order PerspectiveMesh wants (top-left, top-right, bottom-right, bottom-left).
+ */
+function discCorners(H: Mat3, spin: number): Corners {
+    const c = Math.cos(spin);
+    const s = Math.sin(spin);
+    const pts: number[] = [];
+    for (const [u, v] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        pts.push(...apply3(H, u * c - v * s, u * s + v * c));
+    }
+    return pts as Corners;
+}
+
+const artPixelCache = new WeakMap<object, ImageData>();
+
+/** Whole-art RGBA readback, cached per decoded image. */
+function artPixels(img: ArtImage): ImageData {
+    let id = artPixelCache.get(img);
+    if (!id) {
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext('2d')!;
+        ctx.drawImage(img, 0, 0);
+        id = ctx.getImageData(0, 0, c.width, c.height);
+        artPixelCache.set(img, id);
+    }
+    return id;
+}
+
+type DiscCut = {
+    /** the record itself — turns */
+    spin: Texture;
+    /** its broad specular sheen — additive, never turns */
+    sheen: Texture;
+};
+
+/**
+ * Lift the painted vinyl into a true top-down disc texture by inverse-warping
+ * the base art through the disc homography (bilinear taps). Painted details
+ * that must not turn (tonearm, spindle) are inpainted from the same radius at
+ * another angle — grooves are concentric circles here, so the fill is
+ * seamless — and re-laid on top as static patches by the caller; the broad
+ * sheen is split off into its own static additive layer (`splitSheen`). The
+ * rim is feathered 1px inside the painted edge so the static outer ring hides
+ * any sub-pixel drift. Rendered at 2× so the spin resamples crisply.
+ */
+function carveDisc(img: ArtImage, H: Mat3, rx: number, stills: PxPoint[][]): DiscCut {
+    const RES = 2;
+    const S = Math.ceil(rx * 2) * RES; // texture covers disc-plane [-1, 1]²
+    const art = artPixels(img);
+    const AW = art.width;
+    const AH = art.height;
+    const src = art.data;
     const c = document.createElement('canvas');
-    c.width = D;
-    c.height = D;
+    c.width = S;
+    c.height = S;
     const ctx = c.getContext('2d')!;
+    const out = ctx.createImageData(S, S);
+    const o = out.data;
+    const rIn = (rx - 3.5) / rx; // fully opaque inside
+    const rOut = (rx - 1) / rx; // transparent from here out
+    for (let j = 0; j < S; j++) {
+        const v = ((j + 0.5) / S) * 2 - 1;
+        for (let i = 0; i < S; i++) {
+            const u = ((i + 0.5) / S) * 2 - 1;
+            const r = Math.hypot(u, v);
+            if (r >= rOut) continue; // stays transparent
+            const [x, y] = apply3(H, u, v);
+            const x0 = Math.floor(x - 0.5);
+            const y0 = Math.floor(y - 0.5);
+            if (x0 < 0 || y0 < 0 || x0 + 1 >= AW || y0 + 1 >= AH) continue;
+            const fx = x - 0.5 - x0;
+            const fy = y - 0.5 - y0;
+            const k = (j * S + i) * 4;
+            const p00 = (y0 * AW + x0) * 4;
+            const p10 = p00 + 4;
+            const p01 = p00 + AW * 4;
+            const p11 = p01 + 4;
+            for (let ch = 0; ch < 3; ch++) {
+                const top = src[p00 + ch] * (1 - fx) + src[p10 + ch] * fx;
+                const bot = src[p01 + ch] * (1 - fx) + src[p11 + ch] * fx;
+                o[k + ch] = top * (1 - fy) + bot * fy;
+            }
+            const t = r <= rIn ? 1 : 1 - (r - rIn) / (rOut - rIn);
+            o[k + 3] = 255 * t * t * (3 - 2 * t); // smoothstep feather
+        }
+    }
+    if (stills.length) polarInpaint(out, S, inv3(H), stills);
+    const sheen = splitSheen(out, S, 6 * RES);
+    ctx.putImageData(out, 0, 0);
+    const c2 = document.createElement('canvas');
+    c2.width = S;
+    c2.height = S;
+    c2.getContext('2d')!.putImageData(sheen, 0, 0);
+    return { spin: canvasTexture(c, RES), sheen: canvasTexture(c2, RES) };
+}
+
+/**
+ * Split the broad specular sheen off the disc. Real light stays put while a
+ * record turns, so everything brighter than the disc's rotationally
+ * symmetric baseline (per-radius median), taken at low frequency, moves to a
+ * static additive layer. Fine streaks and the label's mottling stay on the
+ * spinning cut — they ARE the visible proof of the spin. At spin 0 the two
+ * layers sum back to the base art exactly.
+ */
+function splitSheen(o: ImageData, S: number, blurPx: number): ImageData {
+    const d = o.data;
+    const half = S / 2;
+    const nb = Math.ceil(half) + 1;
+    const buckets: number[][] = Array.from({ length: nb }, () => []);
+    for (let y = 0; y < S; y++) {
+        for (let x = 0; x < S; x++) {
+            const i = (y * S + x) * 4;
+            if (d[i + 3] === 0) continue;
+            const r = Math.round(Math.hypot(x + 0.5 - half, y + 0.5 - half));
+            if (r < nb) buckets[r].push(i);
+        }
+    }
+    const baseline = new Float32Array(nb * 3);
+    for (let b = 0; b < nb; b++) {
+        const idx = buckets[b];
+        if (!idx.length) continue;
+        for (let ch = 0; ch < 3; ch++) {
+            const vals = idx.map((i) => d[i + ch]).sort((p, q) => p - q);
+            baseline[b * 3 + ch] = vals[vals.length >> 1];
+        }
+    }
+    const resid = new Float32Array(S * S * 3);
+    for (let b = 0; b < nb; b++) {
+        for (const i of buckets[b]) {
+            const p = (i / 4) * 3;
+            for (let ch = 0; ch < 3; ch++) resid[p + ch] = Math.max(0, d[i + ch] - baseline[b * 3 + ch]);
+        }
+    }
+    const low = boxBlur(boxBlur(resid, S, blurPx), S, blurPx); // two box passes ≈ gaussian
+    const sheen = new ImageData(S, S);
+    const sd = sheen.data;
+    for (let i = 0, p = 0; i < d.length; i += 4, p += 3) {
+        if (d[i + 3] === 0) continue;
+        for (let ch = 0; ch < 3; ch++) {
+            const l = Math.min(low[p + ch], d[i + ch]);
+            sd[i + ch] = l;
+            d[i + ch] -= l;
+        }
+        sd[i + 3] = d[i + 3];
+    }
+    return sheen;
+}
+
+/** Separable box blur over a 3-channel float image; outside the image counts as 0. */
+function boxBlur(src: Float32Array, S: number, r: number): Float32Array {
+    const norm = 1 / (2 * r + 1);
+    const pass = (inp: Float32Array, vertical: boolean) => {
+        const out = new Float32Array(inp.length);
+        const at = (line: number, k: number, ch: number) => (k < 0 || k >= S ? 0 : inp[(vertical ? k * S + line : line * S + k) * 3 + ch]);
+        for (let line = 0; line < S; line++) {
+            for (let ch = 0; ch < 3; ch++) {
+                let acc = 0;
+                for (let k = -r; k <= r; k++) acc += at(line, k, ch);
+                for (let k = 0; k < S; k++) {
+                    out[(vertical ? k * S + line : line * S + k) * 3 + ch] = acc * norm;
+                    acc += at(line, k + r + 1, ch) - at(line, k - r, ch);
+                }
+            }
+        }
+        return out;
+    };
+    return pass(pass(src, false), true);
+}
+
+/**
+ * Paint over disc-texture regions that must NOT turn with the vinyl, using
+ * pixels from the same radius at another angle. `regions` are polygons in
+ * base px; a homography keeps straight edges straight, so mapping the
+ * vertices through `Hinv` is enough to rasterize them in disc space.
+ */
+function polarInpaint(tex: ImageData, S: number, Hinv: Mat3, regions: PxPoint[][]): void {
+    const m = document.createElement('canvas');
+    m.width = S;
+    m.height = S;
+    const mctx = m.getContext('2d')!;
+    mctx.fillStyle = '#fff';
+    mctx.strokeStyle = '#fff';
+    mctx.lineWidth = 4; // margin so anti-aliased edges of the detail go too
+    mctx.lineJoin = 'round';
+    for (const poly of regions) {
+        mctx.beginPath();
+        poly.forEach((p, i) => {
+            const [u, v] = apply3(Hinv, p.x, p.y);
+            const tx = ((u + 1) / 2) * S;
+            const ty = ((v + 1) / 2) * S;
+            if (i) mctx.lineTo(tx, ty);
+            else mctx.moveTo(tx, ty);
+        });
+        mctx.closePath();
+        mctx.fill();
+        mctx.stroke();
+    }
+    const mask = mctx.getImageData(0, 0, S, S).data;
+    const d = tex.data;
+    const src = new Uint8ClampedArray(d); // always read the untouched copy
+    const half = S / 2;
+    // candidate angular offsets, nearest first, so groove phase drifts least
+    const STEPS = [0.7, -0.7, 1.4, -1.4, 2.1, -2.1, Math.PI];
+    for (let y = 0; y < S; y++) {
+        for (let x = 0; x < S; x++) {
+            const i = (y * S + x) * 4;
+            if (mask[i + 3] < 128) continue;
+            const dx = x + 0.5 - half;
+            const dy = y + 0.5 - half;
+            const r = Math.hypot(dx, dy);
+            const a = Math.atan2(dy, dx);
+            for (const step of STEPS) {
+                const sx = Math.round(half + r * Math.cos(a + step) - 0.5);
+                const sy = Math.round(half + r * Math.sin(a + step) - 0.5);
+                if (sx < 0 || sy < 0 || sx >= S || sy >= S) continue;
+                const j = (sy * S + sx) * 4;
+                if (mask[j + 3] >= 128) continue;
+                d[i] = src[j];
+                d[i + 1] = src[j + 1];
+                d[i + 2] = src[j + 2];
+                d[i + 3] = src[j + 3];
+                break;
+            }
+        }
+    }
+}
+
+/**
+ * Re-cut a hand-traced polygon of the base art as its own sprite with a
+ * feathered silhouette, so it can sit above a moving prop (and be nudged a
+ * pixel or two itself) without a hard seam. Returns the texture plus the
+ * base-px box it was cut from, for placement.
+ */
+function carvePatch(img: ArtImage, poly: PxPoint[]): { tex: Texture; box: PxRect } {
+    const RES = 2;
+    const PAD = 3;
+    const xs = poly.map((p) => p.x);
+    const ys = poly.map((p) => p.y);
+    const x0 = Math.floor(Math.min(...xs)) - PAD;
+    const y0 = Math.floor(Math.min(...ys)) - PAD;
+    const box: PxRect = { x: x0, y: y0, w: Math.ceil(Math.max(...xs)) + PAD - x0, h: Math.ceil(Math.max(...ys)) + PAD - y0 };
+    const c = document.createElement('canvas');
+    c.width = box.w * RES;
+    c.height = box.h * RES;
+    const ctx = c.getContext('2d')!;
+    ctx.scale(RES, RES);
+    ctx.drawImage(img, -box.x, -box.y);
+    ctx.globalCompositeOperation = 'destination-in';
+    if ('filter' in ctx) ctx.filter = 'blur(1px)';
     ctx.beginPath();
-    ctx.arc(D / 2, D / 2, rx - 1, 0, Math.PI * 2);
-    ctx.clip();
-    // inverse of the scene-side transform: translate → un-tilt → un-squash
-    ctx.translate(D / 2, D / 2);
-    ctx.scale(1, rx / ry);
-    ctx.rotate(-tilt);
-    ctx.drawImage(img, -cx, -cy);
-    return Texture.from(c);
+    poly.forEach((p, i) => (i ? ctx.lineTo(p.x - box.x, p.y - box.y) : ctx.moveTo(p.x - box.x, p.y - box.y)));
+    ctx.closePath();
+    ctx.fillStyle = '#000';
+    ctx.fill();
+    return { tex: canvasTexture(c, RES), box };
 }
 
 /**
@@ -295,22 +594,6 @@ export async function buildScene(
     const charUrls = Object.values(charAssets).flatMap((a) => [a.open, a.closed]);
     const textures = await Assets.load<Texture>([...artUrls, ...charUrls]);
 
-    // baked hover-glow art, one per hotspot. Painted on the room canvas and
-    // cropped to `glowBox`, so it blits back pixel-perfect. Loaded one by one
-    // and allowed to fail: a room whose glow art has not shipped yet falls
-    // back to the programmatic outline instead of breaking the whole scene.
-    const glowTex: Record<string, Texture | null> = {};
-    await Promise.all(
-        room.hotspots.map(async (h) => {
-            if (!h.glowBox) return;
-            try {
-                glowTex[h.id] = await Assets.load<Texture>(`/rooms/${room.id}/glow-${h.id}.png`);
-            } catch {
-                glowTex[h.id] = null;
-            }
-        })
-    );
-
     /* ---------- tree ---------- */
     const root = new Container();
     const world = new Container();
@@ -329,34 +612,69 @@ export async function buildScene(
         baseSprites.set(url, s);
     }
 
-    /* ---------- living props (pilot: the spinning vinyl) ----------
-       Proof for the "living diorama" direction (2026-08-22): the turntable
-       disc is carved straight out of the base art (ellipse → un-squashed
-       circle), then spun inside a container that re-applies the perspective
-       squash + tilt. Zero new assets, zero seams. The tonearm is baked into
-       the same pixels for now — the visible smear at its tip is exactly WHY
-       the layered-parts asset pipeline is next. Hovering the music hotspot
-       doubles the spin (prop state > glow swap). */
-    const VINYL = { cx: 963, cy: 855, rx: 66, ry: 30, tilt: -0.12 };
-    let vinylSpin: Sprite | null = null;
+    /* ---------- living props: the turntable ----------
+       Living-diorama direction (2026-08-22, ai/design_system/research/
+       living-props.md): furniture moves instead of glowing. The vinyl is
+       carved out of EVERY mood's base art (ellipse → un-squashed circle) and
+       spun inside a frame that re-applies the perspective squash + tilt; the
+       tonearm is re-cut as a soft-edged patch drawn above it, so the arm
+       holds still while the record turns. The per-mood cuts cross-fade with
+       the base sprites, so the disc never looks pasted on. Hover is a state
+       change on the prop: the platter leans faster, the arm gives a swing. */
+    const turntable = room.props?.turntable;
+    const vinyls: PerspectiveMesh[] = []; // one per art, all sharing the spin
+    let vinylH: Mat3 | null = null; // disc plane → base px
+    let vinylSpin = 0; // radians turned so far
+    let armSwing: Container | null = null; // rotation = nudge about the post
+    const propSprites = new Map<string, Container[]>(); // art url → its cuts, faded with the base
     let vinylSpeed = (Math.PI * 2) / 9; // idle: one turn / 9s
-    {
-        // the loaded art texture's source is a decoded image we can sample
-        const artSrc = textures[resolveRoomArt(room, 'twilight')] ?? Object.values(textures)[0];
-        const img = (artSrc as Texture).source.resource as HTMLImageElement | ImageBitmap;
-        if (img) {
-            const discTex = circleFromBase(img, VINYL.cx, VINYL.cy, VINYL.rx, VINYL.ry, VINYL.tilt);
-            const pivot = new Container();
-            pivot.position.set(VINYL.cx, VINYL.cy);
-            pivot.rotation = VINYL.tilt;
-            pivot.scale.set(1, VINYL.ry / VINYL.rx); // back into the table plane
-            const disc = new Sprite(discTex);
-            disc.anchor.set(0.5);
-            pivot.addChild(disc);
-            world.addChild(pivot);
-            vinylSpin = disc;
+    let armVel = 0;
+    if (turntable) {
+        const { platter: e, center, armPivot, armPatch, stills = [] } = turntable;
+        vinylH = discHomography(e, center);
+        const platterLayer = new Container();
+        const sheenLayer = new Container(); // static light on the record, additive
+        const stillLayer = new Container(); // spindle & co: on the platter, never turning
+        armSwing = new Container();
+        armSwing.position.set(armPivot.x, armPivot.y);
+        const restCorners = discCorners(vinylH, 0);
+        for (const url of artUrls) {
+            // the loaded art texture's source is a decoded image we can sample
+            const img = textures[url].source.resource as ArtImage | undefined;
+            if (!img) continue;
+            const record = carveDisc(img, vinylH, e.rx, [armPatch, ...stills]);
+            const disc = new PerspectiveMesh({ texture: record.spin, verticesX: 12, verticesY: 12 });
+            platterLayer.addChild(disc);
+            vinyls.push(disc);
+            const sheen = new PerspectiveMesh({ texture: record.sheen, verticesX: 12, verticesY: 12 });
+            sheen.setCorners(...restCorners);
+            sheen.blendMode = 'add';
+            sheenLayer.addChild(sheen);
+            const cuts: Container[] = [disc, sheen];
+            for (const poly of stills) {
+                const patch = carvePatch(img, poly);
+                const still = new Sprite(patch.tex);
+                still.position.set(patch.box.x, patch.box.y);
+                stillLayer.addChild(still);
+                cuts.push(still);
+            }
+            const armCut = carvePatch(img, armPatch);
+            const arm = new Sprite(armCut.tex);
+            arm.position.set(armCut.box.x - armPivot.x, armCut.box.y - armPivot.y);
+            armSwing.addChild(arm);
+            cuts.push(arm);
+            propSprites.set(url, cuts);
         }
+        world.addChild(platterLayer, sheenLayer, stillLayer, armSwing);
     }
+    // place the record quad for the current spin — perspective-correct by
+    // construction, so rim and label both stay put while it turns
+    const layVinyl = () => {
+        if (!vinylH) return;
+        const p = discCorners(vinylH, vinylSpin);
+        for (const m of vinyls) m.setCorners(...p);
+    };
+    layVinyl();
 
     /* ---------- rain (masked to glass panes) ---------- */
     const rainC = new Container();
@@ -472,48 +790,24 @@ export async function buildScene(
         hands.tint = tint;
     };
 
-    /* ---------- furniture hotspots (baked glow + sparkles + tap) ----------
-       Affordance v4 (2026-08-22 user direction). Three states:
+    /* ---------- furniture hotspots (sparkles + living props + tap) ----------
+       Affordance v5 (2026-08-22 user direction: no glow, no edge, no image
+       swap — "the furniture itself moves"). Three states:
          silent  — nothing at all, the room is just a painting
-         hint    — sparkles ONLY, a touch dimmer than hover (the golden edge
-                   was too loud as a broadcast in a quiet cozy scene)
-         hover   — the baked golden edge lights up: painted art, not a stroke,
-                   because programmatic outlines read mechanical next to
-                   watercolor (affordance survey §7)
-       `outline` (hand-traced polygon, three strokes) survives only as the
-       fallback for rooms whose glow art has not been painted yet. */
+         hint    — sparkles ONLY, a touch dimmer than hover
+         hover   — a greeting sparkle plus the prop's own state change (the
+                   vinyl leans faster, the tonearm swings; see living props)
+       Hotspots without a living prop yet only sparkle on hover. */
     type Hot = {
         rect: (typeof room.hotspots)[number]['rect'];
-        glow: Sprite;
-        /** baked glow art when available, else the polygon stroke */
-        edge: Sprite | Graphics;
-        outline: Graphics;
         hovered: boolean;
         nextSparkleAt: number;
         hintPhase: number; // >0 while the periodic hint plays (start time)
-        hoverAt: number; // when the pointer entered (drives the 200ms ease-in)
+        hoverAt: number; // when the pointer entered
     };
     const hots: Hot[] = [];
     const hotLayer = new Container();
     world.addChild(hotLayer);
-
-    const strokeOutline = (g: Graphics, pts: { x: number; y: number }[] | null, rect: Hot['rect']) => {
-        const path = () => {
-            if (pts) {
-                g.poly(pts.map((p) => [p.x, p.y]).flat(), true);
-            } else {
-                // no trace (round clock) → circle synthesized from the rect
-                g.circle(rect.x + rect.w / 2, rect.y + rect.h / 2, Math.min(rect.w, rect.h) / 2 - 6);
-            }
-        };
-        // wide faint halo → mid warm band → thin bright gold line
-        path();
-        g.stroke({ width: 12, color: 0xffc978, alpha: 0.16, join: 'round', cap: 'round' });
-        path();
-        g.stroke({ width: 6, color: 0xffd9a0, alpha: 0.34, join: 'round', cap: 'round' });
-        path();
-        g.stroke({ width: 2.5, color: 0xffe6b5, alpha: 0.95, join: 'round', cap: 'round' });
-    };
 
     for (const h of room.hotspots) {
         const zone = new Container();
@@ -521,55 +815,21 @@ export async function buildScene(
         zone.cursor = 'pointer';
         zone.hitArea = new Rectangle(h.rect.x, h.rect.y, h.rect.w, h.rect.h);
 
-        // warm watercolor bloom, silent until hover (ai/UX.md §5)
-        const glow = new Sprite(radialGradientTexture('rgba(255,236,200,1)'));
-        glow.anchor.set(0.5);
-        glow.position.set(h.rect.x + h.rect.w / 2, h.rect.y + h.rect.h / 2);
-        glow.width = h.rect.w * 1.7;
-        glow.height = h.rect.h * 1.7;
-        glow.blendMode = 'screen';
-        glow.alpha = 0;
-        zone.addChild(glow);
-
-        // silhouette-hugging golden edge — baked art first, stroke as fallback
-        const outline = new Graphics();
-        strokeOutline(outline, h.outline ?? null, h.rect);
-        outline.blendMode = 'add';
-        outline.alpha = 0;
-
-        let edge: Sprite | Graphics = outline;
-        const baked = glowTex[h.id];
-        if (baked && h.glowBox) {
-            const gs = new Sprite(baked);
-            gs.position.set(h.glowBox.x, h.glowBox.y);
-            gs.width = h.glowBox.w;
-            gs.height = h.glowBox.h;
-            gs.blendMode = 'add'; // it is light spilling off the object
-            gs.alpha = 0;
-            edge = gs;
-        }
-        zone.addChild(edge);
-
         const hot: Hot = {
             rect: h.rect,
-            glow,
-            edge,
-            outline,
             hovered: false,
             nextSparkleAt: rand(1, 6), // desynced first twinkles
             hintPhase: 0,
             hoverAt: 0
         };
         zone.on('pointerover', () => {
-            hot.hovered = true; // ticker lights the edge + breathes the bloom
+            hot.hovered = true; // living props read this in the ticker
             hot.hintPhase = 0;
             hot.hoverAt = elapsed;
             hot.nextSparkleAt = -1; // greet the pointer with one spark right away
         });
         zone.on('pointerout', () => {
             hot.hovered = false;
-            startFade(glow, 0, 260);
-            startFade(edge, 0, 320);
         });
         zone.on('pointertap', () => {
             // a real interaction satisfies curiosity — quiet the hints a while
@@ -581,8 +841,7 @@ export async function buildScene(
     }
 
     // periodic hint scheduler: one furniture piece takes a turn to whisper
-    // "I'm tappable" — a burst of big sparkles, no edge (v4: the golden edge
-    // is hover-only, so the quiet scene never gets broadcast at).
+    // "I'm tappable" — a burst of big sparkles, nothing else.
     // Research-tuned pacing (affordance survey 2026-08-15): first hint after
     // 8–12s idle, then 22–45s between hints — companion products hint slower
     // than puzzle games, and any tap resets the clock (hints must never nag).
@@ -696,8 +955,11 @@ export async function buildScene(
         const targetArt = resolveRoomArt(room, mood);
         for (const [url, s] of baseSprites) {
             const to = url === targetArt ? 1 : 0;
-            if (animate) startFade(s, to, 900);
-            else s.alpha = to;
+            // prop cuts were taken from this very art, so they fade with it
+            for (const obj of [s, ...(propSprites.get(url) ?? [])]) {
+                if (animate) startFade(obj, to, 900);
+                else obj.alpha = to;
+            }
         }
 
         const next = buildLight(rec);
@@ -718,6 +980,12 @@ export async function buildScene(
 
     /* ---------- ticker ---------- */
     let elapsed = 0;
+    const musicHotIndex = room.hotspots.findIndex((h) => h.id === 'music');
+    // tonearm nudge spring: stiff enough to answer within ~0.3s, damped just
+    // under critical so it settles with one soft overshoot (dt is capped at
+    // 0.1s above, well inside the stable range for this pair)
+    const ARM_SPRING_K = 120;
+    const ARM_SPRING_DAMP = 14;
     const tick = () => {
         const dtMs = app.ticker.deltaMS;
         const dt = Math.min(dtMs, 100) / 1000;
@@ -823,23 +1091,20 @@ export async function buildScene(
             }
         }
 
-        // living props: the vinyl never stops; hovering the turntable's
-        // hotspot leans on the platter a little (speed, not a glow swap)
-        if (vinylSpin) {
-            const musicHot = hots[room.hotspots.findIndex((h) => h.id === 'music')];
-            const target = musicHot?.hovered ? (Math.PI * 2) / 4 : (Math.PI * 2) / 9;
+        // living props: the vinyl never stops; hovering the turntable leans
+        // on the platter (speed) and the tonearm gives a small swing — state
+        // changes on the prop itself, never a glow swap
+        if (vinylH && armSwing) {
+            const hovered = musicHotIndex >= 0 && hots[musicHotIndex].hovered;
+            const target = hovered ? (Math.PI * 2) / 4 : (Math.PI * 2) / 9;
             vinylSpeed += (target - vinylSpeed) * Math.min(1, dt * 3); // soft ramp
-            vinylSpin.rotation += vinylSpeed * dt;
-        }
-
-        // hovered hotspot: bloom breathes + the golden edge eases in (200ms),
-        // then holds a lit shimmer — no zero-ms state snaps (cheap feel)
-        for (const h of hots) {
-            if (h.hovered) {
-                const ease = Math.min(1, (elapsed - h.hoverAt) / 0.2);
-                h.glow.alpha = ease * (0.5 + 0.1 * Math.sin(elapsed * 2.2));
-                h.edge.alpha = ease * (0.88 + 0.12 * Math.sin(elapsed * 3));
-            }
+            vinylSpin = (vinylSpin + vinylSpeed * dt) % (Math.PI * 2);
+            layVinyl();
+            // under-damped spring toward the swung/rest angle: it overshoots a
+            // touch and settles, which is what "a part just moved" feels like
+            const armTarget = hovered ? -0.05 : 0; // ~3°, outward: ~4px at the headshell
+            armVel += (ARM_SPRING_K * (armTarget - armSwing.rotation) - ARM_SPRING_DAMP * armVel) * dt;
+            armSwing.rotation += armVel * dt;
         }
 
         // periodic hint: one spot at a time bursts a few big sparkles —

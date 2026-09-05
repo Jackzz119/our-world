@@ -48,73 +48,53 @@ export const STUDY_ROOM: RoomTemplate = {
     ],
     // furniture → feature entries (ai/UX.md §2); regions eyeballed on the
     // clean twilight art, refined in-browser like everything else here.
-    // `outline` = hand-traced silhouette for the golden hint stroke.
     hotspots: [
-        {
-            id: 'timeline', // open diary on the desk
-            rect: { x: 790, y: 480, w: 260, h: 130 },
-            glowBox: { x: 742, y: 432, w: 356, h: 226 },
-            outline: [
-                { x: 806, y: 560 },
-                { x: 824, y: 512 },
-                { x: 920, y: 488 },
-                { x: 1010, y: 500 },
-                { x: 1042, y: 540 },
-                { x: 1024, y: 588 },
-                { x: 920, y: 612 },
-                { x: 836, y: 598 }
-            ]
-        },
-        {
-            id: 'photos', // photo frames on the shelf
-            rect: { x: 930, y: 35, w: 250, h: 165 },
-            glowBox: { x: 882, y: 0, w: 346, h: 248 },
-            outline: [
-                { x: 952, y: 168 },
-                { x: 956, y: 58 },
-                { x: 1078, y: 42 },
-                { x: 1086, y: 96 },
-                { x: 1158, y: 92 },
-                { x: 1166, y: 186 },
-                { x: 1060, y: 196 }
-            ]
-        },
-        {
-            id: 'clock', // round wall clock — circle synthesized below
-            rect: { x: 1290, y: 42, w: 190, h: 190 },
-            glowBox: { x: 1242, y: 0, w: 286, h: 280 }
-        },
-        {
-            id: 'music', // turntable case on the low table
-            rect: { x: 840, y: 740, w: 260, h: 175 },
-            glowBox: { x: 792, y: 692, w: 356, h: 271 },
-            outline: [
-                { x: 880, y: 798 },
-                { x: 930, y: 704 },
-                { x: 1080, y: 670 },
-                { x: 1096, y: 746 },
-                { x: 1102, y: 848 },
-                { x: 996, y: 900 },
-                { x: 890, y: 866 }
-            ]
-        },
-        {
-            id: 'wishlist', // star jar
-            rect: { x: 1225, y: 405, w: 150, h: 245 },
-            glowBox: { x: 1177, y: 357, w: 246, h: 341 },
-            outline: [
-                { x: 1286, y: 606 },
-                { x: 1270, y: 540 },
-                { x: 1272, y: 470 },
-                { x: 1292, y: 432 },
-                { x: 1296, y: 408 },
-                { x: 1382, y: 406 },
-                { x: 1388, y: 430 },
-                { x: 1408, y: 468 },
-                { x: 1412, y: 545 },
-                { x: 1396, y: 608 },
-                { x: 1340, y: 622 }
+        { id: 'timeline', rect: { x: 790, y: 480, w: 260, h: 130 } }, // open diary on the desk
+        { id: 'photos', rect: { x: 930, y: 35, w: 250, h: 165 } }, // photo frames on the shelf
+        { id: 'clock', rect: { x: 1290, y: 42, w: 190, h: 190 } }, // round wall clock
+        { id: 'music', rect: { x: 840, y: 740, w: 260, h: 175 } }, // turntable case on the low table
+        { id: 'wishlist', rect: { x: 1225, y: 405, w: 150, h: 245 } } // star jar
+    ],
+    // living props — geometry MEASURED on the art, not eyeballed: the vinyl
+    // rim is a least-squares ellipse over 137 edge samples (rms 0.5px, see
+    // scripts/fit-disc-ellipse.py); golden/twilight/night share the
+    // composition within ±0.5px, so one spec serves all three moods.
+    props: {
+        turntable: {
+            platter: { cx: 963.6, cy: 844.7, rx: 82.4, ry: 49.9, tilt: 0.128 },
+            // label ellipse center (fit the same way); 3.8px above the rim
+            // center = the painting's real perspective, not a drawing error
+            center: { x: 962.6, y: 841.0 },
+            armPivot: { x: 1062.5, y: 844 },
+            armPatch: [
+                { x: 1056, y: 853 },
+                { x: 1040, y: 861 },
+                { x: 1025, y: 868 },
+                { x: 1012, y: 873 },
+                { x: 1003, y: 878 },
+                { x: 994, y: 880 },
+                { x: 980, y: 884 },
+                { x: 972, y: 892 },
+                { x: 973, y: 903 },
+                { x: 982, y: 912 },
+                { x: 996, y: 914 },
+                { x: 1008, y: 908 },
+                { x: 1012, y: 898 },
+                { x: 1022, y: 890 },
+                { x: 1036, y: 878 },
+                { x: 1048, y: 872 },
+                { x: 1058, y: 866 }
+            ],
+            stills: [
+                // spindle pin standing on the label (generous: the label
+                // around it is flat colour, so a static margin costs nothing)
+                [
+                    { x: 955, y: 826 },
+                    { x: 972, y: 826 },
+                    { x: 973, y: 850 },
+                    { x: 954, y: 850 }
+                ]
             ]
         }
-    ]
+    }
 };
