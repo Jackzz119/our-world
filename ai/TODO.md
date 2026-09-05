@@ -97,7 +97,7 @@
 
 ## 🧾 继承待办（v1 遗留，与新方向无关但仍要做）
 
-- [ ] **连 Supabase MCP 拉真实表结构回填 `ai/Features/supabase.md`**：拉表/列/RLS/触发器/RPC 实况 + `get_advisors` 刷新审计 → 回填该文第一章 → 它接管后端结构唯一真源，PROJECT.md 数据库章节缩为摘要 + 引用。**⚠️ 必须在带 supabase MCP 的新会话做**——2026-08-22 在旧会话实测：断开的 MCP 不会重新注册，OpenAPI 自省端点也已是 service_role 专属（详见该文档头执行尝试记录）
+- [ ] **连 Supabase MCP 拉真实表结构回填 `ai/Features/supabase.md`**：拉表/列/RLS/触发器/RPC 实况 + `get_advisors` 刷新审计 → 回填该文第一章 → 它接管后端结构唯一真源，PROJECT.md 数据库章节缩为摘要 + 引用。**⚠️ 前置：先修 Supabase 令牌**——2026-09-05 确认 `SUPABASE_ACCESS_TOKEN` 已失效（管理 API 直测 401），重新生成或改 OAuth 后重启会话（详见该文档头执行尝试记录）
 - [ ] **Supabase 审计遗留 migration**（要点已收录 PROJECT.md 数据库章节 + `ai/Features/supabase.md` 三/四章）：⚠️ worlds 外键 CASCADE→SET NULL（member 删号不该灭世界）+ 安全加固包（search_path/revoke/GraphQL/泄露密码保护）+ 性能包（RLS initplan×13 + FK 索引×4）
 - [ ] 昵称编辑写回 `profiles.display_name`（个人设置目前仍本地缓冲）
 - [ ] TENOR_API_KEY 配置（免费申请 → Supabase Secrets，贴纸搜图 tab 即活）
