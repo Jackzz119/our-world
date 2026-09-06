@@ -630,7 +630,7 @@ export async function buildScene(
     let vinylSpeed = (Math.PI * 2) / 9; // idle: one turn / 9s
     let armVel = 0;
     if (turntable) {
-        const { platter: e, center, armPivot, armPatch, stills = [] } = turntable;
+        const { platter: e, center, armPivot, arm: armSpec, stills = [] } = turntable;
         vinylH = discHomography(e, center);
         const platterLayer = new Container();
         const sheenLayer = new Container(); // static light on the record, additive
@@ -638,11 +638,15 @@ export async function buildScene(
         armSwing = new Container();
         armSwing.position.set(armPivot.x, armPivot.y);
         const restCorners = discCorners(vinylH, 0);
+        // the tonearm ships as its own part per mood (cut out together with
+        // the clean plates by scripts/build-turntable-parts.py)
+        const armTex = await Assets.load<Texture>([...new Set(Object.values(armSpec.art))] as string[]);
+        const moods = Object.keys(room.art) as RoomMood[];
         for (const url of artUrls) {
             // the loaded art texture's source is a decoded image we can sample
             const img = textures[url].source.resource as ArtImage | undefined;
             if (!img) continue;
-            const record = carveDisc(img, vinylH, e.rx, [armPatch, ...stills]);
+            const record = carveDisc(img, vinylH, e.rx, stills);
             const disc = new PerspectiveMesh({ texture: record.spin, verticesX: 12, verticesY: 12 });
             platterLayer.addChild(disc);
             vinyls.push(disc);
@@ -658,11 +662,16 @@ export async function buildScene(
                 stillLayer.addChild(still);
                 cuts.push(still);
             }
-            const armCut = carvePatch(img, armPatch);
-            const arm = new Sprite(armCut.tex);
-            arm.position.set(armCut.box.x - armPivot.x, armCut.box.y - armPivot.y);
-            armSwing.addChild(arm);
-            cuts.push(arm);
+            const mood = moods.find((m) => room.art[m] === url);
+            const armSrc = mood ? armSpec.art[mood] : undefined;
+            if (armSrc && armTex[armSrc]) {
+                const arm = new Sprite(armTex[armSrc]);
+                arm.position.set(armSpec.box.x - armPivot.x, armSpec.box.y - armPivot.y);
+                arm.width = armSpec.box.w;
+                arm.height = armSpec.box.h;
+                armSwing.addChild(arm);
+                cuts.push(arm);
+            }
             propSprites.set(url, cuts);
         }
         world.addChild(platterLayer, sheenLayer, stillLayer, armSwing);

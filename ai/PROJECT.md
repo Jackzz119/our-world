@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」。2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 三件套：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/STYLE.md`（风格效果基准）。
-> 最后更新：2026-09-05（活物件首件：唱片机转盘透视真旋转落地；hover 光晕/描边/换图方案全部退役）
+> 最后更新：2026-09-05（timeline v2「我们的日记」已实现；活物件首件唱片机已落地）
 
 ## 产品定位（PRD）
 
@@ -53,7 +53,7 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router v7，包管理 pnpm，格式化 Prettier
 - **样式**: 自有 CSS 体系（无框架）——四载体契约见 `ai/STYLE.md` §8；主题 `src/themes/cinnaglass/`（玻璃拟态 + 大耳狗色调）
-- **场景层**: PixiJS v8 WebGL 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`（底图×时辰交叉淡化 + 雨层 mask 到玻璃格 + 真实走时挂钟 + 角色 + 光照配方 mood×weather + 星星提示 + 热点点击）。**活物件（living props）**：家具直接从底图抠出来自己动，hover 只改参数不换图——唱片机转盘用「外沿椭圆 + 圆心」像素级量测得到的单应矩阵做**透视真旋转**（`PerspectiveMesh`，圆心与外沿转动时都不漂），唱臂/唱针抠成静止贴片，宽幅高光拆成静态加色层，hover = 转速提升 + 唱臂弹簧摆动。量测工具 `scripts/fit-disc-ellipse.py`；方案研究 `ai/design_system/research/living-props.md`
+- **场景层**: PixiJS v8 WebGL 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`（底图×时辰交叉淡化 + 雨层 mask 到玻璃格 + 真实走时挂钟 + 角色 + 光照配方 mood×weather + 星星提示 + 热点点击）。**活物件（living props）**：家具直接从底图抠出来自己动，hover 只改参数不换图——唱片机转盘用「外沿椭圆 + 圆心」像素级量测得到的单应矩阵做**透视真旋转**（`PerspectiveMesh`，圆心与外沿转动时都不漂），唱臂是独立零件（`public/rooms/study/parts/tonearm-<mood>.png`，由 `scripts/build-turntable-parts.py` 从原画抠出，同时生成擦掉唱臂的 clean plate 作为房间底图；原画真源在 `arts/rooms/study/source/`），唱针为静止贴片，宽幅高光拆成静态加色层，hover = 转速提升 + 唱臂弹簧摆动。量测工具 `scripts/fit-disc-ellipse.py`；方案研究 `ai/design_system/research/living-props.md`
 - **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸 scaleY / 摇摆 / 随机眨眼），在 pixi 合成器内与场景共享同一套光照；动作丰富化阶段再评估 Rive/Spine（依据见 ai/reboot/tech-plan.md §2）
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——**新产品功能 100% 命中已有后端，零迁移**
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -83,10 +83,10 @@ src/
 > **功能细节的载体是 `ai/Features/*.md`**（`CLAUDE.md` 文档维护规则）——2026-08-09 提交 `7c93c3c` 曾把该目录一刀全删（与 `ai/reboot/tech-plan.md` §119「保留 timeline/chat/supabase」的计划相悖），已于 2026-08-22 恢复 timeline / chat / supabase 三份。channel / sidebar / ui-system / settings / world / world-space-ui / image-slot / handoff 等随 Discord 壳层作废，不恢复。
 
 - **auth 地基**：登录页 + 路由守卫 + 忘记密码/重置 + 登出；白名单 = Supabase 关闭注册开关（已验证 422 拦截）；dev 模式 `VITE_DEV` = 自动**真登录**（`VITE_DEV_EMAIL/PASSWORD`，无会话则 RLS 全空）；手动加账号走 Dashboard「Add user」/Admin API，不 SQL 直插
-- **timeline 时间线**（2026-08-21 代码核对：以下全部在役）：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新、日期手帐贴纸、点线小路、头像贴纸挂卡）；Composer 多图受控选择器（所见即所传，上限 9 张）+ 草稿（点外/Esc 收起保草稿，取消是唯一清空，折叠条显示草稿预览）+ textarea 自动长高（220px 后内滚）；卡片 6 行 clamp + `overflow-wrap:anywhere` 防长串穿框，全文进详情弹层；作者色身份系统（我=蓝 accent、对方=粉，打在光环/名字/边线）；宽屏 ≥1200px 两侧原创云朵小狗吉祥物；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
-  - **入口**：书房书桌上的日记本热点 → `SubScreen('timeline')`，与照片墙/心愿单同一弹窗三 tab（`MODAL_TABS`）
-  - **外壳待翻新**：SubScreen 仍是 v1 的 `.modal glass tall` 玻璃弹窗，**未收敛到 concept-c 白纸功能卡规范**（见 TODO R1「白纸功能卡收敛」）——这是 timeline 目前唯一的已知视觉欠账
-  - **📄 细节文档**：`ai/Features/timeline.md`（链路/模块/数据模型/ST-A~V 实现记录/测试记录；视觉与功能迭代在该文档继续）
+- **timeline 时间线**（2026-09-05 代码核对：以下全部在役）：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新、日期手帐贴纸、点线小路、头像贴纸挂卡）；Composer 多图受控选择器（所见即所传，上限 9 张）+ 草稿（点外/Esc 收起保草稿，取消是唯一清空，折叠条显示草稿预览）+ textarea 自动长高（220px 后内滚）；卡片 6 行 clamp + `overflow-wrap:anywhere` 防长串穿框，全文进详情弹层；作者色身份系统（我=蓝 accent、对方=粉，打在光环/名字/3px 左边线）；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
+    - **入口/外壳**：书房日记本热点 → 独立「我们的日记」ObjectSurface；相框/许愿罐分别打开自己的照片墙/心愿单 ObjectSurface，不再有三 tab。日记采用方向 3 窄幅纯白平纸 + 物件起点 220ms 开场，宽度断点 `504/432/288px`，宽屏云朵吉祥物和 `.modal.tall` 依赖已删除
+    - **视觉真源**：`--accent-deep: #2F9AD3` 固定跨 mood，夜间外壳亮蓝走 `--shell-accent`；组件与验收样例同步到 `ai/design_system/cinnaglass/ui-system.html`
+    - **📄 细节文档**：`ai/Features/timeline.md`（链路/模块/数据模型/ST-A~V 实现记录/测试记录；视觉与功能迭代在该文档继续）
 - **照片墙**：自然纵横比 polaroid 拼贴（白框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载
 - **聊天全链路**：Broadcast from Database（写库 + trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除粒子/reaction chips/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function Tenor 代理转存 + EmotePicker 自维护 230 emoji 中文索引）；DM = channels `type='dm'`（账号级 topic `user:{uid}`）——**DM/好友 UI 在新方向收起，数据层冻结保留**。**📄 细节文档**：`ai/Features/chat.md`（v1 双形态论述读时注意 ChatDock 已被 concept-c 聊天窄卡 + 头顶气泡取代）
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 图存 memories 桶 256px webp）；纪念日/在一起天数从 DB 实时计算；**欠：昵称编辑写回 profiles.display_name**（个人设置仍本地缓冲）
@@ -104,19 +104,19 @@ src/
 
 ### 表（列以前端实际 select 为准）
 
-| 表 | 应用读写的列 | 备注 |
-| --- | --- | --- |
-| `allowed_emails` | email(PK) / note / created_at | 白名单表；**实际拦截靠 Dashboard 关闭注册开关**，当前**无任何代码引用** |
-| `profiles` | id(FK auth.users) / display_name / avatar_url | trigger `on_auth_user_created → handle_new_user()` 自动建档 |
-| `worlds` | id / owner_id / member_id / name / anniversary / icon_emoji / icon_path / intimacy_points / created_at | 另有 `status`(pending\|active) 列存在但前端不 select；约束 no_self_pair、active_requires_member；trigger 每人限一世界 |
-| `posts` | author_id / world_id / content / images[] / privacy(shared\|locked\|private) / unlock_cost / created_at / updated_at | **写直插、读只走 RPC** |
-| `post_unlocks` | post_id / user_id / unlocked_at | locked 帖解锁记录，解锁经济未启用 |
-| `channels` | id / world_id / type(text\|voice\|room\|dm) / name / topic / scene_id / position / dm_user_a / dm_user_b | world 型 + dm 型（规范序对）；trigger 新世界自动建默认频道。新方向 UI 无频道概念，表保留当聊天管道 |
-| `messages` | id / channel_id / world_id / author_id / content(≤4000) / created_at / edited_at / kind(text\|sticker) / emote_id | trigger `set_world` 回填 world_id + 广播 |
-| `message_reactions` | message_id / user_id / world_id / emoji / created_at | PK(message, user, emoji) |
-| `channel_reads` | channel_id / user_id / world_id / last_read_at | 已读游标，只进不退 guard |
-| `world_emotes` | id / world_id / name / storage_path / source_url / added_by / created_at | 世界共享贴纸库（LINE 单轨模式） |
-| `friendships` | user_a / user_b / requested_by / status / created_at / responded_at | 账号级规范序对；accepted → 自动建 DM。**新方向 UI 冻结，数据层保留不删** |
+| 表                  | 应用读写的列                                                                                                         | 备注                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `allowed_emails`    | email(PK) / note / created_at                                                                                        | 白名单表；**实际拦截靠 Dashboard 关闭注册开关**，当前**无任何代码引用**                                               |
+| `profiles`          | id(FK auth.users) / display_name / avatar_url                                                                        | trigger `on_auth_user_created → handle_new_user()` 自动建档                                                           |
+| `worlds`            | id / owner_id / member_id / name / anniversary / icon_emoji / icon_path / intimacy_points / created_at               | 另有 `status`(pending\|active) 列存在但前端不 select；约束 no_self_pair、active_requires_member；trigger 每人限一世界 |
+| `posts`             | author_id / world_id / content / images[] / privacy(shared\|locked\|private) / unlock_cost / created_at / updated_at | **写直插、读只走 RPC**                                                                                                |
+| `post_unlocks`      | post_id / user_id / unlocked_at                                                                                      | locked 帖解锁记录，解锁经济未启用                                                                                     |
+| `channels`          | id / world_id / type(text\|voice\|room\|dm) / name / topic / scene_id / position / dm_user_a / dm_user_b             | world 型 + dm 型（规范序对）；trigger 新世界自动建默认频道。新方向 UI 无频道概念，表保留当聊天管道                    |
+| `messages`          | id / channel_id / world_id / author_id / content(≤4000) / created_at / edited_at / kind(text\|sticker) / emote_id    | trigger `set_world` 回填 world_id + 广播                                                                              |
+| `message_reactions` | message_id / user_id / world_id / emoji / created_at                                                                 | PK(message, user, emoji)                                                                                              |
+| `channel_reads`     | channel_id / user_id / world_id / last_read_at                                                                       | 已读游标，只进不退 guard                                                                                              |
+| `world_emotes`      | id / world_id / name / storage_path / source_url / added_by / created_at                                             | 世界共享贴纸库（LINE 单轨模式）                                                                                       |
+| `friendships`       | user_a / user_b / requested_by / status / created_at / responded_at                                                  | 账号级规范序对；accepted → 自动建 DM。**新方向 UI 冻结，数据层保留不删**                                              |
 
 ### RPC / Edge Function / Storage / Realtime
 
@@ -154,9 +154,9 @@ src/
 
 - `ai/TODO.md` — 任务唯一来源
 - `ai/Features/` — **功能细节文档载体**（`CLAUDE.md` 规则：细节写这里，PROJECT.md 只留摘要 + 引用）
-  - `timeline.md` — 回忆链路（时间线/照片墙/Composer/Storage）🟢 在役，视觉与功能迭代记于此
-  - `chat.md` — 聊天系统 🟢 在役（UI 形态已换 concept-c，数据层不变）
-  - `supabase.md` — 后端结构审计 🟡 正文待 MCP 复核回填
+    - `timeline.md` — 回忆链路（时间线/照片墙/Composer/Storage）🟢 在役，视觉与功能迭代记于此
+    - `chat.md` — 聊天系统 🟢 在役（UI 形态已换 concept-c，数据层不变）
+    - `supabase.md` — 后端结构审计 🟡 正文待 MCP 复核回填
 - `ai/STYLE.md` — 风格效果基准（概念图/角色/光照/声音/UI/验收标准）
 - `ai/UX.md` — UI 交互体系基准（三档密度架构/入口地图/动效音效参数/反模式，2026-08-10 提案）
 - `ai/concept/` — **定稿概念图正式存放处**（六张 + codex 报告；后续新概念稿也入此处）

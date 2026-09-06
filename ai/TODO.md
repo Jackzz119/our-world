@@ -50,11 +50,11 @@
 
 - [x] 物件热点组件（2026-08-10 首版，2026-09-05 定稿 v5）：点击开功能——五件全挂：日记本→timeline、相框→照片墙、挂钟→时钟、唱片机→音乐、许愿罐→心愿单；可点提示 = 周期星星 + hover 问候星星 + 物件自身动起来（活物件），**光环/描边/换图三条路全部否决并删除**（白环→多边形描边→烘焙光晕，用户逐轮否决）
 - [~] **活物件（living props）**：让家具自己动，hover 只改参数不换图（研究与方案 `ai/design_system/research/living-props.md`）
-   - [x] 唱片机（2026-09-05）：转盘透视真旋转（唱片外沿椭圆 + 圆心像素级量测 → 单应矩阵 → PerspectiveMesh，圆心/外沿旋转时都不漂）、唱臂与唱针从底图抠成静止贴片、宽幅高光拆成静态加色层、hover 转速 ×2.25 + 唱臂 3° 弹簧摆动；量测工具 `scripts/fit-disc-ellipse.py`
-   - [ ] 许愿罐：星星 idle 漂浮、hover 更亮更快（分层资产：玻璃/5-8 颗星/丝带/光晕，codex 出件 + 差分校验）
-   - [ ] P2 程序化件：台灯光晕呼吸、咖啡热气、窗帘微飘（MeshPlane 扰动）
-- [ ] 白纸功能卡收敛：单卡居中、宽 ≤54-60%、场景压暗+blur 退后、不遮挡任一角色（概念图 04 规范）——SubScreen/弹窗族仍是旧样式
-   - [~] **timeline v2 重做比稿完成，待 Codex 再决策**（2026-09-05）：Codex 三方向 + 策划（`codex-visual/20260905-215344Z/`）；Claude 独立复核 + 六个决策点 + 倾向见 `ai/Features/timeline.md` 七；用户决定由 Codex 接手复核结论后再次决策，上下文移交稿 `codex-visual/20260905-215344Z/handoff-context-for-codex.md`。决策落定后再排实现分期
+    - [x] 唱片机（2026-09-05，两轮）：转盘透视真旋转（唱片外沿椭圆 + 圆心像素级量测 → 单应矩阵 → PerspectiveMesh，圆心/外沿旋转时都不漂）、宽幅高光拆成静态加色层、hover 转速 ×2.25 + 唱臂 3° 弹簧摆动。第二轮走**真分件**：`scripts/build-turntable-parts.py` 从原画抠出唱臂零件（`public/rooms/study/parts/`）并生成擦掉唱臂的 clean plate 当新底图（盘内极坐标中值补洞、机身 Telea），差分闸门「零件叠回 ≡ 原图」mean 1.2–2.6/255、引擎静止渲染 vs 原画 mean 0.54；原画移入 `arts/rooms/study/source/` 作量测真源。codex 的 AI 局部重绘 clean plate 试过一轮不合格（残影/接缝），此类精度活走确定性脚本。量测工具 `scripts/fit-disc-ellipse.py`
+    - [ ] 许愿罐：星星 idle 漂浮、hover 更亮更快（分层资产：玻璃/5-8 颗星/丝带/光晕，codex 出件 + 差分校验）
+    - [ ] P2 程序化件：台灯光晕呼吸、咖啡热气、窗帘微飘（MeshPlane 扰动）
+- [ ] 白纸功能卡收敛：单卡居中、宽 ≤54-60%、场景压暗+blur 退后、不遮挡任一角色（概念图 04 规范）——timeline 已完成，其他弹窗族仍待收敛
+    - [x] **timeline v2「我们的日记」已实现**（2026-09-05）：方向 3 窄幅平纸 + 方向 2 物件起点 220ms 开场；三 tab 已拆为日记/照片墙/心愿单三张独立 ObjectSurface；条目纯白，作者色只落头像/名字/3px 边线；纸宽三断点 `504/432/288px`；`--accent-deep` 固定为 `#2F9AD3`，mood 亮蓝改走 `--shell-accent`。已完成真实 CSS 实景与断点量测；决策与修订分期见 `codex-visual/20260905-215344Z/decisions-v2.md`
 - [x] 聊天气泡浮对方角色头顶（2026-08-10）：对方新消息 → 头顶白气泡 4.5s（wobble 入场），贴纸显示「发来一张贴纸」
 - [ ] 兜底提示：长按/双击场景空白 → 全部热点亮轮廓 2s（UX §5，触屏后备）
 
@@ -85,7 +85,7 @@
 - [ ] Electron 打包：无边框置顶窗 + 系统托盘 + 开机自启（同一套 web 代码）
 - [ ] 贴边小窗形态（Rusty's Retirement 式屏幕角/边停靠）
 - [ ] 性能验收：静止时不持续渲染、失焦暂停、对标 Desktop Mate 低画质档 1-2% CPU
-   - 已知隐患（2026-09-05 记）：pixi ticker 固定 30fps 常渲染，静止画面也在烧；方案 = 按需渲染 / 自适应帧率（有活物件在动 30，只剩秒针+呼吸时降到 12-15，hover 期间可临时 60）；另测 5-6 块 backdrop-filter 玻璃面板叠在 30fps canvas 上的合成开销
+    - 已知隐患（2026-09-05 记）：pixi ticker 固定 30fps 常渲染，静止画面也在烧；方案 = 按需渲染 / 自适应帧率（有活物件在动 30，只剩秒针+呼吸时降到 12-15，hover 期间可临时 60）；另测 5-6 块 backdrop-filter 玻璃面板叠在 30fps canvas 上的合成开销
 
 ## 📦 Phase R3 — 桌宠模式
 
@@ -109,9 +109,9 @@
 - [ ] TENOR_API_KEY 配置（免费申请 → Supabase Secrets，贴纸搜图 tab 即活）
 - [ ] member 测试数据清理（【测试数据】前缀 ×6，上线前删）
 - [~] 回忆链路边界测试（2026-07-08 浏览器实测一轮，结论 2026-08-21 复核仍成立）：非图片 mime 被选择器过滤 ✓、超 25MB 上传失败且草稿保留 ✓、断网失败且草稿保留 ✓、签名过期由 40 分钟续签覆盖 ✓。**剩两处文案 bug 待修**：
-   - 超限上传把 Storage 英文原文直接抛给用户（`The object exceeded the maximum allowed size`）→ 应映射中文
-   - 断网时 `createPost` 里 `auth.getUser()` 先失败，被误报成「未登录，无法发帖」→ 应区分网络错误（TypeError）提示「网络好像断了」
-   - 未覆盖：无世界账号的 error 态（注册已关，需 Dashboard 建测试号）、双人视角 shared 帖复验（需对方账号登录）
+    - 超限上传把 Storage 英文原文直接抛给用户（`The object exceeded the maximum allowed size`）→ 应映射中文
+    - 断网时 `createPost` 里 `auth.getUser()` 先失败，被误报成「未登录，无法发帖」→ 应区分网络错误（TypeError）提示「网络好像断了」
+    - 未覆盖：无世界账号的 error 态（注册已关，需 Dashboard 建测试号）、双人视角 shared 帖复验（需对方账号登录）
 - [ ] 聊天双端联调残项：互删粒子/reaction 同步/断网重试/贴纸互发（原 CH-23/DM-8/EMO 验收）
 
 ---

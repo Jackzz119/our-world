@@ -31,3 +31,6 @@ dist-ssr
 
 # blender auto-backup
 *.blend1
+
+# Python tool caches
+__pycache__/

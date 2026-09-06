@@ -47,14 +47,15 @@ export type TurntableSpec = {
      * rendered as a real perspective rotation instead of a flat one.
      */
     center: PxPoint;
-    /** Tonearm post center; the arm patch swings around it on hover. */
+    /** Tonearm post center; the arm part swings around it on hover. */
     armPivot: PxPoint;
     /**
-     * Hand-traced polygon covering the tonearm from post to headshell with a
-     * few px of margin. It is re-cut from the base art and drawn above the
-     * spinning platter so the arm holds still while the vinyl turns.
+     * The tonearm as its own part, cut out of the original painting per mood
+     * by scripts/build-turntable-parts.py — which also erases it from the
+     * base art (the "clean plate" the room now ships). `box` is where the
+     * cutout lands in base px, so laying it back reproduces the original.
      */
-    armPatch: PxPoint[];
+    arm: { box: PxRect; art: Partial<Record<RoomMood, string>> };
     /**
      * Other painted details sitting on the platter that must not turn with
      * it (the spindle, a fixed sheen). Each is inpainted out of the spinning

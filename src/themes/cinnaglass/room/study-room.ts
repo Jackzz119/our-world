@@ -7,6 +7,9 @@ import type { RoomTemplate } from './room-types';
 export const STUDY_ROOM: RoomTemplate = {
     id: 'study',
     base: { w: 1586, h: 992 },
+    // clean plates: the painting with the tonearm erased (it ships as a
+    // living-prop part instead). Untouched originals — the measurement truth
+    // for every anchor below — live in arts/rooms/study/source/.
     art: {
         golden: '/rooms/study/golden.png',
         twilight: '/rooms/study/twilight.png',
@@ -66,25 +69,16 @@ export const STUDY_ROOM: RoomTemplate = {
             // center = the painting's real perspective, not a drawing error
             center: { x: 962.6, y: 841.0 },
             armPivot: { x: 1062.5, y: 844 },
-            armPatch: [
-                { x: 1056, y: 853 },
-                { x: 1040, y: 861 },
-                { x: 1025, y: 868 },
-                { x: 1012, y: 873 },
-                { x: 1003, y: 878 },
-                { x: 994, y: 880 },
-                { x: 980, y: 884 },
-                { x: 972, y: 892 },
-                { x: 973, y: 903 },
-                { x: 982, y: 912 },
-                { x: 996, y: 914 },
-                { x: 1008, y: 908 },
-                { x: 1012, y: 898 },
-                { x: 1022, y: 890 },
-                { x: 1036, y: 878 },
-                { x: 1048, y: 872 },
-                { x: 1058, y: 866 }
-            ],
+            // parts built from arts/rooms/study/source by
+            // scripts/build-turntable-parts.py (box printed by the script)
+            arm: {
+                box: { x: 967, y: 823, w: 114, h: 97 },
+                art: {
+                    golden: '/rooms/study/parts/tonearm-golden.png',
+                    twilight: '/rooms/study/parts/tonearm-twilight.png',
+                    night: '/rooms/study/parts/tonearm-night.png'
+                }
+            },
             stills: [
                 // spindle pin standing on the label (generous: the label
                 // around it is flat colour, so a static margin costs nothing)
