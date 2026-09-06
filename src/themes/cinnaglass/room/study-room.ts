@@ -72,7 +72,7 @@ export const STUDY_ROOM: RoomTemplate = {
             // parts built from arts/rooms/study/source by
             // scripts/build-turntable-parts.py (box printed by the script)
             arm: {
-                box: { x: 967, y: 823, w: 114, h: 97 },
+                box: { x: 965, y: 820, w: 123, h: 103 },
                 art: {
                     golden: '/rooms/study/parts/tonearm-golden.png',
                     twilight: '/rooms/study/parts/tonearm-twilight.png',
