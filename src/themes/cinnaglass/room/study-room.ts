@@ -69,15 +69,19 @@ export const STUDY_ROOM: RoomTemplate = {
             // center = the painting's real perspective, not a drawing error
             center: { x: 962.6, y: 841.0 },
             armPivot: { x: 1062.5, y: 844 },
-            // parts built from arts/rooms/study/source by
-            // scripts/build-turntable-parts.py (box printed by the script)
+            // generated layers assembled by scripts/build-turntable-parts.py
+            // (boxes are printed by the script — paste, never eyeball)
             arm: {
-                box: { x: 965, y: 820, w: 123, h: 103 },
-                art: {
-                    golden: '/rooms/study/parts/tonearm-golden.png',
-                    twilight: '/rooms/study/parts/tonearm-twilight.png',
-                    night: '/rooms/study/parts/tonearm-night.png'
-                }
+                golden: { src: '/rooms/study/parts/tonearm-golden.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } },
+                twilight: { src: '/rooms/study/parts/tonearm-twilight.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } },
+                night: { src: '/rooms/study/parts/tonearm-night.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } }
+            },
+            // light from the window (upper left) by day, from the desk lamp at
+            // night: the shadow leans further right and longer after dark
+            armShadow: {
+                golden: { dx: 2, dy: 4 },
+                twilight: { dx: 1.5, dy: 4 },
+                night: { dx: 3, dy: 5 }
             },
             stills: [
                 // spindle pin standing on the label (generous: the label

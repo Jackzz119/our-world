@@ -50,12 +50,19 @@ export type TurntableSpec = {
     /** Tonearm post center; the arm part swings around it on hover. */
     armPivot: PxPoint;
     /**
-     * The tonearm as its own part, cut out of the original painting per mood
-     * by scripts/build-turntable-parts.py — which also erases it from the
-     * base art (the "clean plate" the room now ships). `box` is where the
-     * cutout lands in base px, so laying it back reproduces the original.
+     * The tonearm as its own GENERATED layer per mood (codex paints it in
+     * place on a chroma backdrop; scripts/build-turntable-parts.py keys it,
+     * registers it against the painting and erases it from the base art —
+     * the "clean plate" the room ships). `box` is where the texture lands in
+     * base px; boxes differ per mood because each arm is its own painting.
      */
-    arm: { box: PxRect; art: Partial<Record<RoomMood, string>> };
+    arm: Partial<Record<RoomMood, { src: string; box: PxRect }>>;
+    /**
+     * Where the arm's cast shadow falls at rest, in base px. It is a light
+     * direction, so it belongs to the hour: window light by day, lamp light
+     * at night. The runtime stretches it as the arm lifts.
+     */
+    armShadow: Record<RoomMood, { dx: number; dy: number }>;
     /**
      * Other painted details sitting on the platter that must not turn with
      * it (the spindle, a fixed sheen). Each is inpainted out of the spinning

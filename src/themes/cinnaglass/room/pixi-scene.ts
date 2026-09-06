@@ -458,6 +458,27 @@ function polarInpaint(tex: ImageData, S: number, Hinv: Mat3, regions: PxPoint[][
 }
 
 /**
+ * Bake a soft cast-shadow texture from a part's alpha: its silhouette,
+ * blurred, filled black. Position and opacity are driven at runtime (light
+ * direction per mood, how far the part is lifted), so the shadow answers the
+ * motion instead of riding along as a sticker.
+ */
+function shadowTexture(img: ArtImage, res: number, blurPx: number): Texture {
+    const pad = Math.ceil(blurPx * 3);
+    const c = document.createElement('canvas');
+    c.width = img.width + pad * 2;
+    c.height = img.height + pad * 2;
+    const ctx = c.getContext('2d')!;
+    if ('filter' in ctx) ctx.filter = `blur(${blurPx}px)`;
+    ctx.drawImage(img, pad, pad);
+    ctx.filter = 'none';
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, c.width, c.height);
+    return canvasTexture(c, res);
+}
+
+/**
  * Re-cut a hand-traced polygon of the base art as its own sprite with a
  * feathered silhouette, so it can sit above a moving prop (and be nudged a
  * pixel or two itself) without a hard seam. Returns the texture plus the
@@ -625,22 +646,31 @@ export async function buildScene(
     const vinyls: PerspectiveMesh[] = []; // one per art, all sharing the spin
     let vinylH: Mat3 | null = null; // disc plane → base px
     let vinylSpin = 0; // radians turned so far
-    let armSwing: Container | null = null; // rotation = nudge about the post
+    let armSwing: Container | null = null; // rotation = lean about the post
     const propSprites = new Map<string, Container[]>(); // art url → its cuts, faded with the base
     let vinylSpeed = (Math.PI * 2) / 9; // idle: one turn / 9s
-    let armVel = 0;
+    // "lift" is the tonearm's one state: 0 = resting on the record, 1 = cued
+    // up. Arm, lean and shadow all derive from it, so they can never disagree.
+    let lift = 0;
+    let liftVel = 0;
+    const armSprites: { sprite: Sprite; restY: number }[] = [];
+    const armShadows: { sprite: Sprite; restX: number; restY: number; dx: number; dy: number }[] = [];
+    const SHADOW_ALPHA = 0.42;
     if (turntable) {
-        const { platter: e, center, armPivot, arm: armSpec, stills = [] } = turntable;
+        const { platter: e, center, armPivot, arm: armSpec, armShadow, stills = [] } = turntable;
         vinylH = discHomography(e, center);
         const platterLayer = new Container();
         const sheenLayer = new Container(); // static light on the record, additive
         const stillLayer = new Container(); // spindle & co: on the platter, never turning
         armSwing = new Container();
         armSwing.position.set(armPivot.x, armPivot.y);
+        const armShadowGroup = new Container(); // every mood's shadow below every mood's arm
+        const armGroup = new Container();
+        armSwing.addChild(armShadowGroup, armGroup);
         const restCorners = discCorners(vinylH, 0);
-        // the tonearm ships as its own part per mood (cut out together with
-        // the clean plates by scripts/build-turntable-parts.py)
-        const armTex = await Assets.load<Texture>([...new Set(Object.values(armSpec.art))] as string[]);
+        // the tonearm ships as its own generated layer per mood (see
+        // scripts/build-turntable-parts.py)
+        const armTex = await Assets.load<Texture>([...new Set(Object.values(armSpec).map((a) => a.src))]);
         const moods = Object.keys(room.art) as RoomMood[];
         for (const url of artUrls) {
             // the loaded art texture's source is a decoded image we can sample
@@ -663,14 +693,35 @@ export async function buildScene(
                 cuts.push(still);
             }
             const mood = moods.find((m) => room.art[m] === url);
-            const armSrc = mood ? armSpec.art[mood] : undefined;
-            if (armSrc && armTex[armSrc]) {
-                const arm = new Sprite(armTex[armSrc]);
-                arm.position.set(armSpec.box.x - armPivot.x, armSpec.box.y - armPivot.y);
-                arm.width = armSpec.box.w;
-                arm.height = armSpec.box.h;
-                armSwing.addChild(arm);
+            const part = mood ? armSpec[mood] : undefined;
+            if (mood && part && armTex[part.src]) {
+                const tex = armTex[part.src];
+                const res = tex.width / part.box.w; // texture px per base px
+                const src = tex.source.resource as ArtImage | undefined;
+                if (src) {
+                    const blur = 2.2 * res;
+                    const pad = Math.ceil(blur * 3) / res;
+                    const shadow = new Sprite(shadowTexture(src, res, blur));
+                    shadow.position.set(part.box.x - armPivot.x - pad, part.box.y - armPivot.y - pad);
+                    shadow.width = part.box.w + pad * 2;
+                    shadow.height = part.box.h + pad * 2;
+                    shadow.blendMode = 'multiply';
+                    shadow.alpha = SHADOW_ALPHA;
+                    // the mood cross-fade animates the holder, the lift drives the
+                    // sprite: two alphas that must never fight over one field
+                    const holder = new Container();
+                    holder.addChild(shadow);
+                    armShadowGroup.addChild(holder);
+                    cuts.push(holder);
+                    armShadows.push({ sprite: shadow, restX: shadow.x, restY: shadow.y, dx: armShadow[mood].dx, dy: armShadow[mood].dy });
+                }
+                const arm = new Sprite(tex);
+                arm.position.set(part.box.x - armPivot.x, part.box.y - armPivot.y);
+                arm.width = part.box.w;
+                arm.height = part.box.h;
+                armGroup.addChild(arm);
                 cuts.push(arm);
+                armSprites.push({ sprite: arm, restY: arm.y });
             }
             propSprites.set(url, cuts);
         }
@@ -995,6 +1046,7 @@ export async function buildScene(
     // 0.1s above, well inside the stable range for this pair)
     const ARM_SPRING_K = 120;
     const ARM_SPRING_DAMP = 14;
+    const ARM_LIFT_PX = 3.5; // how high the cued arm rises, in base px
     const tick = () => {
         const dtMs = app.ticker.deltaMS;
         const dt = Math.min(dtMs, 100) / 1000;
@@ -1109,11 +1161,19 @@ export async function buildScene(
             vinylSpeed += (target - vinylSpeed) * Math.min(1, dt * 3); // soft ramp
             vinylSpin = (vinylSpin + vinylSpeed * dt) % (Math.PI * 2);
             layVinyl();
-            // under-damped spring toward the swung/rest angle: it overshoots a
-            // touch and settles, which is what "a part just moved" feels like
-            const armTarget = hovered ? -0.05 : 0; // ~3°, outward: ~4px at the headshell
-            armVel += (ARM_SPRING_K * (armTarget - armSwing.rotation) - ARM_SPRING_DAMP * armVel) * dt;
-            armSwing.rotation += armVel * dt;
+            // cue the arm: an under-damped spring drives `lift` (overshoots a
+            // touch, settles). The arm rises and leans out a little; the
+            // shadow stays on the table plane, so it slides away from the arm
+            // and fades — the cue that reads "lifted", not "stickered"
+            liftVel += (ARM_SPRING_K * ((hovered ? 1 : 0) - lift) - ARM_SPRING_DAMP * liftVel) * dt;
+            lift += liftVel * dt;
+            armSwing.rotation = -0.03 * lift;
+            for (const a of armSprites) a.sprite.y = a.restY - ARM_LIFT_PX * lift;
+            for (const s of armShadows) {
+                s.sprite.x = s.restX + s.dx * (1 + 0.6 * lift);
+                s.sprite.y = s.restY + s.dy * (1 + 0.8 * lift);
+                s.sprite.alpha = SHADOW_ALPHA * (1 - 0.4 * lift);
+            }
         }
 
         // periodic hint: one spot at a time bursts a few big sparkles —

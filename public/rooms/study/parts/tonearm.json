@@ -4,9 +4,29 @@
   "y": 844.0
  },
  "box": {
-  "x": 965,
-  "y": 820,
-  "w": 123,
-  "h": 103
+  "x": 975.5,
+  "y": 833.0,
+  "w": 104.0,
+  "h": 81.5
+ },
+ "donor": "twilight",
+ "donor_offset_px": [
+  0,
+  -1
+ ],
+ "arm_offset_px": [
+  -0.3333333333333333,
+  0.3333333333333333
+ ],
+ "moods": {
+  "golden": {
+   "seam_ring_mean": 0.93
+  },
+  "twilight": {
+   "seam_ring_mean": 0.46
+  },
+  "night": {
+   "seam_ring_mean": 0.83
+  }
  }
 }
