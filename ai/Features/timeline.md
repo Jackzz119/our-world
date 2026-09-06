@@ -178,11 +178,9 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 - ✅ 三 tab 拆分符合 UX.md §2「每个物件各开白纸卡」，也顺带完成 TODO「白纸功能卡收敛」；成本 M，需先拆 `SubScreen`
 - ℹ️ 方向 3 第三条文案为生图不稳被置空（Codex 已声明），不是设计意图；生图不能证明 CSS 可实现，最终以 `<link>` 真实 css 的 headless 截图 + 像素采样为验收
 
-### 决策（2026-09-05 用户委托 Claude 拍板，交 Codex 实现；完整 handoff 见 `codex-visual/20260905-215344Z/handoff-implementation.md`）
+### 待决策（2026-09-05：用户决定把 Claude 的复核与建议**转交 Codex 再次决策**，Claude 只做上下文移交，不拍板；移交稿见 `codex-visual/20260905-215344Z/handoff-context-for-codex.md`）
 
-> 下列六项按 Claude 复核建议定案：**方向 3**（开场借方向 2 姿态）；改名「回忆日记」；三 tab 拆分；白卡 + 作者色边线（不用淡色底）；纸宽 500px（480–520）；`--accent-deep` 统一 `#2F9AD3`。
-
-原决策点存档：
+> Claude 的倾向（仅供 Codex 参考）：方向 3（开场借方向 2 姿态）；改名「回忆日记」；三 tab 拆分；白卡 + 作者色边线而非淡色底；纸宽 480–520px；`--accent-deep` 统一 `#2F9AD3`。**以下六点等 Codex 的决策备忘：**
 
 1. 方向：**3（推荐）** / 1（最省，半天）/ 2（营销级拟真，L 成本且小窗风险）
 2. 是否改名「回忆日记」
