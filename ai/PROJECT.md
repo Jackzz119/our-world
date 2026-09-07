@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」。2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 三件套：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/STYLE.md`（风格效果基准）。
-> 最后更新：2026-09-06（「我们的日记」采纳并接入夜灯玻璃视觉，详见 `ai/Features/timeline.md`；尚未部署）
+> 最后更新：2026-09-06（用户批准并接入 B「苔绿手札」双页日记与共用 UI 材质，详见 `ai/Features/timeline.md`；尚未部署）
 
 ## 产品定位（PRD）
 
@@ -53,7 +53,7 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router v7，包管理 pnpm，格式化 Prettier
 - **样式**: 自有 CSS 体系（无框架）——四载体契约见 `ai/STYLE.md` §8；主题 `src/themes/cinnaglass/`（玻璃拟态 + 大耳狗色调）
-- **场景层**: PixiJS v8 WebGL 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`（底图×时辰交叉淡化 + 雨层 mask 到玻璃格 + 真实走时挂钟 + 角色 + 光照配方 mood×weather + 星星提示 + 热点点击）。**活物件（living props）**：家具直接从底图抠出来自己动，hover 只改参数不换图——唱片机转盘用「外沿椭圆 + 圆心」像素级量测得到的单应矩阵做**透视真旋转**（`PerspectiveMesh`，圆心与外沿转动时都不漂），唱臂是**生成的独立图层**（codex 绿幕出件 → `scripts/build-turntable-parts.py` 键出、配准、逐档配色，产物 `public/rooms/study/parts/tonearm-<mood>.png`；房间底图 = 原画在唱臂脚印内贴入生成的无臂「捐体」，其余像素不动；原画真源在 `arts/rooms/study/source/`），唱针为静止贴片，宽幅高光拆成静态加色层；hover = 转速提升 + 抬针（`lift` 状态量驱动臂身上升/外倾与**参数化投影**：光向按 mood，抬起时投影滑开变淡）。量测工具 `scripts/fit-disc-ellipse.py`；方案研究 `ai/design_system/research/living-props.md`
+- **场景层**: PixiJS v8 WebGL 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`（底图×时辰交叉淡化 + 雨层 mask 到玻璃格 + 真实走时挂钟 + 角色 + 光照配方 mood×weather + 星星提示 + 热点点击）。**活物件（living props）**：家具直接从底图抠出来自己动，hover 只改参数不换图——唱片机转盘用「外沿椭圆 + 圆心」像素级量测得到的单应矩阵做**透视真旋转**（`PerspectiveMesh`，圆心与外沿转动时都不漂），唱片机按「**死物吃画里的光，活物吃场景的光**」完全分离：底图 = 原画在盘位与唱臂脚印内贴入 codex 生成的**无盘无臂机器**（其余像素不动），唱片/唱臂/转轴针是 codex 生成的**平光固有色**零件（`public/rooms/study/parts/`，`scripts/build-turntable-parts.py` 键出、归一、配准、逐档算光比），引擎负责光：逐档 tint + 原画角向高光的静态光层（不随盘转）+ 参数化投影；hover = 转速提升 + 抬针（`lift` 驱动绕转轴柱的垂直剪切，唱头抬、柱不动，投影按 mood 光向滑开变淡）。原画真源 `arts/rooms/study/source/`，生成图层归档 `arts/rooms/study/generated/`。量测工具 `scripts/fit-disc-ellipse.py`；方案研究 `ai/design_system/research/living-props.md`
 - **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸 scaleY / 摇摆 / 随机眨眼），在 pixi 合成器内与场景共享同一套光照；动作丰富化阶段再评估 Rive/Spine（依据见 ai/reboot/tech-plan.md §2）
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——**新产品功能 100% 命中已有后端，零迁移**
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -83,11 +83,8 @@ src/
 > **功能细节的载体是 `ai/Features/*.md`**（`CLAUDE.md` 文档维护规则）——2026-08-09 提交 `7c93c3c` 曾把该目录一刀全删（与 `ai/reboot/tech-plan.md` §119「保留 timeline/chat/supabase」的计划相悖），已于 2026-08-22 恢复 timeline / chat / supabase 三份。channel / sidebar / ui-system / settings / world / world-space-ui / image-slot / handoff 等随 Discord 壳层作废，不恢复。
 
 - **auth 地基**：登录页 + 路由守卫 + 忘记密码/重置 + 登出；白名单 = Supabase 关闭注册开关（已验证 422 拦截）；dev 模式 `VITE_DEV` = 自动**真登录**（`VITE_DEV_EMAIL/PASSWORD`，无会话则 RLS 全空）；手动加账号走 Dashboard「Add user」/Admin API，不 SQL 直插
-- **timeline 时间线**（2026-09-05 代码核对：以下全部在役）：单列日记流（上旧下新、游标分页无限上滚、拖拽滚动+惯性、橡皮筋刷新、日期手帐贴纸、点线小路、头像贴纸挂卡）；Composer 多图受控选择器（所见即所传，上限 9 张）+ 草稿（点外/Esc 收起保草稿，取消是唯一清空，折叠条显示草稿预览）+ textarea 自动长高（220px 后内滚）；卡片 6 行 clamp + `overflow-wrap:anywhere` 防长串穿框，全文进详情弹层；作者色身份系统（我=蓝 accent、对方=粉，打在光环/名字/3px 左边线）；图片签名 URL **40 分钟自动续签** + tab 重可见重签；缩略图 `THUMB_MAX=1024` webp
-    - **入口/外壳**：书房日记本热点 → 独立「我们的日记」ObjectSurface；相框/许愿罐分别打开自己的照片墙/心愿单 ObjectSurface，不再有三 tab。日记采用方向 3 窄幅纯白平纸 + 物件起点 220ms 开场，宽度断点 `504/432/288px`，宽屏云朵吉祥物和 `.modal.tall` 依赖已删除
-    - **视觉真源**：`--accent-deep: #2F9AD3` 固定跨 mood，夜间外壳亮蓝走 `--shell-accent`；组件与验收样例同步到 `ai/design_system/cinnaglass/ui-system.html`
-    - **📄 细节文档**：`ai/Features/timeline.md`（链路/模块/数据模型/ST-A~V 实现记录/测试记录；视觉与功能迭代在该文档继续）
-- **照片墙**：自然纵横比 polaroid 拼贴（白框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载
+- **timeline / 我们的日记**（2026-09-06）：物件入口下的 B「苔绿手札」；暖灰双页按时间连续阅读，目录载入旧回忆，软纸连续翻动，羽毛笔写作；草稿、多图与原有后端链路保留。实现、数据约束与验收统一见 `ai/Features/timeline.md`；材质真源为 `src/themes/cinnaglass/materials.css`，展示登记见 `ai/design_system/cinnaglass/ui-system.html`。
+- **照片墙**：自然纵横比 polaroid 拼贴（暖灰纸框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载
 - **聊天全链路**：Broadcast from Database（写库 + trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除粒子/reaction chips/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function Tenor 代理转存 + EmotePicker 自维护 230 emoji 中文索引）；DM = channels `type='dm'`（账号级 topic `user:{uid}`）——**DM/好友 UI 在新方向收起，数据层冻结保留**。**📄 细节文档**：`ai/Features/chat.md`（v1 双形态论述读时注意 ChatDock 已被 concept-c 聊天窄卡 + 头顶气泡取代）
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 图存 memories 桶 256px webp）；纪念日/在一起天数从 DB 实时计算；**欠：昵称编辑写回 profiles.display_name**（个人设置仍本地缓冲）
 - **双实例调试**：`pnpm dev2` 双端口双账号（jack/sherry）互发验收

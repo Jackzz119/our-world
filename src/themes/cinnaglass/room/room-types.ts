@@ -50,13 +50,26 @@ export type TurntableSpec = {
     /** Tonearm post center; the arm part swings around it on hover. */
     armPivot: PxPoint;
     /**
-     * The tonearm as its own GENERATED layer per mood (codex paints it in
-     * place on a chroma backdrop; scripts/build-turntable-parts.py keys it,
-     * registers it against the painting and erases it from the base art —
-     * the "clean plate" the room ships). `box` is where the texture lands in
-     * base px; boxes differ per mood because each arm is its own painting.
+     * Fully separated, GENERATED layers (scripts/build-turntable-parts.py):
+     * the base art ships as the machine with an EMPTY well (no record, no
+     * arm), and the moving parts are flat-lit albedo that the engine lights —
+     * static things keep the painting's light, moving things get the scene's.
      */
-    arm: Partial<Record<RoomMood, { src: string; box: PxRect }>>;
+    /** Record albedo, top-down, unit circle inscribed in the texture; one for all moods. */
+    platterArt: string;
+    /**
+     * The painting's light on the record per mood, same disc space, never
+     * turns: `add` brightens (sheen), `mul` darkens (shadow side, edge).
+     */
+    platterLight: Record<RoomMood, { add: string; mul: string }>;
+    /** How much darker/cooler each hour paints the vinyl than golden — multiply tint on the albedo. */
+    platterTint: Record<RoomMood, number>;
+    /** Tonearm albedo (post + tube + headshell) and where it lands in base px. */
+    arm: { src: string; box: PxRect };
+    /** Per-hour light on the arm, as a multiply tint relative to golden. */
+    armTint: Record<RoomMood, number>;
+    /** Spindle pin albedo: a machine part that stands THROUGH the record, so it draws above it and never turns. */
+    spindle?: { src: string; box: PxRect };
     /**
      * Where the arm's cast shadow falls at rest, in base px. It is a light
      * direction, so it belongs to the hour: window light by day, lamp light

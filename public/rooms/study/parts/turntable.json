@@ -1,0 +1,50 @@
+{
+ "pivot": {
+  "x": 1062.5,
+  "y": 844.0
+ },
+ "arm": {
+  "src": "/rooms/study/parts/tonearm.png",
+  "box": {
+   "x": 976.0,
+   "y": 834.0,
+   "w": 102.0,
+   "h": 82.0
+  }
+ },
+ "spindle": {
+  "src": "/rooms/study/parts/spindle.png",
+  "box": {
+   "x": 956.0,
+   "y": 831.0,
+   "w": 13.5,
+   "h": 16.0
+  }
+ },
+ "platter": "/rooms/study/parts/platter.png",
+ "platterLight": {
+  "golden": {
+   "add": "/rooms/study/parts/platter-light-add-golden.png",
+   "mul": "/rooms/study/parts/platter-light-mul-golden.png"
+  },
+  "twilight": {
+   "add": "/rooms/study/parts/platter-light-add-twilight.png",
+   "mul": "/rooms/study/parts/platter-light-mul-twilight.png"
+  },
+  "night": {
+   "add": "/rooms/study/parts/platter-light-add-night.png",
+   "mul": "/rooms/study/parts/platter-light-mul-night.png"
+  }
+ },
+ "armTint": {
+  "golden": "#ffffff",
+  "twilight": "#808bc0",
+  "night": "#78828a"
+ },
+ "donor": "twilight",
+ "platterTint": {
+  "golden": "#ffffff",
+  "twilight": "#6e7cb0",
+  "night": "#858d93"
+ }
+}

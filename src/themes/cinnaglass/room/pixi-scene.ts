@@ -241,222 +241,6 @@ function discCorners(H: Mat3, spin: number): Corners {
     return pts as Corners;
 }
 
-const artPixelCache = new WeakMap<object, ImageData>();
-
-/** Whole-art RGBA readback, cached per decoded image. */
-function artPixels(img: ArtImage): ImageData {
-    let id = artPixelCache.get(img);
-    if (!id) {
-        const c = document.createElement('canvas');
-        c.width = img.width;
-        c.height = img.height;
-        const ctx = c.getContext('2d')!;
-        ctx.drawImage(img, 0, 0);
-        id = ctx.getImageData(0, 0, c.width, c.height);
-        artPixelCache.set(img, id);
-    }
-    return id;
-}
-
-type DiscCut = {
-    /** the record itself — turns */
-    spin: Texture;
-    /** its broad specular sheen — additive, never turns */
-    sheen: Texture;
-};
-
-/**
- * Lift the painted vinyl into a true top-down disc texture by inverse-warping
- * the base art through the disc homography (bilinear taps). Painted details
- * that must not turn (tonearm, spindle) are inpainted from the same radius at
- * another angle — grooves are concentric circles here, so the fill is
- * seamless — and re-laid on top as static patches by the caller; the broad
- * sheen is split off into its own static additive layer (`splitSheen`). The
- * rim is feathered 1px inside the painted edge so the static outer ring hides
- * any sub-pixel drift. Rendered at 2× so the spin resamples crisply.
- */
-function carveDisc(img: ArtImage, H: Mat3, rx: number, stills: PxPoint[][]): DiscCut {
-    const RES = 2;
-    const S = Math.ceil(rx * 2) * RES; // texture covers disc-plane [-1, 1]²
-    const art = artPixels(img);
-    const AW = art.width;
-    const AH = art.height;
-    const src = art.data;
-    const c = document.createElement('canvas');
-    c.width = S;
-    c.height = S;
-    const ctx = c.getContext('2d')!;
-    const out = ctx.createImageData(S, S);
-    const o = out.data;
-    const rIn = (rx - 3.5) / rx; // fully opaque inside
-    const rOut = (rx - 1) / rx; // transparent from here out
-    for (let j = 0; j < S; j++) {
-        const v = ((j + 0.5) / S) * 2 - 1;
-        for (let i = 0; i < S; i++) {
-            const u = ((i + 0.5) / S) * 2 - 1;
-            const r = Math.hypot(u, v);
-            if (r >= rOut) continue; // stays transparent
-            const [x, y] = apply3(H, u, v);
-            const x0 = Math.floor(x - 0.5);
-            const y0 = Math.floor(y - 0.5);
-            if (x0 < 0 || y0 < 0 || x0 + 1 >= AW || y0 + 1 >= AH) continue;
-            const fx = x - 0.5 - x0;
-            const fy = y - 0.5 - y0;
-            const k = (j * S + i) * 4;
-            const p00 = (y0 * AW + x0) * 4;
-            const p10 = p00 + 4;
-            const p01 = p00 + AW * 4;
-            const p11 = p01 + 4;
-            for (let ch = 0; ch < 3; ch++) {
-                const top = src[p00 + ch] * (1 - fx) + src[p10 + ch] * fx;
-                const bot = src[p01 + ch] * (1 - fx) + src[p11 + ch] * fx;
-                o[k + ch] = top * (1 - fy) + bot * fy;
-            }
-            const t = r <= rIn ? 1 : 1 - (r - rIn) / (rOut - rIn);
-            o[k + 3] = 255 * t * t * (3 - 2 * t); // smoothstep feather
-        }
-    }
-    if (stills.length) polarInpaint(out, S, inv3(H), stills);
-    const sheen = splitSheen(out, S, 6 * RES);
-    ctx.putImageData(out, 0, 0);
-    const c2 = document.createElement('canvas');
-    c2.width = S;
-    c2.height = S;
-    c2.getContext('2d')!.putImageData(sheen, 0, 0);
-    return { spin: canvasTexture(c, RES), sheen: canvasTexture(c2, RES) };
-}
-
-/**
- * Split the broad specular sheen off the disc. Real light stays put while a
- * record turns, so everything brighter than the disc's rotationally
- * symmetric baseline (per-radius median), taken at low frequency, moves to a
- * static additive layer. Fine streaks and the label's mottling stay on the
- * spinning cut — they ARE the visible proof of the spin. At spin 0 the two
- * layers sum back to the base art exactly.
- */
-function splitSheen(o: ImageData, S: number, blurPx: number): ImageData {
-    const d = o.data;
-    const half = S / 2;
-    const nb = Math.ceil(half) + 1;
-    const buckets: number[][] = Array.from({ length: nb }, () => []);
-    for (let y = 0; y < S; y++) {
-        for (let x = 0; x < S; x++) {
-            const i = (y * S + x) * 4;
-            if (d[i + 3] === 0) continue;
-            const r = Math.round(Math.hypot(x + 0.5 - half, y + 0.5 - half));
-            if (r < nb) buckets[r].push(i);
-        }
-    }
-    const baseline = new Float32Array(nb * 3);
-    for (let b = 0; b < nb; b++) {
-        const idx = buckets[b];
-        if (!idx.length) continue;
-        for (let ch = 0; ch < 3; ch++) {
-            const vals = idx.map((i) => d[i + ch]).sort((p, q) => p - q);
-            baseline[b * 3 + ch] = vals[vals.length >> 1];
-        }
-    }
-    const resid = new Float32Array(S * S * 3);
-    for (let b = 0; b < nb; b++) {
-        for (const i of buckets[b]) {
-            const p = (i / 4) * 3;
-            for (let ch = 0; ch < 3; ch++) resid[p + ch] = Math.max(0, d[i + ch] - baseline[b * 3 + ch]);
-        }
-    }
-    const low = boxBlur(boxBlur(resid, S, blurPx), S, blurPx); // two box passes ≈ gaussian
-    const sheen = new ImageData(S, S);
-    const sd = sheen.data;
-    for (let i = 0, p = 0; i < d.length; i += 4, p += 3) {
-        if (d[i + 3] === 0) continue;
-        for (let ch = 0; ch < 3; ch++) {
-            const l = Math.min(low[p + ch], d[i + ch]);
-            sd[i + ch] = l;
-            d[i + ch] -= l;
-        }
-        sd[i + 3] = d[i + 3];
-    }
-    return sheen;
-}
-
-/** Separable box blur over a 3-channel float image; outside the image counts as 0. */
-function boxBlur(src: Float32Array, S: number, r: number): Float32Array {
-    const norm = 1 / (2 * r + 1);
-    const pass = (inp: Float32Array, vertical: boolean) => {
-        const out = new Float32Array(inp.length);
-        const at = (line: number, k: number, ch: number) => (k < 0 || k >= S ? 0 : inp[(vertical ? k * S + line : line * S + k) * 3 + ch]);
-        for (let line = 0; line < S; line++) {
-            for (let ch = 0; ch < 3; ch++) {
-                let acc = 0;
-                for (let k = -r; k <= r; k++) acc += at(line, k, ch);
-                for (let k = 0; k < S; k++) {
-                    out[(vertical ? k * S + line : line * S + k) * 3 + ch] = acc * norm;
-                    acc += at(line, k + r + 1, ch) - at(line, k - r, ch);
-                }
-            }
-        }
-        return out;
-    };
-    return pass(pass(src, false), true);
-}
-
-/**
- * Paint over disc-texture regions that must NOT turn with the vinyl, using
- * pixels from the same radius at another angle. `regions` are polygons in
- * base px; a homography keeps straight edges straight, so mapping the
- * vertices through `Hinv` is enough to rasterize them in disc space.
- */
-function polarInpaint(tex: ImageData, S: number, Hinv: Mat3, regions: PxPoint[][]): void {
-    const m = document.createElement('canvas');
-    m.width = S;
-    m.height = S;
-    const mctx = m.getContext('2d')!;
-    mctx.fillStyle = '#fff';
-    mctx.strokeStyle = '#fff';
-    mctx.lineWidth = 4; // margin so anti-aliased edges of the detail go too
-    mctx.lineJoin = 'round';
-    for (const poly of regions) {
-        mctx.beginPath();
-        poly.forEach((p, i) => {
-            const [u, v] = apply3(Hinv, p.x, p.y);
-            const tx = ((u + 1) / 2) * S;
-            const ty = ((v + 1) / 2) * S;
-            if (i) mctx.lineTo(tx, ty);
-            else mctx.moveTo(tx, ty);
-        });
-        mctx.closePath();
-        mctx.fill();
-        mctx.stroke();
-    }
-    const mask = mctx.getImageData(0, 0, S, S).data;
-    const d = tex.data;
-    const src = new Uint8ClampedArray(d); // always read the untouched copy
-    const half = S / 2;
-    // candidate angular offsets, nearest first, so groove phase drifts least
-    const STEPS = [0.7, -0.7, 1.4, -1.4, 2.1, -2.1, Math.PI];
-    for (let y = 0; y < S; y++) {
-        for (let x = 0; x < S; x++) {
-            const i = (y * S + x) * 4;
-            if (mask[i + 3] < 128) continue;
-            const dx = x + 0.5 - half;
-            const dy = y + 0.5 - half;
-            const r = Math.hypot(dx, dy);
-            const a = Math.atan2(dy, dx);
-            for (const step of STEPS) {
-                const sx = Math.round(half + r * Math.cos(a + step) - 0.5);
-                const sy = Math.round(half + r * Math.sin(a + step) - 0.5);
-                if (sx < 0 || sy < 0 || sx >= S || sy >= S) continue;
-                const j = (sy * S + sx) * 4;
-                if (mask[j + 3] >= 128) continue;
-                d[i] = src[j];
-                d[i + 1] = src[j + 1];
-                d[i + 2] = src[j + 2];
-                d[i + 3] = src[j + 3];
-                break;
-            }
-        }
-    }
-}
-
 /**
  * Bake a soft cast-shadow texture from a part's alpha: its silhouette,
  * blurred, filled black. Position and opacity are driven at runtime (light
@@ -643,7 +427,7 @@ export async function buildScene(
        the base sprites, so the disc never looks pasted on. Hover is a state
        change on the prop: the platter leans faster, the arm gives a swing. */
     const turntable = room.props?.turntable;
-    const vinyls: PerspectiveMesh[] = []; // one per art, all sharing the spin
+    const vinyls: PerspectiveMesh[] = []; // one per mood (tint differs), all sharing the spin
     let vinylH: Mat3 | null = null; // disc plane → base px
     let vinylSpin = 0; // radians turned so far
     let armSwing: Container | null = null; // rotation = lean about the post
@@ -653,79 +437,102 @@ export async function buildScene(
     // up. Arm, lean and shadow all derive from it, so they can never disagree.
     let lift = 0;
     let liftVel = 0;
-    const armSprites: { sprite: Sprite; restY: number }[] = [];
+    let armGroup: Container | null = null; // the arms of every mood; skewed about the post to cue up
     const armShadows: { sprite: Sprite; restX: number; restY: number; dx: number; dy: number }[] = [];
     const SHADOW_ALPHA = 0.42;
     if (turntable) {
-        const { platter: e, center, armPivot, arm: armSpec, armShadow, stills = [] } = turntable;
+        const { platter: e, center, armPivot, arm: armSpec, armTint, armShadow, platterArt, platterLight, platterTint, spindle, stills = [] } = turntable;
         vinylH = discHomography(e, center);
-        const platterLayer = new Container();
-        const sheenLayer = new Container(); // static light on the record, additive
-        const stillLayer = new Container(); // spindle & co: on the platter, never turning
+        const platterLayer = new Container(); // the record: albedo tinted per hour, turning
+        const lightLayer = new Container(); // the painting's light on the record: never turns
+        const stillLayer = new Container(); // spindle & co from the machine plate, never turning
         armSwing = new Container();
         armSwing.position.set(armPivot.x, armPivot.y);
         const armShadowGroup = new Container(); // every mood's shadow below every mood's arm
-        const armGroup = new Container();
+        armGroup = new Container();
         armSwing.addChild(armShadowGroup, armGroup);
         const restCorners = discCorners(vinylH, 0);
-        // the tonearm ships as its own generated layer per mood (see
-        // scripts/build-turntable-parts.py)
-        const armTex = await Assets.load<Texture>([...new Set(Object.values(armSpec).map((a) => a.src))]);
+        // moving parts are flat albedo generated once (scripts/build-turntable-parts.py);
+        // the hour lights them through tints, the painting's own light comes back
+        // as a static overlay — nothing lit ever turns
+        const lightUrls = Object.values(platterLight).flatMap((l) => [l.add, l.mul]);
+        const partTex = await Assets.load<Texture>([platterArt, armSpec.src, ...(spindle ? [spindle.src] : []), ...new Set(lightUrls)]);
+        // the record textures are drawn ~3x smaller than they ship: without
+        // mipmaps the label edge and grooves alias into sparkle while turning
+        for (const src of [platterArt, ...lightUrls]) {
+            const source = partTex[src].source;
+            source.autoGenerateMipmaps = true;
+            source.update();
+        }
+        const armTexture = partTex[armSpec.src];
+        const armSrcImg = armTexture.source.resource as ArtImage | undefined;
+        const res = armTexture.width / armSpec.box.w; // texture px per base px
+        const shadowBlur = 2.2 * res;
+        const shadowTex = armSrcImg ? shadowTexture(armSrcImg, res, shadowBlur) : null;
+        const shadowPad = Math.ceil(shadowBlur * 3) / res;
         const moods = Object.keys(room.art) as RoomMood[];
         for (const url of artUrls) {
-            // the loaded art texture's source is a decoded image we can sample
+            const mood = moods.find((m) => room.art[m] === url);
+            if (!mood) continue;
             const img = textures[url].source.resource as ArtImage | undefined;
-            if (!img) continue;
-            const record = carveDisc(img, vinylH, e.rx, stills);
-            const disc = new PerspectiveMesh({ texture: record.spin, verticesX: 12, verticesY: 12 });
+            const cuts: Container[] = [];
+            const disc = new PerspectiveMesh({ texture: partTex[platterArt], verticesX: 12, verticesY: 12 });
+            disc.tint = platterTint[mood];
             platterLayer.addChild(disc);
             vinyls.push(disc);
-            const sheen = new PerspectiveMesh({ texture: record.sheen, verticesX: 12, verticesY: 12 });
-            sheen.setCorners(...restCorners);
-            sheen.blendMode = 'add';
-            sheenLayer.addChild(sheen);
-            const cuts: Container[] = [disc, sheen];
-            for (const poly of stills) {
-                const patch = carvePatch(img, poly);
-                const still = new Sprite(patch.tex);
-                still.position.set(patch.box.x, patch.box.y);
-                stillLayer.addChild(still);
-                cuts.push(still);
+            cuts.push(disc);
+            // the hour's light on the record, static: sheen adds, shadow side multiplies
+            for (const [src, blend] of [[platterLight[mood].mul, 'multiply'], [platterLight[mood].add, 'add']] as const) {
+                const light = new PerspectiveMesh({ texture: partTex[src], verticesX: 12, verticesY: 12 });
+                light.setCorners(...restCorners);
+                light.blendMode = blend;
+                lightLayer.addChild(light);
+                cuts.push(light);
             }
-            const mood = moods.find((m) => room.art[m] === url);
-            const part = mood ? armSpec[mood] : undefined;
-            if (mood && part && armTex[part.src]) {
-                const tex = armTex[part.src];
-                const res = tex.width / part.box.w; // texture px per base px
-                const src = tex.source.resource as ArtImage | undefined;
-                if (src) {
-                    const blur = 2.2 * res;
-                    const pad = Math.ceil(blur * 3) / res;
-                    const shadow = new Sprite(shadowTexture(src, res, blur));
-                    shadow.position.set(part.box.x - armPivot.x - pad, part.box.y - armPivot.y - pad);
-                    shadow.width = part.box.w + pad * 2;
-                    shadow.height = part.box.h + pad * 2;
-                    shadow.blendMode = 'multiply';
-                    shadow.alpha = SHADOW_ALPHA;
-                    // the mood cross-fade animates the holder, the lift drives the
-                    // sprite: two alphas that must never fight over one field
-                    const holder = new Container();
-                    holder.addChild(shadow);
-                    armShadowGroup.addChild(holder);
-                    cuts.push(holder);
-                    armShadows.push({ sprite: shadow, restX: shadow.x, restY: shadow.y, dx: armShadow[mood].dx, dy: armShadow[mood].dy });
+            if (spindle) {
+                // the pin stands through the record's hole: above the platter, lit like the arm
+                const pin = new Sprite(partTex[spindle.src]);
+                pin.position.set(spindle.box.x, spindle.box.y);
+                pin.width = spindle.box.w;
+                pin.height = spindle.box.h;
+                pin.tint = armTint[mood];
+                stillLayer.addChild(pin);
+                cuts.push(pin);
+            }
+            if (img) {
+                for (const poly of stills) {
+                    const patch = carvePatch(img, poly);
+                    const still = new Sprite(patch.tex);
+                    still.position.set(patch.box.x, patch.box.y);
+                    stillLayer.addChild(still);
+                    cuts.push(still);
                 }
-                const arm = new Sprite(tex);
-                arm.position.set(part.box.x - armPivot.x, part.box.y - armPivot.y);
-                arm.width = part.box.w;
-                arm.height = part.box.h;
-                armGroup.addChild(arm);
-                cuts.push(arm);
-                armSprites.push({ sprite: arm, restY: arm.y });
             }
+            if (shadowTex) {
+                const shadow = new Sprite(shadowTex);
+                shadow.position.set(armSpec.box.x - armPivot.x - shadowPad, armSpec.box.y - armPivot.y - shadowPad);
+                shadow.width = armSpec.box.w + shadowPad * 2;
+                shadow.height = armSpec.box.h + shadowPad * 2;
+                shadow.blendMode = 'multiply';
+                shadow.alpha = SHADOW_ALPHA;
+                // the mood cross-fade animates the holder, the lift drives the
+                // sprite: two alphas that must never fight over one field
+                const holder = new Container();
+                holder.addChild(shadow);
+                armShadowGroup.addChild(holder);
+                cuts.push(holder);
+                armShadows.push({ sprite: shadow, restX: shadow.x, restY: shadow.y, dx: armShadow[mood].dx, dy: armShadow[mood].dy });
+            }
+            const arm = new Sprite(armTexture);
+            arm.position.set(armSpec.box.x - armPivot.x, armSpec.box.y - armPivot.y);
+            arm.width = armSpec.box.w;
+            arm.height = armSpec.box.h;
+            arm.tint = armTint[mood];
+            armGroup.addChild(arm);
+            cuts.push(arm);
             propSprites.set(url, cuts);
         }
-        world.addChild(platterLayer, sheenLayer, stillLayer, armSwing);
+        world.addChild(platterLayer, lightLayer, stillLayer, armSwing);
     }
     // place the record quad for the current spin — perspective-correct by
     // construction, so rim and label both stay put while it turns
@@ -1046,7 +853,9 @@ export async function buildScene(
     // 0.1s above, well inside the stable range for this pair)
     const ARM_SPRING_K = 120;
     const ARM_SPRING_DAMP = 14;
-    const ARM_LIFT_PX = 3.5; // how high the cued arm rises, in base px
+    // vertical skew (radians) about the post when cued: the headshell, ~90px
+    // from the post, rises ~4px while the post itself does not move
+    const ARM_LIFT_SKEW = 0.045;
     const tick = () => {
         const dtMs = app.ticker.deltaMS;
         const dt = Math.min(dtMs, 100) / 1000;
@@ -1162,13 +971,15 @@ export async function buildScene(
             vinylSpin = (vinylSpin + vinylSpeed * dt) % (Math.PI * 2);
             layVinyl();
             // cue the arm: an under-damped spring drives `lift` (overshoots a
-            // touch, settles). The arm rises and leans out a little; the
-            // shadow stays on the table plane, so it slides away from the arm
-            // and fades — the cue that reads "lifted", not "stickered"
+            // touch, settles). A real tonearm hinges at the post, so the post
+            // stays put and the headshell rises: a vertical skew about the
+            // pivot (y grows with distance from the post) plus a hair of
+            // outward lean. The shadow stays on the table plane, so it slides
+            // away from the arm and fades — "lifted", not "stickered"
             liftVel += (ARM_SPRING_K * ((hovered ? 1 : 0) - lift) - ARM_SPRING_DAMP * liftVel) * dt;
             lift += liftVel * dt;
-            armSwing.rotation = -0.03 * lift;
-            for (const a of armSprites) a.sprite.y = a.restY - ARM_LIFT_PX * lift;
+            armSwing.rotation = -0.012 * lift;
+            if (armGroup) armGroup.skew.y = ARM_LIFT_SKEW * lift;
             for (const s of armShadows) {
                 s.sprite.x = s.restX + s.dx * (1 + 0.6 * lift);
                 s.sprite.y = s.restY + s.dy * (1 + 0.8 * lift);

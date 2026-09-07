@@ -69,13 +69,18 @@ export const STUDY_ROOM: RoomTemplate = {
             // center = the painting's real perspective, not a drawing error
             center: { x: 962.6, y: 841.0 },
             armPivot: { x: 1062.5, y: 844 },
-            // generated layers assembled by scripts/build-turntable-parts.py
-            // (boxes are printed by the script — paste, never eyeball)
-            arm: {
-                golden: { src: '/rooms/study/parts/tonearm-golden.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } },
-                twilight: { src: '/rooms/study/parts/tonearm-twilight.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } },
-                night: { src: '/rooms/study/parts/tonearm-night.png', box: { x: 975.5, y: 833, w: 104, h: 81.5 } }
+            // generated layers assembled by scripts/build-turntable-parts.py —
+            // every number below is pasted from its manifest, never eyeballed
+            platterArt: '/rooms/study/parts/platter.png',
+            platterLight: {
+                golden: { add: '/rooms/study/parts/platter-light-add-golden.png', mul: '/rooms/study/parts/platter-light-mul-golden.png' },
+                twilight: { add: '/rooms/study/parts/platter-light-add-twilight.png', mul: '/rooms/study/parts/platter-light-mul-twilight.png' },
+                night: { add: '/rooms/study/parts/platter-light-add-night.png', mul: '/rooms/study/parts/platter-light-mul-night.png' }
             },
+            platterTint: { golden: 0xffffff, twilight: 0x6e7cb0, night: 0x858d93 },
+            arm: { src: '/rooms/study/parts/tonearm.png', box: { x: 976, y: 834, w: 102, h: 82 } },
+            armTint: { golden: 0xffffff, twilight: 0x808bc0, night: 0x78828a },
+            spindle: { src: '/rooms/study/parts/spindle.png', box: { x: 956, y: 831, w: 13.5, h: 16 } },
             // light from the window (upper left) by day, from the desk lamp at
             // night: the shadow leans further right and longer after dark
             armShadow: {
@@ -83,16 +88,8 @@ export const STUDY_ROOM: RoomTemplate = {
                 twilight: { dx: 1.5, dy: 4 },
                 night: { dx: 3, dy: 5 }
             },
-            stills: [
-                // spindle pin standing on the label (generous: the label
-                // around it is flat colour, so a static margin costs nothing)
-                [
-                    { x: 955, y: 826 },
-                    { x: 972, y: 826 },
-                    { x: 973, y: 850 },
-                    { x: 954, y: 850 }
-                ]
-            ]
+            // no `stills`: the record's own center hole shows the machine's
+            // spindle pin through it, nothing else on the platter is static
         }
     }
 };
