@@ -1,3 +1,5 @@
+@import './materials.css';
+
 /* ow.css — Our World global design tokens + scene / mood / weather layers.
    Ported verbatim from the design prototype's `Our World.html` <style> block. */
 
@@ -18,27 +20,27 @@
      graphite panel → misty control/blank → blue or gold highlight.
      Every v2 shell component (rail/popovers/cards/player) draws ONLY
      from these — reskinning the game UI later = retune this block. */
-  --cg-panel: rgba(46, 49, 75, 0.8);
-  --cg-panel-dense: rgba(38, 42, 65, 0.84); /* chat & reading surfaces */
-  --cg-panel-grad: linear-gradient(180deg, rgba(61, 73, 122, 0.78), rgba(82, 68, 104, 0.74));
-  --cg-control: rgba(151, 149, 169, 0.25);
+  --cg-panel: var(--craft-shell);
+  --cg-panel-dense: rgba(57, 59, 51, 0.88);
+  --cg-panel-grad: linear-gradient(180deg, rgba(91, 94, 79, 0.72), rgba(60, 63, 54, 0.7));
+  --cg-control: rgba(195, 194, 168, 0.12);
   --cg-control-strong: rgba(121, 123, 147, 0.42);
-  --cg-highlight-blue: rgba(83, 111, 183, 0.44);
+  --cg-highlight-blue: rgba(195, 194, 168, 0.22);
   --cg-placeholder: rgba(224, 216, 226, 0.55);
 
-  --cg-stroke: rgba(233, 231, 242, 0.54);
+  --cg-stroke: rgba(220, 213, 187, 0.28);
   --cg-inner-hi: rgba(255, 255, 255, 0.23);
-  --cg-icon: #f8f8f9;
-  --cg-icon-muted: #c5c3cb;
+  --cg-icon: var(--craft-shell-text);
+  --cg-icon-muted: #d0c6b5;
   --cg-pink: #faa6b9;
   --cg-green: #73ef82;
   --cg-gold: #fccc85;
   --cg-gold-core: #fab16c;
-  --cg-sel-edge: #9bb0ee;
+  --cg-sel-edge: #b7b998;
 
   --cg-shadow: 0 10px 24px rgba(3, 3, 12, 0.32);
   --cg-inset: inset 0 1px 0 var(--cg-inner-hi);
-  --cg-blur: blur(12px) saturate(112%);
+  --cg-blur: blur(18px) saturate(85%);
 
   /* ══ 光照递进 scheme (codex design, user-approved 2026-08-07) ══
      Design source: ai/design_system/cinnaglass/mood-progression-codex/
@@ -49,8 +51,8 @@
        黄昏 golden    warm near-white glass, the room is lit
        暮色 twilight  misty slate, the hinge between light and dark
        夜晚 night     neutral graphite, chrome sinks and memories glow
-     PAPER never moves: white content is the brightest thing at every hour,
-     so a memory always reads as the subject and the UI as its frame.
+     PAPER uses the approved B warm-gray material across every hour.
+     Scene lights may be brighter; legibility comes from stable dark ink.
 
      TWO COLOR DOMAINS — mind which one a surface belongs to:
        SHELL = .glass surfaces: sidebar, modals, HUD, dock
@@ -75,18 +77,20 @@
   --glass-blur: 24px;
   --glass-sat: 112%;
 
-  /* PAPER — fixed at every hour, the brightest layer on screen */
-  --glass-paper: #ffffff;
-  --paper-text: #22335a;
-  --paper-sub: #667087;
-  --paper-line: rgba(33, 57, 92, 0.1);
-  --paper-hover: rgba(216, 239, 250, 0.6);
-  --paper-active: linear-gradient(135deg, rgba(89, 197, 237, 0.24), rgba(216, 239, 250, 0.48));
+  /* PAPER — B journal family; light sources may be brighter than the paper. */
+  --glass-paper: var(--craft-paper);
+  --paper-text: var(--craft-ink);
+  --paper-sub: var(--craft-muted);
+  --paper-line: var(--craft-line);
+  --paper-hover: rgba(114, 125, 107, 0.1);
+  --paper-active: rgba(114, 125, 107, 0.16);
   --paper-shadow: 0 2px 4px rgba(6, 10, 24, 0.16), 0 16px 34px -14px rgba(6, 10, 24, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.98);
 
-  /* ACCENT — Cinnamoroll sky blue, the only hue allowed on the shell */
+  /* ACCENT — identity blue is fixed across moods. Mood-specific shell lift
+     uses --shell-accent so author/name/edge semantics never drift by hour. */
   --accent: #59c5ed;
-  --accent-deep: #268fbe;
+  --accent-deep: #2f9ad3;
+  --shell-accent: #268fbe;
   --accent-glow: rgba(89, 197, 237, 0.28); /* keep glow radius under 18px — wider reads neon */
   --accent-grad: linear-gradient(135deg, #8ed7f4, #4fb0e4);
   --accent-orb: radial-gradient(120% 120% at 30% 25%, #c2ecfc 0%, #59c5ed 46%, #2f9ad3 100%);
@@ -99,6 +103,8 @@
      verification page can reproduce the exact same state as the product */
   --stage-content-scrim: rgba(12, 18, 38, 0.58);
   --stage-content-filter: blur(5px) brightness(0.82);
+  --object-open-duration: 220ms;
+  --object-open-ease: cubic-bezier(0.22, 0.9, 0.3, 1);
   /* The sidebar is IN-FLOW, so what sits behind its glass is the app ground,
      not the scene. The ground travels with the hour AND stays a gradient:
      a flat fill gives backdrop-filter nothing to work with and the shell
@@ -192,7 +198,7 @@ body {
   --shell-sub: #58647b;
   --glass-bg: rgba(248, 246, 241, 0.74);
   --glass-bg-2: rgba(240, 236, 231, 0.7);
-  --accent-deep: #2e9fd0;
+  --shell-accent: #2e9fd0;
   --accent-glow: rgba(89, 197, 237, 0.3);
   --app-ground: linear-gradient(168deg, #b8aa9d 0%, #a9988c 58%, #81766f 100%);
   --glass-blur: 26px;
@@ -217,7 +223,7 @@ body {
   --shell-sub: #313c58;
   --glass-bg: rgba(201, 205, 219, 0.6);
   --glass-bg-2: rgba(184, 189, 207, 0.58);
-  --accent-deep: #268fbe;
+  --shell-accent: #268fbe;
   --accent-glow: rgba(89, 197, 237, 0.28);
   --app-ground: linear-gradient(168deg, #73798d 0%, #5f657c 58%, #42485c 100%);
   --glass-blur: 24px;
@@ -236,7 +242,7 @@ body {
   --shell-sub: rgba(230, 236, 245, 0.72);
   --glass-bg: rgba(34, 38, 51, 0.82);
   --glass-bg-2: rgba(27, 31, 46, 0.84);
-  --accent-deep: #83d8f5;
+  --shell-accent: #83d8f5;
   --accent-glow: rgba(89, 197, 237, 0.5);
   --app-ground: linear-gradient(168deg, #14171f 0%, #11151e 58%, #0c1018 100%);
   /* raised focus shells (open modal / HUD) get a cool rim so they separate
@@ -348,7 +354,7 @@ select {
   background: var(--glass-paper);
   border: 1px solid var(--glass-line);
   /* three-layer depth: contact shadow, ambient shadow, specular top highlight.
-     Shadows are deep here on purpose — white paper must read as LIFTED off
+     Shadows are deep here on purpose — warm paper must read as LIFTED off
      the dusk shell, the way a print sits on a dark desk. */
   box-shadow: var(--paper-shadow);
   color: var(--paper-text);

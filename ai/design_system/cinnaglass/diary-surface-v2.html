@@ -1,0 +1,394 @@
+<!doctype html>
+<!-- 我们的日记 · v2 终稿设计稿比稿（2026-09-06 Codex）
+     决策依据：codex-visual/20260905-215344Z/（brief + 三方向 + Claude 复核 + decisions-v2.md）
+     本页职责：用「真实 cinnaglass.css token + 真实房间素材 + 逐字复刻 screens.tsx 组件样式」
+     把已定稿的 v2 设计渲染出来，并对残留争议点做同源比稿：
+       变体 A = 终稿（384px 修正规格 · 纯白卡 + 作者色三点：光环/名字/3px 左边线）
+       变体 B = 同 A + 卡片 ≤6% 作者色淡底（Claude 复核上限）
+       变体 C = 同 A + 保留跨场景长 tether 虚线（方向 3 原样）
+       变体 D = 现行实装规格对照（504px，展示「宽度 vs 双脸」的取舍）
+     视口三档 = 修正后断点：1440×900（384px）/ 960×600（288px）/ 640×400（288px）
+     URL 参数：?variant=a|b|c  ?vp=1440|960|640  ?name=ours|memories  ?embed=1（截图模式） -->
+<html lang="zh-CN" data-mood="night" data-glass="sky">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>我们的日记 · v2 终稿比稿</title>
+<link rel="stylesheet" href="../../../src/themes/cinnaglass/cinnaglass.css" />
+<style>
+  /* ── doc 排版（.doc- 前缀，不进产品） ─────────────────────────── */
+  html,body{margin:0;padding:0;}
+  body{background:#070a16;min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    font-family:inherit;}
+  .doc-head{max-width:1440px;width:100%;box-sizing:border-box;padding:18px 22px 12px;color:#c9d4ea;
+    font-size:13px;line-height:1.7;}
+  .doc-head h1{margin:0 0 4px;font-size:17px;color:#eef3ff;letter-spacing:.04em;}
+  .doc-head b{color:#8ed7f4;font-weight:600;}
+  .doc-stage{position:relative;overflow:hidden;flex:0 0 auto;background:#000;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.8);}
+  .doc-vp-lg{width:1440px;height:900px;}
+  .doc-vp-md{width:960px;height:600px;}
+  .doc-vp-sm{width:640px;height:400px;}
+  .doc-bar{max-width:1440px;width:100%;box-sizing:border-box;padding:14px 22px 26px;color:#aeb9d4;
+    font-size:12.5px;line-height:1.9;}
+  .doc-bar .grp{margin-bottom:6px;}
+  .doc-bar a{color:#8ed7f4;text-decoration:none;border:1px solid rgba(142,215,244,.35);
+    border-radius:999px;padding:2px 12px;margin:0 6px 0 0;display:inline-block;}
+  .doc-bar a.on{background:rgba(142,215,244,.16);border-color:#8ed7f4;color:#dff3ff;font-weight:600;}
+  .doc-bar .dim{color:#6d7891;}
+  /* 截图模式：舞台铺满窗口、隐藏文档件 */
+  .embed body,.embed{background:#000;}
+  .embed .doc-head,.embed .doc-bar{display:none;}
+  .embed .doc-stage{position:fixed;inset:0;width:auto;height:auto;box-shadow:none;}
+
+  /* ── 场景复合（pixi-scene 同款几何：cover-fit + 座位锚点 + 夜雨配方） ── */
+  .doc-world{position:absolute;inset:0;filter:saturate(.86) brightness(.96);} /* WEATHER_GRADE rain */
+  .scene-art{position:absolute;user-select:none;pointer-events:none;}
+  .char{position:absolute;user-select:none;pointer-events:none;}
+  .char img{width:100%;height:100%;display:block;}
+  .char .tint{position:absolute;inset:0;mix-blend-mode:multiply;background:#b8c0dd; /* night rain actorTint */
+    -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%;}
+  .char::after{content:"";position:absolute;left:4%;right:4%;bottom:-6%;height:14%;
+    background:radial-gradient(ellipse at center,rgba(30,24,40,.3),transparent 70%);}
+
+  /* ── 简化壳件（真实 .glass token，仅作明度参照，非交互复刻） ── */
+  .doc-rail{position:absolute;left:0;top:0;bottom:0;width:56px;z-index:35;display:flex;
+    flex-direction:column;align-items:center;gap:14px;padding-top:14px;border-radius:0;}
+  .doc-rail i{width:26px;height:26px;border-radius:9px;border:1.5px solid rgba(255,255,255,.32);
+    display:grid;place-items:center;color:rgba(255,255,255,.85);}
+  .doc-rail i.on{border-color:var(--accent);color:var(--accent);
+    box-shadow:0 0 0 2px rgba(89,197,237,.25);}
+  .doc-pill{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:35;
+    display:flex;align-items:center;gap:9px;padding:7px 14px;border-radius:999px;
+    font-size:11.5px;color:var(--glass-text);letter-spacing:.05em;}
+  .doc-anni{position:absolute;top:12px;right:14px;z-index:35;padding:9px 14px;border-radius:16px;
+    font-size:11.5px;color:var(--glass-text);line-height:1.5;text-align:right;}
+  .doc-anni b{font-size:15px;color:#ffd9a8;font-weight:700;}
+  .doc-music{position:absolute;right:14px;bottom:14px;z-index:35;width:264px;box-sizing:border-box;
+    display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:18px;
+    color:var(--glass-text);}
+  .doc-music .disc{width:34px;height:34px;border-radius:50%;flex:0 0 auto;
+    background:radial-gradient(circle,#3a3f52 0 26%,#161a2a 27% 100%);border:1px solid rgba(255,255,255,.14);}
+  .doc-music .meta{flex:1;min-width:0;}
+  .doc-music .t1{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .doc-music .bar{height:3px;border-radius:99px;background:rgba(255,255,255,.18);margin-top:6px;}
+  .doc-music .bar i{display:block;width:38%;height:100%;border-radius:99px;background:rgba(255,255,255,.55);}
+  .doc-music svg{flex:0 0 auto;color:rgba(255,255,255,.85);}
+
+  /* ── REPLICA：screens.tsx ScreenStyles（日记 surface 相关段落，逐字复刻，改动即失真） ── */
+  .object-scrim{z-index:30;}
+  .object-surface{--surface-shift-x:0px;position:absolute;left:50%;top:50%;z-index:41;
+    display:flex;flex-direction:column;overflow:hidden;background:var(--glass-paper);
+    color:var(--paper-text);border:1px solid rgba(255,255,255,.96);
+    box-shadow:8px 8px 0 -1px rgba(226,206,174,.94),var(--paper-shadow);
+    transform:translate(calc(-50% + var(--surface-shift-x)),-50%) scale(1) rotate(0);
+    transform-origin:center;opacity:1;pointer-events:auto;}
+  .object-hd{display:flex;align-items:center;gap:10px;padding:17px 17px 13px 21px;flex:0 0 auto;
+    border-bottom:1px solid var(--paper-line);}
+  .object-hd h2{margin:0;flex:1;font-size:19px;line-height:1.2;font-weight:750;letter-spacing:.025em;}
+  .object-kicker{font-size:10px;color:var(--paper-sub);letter-spacing:.16em;text-transform:uppercase;}
+  .object-x{background:transparent;color:var(--paper-text);border-color:var(--paper-line);}
+  .object-x:hover{background:var(--paper-hover);}
+  .object-body{flex:1 1 0;min-height:0;overflow-y:auto;padding:18px 20px 22px;}
+  .object-body::-webkit-scrollbar{width:0;}
+  .diary-surface{width:288px;height:min(760px,calc(100% - 42px));border-radius:4px 14px 14px 4px;overflow:visible;}
+  .diary-surface .object-body{display:flex;overflow:hidden;padding:0;border-radius:0 0 13px 3px;}
+  .diary-surface::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;
+    background:linear-gradient(90deg,rgba(129,91,62,.22),rgba(255,255,255,0));pointer-events:none;z-index:2;}
+  .diary-fold{position:absolute;right:0;bottom:0;width:42px;height:42px;z-index:3;pointer-events:none;
+    background:linear-gradient(135deg,transparent 49%,#f0e5d4 50%);filter:drop-shadow(-2px -2px 2px rgba(46,31,24,.08));}
+  .diary-ribbon{position:absolute;right:39px;bottom:-22px;width:15px;height:34px;z-index:-1;
+    background:#ef9db4;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);}
+  /* 断点（@media 换算为舞台档类，保证任意窗口下档内布局确定）
+     2026-09-06 Codex 复测修正：504/432px 在真实座位锚点几何下会完全盖住粉狗的脸、
+     半盖蓝狗的脸（见 _shots/diary-v2-d-1440.png 对照组），宽档收窄为 384px。 */
+  .doc-vp-md .diary-surface{--surface-shift-x:-28px;width:288px;height:min(800px,calc(100% - 48px));}
+  .doc-vp-lg .diary-surface{--surface-shift-x:-60px;width:384px;height:min(820px,calc(100% - 56px));}
+  .doc-vp-sm .diary-surface{--surface-shift-x:-16px;}
+  /* 变体 D：现行实装规格对照组（504/432/288，展示「宽度 vs 双脸」的代价） */
+  [data-variant="d"].doc-vp-lg .diary-surface{--surface-shift-x:-40px;width:504px;}
+  [data-variant="d"].doc-vp-md .diary-surface{--surface-shift-x:-16px;width:432px;}
+  [data-variant="d"].doc-vp-sm .diary-surface{--surface-shift-x:0px;}
+  .doc-vp-sm .object-hd{padding:14px 12px 11px 16px;}
+  .doc-vp-sm .object-hd h2{font-size:17px;}
+  .doc-vp-sm .object-kicker{display:none;}
+  .doc-vp-sm .diary-fold{display:none;}
+
+  .compose{border-radius:18px;padding:10px;margin-top:10px;flex:0 0 auto;background:var(--glass-paper);}
+  .compose-collapsed{display:flex;align-items:center;gap:10px;cursor:pointer;height:40px;
+    padding:0 14px 0 6px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
+    background:rgba(255,255,255,.6);transition:border-color .2s,background .2s,box-shadow .2s;}
+  .compose-collapsed:hover{border-color:var(--accent);background:#fff;
+    box-shadow:0 4px 14px -6px rgba(47,154,211,.45);}
+  .compose-collapsed .pchip{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center;}
+  .compose-collapsed .ph{color:var(--glass-sub);font-size:13.5px;flex:1;min-width:0;}
+  .compose-collapsed .go{color:var(--accent-deep);font-size:11.5px;letter-spacing:.05em;
+    opacity:0;transition:opacity .2s;white-space:nowrap;}
+  .compose-collapsed:hover .go{opacity:.85;}
+
+  .tl-host{display:flex;flex:1 1 0;min-width:0;flex-direction:column;overflow:hidden;padding:0 16px 16px;}
+  .tl-scroll{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);}
+  .tl-scroll::-webkit-scrollbar{width:0;}
+  .tl-more{text-align:center;font-size:11.5px;color:var(--glass-sub);letter-spacing:.06em;padding:8px 0 16px;}
+  .tl-end{text-align:center;font-size:11px;color:var(--glass-sub);letter-spacing:.08em;padding:14px 0 2px;}
+  .tl{position:relative;width:100%;margin:0 auto;padding-left:48px;box-sizing:border-box;}
+  .tl::before{content:"";position:absolute;left:15px;top:10px;bottom:12px;width:0;
+    border-left:2px dotted rgba(124,198,236,.35);}
+  .tl-day{position:relative;text-align:center;margin:20px 0 16px;}
+  .tl-day span{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#8a6d3a;
+    background:linear-gradient(135deg,#fff8ec,var(--butter));border:1px solid rgba(255,255,255,.9);
+    padding:5px 16px;border-radius:999px;transform:rotate(-1.2deg);
+    box-shadow:0 4px 14px -6px rgba(140,110,60,.35);}
+  .tl-item{position:relative;margin-bottom:16px;}
+  .ava{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-size:13px;font-weight:700;overflow:hidden;flex:0 0 auto;border:2px solid var(--cream);
+    position:relative;}
+  .ava img{position:absolute;width:280%;height:280%;max-width:none;}
+  .tl .ava{position:absolute;left:-48px;top:4px;width:34px;height:34px;font-size:14px;}
+  .tl-card{border:1px solid var(--paper-line);border-left:3px solid var(--au-deep,var(--accent-deep));
+    border-radius:14px;padding:13px 14px;cursor:pointer;transition:transform .16s,box-shadow .16s;
+    background:#fff;box-shadow:0 5px 14px -10px rgba(20,29,51,.32);}
+  .tl-card:hover{transform:translateY(-2px);}
+  .tl-who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+  .tl-au{font-weight:700;font-size:12px;color:var(--au-deep,var(--glass-sub));}
+  .tl-time{font-size:11px;color:var(--glass-sub);letter-spacing:.04em;}
+  .tl-card .tt{font-size:14.5px;font-weight:500;line-height:1.6;color:var(--glass-text);
+    text-wrap:pretty;white-space:pre-wrap;overflow-wrap:anywhere;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden;}
+  .tl-card.has-media{padding:0;overflow:hidden;}
+  .tl-card.has-media .tl-media{position:relative;}
+  .tl-media img.doc-mem{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;pointer-events:none;}
+  .tl-imgn{position:absolute;right:10px;bottom:10px;background:rgba(20,29,51,.55);color:#fff;
+    font-size:11px;padding:3px 10px;border-radius:999px;letter-spacing:.04em;
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+  .tl-card.has-media .tbody{padding:11px 16px 13px;}
+  /* 实装宽屏档（产品里是 @media(min-width:1000px)，只在 1440 档生效） */
+  .doc-vp-lg .tl-host{padding:0 18px 18px;}
+  .doc-vp-lg .tl-item{margin-bottom:18px;}
+  .doc-vp-lg .tl-day{margin:24px 0 18px;}
+  /* 实装紧凑档（产品里是 @media(max-width:767px)） */
+  .doc-vp-sm .tl-host{padding:0 10px 11px;}
+  .doc-vp-sm .tl{padding-left:40px;}
+  .doc-vp-sm .tl::before{left:12px;}
+  .doc-vp-sm .tl .ava{left:-40px;width:28px;height:28px;font-size:12px;box-shadow:none!important;}
+  .doc-vp-sm .tl-card{padding:11px 10px;border-radius:12px;}
+  .doc-vp-sm .tl-card .tt{font-size:13px;line-height:1.55;}
+  .doc-vp-sm .compose{padding:7px;margin-top:7px;border-radius:14px;}
+  .doc-vp-sm .compose-collapsed{padding-right:9px;}
+  .doc-vp-sm .compose-collapsed .go{display:none;}
+
+  /* ── 比稿变体 ─────────────────────────────────────────────── */
+  /* B：Claude 复核上限——卡片允许 ≤6% 作者色淡底 */
+  [data-variant="b"] .tl-item.mine .tl-card{background:linear-gradient(rgba(47,154,211,.06),rgba(47,154,211,.06)),#fff;}
+  [data-variant="b"] .tl-item.theirs .tl-card{background:linear-gradient(rgba(217,122,150,.06),rgba(217,122,150,.06)),#fff;}
+  /* C：方向 3 原样——保留跨场景长 tether 虚线（tether 终稿裁决为删除） */
+  .doc-tether{position:absolute;inset:0;z-index:36;pointer-events:none;display:none;width:100%;height:100%;}
+  [data-variant="c"] .doc-tether{display:block;}
+</style>
+</head>
+<body>
+<div class="doc-head">
+  <h1>我们的日记 · v2 终稿设计稿比稿</h1>
+  真实 <b>cinnaglass.css</b> token · 真实房间素材（夜雨）· 逐字复刻 <b>screens.tsx</b> 组件样式 ·
+  舞台几何 = pixi cover-fit 同款算法 + 真实座位锚点。变体 <b>A 终稿（384px · 纯白卡）</b> / <b>B 作者色≤6%底</b> / <b>C 长 tether</b> / <b>D 现行 504px 对照</b>。
+  修正断点 384 / 288 / 288px（504/432 实测完全盖住粉狗的脸，见 D 对照）。本页仅作设计评审，不是产品代码。
+</div>
+
+<div class="doc-stage doc-vp-lg" id="stage" data-variant="a">
+  <div class="doc-world" id="world">
+    <img class="scene-art" id="art" src="../../../public/rooms/study/night.png" alt="" />
+    <div class="char" id="charBlue">
+      <img src="../../../public/characters/blue-reading-open.png" alt="" />
+      <i class="tint" style="-webkit-mask-image:url('../../../public/characters/blue-reading-open.png');mask-image:url('../../../public/characters/blue-reading-open.png');"></i>
+    </div>
+    <div class="char" id="charPink">
+      <img src="../../../public/characters/pink-writing-open.png" alt="" />
+      <i class="tint" style="-webkit-mask-image:url('../../../public/characters/pink-writing-open.png');mask-image:url('../../../public/characters/pink-writing-open.png');"></i>
+    </div>
+  </div>
+
+  <!-- 简化壳件：rail / 氛围 pill / 纪念卡 / 音乐条（明度参照，非交互复刻） -->
+  <div class="doc-rail glass" aria-hidden="true">
+    <i class="on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></i>
+    <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></i>
+    <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-4.5-4.5L6 21"/></svg></i>
+    <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>
+    <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></i>
+    <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.3 5.5.7-4 4 1 5.6-5-2.8-5 2.8 1-5.6-4-4 5.5-.7z"/></svg></i>
+  </div>
+  <div class="doc-pill glass" aria-hidden="true">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+    <span>夜 · 雨</span>
+  </div>
+  <div class="doc-anni glass" aria-hidden="true">在一起 <b>458</b> 天<br /><span style="font-size:10px;color:var(--glass-sub);">距纪念日还有 272 天</span></div>
+  <div class="doc-music glass" aria-hidden="true">
+    <span class="disc"></span>
+    <span class="meta"><span class="t1">云朵上的下午</span><span class="bar"><i></i></span></span>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  </div>
+
+  <!-- 场景降噪幕（产品同款 .modal-scrim.object-scrim.show） -->
+  <div class="modal-scrim object-scrim show"></div>
+  <svg class="doc-tether" id="tether" aria-hidden="true"><path id="tetherPath" fill="none" stroke="rgba(239,157,180,.6)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/><circle id="tetherDot" r="3" fill="rgba(239,157,180,.75)"/></svg>
+
+  <!-- 我们的日记 · ObjectSurface（终稿静态态） -->
+  <section class="object-surface paper diary-surface show" id="diary" aria-label="我们的日记">
+    <header class="object-hd">
+      <div>
+        <div class="object-kicker">MEMORY DIARY</div>
+        <h2 id="diaryTitle">我们的日记</h2>
+      </div>
+      <button class="modal-x object-x" aria-label="关闭我们的日记">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="object-body tl-host">
+      <div class="tl-scroll">
+        <div class="tl">
+          <div class="tl-more">↑ 翻看更早的回忆</div>
+          <div class="tl-day"><span>⭐ 今天</span></div>
+
+          <div class="tl-item mine" style="--au-ring:var(--accent);--au-deep:var(--accent-deep);">
+            <span class="ava"><img src="../../../public/characters/blue-reading-open.png" alt="" style="left:-104%;top:-48%;" /></span>
+            <div class="tl-card paper">
+              <div class="tl-who"><span class="tl-au">我</span><span class="tl-time">21:12</span></div>
+              <div class="tt">今天都很忙，但一抬头你还在。</div>
+            </div>
+          </div>
+
+          <div class="tl-item theirs" style="--au-ring:rgba(239,157,180,.85);--au-deep:#D97A96;">
+            <span class="ava"><img src="../../../public/characters/pink-writing-open.png" alt="" style="left:-49%;top:-42%;" /></span>
+            <div class="tl-card paper has-media">
+              <div class="tl-media">
+                <img class="doc-mem" src="../../../public/rooms/study/golden.png" alt="黄昏的书房" />
+                <span class="tl-imgn">＋2 张</span>
+              </div>
+              <div class="tbody">
+                <div class="tl-who"><span class="tl-au">sherry</span><span class="tl-time">21:27</span></div>
+                <div class="tt">我们各看各的书，也像在一起散步。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-item mine" style="--au-ring:var(--accent);--au-deep:var(--accent-deep);">
+            <span class="ava"><img src="../../../public/characters/blue-reading-open.png" alt="" style="left:-104%;top:-48%;" /></span>
+            <div class="tl-card paper">
+              <div class="tl-who"><span class="tl-au">我</span><span class="tl-time">21:48</span></div>
+              <div class="tt">窗外一直下雨，我们就一起慢慢看书。</div>
+            </div>
+          </div>
+
+          <div class="tl-end">已经看到最新的回忆了 ·</div>
+        </div>
+      </div>
+      <div class="compose paper">
+        <div class="compose-collapsed">
+          <span class="chip-accent pchip">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </span>
+          <span class="ph">记录此刻的我们…</span>
+          <span class="go">点击书写 ✎</span>
+        </div>
+      </div>
+    </div>
+    <span class="diary-fold" aria-hidden="true"></span>
+    <span class="diary-ribbon" aria-hidden="true"></span>
+  </section>
+</div>
+
+<div class="doc-bar" id="bar">
+  <div class="grp">变体：
+    <a href="#" data-q="variant" data-v="a">A 终稿 · 384px 纯白卡</a>
+    <a href="#" data-q="variant" data-v="b">B 作者色 ≤6% 淡底</a>
+    <a href="#" data-q="variant" data-v="c">C 保留长 tether</a>
+    <a href="#" data-q="variant" data-v="d">D 现行 504px 对照</a>
+  </div>
+  <div class="grp">标题：
+    <a href="#" data-q="name" data-v="ours">我们的日记</a>
+    <a href="#" data-q="name" data-v="memories">回忆日记</a>
+    <span class="dim">（命名为用户拍板项，代码 timeline 不动）</span>
+  </div>
+  <div class="grp">视口：
+    <a href="#" data-q="vp" data-v="1440">1440×900 · 504px</a>
+    <a href="#" data-q="vp" data-v="960">960×600 · 432px</a>
+    <a href="#" data-q="vp" data-v="640">640×400 · 288px</a>
+    <span class="dim">截图模式：URL 加 &embed=1 后把窗口调到对应尺寸</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var P = new URLSearchParams(location.search);
+  var stage = document.getElementById('stage');
+  var variant = P.get('variant') || 'a';
+  var vp = P.get('vp') || '1440';
+  var naming = P.get('name') || 'ours';
+  var embed = P.get('embed') === '1';
+
+  var VP = { '1440': 'doc-vp-lg', '960': 'doc-vp-md', '640': 'doc-vp-sm' };
+  stage.classList.remove('doc-vp-lg', 'doc-vp-md', 'doc-vp-sm');
+  stage.classList.add(VP[vp] || 'doc-vp-lg');
+  stage.setAttribute('data-variant', variant);
+  if (naming === 'memories') document.getElementById('diaryTitle').textContent = '回忆日记';
+  if (embed) document.documentElement.classList.add('embed');
+
+  // pixi cover-fit 同款：scale = max(W/1586, H/992)，居中；角色 anchor(0.5,1) @ seat.foot
+  var ART_W = 1586, ART_H = 992;
+  var SEATS = { blue: { x: 468, y: 798, h: 400 }, pink: { x: 1005, y: 634, h: 385 } };
+  var BOOK = { x: 920, y: 545 }; // 日记本热点中心（art 坐标）
+
+  function layout() {
+    var W = stage.clientWidth, H = stage.clientHeight;
+    var s = Math.max(W / ART_W, H / ART_H);
+    var ox = (W - ART_W * s) / 2, oy = (H - ART_H * s) / 2;
+    var art = document.getElementById('art');
+    art.style.width = ART_W * s + 'px';
+    art.style.height = ART_H * s + 'px';
+    art.style.left = ox + 'px';
+    art.style.top = oy + 'px';
+    place('charBlue', SEATS.blue, s, ox, oy);
+    place('charPink', SEATS.pink, s, ox, oy);
+    tether(s, ox, oy);
+  }
+  function place(id, seat, s, ox, oy) {
+    var el = document.getElementById(id);
+    var w = seat.h * s;
+    el.style.width = w + 'px';
+    el.style.height = w + 'px';
+    el.style.left = ox + seat.x * s - w / 2 + 'px';
+    el.style.top = oy + seat.y * s - w + 'px';
+  }
+  function tether(s, ox, oy) {
+    if (stage.getAttribute('data-variant') !== 'c') return;
+    var sr = stage.getBoundingClientRect();
+    var dr = document.getElementById('diary').getBoundingClientRect();
+    var x1 = dr.right - sr.left - 20, y1 = dr.bottom - sr.top + 6; // 书签尾端
+    var x2 = ox + BOOK.x * s, y2 = oy + BOOK.y * s;               // 真实日记本中心
+    var mx = (x1 + x2) / 2;
+    document.getElementById('tetherPath').setAttribute('d',
+      'M ' + x1 + ' ' + y1 + ' C ' + mx + ' ' + (y1 + 40) + ', ' + mx + ' ' + (y2 - 30) + ', ' + x2 + ' ' + y2);
+    var dot = document.getElementById('tetherDot');
+    dot.setAttribute('cx', x2); dot.setAttribute('cy', y2);
+  }
+  // 文档件导航：保参跳转
+  document.getElementById('bar').addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-q]');
+    if (!a) return;
+    e.preventDefault();
+    P.set(a.getAttribute('data-q'), a.getAttribute('data-v'));
+    location.search = P.toString();
+  });
+  // 高亮当前项
+  document.querySelectorAll('#bar a[data-q]').forEach(function (a) {
+    var q = a.getAttribute('data-q');
+    var cur = q === 'variant' ? variant : q === 'vp' ? vp : naming;
+    if (a.getAttribute('data-v') === cur) a.classList.add('on');
+  });
+  window.addEventListener('resize', layout);
+  layout();
+})();
+</script>
+</body>
+</html>

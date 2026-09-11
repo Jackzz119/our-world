@@ -5,7 +5,8 @@ painting's light; moving things ship as flat albedo and are lit by the engine.
 Codex generates (3x the base resolution, crop x 800-1140 / y 680-940):
   machine-<mood>.png   the turntable with NO record and NO tonearm (empty well
                        + spindle pin); static, so painted light stays
-  platter.png          the record TOP-DOWN, flat-lit, on #00FF00
+  platter.png          the record TOP-DOWN, flat-lit, on #00FF00 — since v5
+                       only its LABEL PRINT is used (moon, brush marks)
   tonearm.png          the arm alone, flat-lit, in place, on #00FF00
 
 This script turns them into engine assets:
@@ -14,19 +15,32 @@ This script turns them into engine assets:
                           geometry, colour-matched per mood on a ring) — under
                           the spinning record there is now an empty well, never
                           a painted record
-  * parts/platter.png     albedo of the record in disc space (unit circle
-                          inscribed in the square), soft 1px rim
-  * parts/platter-light-<mood>.png  the painting's light on the record, in the
-                          same disc space: rim band + low-frequency sheen, as a
-                          normal-blend overlay that never turns
+  * parts/platter-<mood>.png  the record's albedo per mood in disc space (unit
+                          circle inscribed in the square): the painting's own
+                          ROTATIONALLY SYMMETRIC part (angular median per
+                          radius) plus the generated label print. A record's
+                          look is light on grooves, so "albedo without light"
+                          is a blank disc — the split is by symmetry instead:
+                          what would look the same after any turn rotates,
+                          what would not stays put (v5, 2026-09-07)
+  * parts/platter-light-add|mul-<mood>.png  the rest of the painting on the
+                          record — sheen, groove sparkle, rim highlight, shadow
+                          side — per pixel, unblurred, as add/multiply overlays
+                          that never turn. albedo x light == the painting at rest
+  * parts/spindle-<mood>.png  the painted pin cut out with a feathered outline:
+                          it stands through the record and never moves, so it
+                          keeps the painting's light like every other still
   * parts/tonearm.png     the arm albedo, keyed, registered onto the painted
                           arm's position, with its placement box; manifest
                           carries a per-mood tint (painted arm / albedo)
   * gate                  outside the patch the plate is bit-identical; seam
-                          ring error; registration offsets; review strips
+                          ring error; registration offsets; REST RECOMPOSITION
+                          error (albedo x light + pin vs the painting inside the
+                          record, off the arm); review strips
 
     python scripts/build-turntable-parts.py --gen arts/rooms/study/generated/<run> \
-        --src arts/rooms/study/source --out public/rooms/study --review scratch/review
+        --src arts/rooms/study/source --out public/rooms/study --review scratch/review \
+        --platter arts/rooms/study/generated/20260907-055939Z/platter.png
 
 Needs Pillow, numpy, opencv-python-headless.
 """
@@ -47,7 +61,7 @@ DONOR_MOOD = "twilight"
 CROP = (800, 680, 1140, 940)
 UP = 3
 PART_RES = 2
-DISC_TEX = 256  # px, disc-space textures (unit square) — near the on-screen size, so mip blending stays crisp
+DISC_TEX = 512  # px, disc-space master textures (unit square); the engine refits them to the on-screen size
 PLATTER = dict(cx=963.6, cy=844.7, rx=82.4, ry=49.9, tilt=0.128)
 CENTER = (962.6, 841.0)
 ARM_PIVOT = (1062.5, 844.0)
@@ -58,11 +72,15 @@ PAINTED_ARM = [
     (1006, 881), (1015, 875), (1025, 869), (1035, 863), (1045, 858), (1052, 855),
 ]
 SHADOW_REACH = 22
+# the painted spindle pin, traced on a 12x grid (arts/rooms/study/source, all
+# three moods agree within a pixel): body x 959-967, y 833-845, soft base below
+PIN_POLY = [(958, 833), (961, 831.5), (965, 831.5), (968, 834), (968.5, 839), (967.5, 844), (964, 846.5), (960, 846.5), (957.5, 843), (957, 838)]
+PIN_FEATHER = 1.0  # px, at base resolution
+ARM_LIGHT_MARGIN = 6  # px: the arm's contact shadow on the record travels with the arm, so it is not static light
 WELL_MARGIN = 1.06  # rho: patch reaches this far past the painted rim so the well's rim comes from the machine
 FEATHER = 3.0
 KEY_LO, KEY_HI = 40, 120
-RIM_BAND = (0.93, 0.985)  # rho where the painted record edge stays as static light
-LIGHT_GAIN = 1.6  # how strongly the painted angular light is applied to the albedo (add/multiply layers)
+PRINT_DEV = (25, 65)  # colour distance from the generated label's flat fill that counts as print (ramp)
 
 
 # ---------- geometry ----------
@@ -88,13 +106,20 @@ def rho_map(shape, Hinv, offset=(0, 0)):
     return np.hypot(pts[:, 0] / pts[:, 2], pts[:, 1] / pts[:, 2]).reshape(shape)
 
 
-def warp_to_disc(img, Hm, size):
+def warp_to_disc(img, Hm, size, interp=cv2.INTER_LINEAR):
     """Inverse-warp a room image into disc space (unit square → size x size)."""
     # disc (u,v) in [-1,1] → room px: map via H; cv2.warpPerspective needs disc px → room px
     S = np.array([[2.0 / size, 0, -1 + 1.0 / size], [0, 2.0 / size, -1 + 1.0 / size], [0, 0, 1]])  # texel → (u,v)
     M = Hm @ S  # texel → room px
     # WARP_INVERSE_MAP wants the dst→src map, which is exactly M (texel → room px)
-    return cv2.warpPerspective(img, M, (size, size), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP)
+    return cv2.warpPerspective(img, M, (size, size), flags=interp | cv2.WARP_INVERSE_MAP)
+
+
+def disc_to_room(tex, Hm, shape):
+    """Forward-warp a disc-space texture (size x size, unit square) into a room-sized image."""
+    size = tex.shape[0]
+    S = np.array([[2.0 / size, 0, -1 + 1.0 / size], [0, 2.0 / size, -1 + 1.0 / size], [0, 0, 1]])
+    return cv2.warpPerspective(tex, Hm @ S, (shape[1], shape[0]), flags=cv2.INTER_LINEAR)
 
 
 # ---------- image helpers ----------
@@ -186,52 +211,138 @@ def over(base_rgb, rgba):
 
 
 # ---------- parts ----------
-def normalize_platter(path):
-    """Generated top-down record → exact unit circle inscribed in a DISC_TEX square, soft rim."""
+def disc_grid(n):
+    yy, xx = np.mgrid[0:n, 0:n]
+    u = (xx + 0.5) / n * 2 - 1
+    v = (yy + 0.5) / n * 2 - 1
+    return np.hypot(u, v), np.arctan2(v, u)
+
+
+def rim_alpha(rr):
+    """Soft record edge: ~1px of the painted rim stays with the plate, the rest is the record."""
+    edge = 1 - 1.0 / PLATTER["rx"]
+    a = np.clip((edge - rr) / (2.5 / PLATTER["rx"]) + 1, 0, 1)
+    return a * a * (3 - 2 * a)
+
+
+def radial_median(disc, excl, rr):
+    """Rotationally symmetric part of the painted record: per radius (1 texel
+    wide rings) the angular median over pixels not covered by arm or pin.
+    Rings mostly hidden (under the pin) borrow the nearest visible ring."""
+    bins = np.minimum(np.round(rr * DISC_TEX / 2).astype(int), DISC_TEX // 2)
+    nb = bins.max() + 1
+    prof = np.zeros((nb, 3))
+    good = np.zeros(nb, bool)
+    for bn in range(nb):
+        ring = bins == bn
+        m = ring & ~excl
+        if m.sum() >= max(8, 0.25 * ring.sum()):
+            prof[bn] = np.median(disc[m].reshape(-1, 3), axis=0)
+            good[bn] = True
+    idx = np.nonzero(good)[0]
+    for bn in np.nonzero(~good)[0]:
+        prof[bn] = prof[idx[np.argmin(np.abs(idx - bn))]]
+    return prof[bins], bins
+
+
+def inpaint_angular(diff, excl, bins, ang):
+    """Fill the excluded sector of every ring by interpolating along the ring
+    (with wrap-around), so the static light has no hole under the arm."""
+    out = diff.copy()
+    for bn in np.unique(bins[excl]):
+        ring = bins == bn
+        good, bad = ring & ~excl, ring & excl
+        if good.sum() < 4:
+            out[bad] = 0
+            continue
+        a_good = ang[good]
+        order = np.argsort(a_good)
+        a_good = a_good[order]
+        vals = diff[good][order]
+        a_pad = np.concatenate([a_good[-3:] - 2 * np.pi, a_good, a_good[:3] + 2 * np.pi])
+        for c in range(3):
+            v_pad = np.concatenate([vals[-3:, c], vals[:, c], vals[:3, c]])
+            out[..., c][bad] = np.interp(ang[bad], a_pad, v_pad)
+    return out
+
+
+def label_print(path, radial, rr):
+    """The generated record's label PRINT only (moon, brush marks) as a decal:
+    everything that departs from the label's flat fill, recoloured so it
+    inherits the painted label's shading ring by ring."""
     rgb, alpha = chroma_key(load_rgb(path))
     ys, xs = np.nonzero(alpha > 0.5)
     cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
     r = ((xs.max() - xs.min()) + (ys.max() - ys.min())) / 4
-    # sample the square [cx-r, cx+r] x [cy-r, cy+r] into DISC_TEX; keep the disc's own alpha
     M = np.float32([[DISC_TEX / (2 * r), 0, -(cx - r) * DISC_TEX / (2 * r)], [0, DISC_TEX / (2 * r), -(cy - r) * DISC_TEX / (2 * r)]])
     tex = cv2.warpAffine(rgb, M, (DISC_TEX, DISC_TEX), flags=cv2.INTER_AREA)
-    yy, xx = np.mgrid[0:DISC_TEX, 0:DISC_TEX]
-    rr = np.hypot((xx + 0.5) / DISC_TEX * 2 - 1, (yy + 0.5) / DISC_TEX * 2 - 1)
-    edge = 1 - 1.0 / (PLATTER["rx"])  # ~1px of the painted rim stays with the plate
-    a = np.clip((edge - rr) / (2.5 / PLATTER["rx"]) + 1, 0, 1)
-    a = a * a * (3 - 2 * a)
-    return rgba_u8(unsharp(tex), a), (cx, cy, r)
+    # the painted label's radius: the sharpest luminance step of the symmetric profile in the label range
+    lum = radial @ np.array([0.299, 0.587, 0.114])
+    n = DISC_TEX // 2
+    prof = np.array([np.median(lum[(rr * n).astype(int) == k]) for k in range(n)])
+    lo, hi = int(0.2 * n), int(0.5 * n)
+    label_r = (lo + int(np.argmax(np.abs(np.diff(prof[lo:hi]))))) / n
+    lab = rr < label_r * 0.96
+    fill = np.median(tex[lab].reshape(-1, 3), axis=0)
+    dev = np.abs(tex - fill).sum(axis=2)
+    da = np.clip((dev - PRINT_DEV[0]) / (PRINT_DEV[1] - PRINT_DEV[0]), 0, 1) * lab
+    da = cv2.GaussianBlur(da, (0, 0), 0.7)
+    dec = tex * (radial / np.maximum(fill, 1))  # print colour relative to its fill, times the painted ring
+    return dec, da, label_r
 
 
-def platter_light(room, Hm, Hinv, arm_mask_room):
-    """The painting's light on the record as TWO static overlays in disc space:
-    `add` (what the hour makes brighter than the ring average — window/lamp
-    sheen) and `mul` (what it makes darker — shadow side, edge shading).
-    Both come from the low-frequency angular part of the painted disc, so
-    they carry no grooves and no label edge; the albedo keeps its material and
-    turns underneath while the light stays put."""
-    disc = warp_to_disc(room, Hm, DISC_TEX)
-    arm = warp_to_disc(arm_mask_room, Hm, DISC_TEX) > 0.5  # the painted arm + shadow: not light, exclude
-    yy, xx = np.mgrid[0:DISC_TEX, 0:DISC_TEX]
-    rr = np.hypot((xx + 0.5) / DISC_TEX * 2 - 1, (yy + 0.5) / DISC_TEX * 2 - 1)
-    bins = np.round(rr * 400).astype(int)
-    radial = np.zeros_like(disc)
-    for b in np.unique(bins[rr < 1.0]):
-        m = (bins == b) & ~arm
-        if not m.any():
-            m = bins == b
-        radial[bins == b] = np.median(disc[m].reshape(-1, 3), axis=0)
-    clean = np.where(arm[..., None], radial, disc)
-    low = cv2.GaussianBlur(clean, (0, 0), DISC_TEX / 32)
-    low_radial = cv2.GaussianBlur(radial, (0, 0), DISC_TEX / 32)
-    sheen = (low - low_radial) * LIGHT_GAIN
-    inside = (rr < 1.0).astype(np.float64)
-    add = np.clip(sheen, 0, 255)
-    # multiply: 255 = untouched; darker where the hour paints the disc darker,
-    # plus a gentle edge ramp so the record does not end in a flat cut
-    edge = np.clip((rr - RIM_BAND[0]) / (1.0 - RIM_BAND[0]), 0, 1) * 0.35
-    mul = np.clip(255 + np.minimum(sheen, 0) - edge[..., None] * 255, 0, 255)
-    return rgba_u8(add, inside), rgba_u8(mul, inside)
+def decompose_platter(room, Hm, excl_room, print_path):
+    """Painted record → (albedo, light-add, light-mul) in disc space.
+    albedo = angular median per radius (+ label print); light = painting − albedo,
+    per pixel, split by sign. Recomposed at rest they give back the painting."""
+    disc = warp_to_disc(room, Hm, DISC_TEX, cv2.INTER_CUBIC)
+    excl = warp_to_disc(excl_room, Hm, DISC_TEX) > 0.3
+    rr, ang = disc_grid(DISC_TEX)
+    radial, bins = radial_median(disc, excl, rr)
+    dec, da, label_r = label_print(print_path, radial, rr)
+    albedo = radial * (1 - da[..., None]) + dec * da[..., None]
+    diff = inpaint_angular(disc - radial, excl, bins, ang)
+    a = rim_alpha(rr)
+    add = np.clip(diff, 0, 255)
+    mul = np.clip(255 + np.minimum(diff, 0), 0, 255)
+    return rgba_u8(albedo, a), rgba_u8(add, a), rgba_u8(mul, a), label_r
+
+
+def cut_pin(room):
+    """The painted spindle pin as a feathered patch at PART_RES, plus its base-px box."""
+    xs, ys = zip(*PIN_POLY)
+    pad = 3
+    x0, y0 = int(math.floor(min(xs))) - pad, int(math.floor(min(ys))) - pad
+    x1, y1 = int(math.ceil(max(xs))) + pad, int(math.ceil(max(ys))) + pad
+    crop = room[y0:y1, x0:x1]
+    up = cv2.resize(crop, None, fx=PART_RES, fy=PART_RES, interpolation=cv2.INTER_CUBIC)
+    mask = poly_mask(up.shape[:2], [(x * PART_RES, y * PART_RES) for x, y in PIN_POLY], offset=(x0 * PART_RES, y0 * PART_RES))
+    mask = cv2.GaussianBlur(mask, (0, 0), PIN_FEATHER * PART_RES)
+    return rgba_u8(up, mask), {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0}
+
+
+def compose_rest(plate, Hm, albedo, add, mul, pin_rgba, pin_box, spin_deg=0.0):
+    """Offline replica of the engine's layering: albedo (turned by spin) under
+    static mul/add light, then the pin patch. Used by the gate and the review."""
+    n = albedo.shape[0]
+    alb = albedo.astype(np.float64)
+    if spin_deg:
+        R = cv2.getRotationMatrix2D((n / 2 - 0.5, n / 2 - 0.5), spin_deg, 1.0)
+        alb = cv2.warpAffine(alb, R, (n, n), flags=cv2.INTER_LINEAR)
+    pr = disc_to_room(alb, Hm, plate.shape)
+    ar = disc_to_room(add.astype(np.float64), Hm, plate.shape)
+    mr = disc_to_room(mul.astype(np.float64), Hm, plate.shape)
+    a = pr[..., 3:4] / 255
+    out = plate * (1 - a) + pr[..., :3] * a
+    am = mr[..., 3:4] / 255
+    out = out * (1 - am) + out * (mr[..., :3] / 255) * am
+    aa = ar[..., 3:4] / 255
+    out = np.clip(out + ar[..., :3] * aa, 0, 255)
+    pin = cv2.resize(pin_rgba.astype(np.float64), (pin_box["w"], pin_box["h"]), interpolation=cv2.INTER_AREA)
+    x, y = pin_box["x"], pin_box["y"]
+    pa = pin[..., 3:4] / 255
+    out[y:y + pin_box["h"], x:x + pin_box["w"]] = out[y:y + pin_box["h"], x:x + pin_box["w"]] * (1 - pa) + pin[..., :3] * pa
+    return out
 
 
 def main():
@@ -240,8 +351,7 @@ def main():
     ap.add_argument("--src", required=True, help="dir with the untouched room arts")
     ap.add_argument("--out", required=True, help="dir receiving <mood>.png plates and parts/")
     ap.add_argument("--review", required=True, help="dir receiving review strips")
-    ap.add_argument("--platter", help="override: top-down flat-lit record PNG (default <gen>/platter.png)")
-    ap.add_argument("--spindle", help="spindle pin part PNG in crop framing on #00FF00 (static, drawn above the record)")
+    ap.add_argument("--platter", help="override: top-down record PNG whose label print is used (default <gen>/platter.png)")
     args = ap.parse_args()
     os.makedirs(os.path.join(args.out, "parts"), exist_ok=True)
     os.makedirs(args.review, exist_ok=True)
@@ -264,9 +374,12 @@ def main():
     (ddx, ddy), dscore = best_offset(donor1.mean(axis=2), ref_crop.mean(axis=2), ring, search=6)
     donor1 = shift(donor1, ddx, ddy)
 
-    # --- platter albedo (disc space) ---
-    platter_rgba, (pcx, pcy, pr) = normalize_platter(args.platter or os.path.join(args.gen, "platter.png"))
-    Image.fromarray(platter_rgba, "RGBA").save(os.path.join(args.out, "parts", "platter.png"))
+    print_path = args.platter or os.path.join(args.gen, "platter.png")
+    # what is NOT the record inside the rim: the painted arm (+ its contact
+    # shadow) and the pin — both excluded from the symmetric part and inpainted
+    # out of the static light
+    excl_room = cv2.dilate(poly_mask(rooms[DONOR_MOOD].shape[:2], PAINTED_ARM), np.ones((2 * ARM_LIGHT_MARGIN + 1,) * 2, np.float64))
+    excl_room = np.maximum(excl_room, poly_mask(rooms[DONOR_MOOD].shape[:2], PIN_POLY))
 
     # --- arm albedo, registered to the painted arm ---
     part3, alpha3 = chroma_key(load_rgb(os.path.join(args.gen, "tonearm.png")))
@@ -290,23 +403,10 @@ def main():
     Image.fromarray(arm_rgba, "RGBA").save(os.path.join(args.out, "parts", "tonearm.png"))
     box = {"x": cx0 + x0 / PART_RES, "y": cy0 + y0 / PART_RES, "w": (x1 - x0) / PART_RES, "h": (y1 - y0) / PART_RES}
     alpha1 = downscale(alpha3, 1 / UP)
-    print(f"donor offset {ddx:+d},{ddy:+d} (ring {dscore:.1f}) | arm offset {adx / UP:+.1f},{ady / UP:+.1f} (fit {ascore:.1f}) | platter circle c=({pcx:.0f},{pcy:.0f}) r={pr:.0f}")
+    print(f"donor offset {ddx:+d},{ddy:+d} (ring {dscore:.1f}) | arm offset {adx / UP:+.1f},{ady / UP:+.1f} (fit {ascore:.1f})")
 
-    # spindle pin: generated in place, keyed, no registration needed (7x10 px)
-    spindle_box = None
-    if args.spindle:
-        sp3, sa3 = chroma_key(load_rgb(args.spindle))
-        sa2 = downscale(sa3, PART_RES / UP)
-        spm2 = downscale(sp3 * sa3[..., None], PART_RES / UP)
-        srgb2 = np.where(sa2[..., None] > 1e-3, spm2 / np.maximum(sa2, 1e-3)[..., None], 0)
-        sys_, sxs = np.nonzero(sa2 > 0.02)
-        sy0, sy1 = max(0, sys_.min() - pad), min(sa2.shape[0], sys_.max() + pad + 1)
-        sx0, sx1 = max(0, sxs.min() - pad), min(sa2.shape[1], sxs.max() + pad + 1)
-        Image.fromarray(rgba_u8(srgb2, sa2)[sy0:sy1, sx0:sx1], "RGBA").save(os.path.join(args.out, "parts", "spindle.png"))
-        spindle_box = {"x": cx0 + sx0 / PART_RES, "y": cy0 + sy0 / PART_RES, "w": (sx1 - sx0) / PART_RES, "h": (sy1 - sy0) / PART_RES}
     manifest = {"pivot": {"x": ARM_PIVOT[0], "y": ARM_PIVOT[1]}, "arm": {"src": "/rooms/study/parts/tonearm.png", "box": box},
-                "spindle": {"src": "/rooms/study/parts/spindle.png", "box": spindle_box} if spindle_box else None,
-                "platter": "/rooms/study/parts/platter.png", "platterLight": {}, "armTint": {}, "donor": DONOR_MOOD}
+                "spindle": {"src": {}, "box": None}, "platterArt": {}, "platterLight": {}, "armTint": {}, "donor": DONOR_MOOD}
     painted1 = poly_mask((ch, cw), PAINTED_ARM, offset=(cx0, cy0))
     for mood in MOODS:
         room = rooms[mood]
@@ -316,13 +416,18 @@ def main():
         plate = room.copy()
         plate[cy0:cy1, cx0:cx1] = patched
         Image.fromarray(np.clip(plate, 0, 255).astype(np.uint8)).save(os.path.join(args.out, f"{mood}.png"))
-        # static light of this mood on the record
-        arm_room = np.zeros(room.shape[:2], np.float64)
-        arm_room[cy0:cy1, cx0:cx1] = arm_fp
-        light_add, light_mul = platter_light(room, Hm, Hinv, arm_room)
+        # the record of this mood, split by symmetry: albedo turns, light stays
+        platter_rgba, light_add, light_mul, label_r = decompose_platter(room, Hm, excl_room, print_path)
+        Image.fromarray(platter_rgba, "RGBA").save(os.path.join(args.out, "parts", f"platter-{mood}.png"))
         Image.fromarray(light_add, "RGBA").save(os.path.join(args.out, "parts", f"platter-light-add-{mood}.png"))
         Image.fromarray(light_mul, "RGBA").save(os.path.join(args.out, "parts", f"platter-light-mul-{mood}.png"))
+        manifest["platterArt"][mood] = f"/rooms/study/parts/platter-{mood}.png"
         manifest["platterLight"][mood] = {"add": f"/rooms/study/parts/platter-light-add-{mood}.png", "mul": f"/rooms/study/parts/platter-light-mul-{mood}.png"}
+        # the pin: a still, so the painting's own pixels
+        pin_rgba, pin_box = cut_pin(room)
+        Image.fromarray(pin_rgba, "RGBA").save(os.path.join(args.out, "parts", f"spindle-{mood}.png"))
+        manifest["spindle"]["src"][mood] = f"/rooms/study/parts/spindle-{mood}.png"
+        manifest["spindle"]["box"] = pin_box
         # engine tint for the flat arm: painted arm mean / albedo mean, per channel
         w = (alpha1 * painted1)
         painted_mean = np.array([np.average(crop[..., c], weights=w) for c in range(3)])
@@ -330,25 +435,30 @@ def main():
         golden_mean = np.array([np.average(gold_crop[..., c], weights=w) for c in range(3)])
         t = np.clip(painted_mean / np.maximum(golden_mean, 1), 0, 1.0)
         manifest["armTint"][mood] = "#%02x%02x%02x" % tuple(int(round(v * 255)) for v in t)
-        # same for the flat platter: how much darker/cooler this hour paints the vinyl than golden does
-        vinyl = ((rho > 0.45) & (rho < 0.9)).astype(np.float64)
-        pv = np.array([np.average(crop[..., c], weights=vinyl) for c in range(3)])
-        gv = np.array([np.average(gold_crop[..., c], weights=vinyl) for c in range(3)])
-        tp = np.clip(pv / np.maximum(gv, 1), 0, 1.0)
-        manifest.setdefault("platterTint", {})[mood] = "#%02x%02x%02x" % tuple(int(round(v * 255)) for v in tp)
         # gate
         seam = np.abs(patched - crop).max(axis=2)[ring > 0.5]
         outside = np.abs(plate - room).max(axis=2)
         outside[cy0:cy1, cx0:cx1][soft > 0.002] = 0
-        print(f"{mood:9s} seam ring mean {seam.mean():.2f} p95 {np.percentile(seam, 95):.0f} | outside patch max {outside.max():.0f} | armTint {manifest['armTint'][mood]} platterTint {manifest['platterTint'][mood]}")
-        # review: original | plate | platter albedo | light overlay | arm on checker
+        # rest recomposition: albedo x light + pin over the plate must give the painting back
+        rest = compose_rest(plate, Hm, platter_rgba, light_add, light_mul, pin_rgba, pin_box)
+        turned = compose_rest(plate, Hm, platter_rgba, light_add, light_mul, pin_rgba, pin_box, spin_deg=40)
+        rho_full = rho_map(room.shape[:2], Hinv)
+        judge = (rho_full < 0.97) & (excl_room < 0.5)
+        rerr = np.abs(rest - room).mean(axis=2)[judge]
+        print(f"{mood:9s} seam ring mean {seam.mean():.2f} p95 {np.percentile(seam, 95):.0f} | outside patch max {outside.max():.0f} | "
+              f"rest vs painting mean {rerr.mean():.2f} p95 {np.percentile(rerr, 95):.1f} | label r {label_r:.3f} | armTint {manifest['armTint'][mood]}")
+        # review: original | rest recomposed | turned 40deg | albedo | light add x3 | light mul | arm on checker
         w3, h3 = cw * UP, ch * UP
-        strip = Image.new("RGB", (w3 * 5 + 40, h3), (18, 18, 18))
+        strip = Image.new("RGB", (w3 * 4 + h3 * 3 + 60, h3), (18, 18, 18))
+        add3 = light_add.copy()
+        add3[..., :3] = np.clip(add3[..., :3].astype(np.float64) * 3, 0, 255).astype(np.uint8)
         tiles = [
             Image.fromarray(crop.astype(np.uint8)).resize((w3, h3), Image.LANCZOS),
-            Image.fromarray(np.clip(patched, 0, 255).astype(np.uint8)).resize((w3, h3), Image.LANCZOS),
+            Image.fromarray(np.clip(rest[cy0:cy1, cx0:cx1], 0, 255).astype(np.uint8)).resize((w3, h3), Image.LANCZOS),
+            Image.fromarray(np.clip(turned[cy0:cy1, cx0:cx1], 0, 255).astype(np.uint8)).resize((w3, h3), Image.LANCZOS),
             Image.alpha_composite(checker((h3, h3)).convert("RGBA"), Image.fromarray(platter_rgba, "RGBA").resize((h3, h3), Image.LANCZOS)).convert("RGB"),
-            Image.alpha_composite(checker((h3, h3)).convert("RGBA"), Image.fromarray(light_add, "RGBA").resize((h3, h3), Image.LANCZOS)).convert("RGB"),
+            Image.alpha_composite(checker((h3, h3)).convert("RGBA"), Image.fromarray(add3, "RGBA").resize((h3, h3), Image.LANCZOS)).convert("RGB"),
+            Image.alpha_composite(checker((h3, h3)).convert("RGBA"), Image.fromarray(light_mul, "RGBA").resize((h3, h3), Image.LANCZOS)).convert("RGB"),
             Image.alpha_composite(checker((w3, h3)).convert("RGBA"), Image.fromarray(rgba_u8(part3, alpha3), "RGBA")).convert("RGB"),
         ]
         x = 0

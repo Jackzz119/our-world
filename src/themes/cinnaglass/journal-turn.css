@@ -1,0 +1,154 @@
+/* No opacity/filter/overflow clipping on the 3D ancestors: those flatten 3D. */
+.journal-turn-host {
+    position: absolute;
+    left: 7.5%;
+    top: 4.4%;
+    width: 83.5%;
+    height: 81%;
+    pointer-events: none;
+    z-index: 25;
+}
+.diary-surface:has(.journal-room-book[data-turning='true']) .object-hd h2,
+.journal-room-book[data-turning='true'] .journal-room-pager button span {
+    visibility: hidden;
+}
+.journal-room-book[data-turning='true'] .journal-room-pager {
+    z-index: 26;
+}
+.journal-turn-stage {
+    position: absolute;
+    inset: 0 auto auto 0;
+    pointer-events: none;
+    z-index: 25;
+}
+.journal-turn-space {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+}
+.journal-turn-bases {
+    position: absolute;
+    inset: 0;
+}
+.journal-turn-sheet {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+.journal-turn-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 50%;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.journal-turn-face {
+    position: absolute;
+    inset: 0 auto 0 0;
+    height: 100%;
+    overflow: hidden;
+    backface-visibility: hidden;
+}
+.journal-turn-back {
+    transform: rotateY(180deg);
+}
+.journal-turn-shade {
+    position: absolute;
+    inset: 0;
+    background: #392916;
+    pointer-events: none;
+}
+.journal-turn-copy.journal-page {
+    position: absolute;
+    top: 0;
+    margin: 0;
+    visibility: visible;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    isolation: isolate;
+}
+.journal-turn-paper {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: -1;
+    background: #d4b891;
+}
+.journal-turn-paper img {
+    position: absolute;
+    max-width: none;
+    object-fit: fill;
+    filter: contrast(0.84) brightness(0.95) saturate(1.12);
+}
+.journal-turn-heading {
+    position: absolute;
+    top: 27px;
+    left: 44px;
+    font:
+        400 26px/1.3 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.035em;
+    color: #594126;
+    mix-blend-mode: multiply;
+}
+.journal-turn-folio {
+    position: absolute;
+    bottom: 40px;
+    left: 64px;
+    color: #6c4e2b;
+    font:
+        400 20px/1 'Journal WenKai',
+        KaiTi,
+        serif;
+    mix-blend-mode: multiply;
+}
+.journal-turn-copy.--right .journal-turn-folio {
+    left: auto;
+    right: 29px;
+}
+.journal-turn-shadow {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: #392612;
+    filter: blur(15px);
+    transform-origin: 0 50%;
+    pointer-events: none;
+}
+@media (max-width: 1199px) {
+    .journal-turn-heading {
+        top: 21px;
+        left: 34px;
+        font-size: 23px;
+    }
+    .journal-turn-folio {
+        bottom: 25px;
+        left: 50px;
+    }
+    .journal-turn-copy.--right .journal-turn-folio {
+        right: 19px;
+    }
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .journal-turn-host {
+        left: 8%;
+        top: 3.7%;
+        width: 82%;
+        height: 85%;
+    }
+    .journal-turn-heading {
+        top: 20px;
+        left: 19px;
+        font-size: 23px;
+    }
+    .journal-turn-folio {
+        bottom: 52px;
+        left: 39px;
+    }
+}

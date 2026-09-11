@@ -9,12 +9,13 @@ const RoomScene = lazy(() =>
     import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene }))
 );
 import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
-import { SubScreen, type TabKey } from '@/themes/cinnaglass/screens';
+import { SubScreen, type SurfaceOrigin, type TabKey } from '@/themes/cinnaglass/screens';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
 import { Rail, RoomHandle, type RailKey } from '@/themes/cinnaglass/shell/rail';
+import type { HotspotOpenEvent } from '@/themes/cinnaglass/room/room-types';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
@@ -87,6 +88,7 @@ const SEED_ALARMS: Alarm[] = [
 ];
 
 const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'wishlist'];
+const DEV_SURFACE = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('surface') : null;
 
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
@@ -96,7 +98,10 @@ const WorldPage = () => {
     const [musicOpen, setMusicOpen] = useState(false);
     const [unread, setUnread] = useState(false);
     const [convOpen, setConvOpen] = useState<string | null>(null);
-    const [screen, setScreen] = useState<string | null>(null);
+    const [screen, setScreen] = useState<string | null>(() =>
+        DEV_SURFACE && MODAL_TABS.includes(DEV_SURFACE as TabKey) ? DEV_SURFACE : null
+    );
+    const [surfaceOrigin, setSurfaceOrigin] = useState<SurfaceOrigin | null>(null);
     const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
     const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
     const [nowTs, setNowTs] = useState(() => Date.now());
@@ -323,19 +328,24 @@ const WorldPage = () => {
             return next;
         });
     };
-    const navigate = (k: string) => setScreen(k);
+    const navigate = (k: string, origin?: SurfaceOrigin) => {
+        if (MODAL_TABS.includes(k as TabKey))
+            setSurfaceOrigin(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2, source: 'keyboard' });
+        setScreen(k);
+    };
 
     // rail actions → surfaces (both entry channels open the same surface)
-    const onRail = (k: RailKey) => {
+    const onRail = (k: RailKey, origin: { x: number; y: number; source: 'rail' }) => {
         if (k === 'chat') setChatOpen(true);
-        else if (k === 'photos') navigate('photos');
+        else if (k === 'photos') navigate('photos', origin);
         else if (k === 'calendar') navigate('calendar');
         else if (k === 'music') setMusicOpen(true);
         else if (k === 'settings') navigate('settings');
     };
     // furniture hotspots → the very same surfaces (ai/UX.md §2)
-    const onHotspot = (id: string) => {
-        if (id === 'timeline' || id === 'photos' || id === 'wishlist') navigate(id);
+    const onHotspot = ({ id, clientX, clientY }: HotspotOpenEvent) => {
+        if (id === 'timeline' || id === 'photos' || id === 'wishlist')
+            navigate(id, { x: clientX, y: clientY, source: 'object' });
         else if (id === 'clock') navigate('clock');
         else if (id === 'music') setMusicOpen(true);
     };
@@ -422,11 +432,11 @@ const WorldPage = () => {
             {/* v2 shell (concept-c): the scene owns the full viewport; every
                 chrome piece floats above it. The Discord-era sidebar/HUD
                 retired with the idle-companion pivot (ai/UX.md). */}
-            <div className="stage" style={{ position: 'absolute', inset: 0 }}>
+            <div className="stage" data-reading={screen === 'timeline' || undefined} style={{ position: 'absolute', inset: 0 }}>
                 {inWorld ? (
                     <Suspense fallback={null}>
                         <RoomScene
-                            active={screen === null}
+                            active={screen === null || screen === 'timeline'}
                             mood={t.mood}
                             weatherKind={weather.kind}
                             onHotspot={onHotspot}
@@ -498,7 +508,11 @@ const WorldPage = () => {
                         />
                     </>
                 )}
-                <SubScreen screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null} onClose={() => setScreen(null)} />
+                <SubScreen
+                    screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null}
+                    origin={surfaceOrigin}
+                    onClose={() => setScreen(null)}
+                />
                 <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
                 <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
                 <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />

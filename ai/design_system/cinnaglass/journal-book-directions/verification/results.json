@@ -1,0 +1,194 @@
+{
+  "results": [
+    {
+      "viewport": [
+        1440,
+        900
+      ],
+      "book": {
+        "x": 540,
+        "y": 440,
+        "width": 760,
+        "height": 430,
+        "top": 440,
+        "right": 1300,
+        "bottom": 870,
+        "left": 540
+      },
+      "visiblePages": 2,
+      "pageCount": 20,
+      "overflow": [
+        {
+          "w": 0,
+          "h": 0
+        },
+        {
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "paper": "rgb(216, 205, 186)",
+      "nav": {
+        "x": 20,
+        "y": 259.5,
+        "width": 56,
+        "height": 381,
+        "top": 259.5,
+        "right": 76,
+        "bottom": 640.5,
+        "left": 20
+      }
+    },
+    {
+      "viewport": [
+        960,
+        700
+      ],
+      "book": {
+        "x": 280,
+        "y": 355,
+        "width": 560,
+        "height": 315,
+        "top": 355,
+        "right": 840,
+        "bottom": 670,
+        "left": 280
+      },
+      "visiblePages": 2,
+      "pageCount": 38,
+      "overflow": [
+        {
+          "w": 0,
+          "h": 0
+        },
+        {
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "paper": "rgb(216, 205, 186)",
+      "nav": {
+        "x": 20,
+        "y": 159.5,
+        "width": 56,
+        "height": 381,
+        "top": 159.5,
+        "right": 76,
+        "bottom": 540.5,
+        "left": 20
+      }
+    },
+    {
+      "viewport": [
+        640,
+        400
+      ],
+      "book": {
+        "x": 140,
+        "y": 30,
+        "width": 360,
+        "height": 300,
+        "top": 30,
+        "right": 500,
+        "bottom": 330,
+        "left": 140
+      },
+      "visiblePages": 1,
+      "pageCount": 44,
+      "overflow": [
+        {
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "paper": "rgb(216, 205, 186)",
+      "nav": {
+        "x": 185,
+        "y": 334,
+        "width": 270,
+        "height": 56,
+        "top": 334,
+        "right": 455,
+        "bottom": 390,
+        "left": 185
+      }
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "book": {
+        "x": 16,
+        "y": 122,
+        "width": 358,
+        "height": 560,
+        "top": 122,
+        "right": 374,
+        "bottom": 682,
+        "left": 16
+      },
+      "visiblePages": 1,
+      "pageCount": 10,
+      "overflow": [
+        {
+          "w": 0,
+          "h": 0
+        }
+      ],
+      "paper": "rgb(216, 205, 186)",
+      "nav": {
+        "x": 60,
+        "y": 778,
+        "width": 270,
+        "height": 56,
+        "top": 778,
+        "right": 330,
+        "bottom": 834,
+        "left": 60
+      }
+    }
+  ],
+  "renderer": {
+    "state": "read",
+    "running": false
+  },
+  "turns": [
+    16,
+    14,
+    12,
+    2,
+    0
+  ],
+  "draggedPage": 2,
+  "pagination": [
+    {
+      "w": 368,
+      "h": 406,
+      "pages": 16,
+      "textPreserved": true,
+      "photosPreserved": true,
+      "overflow": 0
+    },
+    {
+      "w": 267,
+      "h": 291,
+      "pages": 62,
+      "textPreserved": true,
+      "photosPreserved": true,
+      "overflow": 0
+    },
+    {
+      "w": 340,
+      "h": 278,
+      "pages": 78,
+      "textPreserved": true,
+      "photosPreserved": true,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "draft": true,
+  "images": 9,
+  "detailEsc": true
+}

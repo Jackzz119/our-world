@@ -1,0 +1,269 @@
+{
+  "checks": [
+    "Esc preserves text and images and keeps diary open",
+    "outside click preserves draft",
+    "cancel clears draft",
+    "10 local images capped at 9; removal leaves 8",
+    "detail Escape closes only detail",
+    "no horizontal overflow",
+    "small composer actions reachable"
+  ],
+  "results": [
+    {
+      "width": 1440,
+      "height": 900,
+      "mood": "night",
+      "viewport": [
+        1440,
+        900
+      ],
+      "panel": {
+        "x": 428,
+        "y": 55,
+        "width": 520,
+        "height": 790,
+        "top": 55,
+        "right": 948,
+        "bottom": 845,
+        "left": 428
+      },
+      "card": {
+        "x": 531,
+        "y": 275.25,
+        "width": 376,
+        "height": 404.25,
+        "top": 275.25,
+        "right": 907,
+        "bottom": 679.5,
+        "left": 531
+      },
+      "horizontalOverflow": false,
+      "borderLeft": "1px",
+      "mask": "exclude, exclude",
+      "textColor": "rgb(238, 227, 210)",
+      "subColor": "rgb(191, 180, 164)",
+      "panelBlur": "blur(18px) saturate(0.85)",
+      "composer": {
+        "x": 467,
+        "y": 764,
+        "width": 442,
+        "height": 54,
+        "top": 764,
+        "right": 909,
+        "bottom": 818,
+        "left": 467
+      },
+      "sampledPanel": [
+        28,
+        29,
+        28
+      ],
+      "secondaryOnPanelContrast": 8.28
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "mood": "golden",
+      "viewport": [
+        1440,
+        900
+      ],
+      "panel": {
+        "x": 428,
+        "y": 55,
+        "width": 520,
+        "height": 790,
+        "top": 55,
+        "right": 948,
+        "bottom": 845,
+        "left": 428
+      },
+      "card": {
+        "x": 531,
+        "y": 275.25,
+        "width": 376,
+        "height": 404.25,
+        "top": 275.25,
+        "right": 907,
+        "bottom": 679.5,
+        "left": 531
+      },
+      "horizontalOverflow": false,
+      "borderLeft": "1px",
+      "mask": "exclude, exclude",
+      "textColor": "rgb(238, 227, 210)",
+      "subColor": "rgb(191, 180, 164)",
+      "panelBlur": "blur(18px) saturate(0.85)",
+      "composer": {
+        "x": 467,
+        "y": 764,
+        "width": 442,
+        "height": 54,
+        "top": 764,
+        "right": 909,
+        "bottom": 818,
+        "left": 467
+      },
+      "sampledPanel": [
+        50,
+        44,
+        38
+      ],
+      "secondaryOnPanelContrast": 6.75
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "mood": "twilight",
+      "viewport": [
+        1440,
+        900
+      ],
+      "panel": {
+        "x": 428,
+        "y": 55,
+        "width": 520,
+        "height": 790,
+        "top": 55,
+        "right": 948,
+        "bottom": 845,
+        "left": 428
+      },
+      "card": {
+        "x": 531,
+        "y": 275.25,
+        "width": 376,
+        "height": 404.25,
+        "top": 275.25,
+        "right": 907,
+        "bottom": 679.5,
+        "left": 531
+      },
+      "horizontalOverflow": false,
+      "borderLeft": "1px",
+      "mask": "exclude, exclude",
+      "textColor": "rgb(238, 227, 210)",
+      "subColor": "rgb(191, 180, 164)",
+      "panelBlur": "blur(18px) saturate(0.85)",
+      "composer": {
+        "x": 467,
+        "y": 764,
+        "width": 442,
+        "height": 54,
+        "top": 764,
+        "right": 909,
+        "bottom": 818,
+        "left": 467
+      },
+      "sampledPanel": [
+        36,
+        34,
+        36
+      ],
+      "secondaryOnPanelContrast": 7.73
+    },
+    {
+      "width": 960,
+      "height": 700,
+      "mood": "night",
+      "viewport": [
+        960,
+        700
+      ],
+      "panel": {
+        "x": 244,
+        "y": 36,
+        "width": 440,
+        "height": 628,
+        "top": 36,
+        "right": 684,
+        "bottom": 664,
+        "left": 244
+      },
+      "card": {
+        "x": 337,
+        "y": 163.75,
+        "width": 316,
+        "height": 366.75,
+        "top": 163.75,
+        "right": 653,
+        "bottom": 530.5,
+        "left": 337
+      },
+      "horizontalOverflow": false,
+      "borderLeft": "1px",
+      "mask": "exclude, exclude",
+      "textColor": "rgb(238, 227, 210)",
+      "subColor": "rgb(191, 180, 164)",
+      "panelBlur": "blur(18px) saturate(0.85)",
+      "composer": {
+        "x": 273,
+        "y": 583,
+        "width": 382,
+        "height": 54,
+        "top": 583,
+        "right": 655,
+        "bottom": 637,
+        "left": 273
+      },
+      "sampledPanel": [
+        29,
+        29,
+        28
+      ],
+      "secondaryOnPanelContrast": 8.26
+    },
+    {
+      "width": 640,
+      "height": 400,
+      "mood": "night",
+      "viewport": [
+        640,
+        400
+      ],
+      "panel": {
+        "x": 150,
+        "y": 12,
+        "width": 340,
+        "height": 376,
+        "top": 12,
+        "right": 490,
+        "bottom": 388,
+        "left": 150
+      },
+      "card": {
+        "x": 217,
+        "y": 39.25,
+        "width": 250,
+        "height": 306.75,
+        "top": 39.25,
+        "right": 467,
+        "bottom": 346,
+        "left": 217
+      },
+      "horizontalOverflow": false,
+      "borderLeft": "1px",
+      "mask": "exclude, exclude",
+      "textColor": "rgb(238, 227, 210)",
+      "subColor": "rgb(191, 180, 164)",
+      "panelBlur": "blur(18px) saturate(0.85)",
+      "composer": {
+        "x": 171,
+        "y": 329,
+        "width": 298,
+        "height": 46,
+        "top": 329,
+        "right": 469,
+        "bottom": 375,
+        "left": 171
+      },
+      "sampledPanel": [
+        29,
+        29,
+        28
+      ],
+      "secondaryOnPanelContrast": 8.26
+    }
+  ],
+  "errors": []
+}

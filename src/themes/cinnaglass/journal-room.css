@@ -1,0 +1,575 @@
+/* Approved chestnut journal: painted physical object + real, selectable ink.
+   Scope stays on the journal. Navigation and other paper modals do not change. */
+@font-face {
+    font-family: 'Journal WenKai';
+    src: url('/fonts/journal/LXGWWenKaiLite-Regular.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+.object-surface.diary-surface {
+    --surface-shift-x: 0px;
+    --book-width: min(1040px, calc(100vw - 160px), calc((100vh - 100px) * 1.55224));
+    --craft-ink: #594126;
+    --craft-muted: #735b3b;
+    --craft-paper: #e2c99f;
+    --craft-cover: #70441f;
+    --craft-line: #87633833;
+    --diary-text: var(--craft-ink);
+    --diary-sub: var(--craft-muted);
+    width: var(--book-width);
+    height: calc(var(--book-width) * 0.64423);
+    top: 50%;
+    left: 50%;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    transition: opacity 160ms ease;
+    transform: translate(-50%, -50%);
+}
+.object-surface.diary-surface.show {
+    transform: translate(-50%, -50%);
+}
+.diary-surface::before,
+.diary-surface::after {
+    content: none;
+}
+.diary-surface .object-hd {
+    top: 8.4%;
+    left: 11.7%;
+    right: 9.7%;
+    padding: 0;
+    height: 36px;
+    align-items: center;
+}
+.diary-surface .object-hd h2 {
+    font:
+        400 26px/1.3 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.035em;
+    color: var(--craft-ink);
+    mix-blend-mode: multiply;
+    text-shadow: 0 0.2px 0.35px #5b3d212b;
+}
+.diary-surface .object-x {
+    color: var(--craft-ink);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+}
+.diary-surface .object-x svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 1.4;
+}
+.diary-surface .object-x:hover {
+    background: #73582b12;
+}
+.diary-surface .object-body.tl-host {
+    flex: none;
+    height: 100%;
+}
+.journal-room-book,
+.journal-room-measure {
+    --journal-content-top: 86px;
+    --journal-content-bottom: 70px;
+    --journal-page-inset: 34px;
+    --journal-room-font: 17px;
+    --journal-avatar-size: 80px;
+    --journal-entry-indent: 104px;
+    font:
+        400 var(--journal-room-font)/1.7 'Journal WenKai',
+        KaiTi,
+        serif;
+}
+.journal-room-book {
+    isolation: isolate;
+}
+.journal-room-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    /* Match the approved paper's subdued value without painting over its fibers. */
+    filter: contrast(0.84) brightness(0.95) saturate(1.12) drop-shadow(0 14px 13px #120c0770);
+}
+.journal-room-pages.journal-engine-slot {
+    position: absolute;
+    left: 7.5%;
+    top: 4.4%;
+    width: 83.5%;
+    height: 81%;
+    display: flex;
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+}
+.journal-room-leaf.journal-page {
+    position: relative;
+    flex: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #594126;
+}
+.journal-room-leaf[hidden] {
+    display: none;
+}
+.journal-room-leaf .journal-page-content {
+    inset: var(--journal-content-top) 0 var(--journal-content-bottom);
+    padding: 0 var(--journal-page-inset);
+}
+.journal-room-measure {
+    padding: 0 var(--journal-page-inset);
+    color: #594126;
+}
+.journal-room-entry.journal-entry {
+    border: 1px solid #946a3438;
+    border-radius: 25px 22px 26px 21px / 22px 25px 21px 24px;
+    padding: 21px 18px 23px var(--journal-entry-indent);
+    min-height: 150px;
+    margin-bottom: 22px;
+    background: transparent;
+    box-shadow: none;
+    font: inherit;
+    color: #594126;
+    cursor: pointer;
+}
+.journal-room-entry .journal-meta {
+    position: static;
+    display: block;
+    min-height: 0;
+    margin: 0 0 5px;
+    line-height: 1.4;
+}
+.journal-room-entry .journal-avatar {
+    position: absolute;
+    left: 13px;
+    top: 16px;
+    width: var(--journal-avatar-size);
+    height: var(--journal-avatar-size);
+    border: 1px solid #85603b70;
+    background: #c9b18d;
+    box-shadow: 0 0 0 2px #9bafb326;
+    filter: saturate(0.66) sepia(0.16);
+}
+.journal-room-entry.theirs .journal-avatar {
+    box-shadow: 0 0 0 2px #b98f9626;
+}
+.journal-room-entry .journal-author,
+.journal-room-page-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.journal-room-entry .journal-date {
+    font:
+        400 21px/1.4 'Journal WenKai',
+        KaiTi,
+        serif;
+    color: #604a30;
+    mix-blend-mode: multiply;
+}
+.journal-room-entry .journal-entry-body {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.journal-room-entry .journal-copy {
+    font: inherit;
+    font-size: var(--journal-room-font);
+    line-height: 1.65;
+    color: #594126;
+    letter-spacing: 0.012em;
+    mix-blend-mode: multiply;
+    text-shadow: 0 0.2px 0.35px #5b3d212b;
+}
+.journal-room-entry .journal-open {
+    right: -9px;
+    bottom: -13px;
+    color: #75552d;
+}
+.journal-room-entry.has-photos {
+    padding: 7px 0 12px;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+}
+.journal-room-entry.has-photos .journal-meta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.journal-room-entry.has-photos .journal-copy {
+    font-size: calc(var(--journal-room-font) + 2px);
+}
+.journal-room-entry .journal-photos {
+    gap: 14px;
+    margin: 0 0 17px;
+}
+.journal-room-entry .journal-photo {
+    padding: 5px;
+    background: #c3a578;
+    border: 1px solid #8e6d4299;
+    border-radius: 2px;
+    box-shadow: 0 2px 3px #4d361935;
+    overflow: visible;
+}
+.journal-room-entry .journal-photo::before,
+.journal-room-entry .journal-photo::after {
+    content: none;
+}
+.journal-room-entry .journal-photo img {
+    filter: saturate(0.9);
+}
+.journal-room-entry .journal-photo-corner {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        url('/ui/journal/paper-corner.webp') 50% / cover,
+        #d5b98d;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    box-shadow: inset 1px 1px 1px #f4dfb799;
+    filter: contrast(0.84) brightness(0.95) saturate(1.12);
+}
+.journal-photo-corner.tl {
+    left: -3px;
+    top: -3px;
+}
+.journal-photo-corner.tr {
+    right: -3px;
+    top: -3px;
+    transform: rotate(90deg);
+}
+.journal-photo-corner.br {
+    right: -3px;
+    bottom: -3px;
+    transform: rotate(180deg);
+}
+.journal-photo-corner.bl {
+    left: -3px;
+    bottom: -3px;
+    transform: rotate(270deg);
+}
+.journal-room-leaf .journal-running-title {
+    top: 24px;
+    left: 0;
+    right: 54px;
+    padding: 0;
+    border: 0;
+    color: #60492c;
+    font:
+        400 21px/1.4 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0;
+    text-align: right;
+    mix-blend-mode: multiply;
+}
+.journal-room-leaf.--left .journal-running-title {
+    visibility: hidden;
+}
+.journal-room-leaf .journal-empty-page {
+    color: #846847;
+    font-family: 'Journal WenKai', KaiTi, serif;
+}
+.journal-room-book .journal-bookmark {
+    top: 9.8%;
+    right: 4.2%;
+    min-height: 0;
+    height: 70px;
+    width: 42px;
+    padding: 5px 7px;
+    border: 0;
+    background: transparent;
+    clip-path: none;
+    color: #503117;
+    font:
+        400 25px/1.1 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.02em;
+    mix-blend-mode: multiply;
+}
+.journal-room-book .journal-index {
+    top: 17%;
+    right: 7%;
+    max-height: 68%;
+    background:
+        url('/ui/journal/paper-corner.webp') center / 100% 100%,
+        #e2c99f;
+    font-family: 'Journal WenKai', KaiTi, serif;
+}
+.journal-room-pager {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.journal-room-pager button {
+    position: absolute;
+    bottom: 18.8%;
+    min-width: 60px;
+    height: 40px;
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: none;
+    font:
+        400 30px/1 'Journal WenKai',
+        KaiTi,
+        serif;
+    color: #6c4e2b;
+    pointer-events: auto;
+    cursor: pointer;
+    mix-blend-mode: multiply;
+}
+.journal-room-pager button:disabled {
+    cursor: default;
+}
+.journal-room-pager button:hover:not(:disabled) {
+    color: #3f2b17;
+}
+.journal-room-pager span {
+    font-size: 20px;
+    vertical-align: 3px;
+}
+.journal-room-prev {
+    left: 10%;
+}
+.journal-room-next {
+    right: 9%;
+}
+.journal-room-book .compose {
+    right: 23%;
+    bottom: 19%;
+}
+.journal-room-book .compose-collapsed {
+    padding: 0;
+}
+.journal-room-book .compose-collapsed .ph {
+    font:
+        400 24px/1.4 'Journal WenKai',
+        KaiTi,
+        serif;
+    color: #624729;
+    mix-blend-mode: multiply;
+}
+.journal-room-book .compose-collapsed:not(.draft) .ph::before {
+    content: '';
+    display: inline-block;
+    width: 17px;
+    height: 22px;
+    margin-right: 9px;
+    vertical-align: -3px;
+    background: currentColor;
+    mask: url('/ui/journal/quill.webp') center / contain no-repeat;
+}
+.journal-room-book .journal-room-quill {
+    position: absolute;
+    right: 1.6%;
+    bottom: 4%;
+    width: 11%;
+    height: 33%;
+    object-fit: contain;
+    transform: none;
+    filter: drop-shadow(2px 4px 2px #39271365);
+    pointer-events: none;
+    cursor: default;
+    z-index: 18;
+}
+.journal-room-book .compose.is-open {
+    inset: 16% 10% 18% auto;
+    width: 37%;
+}
+.journal-room-book .journal-status {
+    left: 12%;
+    top: 23%;
+    background: none;
+}
+.journal-room-book .journal-status,
+.journal-room-book .compose textarea {
+    font-family: 'Journal WenKai', KaiTi, serif;
+}
+@media (max-width: 1199px) {
+    .journal-room-book,
+    .journal-room-measure {
+        --journal-content-top: 66px;
+        --journal-content-bottom: 55px;
+        --journal-page-inset: 24px;
+        --journal-room-font: 18px;
+        --journal-avatar-size: 60px;
+        --journal-entry-indent: 82px;
+    }
+    .diary-surface .object-hd h2 {
+        font-size: 23px;
+    }
+    .journal-room-entry.journal-entry {
+        padding-top: 14px;
+        padding-bottom: 17px;
+        min-height: 122px;
+    }
+    .journal-room-entry .journal-avatar {
+        left: 11px;
+        top: 14px;
+    }
+    .journal-room-entry .journal-date,
+    .journal-room-leaf .journal-running-title {
+        font-size: 18px;
+    }
+    .journal-room-leaf .journal-running-title {
+        top: 19px;
+        right: 48px;
+    }
+    .journal-room-book .journal-bookmark {
+        font-size: 21px;
+        width: 35px;
+        height: 54px;
+        padding: 3px 5px;
+    }
+    .journal-room-book .compose-collapsed .ph {
+        font-size: 20px;
+    }
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .object-surface.diary-surface {
+        --book-width: min(420px, calc(100vw - 20px));
+        width: var(--book-width);
+        height: min(690px, calc(100dvh - 100px));
+        top: calc(50% - 22px);
+    }
+    .journal-room-art {
+        content: url('/ui/journal/book-single.webp');
+    }
+    .journal-room-pages.journal-engine-slot {
+        left: 8%;
+        top: 3.7%;
+        width: 82%;
+        height: 85%;
+    }
+    .journal-room-book,
+    .journal-room-measure {
+        --journal-content-top: 72px;
+        --journal-content-bottom: 62px;
+        --journal-page-inset: 17px;
+        --journal-room-font: 18px;
+        --journal-avatar-size: 58px;
+        --journal-entry-indent: 79px;
+    }
+    .diary-surface .object-hd {
+        top: 6.6%;
+        left: 13%;
+        right: 17%;
+    }
+    .diary-surface .object-hd h2 {
+        font-size: 23px;
+    }
+    .journal-room-entry.journal-entry {
+        min-height: 123px;
+    }
+    .journal-room-leaf .journal-running-title {
+        top: 49px;
+        right: 19px;
+        font-size: 13px;
+    }
+    .journal-room-book .journal-bookmark {
+        right: 6.5%;
+        top: 10%;
+        font-size: 19px;
+    }
+    .journal-room-book .compose {
+        right: 29%;
+        bottom: 18%;
+    }
+    .journal-room-pager button {
+        bottom: 17.8%;
+        min-width: 44px;
+        font-size: 25px;
+    }
+    .journal-room-prev {
+        left: 11%;
+    }
+    .journal-room-next {
+        right: 13%;
+    }
+    .journal-room-book .journal-room-quill {
+        width: 17%;
+        right: 4%;
+        bottom: 4%;
+        height: 24%;
+    }
+    .journal-room-book .compose.is-open {
+        inset: 17% 12% 19%;
+        width: auto;
+    }
+    .diary-surface .object-x {
+        flex-shrink: 0;
+    }
+    .journal-room-leaf .journal-running-title {
+        left: 0;
+        right: 35px;
+    }
+    .journal-room-book .journal-bookmark {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        width: 32px;
+        padding: 4px 3px;
+        font-size: 17px;
+    }
+    .journal-room-book .compose-collapsed .ph {
+        font-size: 17px;
+    }
+    .journal-room-book .compose-collapsed:not(.draft) .ph::before {
+        width: 13px;
+        height: 18px;
+        margin-right: 6px;
+    }
+}
+@media (max-height: 599px) {
+    .journal-room-book,
+    .journal-room-measure {
+        --journal-content-top: 54px;
+        --journal-content-bottom: 34px;
+        --journal-room-font: 16px;
+        --journal-avatar-size: 43px;
+        --journal-entry-indent: 65px;
+    }
+    .journal-room-entry.journal-entry {
+        min-height: 100px;
+        padding-top: 9px;
+        padding-bottom: 10px;
+    }
+    .journal-room-entry .journal-avatar {
+        top: 12px;
+    }
+    .journal-room-leaf .journal-running-title {
+        top: 32px;
+    }
+    .journal-room-entry .journal-date {
+        font-size: 16px;
+    }
+    .diary-surface .object-hd h2 {
+        font-size: 21px;
+    }
+    .journal-room-book .journal-bookmark {
+        height: 43px;
+        font-size: 17px;
+    }
+}

@@ -1,0 +1,47 @@
+{
+  "single": {
+    "from": "0",
+    "to": "2",
+    "progress": "0.31982",
+    "frontText": [
+      "把这些小小的日子，慢慢收好。"
+    ],
+    "backText": [
+      "翻过这一页，明天也在一起。",
+      "有你在，平凡的日子也会发光。"
+    ],
+    "photo": true,
+    "nextText": "2026 · 09我09.06窗外的雨，是今晚的背景音乐。↗044",
+    "strips": 24,
+    "lifted": true,
+    "sourceHidden": true,
+    "inert": true,
+    "backface": "hidden"
+  },
+  "continuous": {
+    "maxSheets": 3,
+    "blurred": false,
+    "frames": 64,
+    "p50": 13.899999999999636,
+    "p95": 20.899999999999636,
+    "elapsed": 845.6000000238419
+  },
+  "reverse": true,
+  "draft": true,
+  "resizeAndMobile": true,
+  "reducedMotion": true,
+  "close": true,
+  "roomKeepsRunning": true,
+  "geometry": {
+    "maxLengthError": 2.842170943040401e-14,
+    "oldUrlWasPresent": true,
+    "renewed": true
+  },
+  "historyPreservesAnchorAndRetries": true,
+  "repeatedReducedCleanup": true,
+  "designSystem": {
+    "liveCss": true,
+    "gifs": 2
+  },
+  "errors": []
+}

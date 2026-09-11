@@ -1,0 +1,13 @@
+{
+  "date": "2026-09-07",
+  "sourceManifest": "arts/ui/journal/manifest.json",
+  "adopted": [
+    { "file": "book-open.webp", "size": [1536, 1024], "role": "blank open chestnut journal; transparent exterior; live text overlaid separately" },
+    { "file": "book-single.webp", "size": [789, 1024], "role": "right-page crop for narrow/short viewports" },
+    { "file": "paper-corner.webp", "size": [256, 256], "role": "same-source fiber for paper mounts and date directory" },
+    { "file": "quill.webp", "size": [310, 680], "role": "static transparent feather; not a button" },
+    { "file": "avatar-blue.webp", "size": [84, 84], "role": "approved original-character portrait crop; default self avatar only" },
+    { "file": "avatar-pink.webp", "size": [84, 84], "role": "approved original-character portrait crop; default partner avatar only" }
+  ],
+  "style": "src/themes/cinnaglass/journal-room.css"
+}

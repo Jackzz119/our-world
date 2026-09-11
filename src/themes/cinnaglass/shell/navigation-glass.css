@@ -1,0 +1,515 @@
+/* Scope the new material to navigation. Existing modals/HUD keep their values. */
+.rail-wrap {
+    --nav-tint: 76 69 58;
+    --nav-alpha: 0.17;
+    --nav-top: 210 195 160;
+    --nav-cold: 153 183 203;
+    --nav-rim: 213 190 147;
+    --nav-ink: #eed5a8;
+    --nav-glow: 255 209 137;
+    --nav-frost: 0.34;
+    --nav-blur: 2.4px;
+    --nav-solid: #464139;
+    position: fixed;
+    left: 38px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex;
+}
+[data-mood='golden'] .rail-wrap {
+    --nav-tint: 43 36 28;
+    --nav-alpha: 0.52;
+    --nav-top: 238 205 151;
+    --nav-cold: 201 211 202;
+    --nav-rim: 243 211 158;
+    --nav-ink: #fff0d0;
+    --nav-frost: 0.36;
+    --nav-solid: #655642;
+}
+[data-mood='twilight'] .rail-wrap {
+    --nav-tint: 63 64 72;
+    --nav-alpha: 0.19;
+    --nav-top: 192 187 185;
+    --nav-cold: 161 185 209;
+    --nav-rim: 213 204 192;
+    --nav-ink: #eee0c6;
+    --nav-solid: #42434b;
+}
+/* Future daytime rooms can inherit this without adopting a green surface. */
+:is([data-mood='day'], [data-mood='morning']) .rail-wrap {
+    --nav-tint: 87 85 78;
+    --nav-alpha: 0.3;
+    --nav-top: 225 220 204;
+    --nav-cold: 206 216 220;
+    --nav-rim: 233 228 211;
+    --nav-ink: #fff0d6;
+    --nav-solid: #57564f;
+}
+.rail,
+.rail-pop,
+.rail-label {
+    background:
+        radial-gradient(ellipse at 8% 3%, rgb(var(--nav-cold) / 0.1), transparent 56%),
+        linear-gradient(
+            112deg,
+            rgb(var(--nav-top) / 0.09),
+            transparent 32%,
+            rgb(var(--nav-top) / 0.055) 78%,
+            transparent
+        ),
+        rgb(var(--nav-tint) / var(--nav-alpha));
+    backdrop-filter: blur(var(--nav-blur)) saturate(0.7);
+    -webkit-backdrop-filter: blur(var(--nav-blur)) saturate(0.7);
+    box-shadow:
+        0 8px 24px -9px #0006,
+        inset 0 1px 1px rgb(var(--nav-rim) / 0.16),
+        inset 0 -1px 2px #1716134d;
+    border: 1px solid rgb(var(--nav-rim) / 0.16);
+    color: var(--nav-ink);
+}
+.rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 74px;
+    height: 384px;
+    box-sizing: border-box;
+    padding: 16px 8px;
+    border-radius: 25px;
+    position: relative;
+    isolation: isolate;
+}
+/* Generated neutral glass microtexture: no baked-in room, color or icon. */
+.rail::before,
+.rail-pop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: url('/ui/nav/frost.webp') 42% 50% / 256px 512px;
+    opacity: var(--nav-frost);
+    pointer-events: none;
+    z-index: 0;
+}
+.rail::after,
+.rail-pop::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+        from 190deg at 50% 50%,
+        rgb(var(--nav-rim) / 0.02) 0deg,
+        rgb(var(--nav-cold) / 0.5) 63deg,
+        rgb(var(--nav-rim) / 0.72) 135deg,
+        rgb(var(--nav-rim) / 0.1) 178deg,
+        rgb(var(--nav-rim) / 0.48) 229deg,
+        rgb(var(--nav-rim) / 0.04) 285deg,
+        rgb(var(--nav-rim) / 0.38) 328deg,
+        rgb(var(--nav-rim) / 0.02)
+    );
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+}
+.rail-btn {
+    z-index: 1;
+    position: relative;
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    flex: none;
+    width: 54px;
+    height: 54px;
+    border-radius: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    color: var(--nav-ink);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        color 160ms ease,
+        transform 130ms ease;
+}
+.rail-btn > svg {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 1px 1px #21170f99);
+    transition: filter 200ms ease;
+    pointer-events: none;
+}
+.rail > .rail-btn:not([data-nav-key='rooms']) > svg {
+    width: 36px;
+    height: 36px;
+}
+.rail-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 48%;
+    background: radial-gradient(
+        ellipse at 50% 43%,
+        rgb(var(--nav-glow) / 0.33),
+        rgb(var(--nav-glow) / 0.12) 55%,
+        transparent 82%
+    );
+    box-shadow:
+        inset 0 0 0 1px rgb(var(--nav-glow) / 0.23),
+        inset 0 1px 2px rgb(var(--nav-glow) / 0.32),
+        0 0 16px 2px rgb(var(--nav-glow) / 0.1);
+    opacity: 0;
+    transform: scale(0.88);
+    transition:
+        opacity 200ms ease,
+        transform 200ms ease;
+    pointer-events: none;
+}
+.rail-btn.on::before {
+    opacity: 0.7;
+    transform: scale(1);
+}
+.rail-btn.on > svg {
+    filter: drop-shadow(0 0 3px rgb(var(--nav-glow) / 0.6));
+}
+@media (hover: hover) {
+    .rail-btn:not(:disabled):hover {
+        color: #fff0ce;
+    }
+    .rail-btn:not(:disabled):hover::before {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .rail-btn:not(:disabled):hover > svg {
+        filter: drop-shadow(0 0 2px #fff2ca) drop-shadow(0 0 7px rgb(var(--nav-glow) / 0.95))
+            drop-shadow(0 0 13px rgb(var(--nav-glow) / 0.45));
+    }
+}
+.rail-btn:focus-visible {
+    outline: 1px solid #fff0cb;
+    outline-offset: 3px;
+    color: #fff1d0;
+}
+.rail-btn:focus-visible::before {
+    opacity: 1;
+    transform: scale(1);
+}
+.rail-btn:focus-visible > svg {
+    filter: drop-shadow(0 0 3px #fff2ca) drop-shadow(0 0 8px rgb(var(--nav-glow) / 0.8));
+}
+.rail-btn:not(:disabled):is(:active, [data-pressed='true']) {
+    transform: scale(0.94);
+    color: #fff8e4;
+}
+.rail-btn:not(:disabled):is(:active, [data-pressed='true'])::before {
+    opacity: 1;
+    transform: scale(0.96);
+    background: radial-gradient(ellipse, rgb(var(--nav-glow) / 0.52), rgb(var(--nav-glow) / 0.08) 75%);
+}
+.rail-btn:not(:disabled):is(:active, [data-pressed='true']) > svg {
+    filter: drop-shadow(0 0 2px #fff8de) drop-shadow(0 0 8px rgb(var(--nav-glow)));
+}
+.rail-label {
+    position: absolute;
+    left: 66px;
+    white-space: nowrap;
+    padding: 7px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 9px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-3px);
+    transition:
+        opacity 140ms ease,
+        transform 140ms ease;
+}
+.rail-btn:is(:hover, :focus-visible) .rail-label {
+    opacity: 1;
+    transform: none;
+    transition-delay: 350ms;
+}
+.rail-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+.rail-dot {
+    position: absolute;
+    z-index: 2;
+    top: 7px;
+    right: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #f0a7ab;
+    box-shadow: 0 0 3px #eca0aa55;
+}
+.rail-pop {
+    --nav-blur: 8px;
+    background-color: rgb(var(--nav-tint) / max(0.5, var(--nav-alpha)));
+    position: absolute;
+    isolation: isolate;
+    z-index: 1;
+    animation: nav-pop-in 200ms ease-out;
+    transform-origin: left top;
+}
+@keyframes nav-pop-in {
+    from {
+        opacity: 0;
+        translate: -4px 0;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+.rooms-pop {
+    left: 90px;
+    top: 0;
+    width: 422px;
+    height: 173px;
+    box-sizing: border-box;
+    border-radius: 21px;
+    display: flex;
+    gap: 15px;
+    padding: 19px 20px 21px 27px;
+}
+.rooms-tip {
+    display: none;
+}
+.room-card {
+    position: relative;
+    appearance: none;
+    cursor: pointer;
+    padding: 0;
+    flex: none;
+    width: 116px;
+    height: 133px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: transparent;
+    border: 2px solid transparent;
+    transition:
+        transform 140ms ease,
+        border-color 160ms ease;
+}
+.room-card:not(.locked):hover {
+    transform: translateY(-2px);
+}
+.room-card.cur {
+    border-color: rgb(var(--nav-glow) / 0.8);
+    box-shadow: 0 0 8px rgb(var(--nav-glow) / 0.17);
+}
+.room-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.room-card.locked img {
+    filter: grayscale(0.5) brightness(0.62);
+}
+.room-card:focus-visible {
+    outline: 2px solid var(--nav-ink);
+    outline-offset: 3px;
+}
+.room-lock {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    color: #fffbe7;
+    filter: drop-shadow(0 1px 3px #0008);
+}
+.room-cur-dot {
+    position: absolute;
+    left: 50%;
+    bottom: 7px;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffe7b5;
+    box-shadow: 0 0 6px #ffc97d;
+}
+.modules-pop {
+    left: 90px;
+    top: 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 210px;
+    border-radius: 19px;
+    padding: 12px;
+}
+.rail-tool-links {
+    display: grid;
+    gap: 3px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgb(var(--nav-rim) / 0.2);
+    margin-bottom: 6px;
+}
+.rail-tool-links .rail-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    justify-content: flex-start;
+    padding: 0 10px;
+    gap: 12px;
+}
+.rail-tool-links .rail-btn > svg {
+    width: 20px;
+    height: 20px;
+}
+.rail-tool-links .rail-label {
+    position: static;
+    opacity: 1;
+    transform: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+.module-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--nav-ink);
+}
+.module-row:hover {
+    background: rgb(var(--nav-top) / 0.07);
+}
+.modules-lobby {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--nav-ink);
+    font-size: 12px;
+}
+.modules-lobby:hover {
+    background: rgb(var(--nav-top) / 0.12);
+}
+.rail-pop :is(.sw, .modules-lobby):focus-visible {
+    outline: 2px solid var(--nav-ink);
+    outline-offset: 2px;
+}
+.rail-pop .sw {
+    background: rgb(21 19 17 / 0.28);
+    border-color: rgb(var(--nav-rim) / 0.38);
+    box-shadow: inset 0 1px 3px #0004;
+}
+.rail-pop .sw.on {
+    background: rgb(var(--nav-glow) / 0.3);
+    border-color: rgb(var(--nav-glow) / 0.65);
+}
+.rail-pop .sw i {
+    background: #e6d6b9;
+    box-shadow: 0 1px 3px #0005;
+}
+.rail-pop .sw.on i {
+    background: #fff0ce;
+    box-shadow:
+        0 1px 3px #0005,
+        0 0 5px rgb(var(--nav-glow) / 0.35);
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .rail-wrap {
+        left: 50%;
+        top: auto;
+        bottom: 10px;
+        transform: translateX(-50%);
+    }
+    .rail {
+        flex-direction: row;
+        width: 292px;
+        max-width: calc(100vw - 24px);
+        height: 62px;
+        padding: 5px 8px;
+        border-radius: 22px;
+    }
+    .rail-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 17px;
+    }
+    .rail-btn > svg,
+    .rail > .rail-btn:not([data-nav-key='rooms']) > svg {
+        width: 28px;
+        height: 28px;
+    }
+    .rail-label {
+        left: 50%;
+        bottom: 60px;
+        transform: translateX(-50%);
+    }
+    .rail-btn:is(:hover, :focus-visible) .rail-label {
+        transform: translateX(-50%);
+    }
+    .rail-pop.modules-pop {
+        left: 0;
+        top: auto;
+        bottom: 74px;
+        max-height: calc(100vh - 96px);
+        overflow: auto;
+    }
+    .rail-pop.rooms-pop {
+        left: 50%;
+        top: auto;
+        bottom: 74px;
+        transform: translateX(-50%);
+        width: min(400px, calc(100vw - 32px));
+        height: auto;
+        padding: 14px;
+        gap: 8px;
+    }
+    .rooms-pop .room-card {
+        width: calc((100% - 16px) / 3);
+        height: 110px;
+    }
+    .rail-tool-links .rail-label,
+    .rail-tool-links .rail-btn:is(:hover, :focus-visible) .rail-label {
+        transform: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .rail-wrap *,
+    .rail-wrap *::before {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .rail,
+    .rail-pop,
+    .rail-label {
+        background: var(--nav-solid);
+        backdrop-filter: none;
+    }
+}
+@supports not (backdrop-filter: blur(2px)) {
+    .rail,
+    .rail-pop,
+    .rail-label {
+        background: var(--nav-solid);
+    }
+}

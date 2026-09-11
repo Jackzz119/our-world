@@ -1,29 +1,54 @@
-// screens.tsx — centered pop-out modal with tabs: timeline / photos / wishlist.
-// Stays mounted (state + scroll persist, scene never re-renders).
-// The timeline reads chat-like: oldest at the top, newest at the bottom,
-// composer docked at the end of the flow; scrolling near the top pulls older
-// pages (cursor pagination in useFeed). The photo wall opens originals in a
+// screens.tsx — room-object surfaces: diary / photo wall / wishlist.
+// The three features stay mounted independently; the room object decides which
+// one opens, so they never read as tabs inside one app window.
+// The journal reads chronologically across measured pages. Its date directory
+// loads older records through the unchanged useFeed cursor. The writing label
+// opens the draft-preserving composer; the quill is static art. The photo wall opens originals in a
 // lightbox. Modal shell styles live in cinnaglass.css.
-import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed.ts';
 import { createPost } from '@/lib/posts.ts';
 import { signImageUrls, thumbPathOf, uploadMemoryImage } from '@/lib/storage.ts';
 import type { FeedPost, FeedProfile, World } from '@/types/feed.ts';
-import type { IcoProps } from './icons';
-import { IClock, IClose, IHeart, IPhoto, IPlus, ISparkle } from './icons';
+import { IClose, IHeart, IPhoto, IPlus, ISparkle } from './icons';
+import './diary.css';
+import { JournalRoomBook as JournalBook } from './journal-room-book';
 
 const ScreenStyles = () => (
     <style>{`
-  /* tab bar */
-  .tabs{display:flex;gap:4px;padding:0 16px 12px;flex:0 0 auto;}
-  .tabs button{flex:1;appearance:none;border:0;background:transparent;cursor:pointer;font:inherit;
-    font-size:13px;font-weight:600;color:var(--glass-sub);padding:9px 6px;border-radius:13px;
-    display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,color .2s;}
-  .tabs button .ic{display:inline-flex;}
-  .tabs button.on{background:var(--glass-active);color:var(--glass-text);box-shadow:0 2px 9px -3px rgba(20,29,51,.3);}
-  .tabs button:not(.on):hover{color:var(--glass-text);background:var(--glass-hover);}
-  .tab-lbl{display:none;}
-  @media(min-width:560px){.tab-lbl{display:inline;}}
+  /* ── room-object surfaces ──
+     Collections keep the existing paper treatment. The diary's approved
+     chestnut-book art and responsive overrides live in journal-room.css. No tabs. */
+  .object-scrim{z-index:30;}
+  .object-surface{--surface-shift-x:0px;position:absolute;left:50%;top:50%;z-index:41;
+    display:flex;flex-direction:column;overflow:hidden;background:var(--glass-paper);
+    color:var(--paper-text);border:1px solid rgba(255,255,255,.96);
+    box-shadow:8px 8px 0 -1px rgba(226,206,174,.94),var(--paper-shadow);
+    transform:translate(calc(-50% + var(--surface-shift-x) + var(--object-open-x,0px)),calc(-50% + var(--object-open-y,24px))) scale(.78) rotate(var(--object-open-r,-1deg));
+    transform-origin:center;opacity:0;pointer-events:none;
+    transition:opacity var(--object-open-duration) ease,
+      transform var(--object-open-duration) var(--object-open-ease);}
+  .object-surface.show{transform:translate(calc(-50% + var(--surface-shift-x)),-50%) scale(1) rotate(0);
+    opacity:1;pointer-events:auto;}
+  .object-surface:focus-visible{outline:3px solid rgba(47,154,211,.42);outline-offset:4px;}
+  .object-hd{display:flex;align-items:center;gap:10px;padding:17px 17px 13px 21px;flex:0 0 auto;
+    border-bottom:1px solid var(--paper-line);}
+  .object-hd h2{margin:0;flex:1;font-size:19px;line-height:1.2;font-weight:750;letter-spacing:.025em;}
+  .object-kicker{font-size:10px;color:var(--paper-sub);letter-spacing:.16em;text-transform:uppercase;}
+  .object-x{background:transparent;color:var(--paper-text);border-color:var(--paper-line);}
+  .object-x:hover{background:var(--paper-hover);}
+  .object-body{flex:1 1 0;min-height:0;overflow-y:auto;padding:18px 20px 22px;}
+  .object-body::-webkit-scrollbar{width:0;}
+  .collection-surface{width:min(720px,calc(100% - 48px));height:min(760px,calc(100% - 48px));border-radius:18px;}
+  @media(max-width:767px){
+    .object-hd{padding:14px 12px 11px 16px;}
+    .object-hd h2{font-size:17px;}
+    .object-kicker{display:none;}
+    .collection-surface{width:calc(100% - 28px);height:calc(100% - 36px);}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .object-surface{transition-duration:1ms;}
+  }
 
   /* ── composer — its own row below the scrollport, never overlapping ──
      Bright white writing surface (design ref: composer-redesign.html): words
@@ -98,7 +123,7 @@ const ScreenStyles = () => (
      scrollport (.tl-scroll); the composer lives BELOW it as a sibling, so
      list content never slides under it. Gradient masks fade the list out at
      both edges of the visible window. */
-  .tl-host{display:flex;flex-direction:column;overflow:hidden;padding:0 20px 16px;}
+  .tl-host{display:flex;flex:1 1 0;min-width:0;flex-direction:column;overflow:hidden;padding:0 16px 16px;}
   .tl-scroll{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px;
     -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);
     mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);}
@@ -110,9 +135,9 @@ const ScreenStyles = () => (
   .tl-end{text-align:center;font-size:11px;color:var(--glass-sub);letter-spacing:.08em;padding:14px 0 2px;
     transition:color .2s;}
   .tl-end.armed{color:var(--accent-deep);font-weight:600;}
-  .tl{position:relative;max-width:620px;width:100%;margin:0 auto;padding-left:52px;}
+  .tl{position:relative;width:100%;margin:0 auto;padding-left:48px;}
   /* dotted trail: a soft hint that time flows, not a technical spine */
-  .tl::before{content:"";position:absolute;left:17px;top:10px;bottom:12px;width:0;
+  .tl::before{content:"";position:absolute;left:15px;top:10px;bottom:12px;width:0;
     border-left:2px dotted rgba(124,198,236,.35);}
   /* day chips = washi date stickers, tint and tilt alternate per day */
   .tl-day{position:relative;text-align:center;margin:20px 0 16px;}
@@ -131,11 +156,11 @@ const ScreenStyles = () => (
     font-size:13px;font-weight:700;overflow:hidden;flex:0 0 auto;border:2px solid var(--cream);}
   .ava img{width:100%;height:100%;object-fit:cover;}
   /* avatar hangs on the card like a sticker (slightly bigger than the base) */
-  .tl .ava{position:absolute;left:-52px;top:4px;width:36px;height:36px;font-size:14px;}
+  .tl .ava{position:absolute;left:-48px;top:4px;width:34px;height:34px;font-size:14px;}
   /* bright paper surface — hazy glass blue washes out the words (mockup A) */
-  .tl-card{border-radius:18px;padding:13px 16px;cursor:pointer;transition:transform .16s;
-    background:var(--glass-paper);
-    box-shadow:inset 3px 0 0 0 var(--au-ring,transparent);}
+  .tl-card{border:1px solid var(--paper-line);border-left:3px solid var(--au-deep,var(--accent-deep));
+    border-radius:14px;padding:13px 14px;cursor:pointer;transition:transform .16s,box-shadow .16s;
+    background:#fff;box-shadow:0 5px 14px -10px rgba(20,29,51,.32);}
   .tl-card:hover{transform:translateY(-2px);}
   .tl-who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
   /* identity rides COLOR (set per item via --au-* custom props), not position */
@@ -156,33 +181,26 @@ const ScreenStyles = () => (
     -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
   .tl-card.has-media .tbody{padding:11px 16px 13px;}
 
-  /* mascots: the theme's cloud pups keep watch over the wide-screen margins.
-     Hidden below 1200px (no empty side to fill); never intercept the pointer. */
-  .tl-host{position:relative;}
-  .tl-scroll{position:relative;z-index:1;}
-  .tl-mascot{display:none;position:absolute;bottom:132px;z-index:0;pointer-events:none;}
-  .tl-mascot.ml{left:30px;}
-  .tl-mascot.mr{right:30px;}
-  @keyframes mascotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-  @media(min-width:1200px){
-    .tl-mascot{display:block;}
-  }
-  @media (prefers-reduced-motion: no-preference){
-    .tl-mascot svg{animation:mascotBob 6s ease-in-out infinite;}
-    .tl-mascot.mr svg{animation-duration:7.2s;}
-  }
-
-  /* ── widescreen: same single diary column, just roomier ── */
+  /* ── widescreen: the page widens at fixed, tested breakpoints ── */
   @media(min-width:1000px){
-    .tl-host{padding:0 30px 18px;}
-    .tl{max-width:680px;}
+    .tl-host{padding:0 18px 18px;}
     .tl-item{margin-bottom:18px;}
     .tl-day{margin:24px 0 18px;}
-    /* comfortable centered writing width */
-    .compose{max-width:840px;width:100%;margin-left:auto;margin-right:auto;}
     /* wishlist keeps a readable centered column in the big modal */
     .wl-bar,.wish,.wl-add{max-width:820px;margin-left:auto;margin-right:auto;}
     .pw{columns:4;}
+  }
+  @media(max-width:767px){
+    .tl-host{padding:0 10px 11px;}
+    .tl{padding-left:40px;}
+    .tl::before{left:12px;}
+    .tl .ava{left:-40px;width:28px;height:28px;font-size:12px;box-shadow:none!important;}
+    .tl-card{padding:11px 10px;border-radius:12px;}
+    .tl-card .tt{font-size:13px;line-height:1.55;}
+    .compose{padding:7px;margin-top:7px;border-radius:14px;}
+    .compose-collapsed{padding-right:9px;}
+    .compose-collapsed .go{display:none;}
+    .draft-chip{display:none;}
   }
 
   /* post detail viewer */
@@ -263,13 +281,13 @@ const ScreenStyles = () => (
 );
 
 type TabKey = 'timeline' | 'photos' | 'wishlist';
-type TabDef = { k: TabKey; title: string; Icon: (p: IcoProps) => ReactNode; c: string };
+export type SurfaceOrigin = { x: number; y: number; source: 'object' | 'rail' | 'keyboard' };
 type Wish = { id: string; text: string; done: boolean };
 
-const TABS: TabDef[] = [
-    { k: 'timeline', title: '时间线', Icon: IClock, c: 'linear-gradient(135deg,#BFE6FA,#6FBCE8)' },
-    { k: 'photos', title: '照片墙', Icon: IPhoto, c: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)' },
-    { k: 'wishlist', title: '心愿单', Icon: ISparkle, c: 'linear-gradient(135deg,#C9E8C2,#86C99A)' }
+const SURFACES: { k: TabKey; title: string; kicker: string }[] = [
+    { k: 'timeline', title: '我们的日记', kicker: 'MEMORY DIARY' },
+    { k: 'photos', title: '照片墙', kicker: 'PHOTO WALL' },
+    { k: 'wishlist', title: '心愿单', kicker: 'OUR WISHES' }
 ];
 
 const SEED_WISHES: Wish[] = [
@@ -331,9 +349,9 @@ const hashOf = (id: string): number => {
 };
 const avaGrad = (id: string): string => AVA_GRADS[hashOf(id) % AVA_GRADS.length];
 
-// Identity color system: position carries only rhythm (zigzag), COLOR carries
-// identity — the same tone hits the avatar ring, the author name and the card
-// edge. Me = theme accent (self first), the world's other member = the pink
+// Identity color system: position carries time, color carries authorship.
+// The diary uses a ring and author name, never a colored card edge.
+// Me = theme accent (self first), the world's other member = the pink
 // pairing, any future author = a stable hash pick from the theme palette.
 type AuthorTone = { ring: string; deep: string };
 const MINE_TONE: AuthorTone = { ring: 'var(--accent)', deep: 'var(--accent-deep)' };
@@ -350,50 +368,27 @@ const toneOf = (authorId: string, currentUserId: string | null, world: World | n
     return GUEST_TONES[hashOf(authorId) % GUEST_TONES.length];
 };
 
-// The theme's own cloud pups (original art, not licensed material): blue one
-// gazes at the flow from the left, pink one smiles on the right — a quiet
-// pair matching the author color language. Decorative only (aria-hidden).
-function MascotSvg({ tone, size }: { tone: 'blue' | 'pink'; size: number }) {
-    const line = tone === 'blue' ? '#d5e5f2' : '#f0d9e2';
-    const inner = tone === 'blue' ? 'var(--sky-3)' : 'var(--blush)';
-    const blush = tone === 'blue' ? '#bfe3f5' : '#f6c3d2';
-    return (
-        <svg width={size} height={size} viewBox="0 0 200 190" fill="none">
-            <ellipse cx="30" cy="86" rx="19" ry="46" transform="rotate(16 30 86)" fill="#fff" stroke={line} strokeWidth="2.5" />
-            <ellipse cx="30" cy="90" rx="10" ry="32" transform="rotate(16 30 90)" fill={inner} />
-            <ellipse cx="170" cy="86" rx="19" ry="46" transform="rotate(-16 170 86)" fill="#fff" stroke={line} strokeWidth="2.5" />
-            <ellipse cx="170" cy="90" rx="10" ry="32" transform="rotate(-16 170 90)" fill={inner} />
-            <ellipse cx="100" cy="148" rx="42" ry="30" fill="#fff" stroke={line} strokeWidth="2.5" />
-            <ellipse cx="76" cy="172" rx="15" ry="9" fill="#fff" stroke={line} strokeWidth="2.5" />
-            <ellipse cx="124" cy="172" rx="15" ry="9" fill="#fff" stroke={line} strokeWidth="2.5" />
-            <ellipse cx="100" cy="80" rx="60" ry="52" fill="#fff" stroke={line} strokeWidth="2.5" />
-            {tone === 'blue' ? (
-                <>
-                    <circle cx="79" cy="78" r="5.2" fill="#2a3a5e" />
-                    <circle cx="81" cy="76" r="1.8" fill="#fff" />
-                    <circle cx="121" cy="78" r="5.2" fill="#2a3a5e" />
-                    <circle cx="123" cy="76" r="1.8" fill="#fff" />
-                    <path d="M158 34 l3.5 8 8 3.5 -8 3.5 -3.5 8 -3.5 -8 -8 -3.5 8 -3.5 Z" fill="#9FD6F4" />
-                </>
-            ) : (
-                <>
-                    <path d="M74 76 q5 -6 10 0" stroke="#2a3a5e" strokeWidth="2.4" strokeLinecap="round" />
-                    <path d="M116 76 q5 -6 10 0" stroke="#2a3a5e" strokeWidth="2.4" strokeLinecap="round" />
-                    <path d="M42 30 c-3 -6 -12 -4 -12 3 c0 5 7 9 12 12 c5 -3 12 -7 12 -12 c0 -7 -9 -9 -12 -3 Z" fill="#F2B9CB" />
-                </>
-            )}
-            <ellipse cx="63" cy="94" rx="9" ry="5" fill={blush} />
-            <ellipse cx="137" cy="94" rx="9" ry="5" fill={blush} />
-            <path d="M95 90 Q100 95 105 90" stroke="#2a3a5e" strokeWidth="2.2" strokeLinecap="round" />
-        </svg>
-    );
-}
-
-function Avatar({ authorId, profile, ring }: { authorId: string; profile?: FeedProfile; ring: string }) {
+function Avatar({
+    authorId,
+    profile,
+    ring,
+    fallback
+}: {
+    authorId: string;
+    profile?: FeedProfile;
+    ring: string;
+    fallback?: string;
+}) {
     const name = profile?.display_name?.trim() || '';
     return (
-        <span className="ava" style={{ background: avaGrad(authorId), boxShadow: `0 0 0 3px ${ring}` }}>
-            {profile?.avatar_url ? <img src={profile.avatar_url} alt={name} /> : name ? [...name][0].toUpperCase() : '·'}
+        <span className="ava" style={{ background: avaGrad(authorId), boxShadow: `0 0 0 1px ${ring}` }}>
+            {profile?.avatar_url || fallback ? (
+                <img src={profile?.avatar_url || fallback} alt={name} />
+            ) : name ? (
+                [...name][0].toUpperCase()
+            ) : (
+                '·'
+            )}
         </span>
     );
 }
@@ -419,7 +414,14 @@ function PostDetail({
     // Every image, progressive: the already-signed thumbnail shows instantly,
     // the signed original swaps in per path once ready.
     const [fullUrls, setFullUrls] = useState<Record<string, string>>({});
+    const detailCloseRef = useRef<HTMLButtonElement>(null);
     const paths = post.visible_images ?? [];
+
+    useEffect(() => {
+        const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        detailCloseRef.current?.focus();
+        return () => previous?.focus();
+    }, []);
 
     useEffect(() => {
         let cancelled = false;
@@ -433,7 +435,12 @@ function PostDetail({
                     /* keep showing the thumbnails */
                 });
         }
-        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key !== 'Escape') return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            onClose();
+        };
         window.addEventListener('keydown', onKey);
         return () => {
             cancelled = true;
@@ -443,15 +450,34 @@ function PostDetail({
 
     return (
         <div className="pd" onClick={onClose}>
-            <div className="pd-card paper" onClick={(e) => e.stopPropagation()}>
+            <div
+                className="pd-card"
+                role="dialog"
+                aria-modal="true"
+                aria-label="回忆详情"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="pd-hd">
-                    <Avatar authorId={post.author_id} profile={profile} ring={tone.ring} />
+                    <Avatar
+                        authorId={post.author_id}
+                        profile={profile}
+                        ring={tone.ring}
+                        fallback={mine ? '/avatars/blue.png' : '/avatars/pink.png'}
+                    />
                     <div>
-                        <div className="pd-name" style={{ color: tone.deep }}>
+                        <div className="pd-name" style={{ color: mine ? 'var(--diary-blue)' : 'var(--diary-pink)' }}>
                             {mine ? '我' : (profile?.display_name ?? 'TA')}
                         </div>
                         <div className="pd-date">{fmtFullDate(post.created_at)}</div>
                     </div>
+                    <button
+                        ref={detailCloseRef}
+                        className="modal-x object-x"
+                        onClick={onClose}
+                        aria-label="关闭回忆详情"
+                    >
+                        <IClose size={17} />
+                    </button>
                 </div>
                 {paths.map((path) => {
                     const src = fullUrls[path] ?? thumbUrls[thumbPathOf(path)];
@@ -494,7 +520,11 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
             if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
         };
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setOpen(false);
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation(); // Do not also dismiss the diary at window level.
+                setOpen(false);
+            }
         };
         document.addEventListener('pointerdown', onDown);
         document.addEventListener('keydown', onKey);
@@ -516,6 +546,7 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
     }, [open]);
 
     const addFiles = (files: Iterable<File>) => {
+        if (busy) return;
         const imgs = [...files].filter((f) => f.type.startsWith('image/'));
         if (!imgs.length) return;
         setPicked((prev) => [
@@ -574,11 +605,12 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
     if (!open) {
         const hasDraft = !!text.trim() || picked.length > 0;
         return (
-            <div className="compose paper">
-                <div className={`compose-collapsed${hasDraft ? ' draft' : ''}`} onClick={() => setOpen(true)}>
-                    <span className="chip-accent pchip">
-                        <IPlus size={18} />
-                    </span>
+            <div className="compose">
+                <button
+                    type="button"
+                    className={`compose-collapsed${hasDraft ? ' draft' : ''}`}
+                    onClick={() => setOpen(true)}
+                >
                     {hasDraft ? (
                         <>
                             <span className="draft-chip">✎ 草稿</span>
@@ -592,19 +624,19 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
                         </>
                     ) : (
                         <>
-                            <span className="ph">记录此刻的我们…</span>
-                            <span className="go">点击书写 ✎</span>
+                            <span className="ph">写一页</span>
                         </>
                     )}
-                </div>
+                </button>
             </div>
         );
     }
     return (
-        <div className={`compose paper${over ? ' dropping' : ''}`} ref={rootRef}>
+        <div className={`compose is-open${over ? ' dropping' : ''}`} ref={rootRef}>
             <div className="compose-open" {...dropProps}>
                 <textarea
                     ref={taRef}
+                    disabled={busy}
                     autoFocus
                     value={text}
                     onChange={(e) => {
@@ -614,10 +646,10 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
                     placeholder="今天发生了什么温柔的事？"
                 />
                 {picked.length === 0 ? (
-                    <div className="pk-strip" onClick={() => fileRef.current?.click()}>
+                    <button type="button" className="pk-strip" onClick={() => fileRef.current?.click()}>
                         <IPhoto size={20} />
                         分享几张此刻的照片 · 拖进来，或 <u>选择文件</u>
-                    </div>
+                    </button>
                 ) : (
                     <div className="pk-row">
                         {picked.map((p, i) => (
@@ -629,7 +661,11 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
                             </span>
                         ))}
                         {picked.length < MAX_IMGS && (
-                            <button className="pk-add" aria-label="继续添加图片" onClick={() => fileRef.current?.click()}>
+                            <button
+                                className="pk-add"
+                                aria-label="继续添加图片"
+                                onClick={() => fileRef.current?.click()}
+                            >
                                 ＋
                             </button>
                         )}
@@ -720,331 +756,32 @@ function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
     return urls;
 }
 
-type ScrollAnchor = { mode: 'none' | 'prepend' | 'bottom' | 'bottom-smooth'; h: number };
-type PullState = 'idle' | 'pull' | 'armed';
-
-const PULL_MAX = 96; // rubber-band travel cap (px)
-const PULL_ARM = 52; // release past this refreshes
-
-function TimelineBody({ feed, thumbUrls }: { feed: UseFeed; thumbUrls: Record<string, string> }) {
-    const { status, posts, error, world, worldId, reload, currentUserId, profiles, hasMore, loadingOlder, loadOlder } = feed;
-    // The timeline owns its scrollport; the composer is a sibling below it.
-    const bodyRef = useRef<HTMLDivElement | null>(null);
+function TimelineBody({
+    feed,
+    thumbUrls,
+    active
+}: {
+    feed: UseFeed;
+    thumbUrls: Record<string, string>;
+    active: boolean;
+}) {
     const [detail, setDetail] = useState<FeedPost | null>(null);
     const closeDetail = useCallback(() => setDetail(null), []);
-    const anchor = useRef<ScrollAnchor>({ mode: 'bottom', h: 0 });
-    // While a publish-glide is in flight, passing the top must not trigger the
-    // history loader (a prepend would cancel the smooth scroll mid-animation).
-    const glideUntil = useRef(0);
-    // Rubber-band pull past the bottom (drag up) refreshes the latest page.
-    const pullRef = useRef<HTMLDivElement | null>(null);
-    const [pullState, setPullState] = useState<PullState>('idle');
-    // true while the current reload came from a pull-release (caption copy)
-    const [pullRefreshing, setPullRefreshing] = useState(false);
-
-    // Keep the viewport pinned through list mutations: first fill → jump to
-    // the newest (bottom), older page prepended → preserve the reading
-    // position, own publish → glide down to meet the new post.
-    const applyAnchor = () => {
-        const el = bodyRef.current;
-        if (!el || !posts.length) return;
-        const a = anchor.current;
-        if (a.mode === 'none') return;
-        anchor.current = { mode: 'none', h: 0 };
-        if (a.mode === 'prepend') el.scrollTop += el.scrollHeight - a.h;
-        else if (a.mode === 'bottom') el.scrollTop = el.scrollHeight;
-        else {
-            glideUntil.current = Date.now() + 1000;
-            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-            // Settle correction: async layout (signed thumbnails) can outgrow
-            // the animation's captured target, leaving the glide just short.
-            window.setTimeout(() => {
-                if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
-            }, 900);
-        }
-    };
-    // Layout pass covers in-place list changes; on a tab remount the scrollport
-    // ref attaches after child layout effects (parent host ref), so the passive
-    // pass picks the anchor up then.
-    useLayoutEffect(applyAnchor, [posts, bodyRef]);
-    useEffect(applyAnchor, [posts, bodyRef]);
-
-    // Scrolling near the top pulls the previous page (infinite history).
-    useEffect(() => {
-        const el = bodyRef.current;
-        if (!el) return;
-        const onScroll = () => {
-            if (Date.now() < glideUntil.current) return;
-            if (el.scrollTop < 80 && hasMore && !loadingOlder) {
-                anchor.current = { mode: 'prepend', h: el.scrollHeight };
-                loadOlder();
-            }
-        };
-        el.addEventListener('scroll', onScroll);
-        return () => el.removeEventListener('scroll', onScroll);
-    }, [bodyRef, hasMore, loadingOlder, loadOlder]);
-
-    // Drag-to-scroll (mouse, with release momentum) + bottom rubber-band
-    // refresh (mouse and touch). Touch keeps NATIVE panning — the browser's
-    // own finger-scroll already has inertia, so we never reimplement it; we
-    // only take over the gesture the browser ignores: pulling up past the
-    // bottom. Mouse-drag scrolling doesn't exist natively, so both the drag
-    // and its momentum are driven here. A drag that actually moved swallows
-    // the trailing click so cards/composer don't activate.
-    useEffect(() => {
-        const el = bodyRef.current;
-        const band = pullRef.current;
-        if (!el || !band) return;
-        let mode: 'none' | 'mouse' | 'touch' = 'none';
-        let startY = 0;
-        let startTop = 0;
-        let over = 0;
-        let moved = false;
-        let vel = 0; // scroll velocity in px/ms (positive = scrolling down)
-        let lastY = 0;
-        let lastT = 0;
-        let raf = 0;
-
-        const maxTop = () => el.scrollHeight - el.clientHeight;
-        const stopMomentum = () => {
-            if (raf) {
-                cancelAnimationFrame(raf);
-                raf = 0;
-            }
-        };
-        const startMomentum = (v0: number) => {
-            let v = Math.max(-3, Math.min(3, v0));
-            let last = performance.now();
-            const step = (t: number) => {
-                const dt = t - last;
-                last = t;
-                el.scrollTop += v * dt;
-                v *= Math.pow(0.994, dt); // exponential friction
-                if (Math.abs(v) < 0.02 || el.scrollTop <= 0 || el.scrollTop >= maxTop()) {
-                    raf = 0;
-                    return;
-                }
-                raf = requestAnimationFrame(step);
-            };
-            raf = requestAnimationFrame(step);
-        };
-
-        const setOver = (px: number) => {
-            over = px;
-            band.style.transform = px ? `translateY(${-px}px)` : '';
-            setPullState(px >= PULL_ARM ? 'armed' : px > 0 ? 'pull' : 'idle');
-        };
-        const finish = () => {
-            if (mode === 'none') return;
-            const wasMouse = mode === 'mouse';
-            const refresh = over >= PULL_ARM;
-            mode = 'none';
-            el.removeAttribute('data-dragging');
-            band.style.transition = 'transform .3s cubic-bezier(.3,.9,.4,1)';
-            setOver(0);
-            window.setTimeout(() => {
-                band.style.transition = '';
-            }, 320);
-            if (refresh) {
-                setPullRefreshing(true);
-                anchor.current = { mode: 'bottom', h: 0 };
-                reload();
-            } else if (wasMouse && moved && Math.abs(vel) > 0.15) {
-                startMomentum(vel);
-            }
-        };
-
-        const onPointerDown = (e: PointerEvent) => {
-            if (e.pointerType !== 'mouse' || e.button !== 0) return;
-            stopMomentum();
-            if ((e.target as HTMLElement).closest('textarea, input, button, image-slot, a, .lb, .pd')) return;
-            mode = 'mouse';
-            moved = false;
-            vel = 0;
-            startY = lastY = e.clientY;
-            startTop = el.scrollTop;
-            lastT = performance.now();
-        };
-        const onPointerMove = (e: PointerEvent) => {
-            if (mode !== 'mouse') return;
-            const dy = e.clientY - startY;
-            if (!moved && Math.abs(dy) < 5) return;
-            if (!moved) {
-                moved = true;
-                el.setAttribute('data-dragging', '');
-            }
-            const now = performance.now();
-            const dt = now - lastT;
-            if (dt > 0) {
-                // smoothed sample velocity; content moves opposite the cursor
-                vel = 0.7 * ((lastY - e.clientY) / dt) + 0.3 * vel;
-                lastY = e.clientY;
-                lastT = now;
-            }
-            const target = startTop - dy;
-            el.scrollTop = Math.min(Math.max(target, 0), maxTop());
-            setOver(target > maxTop() ? Math.min(PULL_MAX, (target - maxTop()) * 0.5) : 0);
-        };
-        const onPointerUp = () => {
-            if (mode === 'mouse') finish();
-        };
-        const onClickCapture = (e: MouseEvent) => {
-            if (moved) {
-                e.stopPropagation();
-                e.preventDefault();
-                moved = false;
-            }
-        };
-        const onWheel = () => stopMomentum();
-
-        const onTouchStart = (e: TouchEvent) => {
-            stopMomentum();
-            if (e.touches.length === 1) {
-                mode = 'touch';
-                startY = e.touches[0].clientY;
-            }
-        };
-        const onTouchMove = (e: TouchEvent) => {
-            if (mode !== 'touch') return;
-            const dy = e.touches[0].clientY - startY;
-            if (dy < 0 && el.scrollTop >= maxTop() - 1) {
-                e.preventDefault(); // keep the page/scroll chain out of the band
-                setOver(Math.min(PULL_MAX, -dy * 0.5));
-            } else if (over) {
-                setOver(0);
-            }
-        };
-        const onTouchEnd = () => {
-            if (mode === 'touch') finish();
-        };
-
-        el.addEventListener('pointerdown', onPointerDown);
-        window.addEventListener('pointermove', onPointerMove);
-        window.addEventListener('pointerup', onPointerUp);
-        el.addEventListener('click', onClickCapture, true);
-        el.addEventListener('wheel', onWheel, { passive: true });
-        el.addEventListener('touchstart', onTouchStart, { passive: true });
-        el.addEventListener('touchmove', onTouchMove, { passive: false });
-        el.addEventListener('touchend', onTouchEnd);
-        return () => {
-            stopMomentum();
-            el.removeEventListener('pointerdown', onPointerDown);
-            window.removeEventListener('pointermove', onPointerMove);
-            window.removeEventListener('pointerup', onPointerUp);
-            el.removeEventListener('click', onClickCapture, true);
-            el.removeEventListener('wheel', onWheel);
-            el.removeEventListener('touchstart', onTouchStart);
-            el.removeEventListener('touchmove', onTouchMove);
-            el.removeEventListener('touchend', onTouchEnd);
-        };
-    }, [bodyRef, reload]);
-
-    if (status === 'error')
-        return (
-            <div className="empty-hint">
-                加载失败：{error} ·{' '}
-                <button className="btn-ghost" onClick={reload}>
-                    重试
-                </button>
-            </div>
-        );
-    // Stale-while-revalidate: during reload (e.g. right after publishing) the
-    // existing list stays put instead of flashing a spinner.
-    if (status === 'loading' && posts.length === 0) return <div className="empty-hint">正在加载你们的回忆…</div>;
-
-    const publishAndFollow = () => {
-        setPullRefreshing(false);
-        anchor.current = { mode: 'bottom-smooth', h: 0 };
-        reload();
-    };
-
-    const items: ReactNode[] = [];
-    let lastDay = '';
-    let dayIdx = 0;
-    for (const p of posts) {
-        const day = fmtDay(p.created_at);
-        if (day !== lastDay) {
-            lastDay = day;
-            // date sticker: tint/tilt alternate per day, a tiny motif leads it
-            const motif = day === '今天' ? '⭐' : day === '昨天' ? '☁️' : '🌸';
-            items.push(
-                <div className={`tl-day${dayIdx++ % 2 ? ' alt' : ''}`} key={`day-${p.post_id}`}>
-                    <span>
-                        {motif} {day}
-                    </span>
-                </div>
-            );
-        }
-        const paths = p.visible_images ?? [];
-        const src = paths[0] ? thumbUrls[thumbPathOf(paths[0])] : undefined;
-        const mine = !!currentUserId && p.author_id === currentUserId;
-        const author = mine ? '我' : (profiles[p.author_id]?.display_name ?? 'TA');
-        const tone = toneOf(p.author_id, currentUserId, world);
-        items.push(
-            <div
-                className="tl-item"
-                key={p.post_id}
-                style={{ '--au-ring': tone.ring, '--au-deep': tone.deep } as React.CSSProperties}
-            >
-                <Avatar authorId={p.author_id} profile={profiles[p.author_id]} ring={tone.ring} />
-                <div className={`tl-card paper${src ? ' has-media' : ''}`} onClick={() => setDetail(p)}>
-                    {src && (
-                        <div className="tl-media">
-                            <image-slot src={src} shape="rect" placeholder=""></image-slot>
-                            {paths.length > 1 && <span className="tl-imgn">＋{paths.length - 1} 张</span>}
-                        </div>
-                    )}
-                    <div className="tbody">
-                        <div className="tl-who">
-                            <b className="tl-au">{author}</b>
-                            <span className="tl-time">{fmtMeta(p.created_at)}</span>
-                        </div>
-                        {p.visible_content && <div className="tt">{p.visible_content}</div>}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const endText =
-        status === 'loading' && pullRefreshing
-            ? '正在拉取最新的回忆…'
-            : pullState === 'armed'
-              ? '松开，刷新最新回忆'
-              : pullState === 'pull'
-                ? '继续上拉，刷新最新回忆'
-                : '已经看到最新的回忆了 ·';
-
     return (
         <>
-            <span className="tl-mascot ml" aria-hidden="true">
-                <MascotSvg tone="blue" size={150} />
-            </span>
-            <span className="tl-mascot mr" aria-hidden="true">
-                <MascotSvg tone="pink" size={138} />
-            </span>
-            <div className="tl-scroll" ref={bodyRef}>
-                {posts.length > 0 &&
-                    (hasMore ? (
-                        <div className="tl-more">{loadingOlder ? '正在翻开更早的回忆…' : '往上滚动 · 翻看更早的回忆'}</div>
-                    ) : (
-                        <div className="tl-more">你们的故事从这里开始 ·</div>
-                    ))}
-                <div className="tl-pull" ref={pullRef}>
-                    <div className="tl">
-                        {posts.length === 0 && <div className="empty-hint">还没有回忆 · 在下面记录第一条吧</div>}
-                        {items}
-                    </div>
-                    {posts.length > 0 && <div className={pullState === 'armed' ? 'tl-end armed' : 'tl-end'}>{endText}</div>}
-                </div>
-            </div>
-            <Composer worldId={worldId} onPublished={publishAndFollow} />
+            <JournalBook
+                feed={feed}
+                thumbUrls={thumbUrls}
+                active={active}
+                onDetail={setDetail}
+                ComposerComponent={Composer}
+            />
             {detail && (
                 <PostDetail
                     post={detail}
-                    profile={profiles[detail.author_id]}
-                    mine={!!currentUserId && detail.author_id === currentUserId}
-                    tone={toneOf(detail.author_id, currentUserId, world)}
+                    profile={feed.profiles[detail.author_id]}
+                    mine={detail.author_id === feed.currentUserId}
+                    tone={toneOf(detail.author_id, feed.currentUserId, feed.world)}
                     thumbUrls={thumbUrls}
                     onClose={closeDetail}
                 />
@@ -1213,55 +950,142 @@ function WishlistBody({
     );
 }
 
-export function SubScreen({ screen, onClose }: { screen: TabKey | null; onClose: () => void }) {
+export function SubScreen({
+    screen,
+    origin,
+    onClose
+}: {
+    screen: TabKey | null;
+    origin?: SurfaceOrigin | null;
+    onClose: () => void;
+}) {
     const show = !!screen;
-    const [tab, setTab] = useState<TabKey>('timeline');
+    const [visibleScreen, setVisibleScreen] = useState<TabKey | null>(null);
     const [wishes, setWishes] = useState<Wish[]>(() => load('ow-wishes-v1', SEED_WISHES));
-    // lazy: the feed fetch fires on first open, not at page load (the modal
-    // stays mounted while hidden for its fade animation)
+    const surfaceRefs = useRef<Partial<Record<TabKey, HTMLElement | null>>>({});
+    const restoreFocusRef = useRef<HTMLElement | null>(null);
+    const closeRef = useRef(onClose);
+    // Lazy: the feed fetch fires on first object open, not at page load. All
+    // three surfaces stay mounted so scroll, lightbox and composer draft state
+    // survive closing one object and visiting another.
     const feed = useFeed(show);
-    // Sign thumbnails once; timeline and photo wall share the map.
     const thumbUrls = useSignedThumbs(feed.posts);
 
     useEffect(() => {
-        // Sync the open tab to the parent-driven `screen` when the modal opens.
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- render-time sync would double-render the heavy modal
-        if (screen) setTab(screen);
-    }, [screen]);
+        closeRef.current = onClose;
+    }, [onClose]);
     useEffect(() => save('ow-wishes-v1', wishes), [wishes]);
 
-    const cfg = TABS.find((t) => t.k === tab) || TABS[0];
+    // Let the hidden sheet paint once at the latest object-origin transform,
+    // then reveal it on the next frame. Applying origin + .show in one render
+    // would make the browser animate from the old center instead of the item.
+    useEffect(() => {
+        const frame = window.requestAnimationFrame(() => setVisibleScreen(screen));
+        return () => window.cancelAnimationFrame(frame);
+    }, [screen]);
+
+    // One Escape closes one layer: detail/lightbox first, then composer, then
+    // the object surface. Tab is trapped inside the active sheet and focus is
+    // returned to the rail button when that was the opener.
+    useEffect(() => {
+        if (!screen) {
+            const previous = restoreFocusRef.current;
+            restoreFocusRef.current = null;
+            if (previous) window.setTimeout(() => previous.focus(), 0);
+            return;
+        }
+        restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const panel = surfaceRefs.current[screen];
+        window.requestAnimationFrame(() => panel?.querySelector<HTMLElement>('.object-x')?.focus());
+        const onKey = (event: KeyboardEvent) => {
+            const activePanel = surfaceRefs.current[screen];
+            if (!activePanel) return;
+            if (event.key === 'Escape') {
+                if (activePanel.querySelector('.pd,.lb,.compose-open')) return;
+                closeRef.current();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+            const focusScope = activePanel.querySelector('.pd-card') ?? activePanel;
+            const focusable = Array.from(
+                focusScope.querySelectorAll<HTMLElement>(
+                    'button:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+                )
+            ).filter((node) => node.offsetParent !== null && !node.closest('[inert]'));
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [screen]);
+
+    const originStyle = (key: TabKey): React.CSSProperties => {
+        if (screen !== key || !origin) return {};
+        // Static book art is centered; the new take-from-desk motion is deferred.
+        if (key === 'timeline') return {};
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const dx = Math.max(-window.innerWidth * 0.46, Math.min(window.innerWidth * 0.46, origin.x - centerX));
+        const dy = Math.max(-window.innerHeight * 0.46, Math.min(window.innerHeight * 0.46, origin.y - centerY));
+        return {
+            '--object-open-x': `${Math.round(dx)}px`,
+            '--object-open-y': `${Math.round(dy)}px`,
+            '--object-open-r': `${dx < 0 ? -1.5 : 1.5}deg`
+        } as React.CSSProperties;
+    };
 
     return (
         <>
             <ScreenStyles />
-            <div className={`modal-scrim ${show ? 'show' : ''}`} onClick={onClose} />
-            <div className={`modal glass tall ${show ? 'show' : ''}`} aria-hidden={!show}>
-                <div className="modal-hd">
-                    <span className="si" style={{ background: cfg.c }}>
-                        <cfg.Icon size={19} />
-                    </span>
-                    <h2>{cfg.title}</h2>
-                    <button className="modal-x" onClick={onClose} aria-label="关闭">
-                        <IClose size={17} />
-                    </button>
-                </div>
-                <div className="tabs">
-                    {TABS.map((t) => (
-                        <button key={t.k} className={tab === t.k ? 'on' : ''} onClick={() => setTab(t.k)}>
-                            <span className="ic">
-                                <t.Icon size={16} />
-                            </span>
-                            <span className="tab-lbl">{t.title}</span>
-                        </button>
-                    ))}
-                </div>
-                <div className={tab === 'timeline' ? 'modal-body tl-host' : 'modal-body'} key={tab}>
-                    {tab === 'timeline' && <TimelineBody feed={feed} thumbUrls={thumbUrls} />}
-                    {tab === 'photos' && <PhotosBody posts={feed.posts} thumbUrls={thumbUrls} />}
-                    {tab === 'wishlist' && <WishlistBody wishes={wishes} setWishes={setWishes} />}
-                </div>
-            </div>
+            <div
+                className={`modal-scrim object-scrim ${screen === 'timeline' ? 'diary-scrim' : ''} ${show ? 'show' : ''}`}
+                onClick={onClose}
+            />
+            {SURFACES.map((surface) => {
+                const active = visibleScreen === surface.k;
+                const diary = surface.k === 'timeline';
+                return (
+                    <section
+                        key={surface.k}
+                        ref={(node) => {
+                            surfaceRefs.current[surface.k] = node;
+                        }}
+                        className={`object-surface ${diary ? 'diary-surface' : 'paper collection-surface'} ${active ? 'show' : ''}`}
+                        data-surface={surface.k}
+                        style={originStyle(surface.k)}
+                        aria-hidden={!active}
+                        inert={!active}
+                        role="dialog"
+                        aria-modal={active ? true : undefined}
+                        aria-labelledby={`${surface.k}-surface-title`}
+                    >
+                        <header className="object-hd">
+                            <div>
+                                <div className="object-kicker">{surface.kicker}</div>
+                                <h2 id={`${surface.k}-surface-title`}>{surface.title}</h2>
+                            </div>
+                            <button className="modal-x object-x" onClick={onClose} aria-label={`关闭${surface.title}`}>
+                                <IClose size={17} />
+                            </button>
+                        </header>
+                        <div className={diary ? 'object-body tl-host' : 'object-body'}>
+                            {surface.k === 'timeline' && (
+                                <TimelineBody feed={feed} thumbUrls={thumbUrls} active={active} />
+                            )}
+                            {surface.k === 'photos' && <PhotosBody posts={feed.posts} thumbUrls={thumbUrls} />}
+                            {surface.k === 'wishlist' && <WishlistBody wishes={wishes} setWishes={setWishes} />}
+                        </div>
+                    </section>
+                );
+            })}
         </>
     );
 }

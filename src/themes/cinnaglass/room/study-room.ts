@@ -69,18 +69,25 @@ export const STUDY_ROOM: RoomTemplate = {
             // center = the painting's real perspective, not a drawing error
             center: { x: 962.6, y: 841.0 },
             armPivot: { x: 1062.5, y: 844 },
-            // generated layers assembled by scripts/build-turntable-parts.py —
-            // every number below is pasted from its manifest, never eyeballed
-            platterArt: '/rooms/study/parts/platter.png',
+            // layers assembled by scripts/build-turntable-parts.py (v5: the
+            // painted record split by symmetry, per mood) — every number
+            // below is pasted from its manifest, never eyeballed
+            platterArt: {
+                golden: '/rooms/study/parts/platter-golden.png',
+                twilight: '/rooms/study/parts/platter-twilight.png',
+                night: '/rooms/study/parts/platter-night.png'
+            },
             platterLight: {
                 golden: { add: '/rooms/study/parts/platter-light-add-golden.png', mul: '/rooms/study/parts/platter-light-mul-golden.png' },
                 twilight: { add: '/rooms/study/parts/platter-light-add-twilight.png', mul: '/rooms/study/parts/platter-light-mul-twilight.png' },
                 night: { add: '/rooms/study/parts/platter-light-add-night.png', mul: '/rooms/study/parts/platter-light-mul-night.png' }
             },
-            platterTint: { golden: 0xffffff, twilight: 0x6e7cb0, night: 0x858d93 },
             arm: { src: '/rooms/study/parts/tonearm.png', box: { x: 976, y: 834, w: 102, h: 82 } },
             armTint: { golden: 0xffffff, twilight: 0x808bc0, night: 0x78828a },
-            spindle: { src: '/rooms/study/parts/spindle.png', box: { x: 956, y: 831, w: 13.5, h: 16 } },
+            spindle: {
+                src: { golden: '/rooms/study/parts/spindle-golden.png', twilight: '/rooms/study/parts/spindle-twilight.png', night: '/rooms/study/parts/spindle-night.png' },
+                box: { x: 954, y: 828, w: 18, h: 22 }
+            },
             // light from the window (upper left) by day, from the desk lamp at
             // night: the shadow leans further right and longer after dark
             armShadow: {

@@ -1,0 +1,8 @@
+{
+    "asset": "frost.webp",
+    "source": "arts/ui/navigation/frost-source.png",
+    "sourceManifest": "arts/ui/navigation/manifest.json",
+    "role": "Transparent neutral glass microtexture; tint and lighting are supplied at runtime",
+    "size": [512, 512],
+    "adopted": "2026-09-07"
+}

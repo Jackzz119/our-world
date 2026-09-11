@@ -25,7 +25,7 @@ import {
     Texture
 } from 'pixi.js';
 import { AdjustmentFilter } from 'pixi-filters';
-import type { PxEllipse, PxPoint, PxRect, RoomMood, RoomTemplate, RoomWeather } from './room-types';
+import type { HotspotOpenEvent, PxEllipse, PxPoint, PxRect, RoomMood, RoomTemplate, RoomWeather } from './room-types';
 import { resolveRoomArt } from './room-types';
 
 export type CharacterAssets = Record<string, { open: string; closed: string }>;
@@ -389,7 +389,7 @@ export async function buildScene(
     charAssets: CharacterAssets,
     initialMood: RoomMood,
     initialWeather: RoomWeather,
-    onHotspot?: (id: string) => void
+    onHotspot?: (event: HotspotOpenEvent) => void
 ): Promise<SceneHandle> {
     const { w: baseW, h: baseH } = room.base;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -440,8 +440,20 @@ export async function buildScene(
     let armGroup: Container | null = null; // the arms of every mood; skewed about the post to cue up
     const armShadows: { sprite: Sprite; restX: number; restY: number; dx: number; dy: number }[] = [];
     const SHADOW_ALPHA = 0.42;
+    // refits the disc textures to the size they are drawn at (see below); wired into layout
+    let refitDiscs: ((devicePx: number) => void) | null = null;
+    const retiredDiscTextures: Texture[] = [];
+    const discTextureCleanup = {
+        postrender() {
+            // Mesh.texture changes immediately, but Pixi's shared mesh shader
+            // only rebinds it on the next draw. Retire the old sources AFTER
+            // that draw; destroying them during resize destroys its BindGroup.
+            for (const texture of retiredDiscTextures.splice(0)) texture.destroy(true);
+        }
+    };
+    app.renderer.runners.postrender.add(discTextureCleanup);
     if (turntable) {
-        const { platter: e, center, armPivot, arm: armSpec, armTint, armShadow, platterArt, platterLight, platterTint, spindle, stills = [] } = turntable;
+        const { platter: e, center, armPivot, arm: armSpec, armTint, armShadow, platterArt, platterLight, spindle, stills = [] } = turntable;
         vinylH = discHomography(e, center);
         const platterLayer = new Container(); // the record: albedo tinted per hour, turning
         const lightLayer = new Container(); // the painting's light on the record: never turns
@@ -452,18 +464,55 @@ export async function buildScene(
         armGroup = new Container();
         armSwing.addChild(armShadowGroup, armGroup);
         const restCorners = discCorners(vinylH, 0);
-        // moving parts are flat albedo generated once (scripts/build-turntable-parts.py);
-        // the hour lights them through tints, the painting's own light comes back
-        // as a static overlay — nothing lit ever turns
+        // the record is the painting split by symmetry (scripts/build-turntable-
+        // parts.py v5): its rotationally symmetric part is the albedo and turns;
+        // everything that would not survive a turn — sheen, groove sparkle, rim
+        // highlight, shadow side — is static light layered on top. At rest they
+        // give the painting back; nothing lit ever turns. The arm is generated
+        // flat albedo lit by tint; the pin is a still cut from the painting.
         const lightUrls = Object.values(platterLight).flatMap((l) => [l.add, l.mul]);
-        const partTex = await Assets.load<Texture>([platterArt, armSpec.src, ...(spindle ? [spindle.src] : []), ...new Set(lightUrls)]);
-        // the record textures are drawn ~3x smaller than they ship: without
-        // mipmaps the label edge and grooves alias into sparkle while turning
-        for (const src of [platterArt, ...lightUrls]) {
-            const source = partTex[src].source;
-            source.autoGenerateMipmaps = true;
-            source.update();
-        }
+        const platterUrls = Object.values(platterArt);
+        const partTex = await Assets.load<Texture>([...platterUrls, armSpec.src, ...(spindle ? Object.values(spindle.src) : []), ...new Set(lightUrls)]);
+        // the disc textures ship as 512px masters and are drawn 160–400 device
+        // px wide. Sampled straight they alias into sparkle while turning;
+        // mipmapped, the GPU blends two levels and the grooves go soft — the
+        // "softer than the painting" of round four. So each master is refit
+        // once per layout to the very size it is drawn at (stepwise box
+        // downscale) and then sampled 1:1, exactly like the painting itself.
+        const discSrcs = [...platterUrls, ...lightUrls];
+        const discMeshes: { mesh: PerspectiveMesh; src: string }[] = [];
+        let fitted: Texture[] = [];
+        let fitPx = 0;
+        const fitDisc = (img: ArtImage, px: number): Texture => {
+            let cur: ArtImage = img;
+            let w = img.width;
+            while (w > px * 2) {
+                // drawImage is bilinear: halve stepwise so no texel is skipped
+                const c = document.createElement('canvas');
+                c.width = c.height = w >> 1;
+                const ctx = c.getContext('2d')!;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(cur, 0, 0, c.width, c.height);
+                cur = c;
+                w = c.width;
+            }
+            const c = document.createElement('canvas');
+            c.width = c.height = px;
+            const ctx = c.getContext('2d')!;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(cur, 0, 0, px, px);
+            return canvasTexture(c, 1);
+        };
+        refitDiscs = (devicePx) => {
+            const px = Math.min(512, Math.max(64, Math.round(devicePx)));
+            if (fitPx && Math.abs(px - fitPx) < fitPx * 0.08) return; // resize jitter: keep the fit
+            fitPx = px;
+            const next = new Map<string, Texture>();
+            for (const src of discSrcs) next.set(src, fitDisc(partTex[src].source.resource as ArtImage, px));
+            for (const d of discMeshes) d.mesh.texture = next.get(d.src)!;
+            retiredDiscTextures.push(...fitted);
+            fitted = [...next.values()];
+        };
         const armTexture = partTex[armSpec.src];
         const armSrcImg = armTexture.source.resource as ArtImage | undefined;
         const res = armTexture.width / armSpec.box.w; // texture px per base px
@@ -476,11 +525,12 @@ export async function buildScene(
             if (!mood) continue;
             const img = textures[url].source.resource as ArtImage | undefined;
             const cuts: Container[] = [];
-            const disc = new PerspectiveMesh({ texture: partTex[platterArt], verticesX: 12, verticesY: 12 });
-            disc.tint = platterTint[mood];
+            // this hour's record: the painting's symmetric part, turning
+            const disc = new PerspectiveMesh({ texture: partTex[platterArt[mood]], verticesX: 12, verticesY: 12 });
             platterLayer.addChild(disc);
             vinyls.push(disc);
             cuts.push(disc);
+            discMeshes.push({ mesh: disc, src: platterArt[mood] });
             // the hour's light on the record, static: sheen adds, shadow side multiplies
             for (const [src, blend] of [[platterLight[mood].mul, 'multiply'], [platterLight[mood].add, 'add']] as const) {
                 const light = new PerspectiveMesh({ texture: partTex[src], verticesX: 12, verticesY: 12 });
@@ -488,14 +538,14 @@ export async function buildScene(
                 light.blendMode = blend;
                 lightLayer.addChild(light);
                 cuts.push(light);
+                discMeshes.push({ mesh: light, src });
             }
             if (spindle) {
-                // the pin stands through the record's hole: above the platter, lit like the arm
-                const pin = new Sprite(partTex[spindle.src]);
+                // the pin stands through the record: above the platter, painted pixels, never moves
+                const pin = new Sprite(partTex[spindle.src[mood]]);
                 pin.position.set(spindle.box.x, spindle.box.y);
                 pin.width = spindle.box.w;
                 pin.height = spindle.box.h;
-                pin.tint = armTint[mood];
                 stillLayer.addChild(pin);
                 cuts.push(pin);
             }
@@ -698,10 +748,10 @@ export async function buildScene(
         zone.on('pointerout', () => {
             hot.hovered = false;
         });
-        zone.on('pointertap', () => {
+        zone.on('pointertap', (event) => {
             // a real interaction satisfies curiosity — quiet the hints a while
             nextHintAt = elapsed + rand(18, 30);
-            onHotspot?.(h.id);
+            onHotspot?.({ id: h.id, clientX: event.clientX, clientY: event.clientY });
         });
         hots.push(hot);
         hotLayer.addChild(zone);
@@ -1077,6 +1127,8 @@ export async function buildScene(
         const s = Math.max(w / baseW, h / baseH) * EDGE_CROP; // cover + crop
         root.scale.set(s);
         root.position.set((w - baseW * s) / 2, (h - baseH * s) / 2);
+        // the record's unit square spans two rim radii in base px
+        if (turntable) refitDiscs?.(2 * turntable.platter.rx * s * app.renderer.resolution);
     };
     resize();
 
@@ -1108,6 +1160,8 @@ export async function buildScene(
         destroy() {
             document.removeEventListener('visibilitychange', onVisibility);
             app.ticker.remove(tick);
+            app.renderer.runners.postrender.remove(discTextureCleanup);
+            discTextureCleanup.postrender();
         }
     };
 }

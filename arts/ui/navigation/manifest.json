@@ -1,0 +1,9 @@
+{
+    "source": "frost-source.png",
+    "runtime": "public/ui/nav/frost.webp",
+    "method": "Built-in ImageGen; pack-navigation-texture.mjs converts neutral deviations to translucent light/dark grain, then WebP. No painted room or icons.",
+    "date": "2026-09-07",
+    "status": "adopted navigation material",
+    "prompt": "ai/design_system/cinnaglass/journal-room-object/navigation-texture-prompt.md",
+    "reference": "ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png"
+}

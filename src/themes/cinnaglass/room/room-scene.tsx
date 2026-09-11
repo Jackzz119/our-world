@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Application } from 'pixi.js';
-import type { RoomMood, RoomWeather } from './room-types';
+import type { HotspotOpenEvent, RoomMood, RoomWeather } from './room-types';
 import { buildScene, type CharacterAssets, type SceneHandle } from './pixi-scene';
 import { STUDY_ROOM } from './study-room';
 
@@ -31,7 +31,7 @@ type RoomSceneProps = {
     /** WorldPage weather kind (sun/cloud/rain/snow) — collapsed to the scene's sun/rain. */
     weatherKind: string;
     /** furniture hotspot taps (feature keys from the room template) */
-    onHotspot?: (id: string) => void;
+    onHotspot?: (event: HotspotOpenEvent) => void;
     /** overhead presence tags keyed by seat id (the partner's, usually) */
     presence?: Record<string, SeatPresence>;
     /** transient overhead speech bubble (new incoming message preview) */
@@ -82,7 +82,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                 CHARACTERS,
                 moodRef.current,
                 toRoomWeather(weatherRef.current),
-                (id) => onHotspotRef.current?.(id)
+                (event) => onHotspotRef.current?.(event)
             );
             if (disposed) return; // unmount cleanup below owns app teardown
             sceneRef.current = scene;
@@ -135,7 +135,8 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
         sceneRef.current?.setWeather(toRoomWeather(weatherKind), true);
     }, [weatherKind]);
 
-    // pause rendering while a fullscreen overlay covers the stage
+    // The parent keeps the room running behind the journal, including rain.
+    // Other covering screens can still suspend rendering.
     // (appRef is only set post-init, so start/stop are safe; a not-yet-ready
     // scene simply skips — init leaves the ticker running by default)
     useEffect(() => {

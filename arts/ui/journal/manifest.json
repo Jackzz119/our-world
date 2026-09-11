@@ -1,0 +1,16 @@
+{
+  "date": "2026-09-07",
+  "reference": "ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png",
+  "prompt": "ai/design_system/cinnaglass/journal-room-object/book-prompts.md",
+  "method": "Built-in ImageGen, then deterministic alpha packaging and WebP export. Runtime CSS matches the approved paper value. No room/background replacement.",
+  "candidates": [
+    { "file": "book-checker-source.png", "status": "adopted interior; generated checker backdrop removed", "size": [1536, 1024] },
+    { "file": "book-alpha.png", "status": "packaged alpha master" },
+    { "file": "book-alpha-rejected.png", "status": "rejected: background-extraction retry produced a brown background" },
+    { "file": "quill-source.png", "status": "adopted native transparent feather", "size": [847, 1857] }
+  ],
+  "runtimeManifest": "public/ui/journal/manifest.json",
+  "packager": "scripts/pack-journal-art.mjs",
+  "packReport": "pack-results.json",
+  "font": { "source": "LXGWWenKaiLite-Regular.ttf", "runtime": "public/fonts/journal/LXGWWenKaiLite-Regular.woff2", "license": "public/fonts/journal/OFL.txt" }
+}

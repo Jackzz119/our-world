@@ -1,0 +1,196 @@
+{
+  "result": [
+    {
+      "mood": "night",
+      "bounds": {
+        "x": 38,
+        "y": 258,
+        "width": 74,
+        "height": 384
+      },
+      "metrics": {
+        "filter": "drop-shadow(rgb(255, 242, 202) 0px 0px 3px) drop-shadow(rgba(255, 209, 137, 0.8) 0px 0px 8px)",
+        "focus": true,
+        "paper": "#d8cdba",
+        "blur": "blur(2.4px) saturate(0.7)",
+        "tint": "76 69 58",
+        "grain": "url(\"http://localhost:5175/ui/nav/frost.webp\")"
+      },
+      "changes": {
+        "hover": 3.388468494193794,
+        "pressed": 1.17464623389809
+      },
+      "contrast": [
+        {
+          "corePixels": 123,
+          "p10": 4.498558448288339
+        },
+        {
+          "corePixels": 148,
+          "p10": 5.078195425145795
+        },
+        {
+          "corePixels": 162,
+          "p10": 6.068852430404699
+        },
+        {
+          "corePixels": 159,
+          "p10": 5.93579554460456
+        },
+        {
+          "corePixels": 187,
+          "p10": 5.8403579578028175
+        }
+      ]
+    },
+    {
+      "mood": "golden",
+      "bounds": {
+        "x": 38,
+        "y": 258,
+        "width": 74,
+        "height": 384
+      },
+      "metrics": {
+        "filter": "drop-shadow(rgb(255, 242, 202) 0px 0px 3px) drop-shadow(rgba(255, 209, 137, 0.8) 0px 0px 8px)",
+        "focus": true,
+        "paper": "#d8cdba",
+        "blur": "blur(2.4px) saturate(0.7)",
+        "tint": "43 36 28",
+        "grain": "url(\"http://localhost:5175/ui/nav/frost.webp\")"
+      },
+      "changes": {
+        "hover": 4.255917253632845,
+        "pressed": 1.586418871755822
+      },
+      "contrast": [
+        {
+          "corePixels": 166,
+          "p10": 3.1782099654212903
+        },
+        {
+          "corePixels": 163,
+          "p10": 3.8300000748983787
+        },
+        {
+          "corePixels": 173,
+          "p10": 5.028204593850252
+        },
+        {
+          "corePixels": 159,
+          "p10": 5.8480306895594705
+        },
+        {
+          "corePixels": 198,
+          "p10": 5.504582975025934
+        }
+      ]
+    },
+    {
+      "mood": "twilight",
+      "bounds": {
+        "x": 38,
+        "y": 258,
+        "width": 74,
+        "height": 384
+      },
+      "metrics": {
+        "filter": "drop-shadow(rgb(255, 242, 202) 0px 0px 3px) drop-shadow(rgba(255, 209, 137, 0.8) 0px 0px 8px)",
+        "focus": true,
+        "paper": "#d8cdba",
+        "blur": "blur(2.4px) saturate(0.7)",
+        "tint": "63 64 72",
+        "grain": "url(\"http://localhost:5175/ui/nav/frost.webp\")"
+      },
+      "changes": {
+        "hover": 3.944262009010724,
+        "pressed": 1.3601751380163716
+      },
+      "contrast": [
+        {
+          "corePixels": 123,
+          "p10": 3.68370630854369
+        },
+        {
+          "corePixels": 148,
+          "p10": 4.006228760672492
+        },
+        {
+          "corePixels": 164,
+          "p10": 5.206247744053945
+        },
+        {
+          "corePixels": 159,
+          "p10": 5.683222956879265
+        },
+        {
+          "corePixels": 189,
+          "p10": 5.4791537277844835
+        }
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "width": 960,
+      "height": 700,
+      "box": {
+        "x": 38,
+        "y": 158,
+        "width": 74,
+        "height": 384
+      },
+      "pop": {
+        "x": 128,
+        "y": 158,
+        "width": 422,
+        "height": 173
+      }
+    },
+    {
+      "width": 640,
+      "height": 400,
+      "box": {
+        "x": 174,
+        "y": 328,
+        "width": 292,
+        "height": 62
+      },
+      "pop": {
+        "x": 120,
+        "y": 176,
+        "width": 400,
+        "height": 140
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "box": {
+        "x": 49,
+        "y": 772,
+        "width": 292,
+        "height": 62
+      },
+      "pop": {
+        "x": 16,
+        "y": 620,
+        "width": 358,
+        "height": 140
+      }
+    }
+  ],
+  "touch": {
+    "coarse": true,
+    "noHover": true,
+    "active": false,
+    "pointerPressed": true,
+    "glow": "1",
+    "transform": "matrix(0.94, 0, 0, 0.94, 0, 0)"
+  },
+  "docs": {
+    "imageLoaded": true,
+    "liveStylesheet": true
+  },
+  "errors": []
+}

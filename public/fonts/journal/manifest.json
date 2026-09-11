@@ -1,0 +1,15 @@
+{
+  "family": "LXGW WenKai Lite",
+  "cssFamily": "Journal WenKai",
+  "downloaded": "2026-09-07",
+  "upstream": "https://github.com/lxgw/LxgwWenKai-Lite",
+  "sourceUrl": "https://raw.githubusercontent.com/lxgw/LxgwWenKai-Lite/main/fonts/TTF/LXGWWenKaiLite-Regular.ttf",
+  "license": "OFL.txt",
+  "source": "arts/ui/journal/LXGWWenKaiLite-Regular.ttf",
+  "sourceSha256": "140C99BA4E28E817CEC49BF82A0C5FCDC4FE633FB9DFDA16D0EE8D59A8545F15",
+  "file": "LXGWWenKaiLite-Regular.woff2",
+  "sha256": "8BCACE4FDF611525F2841D7602A7B2C65F30626FB6CDA116CF12E90C013063B1",
+  "bytes": 5269840,
+  "conversion": "fontTools WOFF2 container compression; original glyph set preserved; no text or glyph subsetting",
+  "caveat": "Full font is 5.27 MB before HTTP transport; unicode-range splitting and low-bandwidth performance are not yet verified."
+}

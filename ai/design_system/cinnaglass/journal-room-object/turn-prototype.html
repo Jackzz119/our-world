@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>旧纸日记 · 竖直翻页运动样板</title>
+        <link rel="stylesheet" href="/src/themes/cinnaglass/diary.css" />
+        <link rel="stylesheet" href="/src/themes/cinnaglass/journal-room.css" />
+        <link rel="stylesheet" href="/src/themes/cinnaglass/journal-turn.css" />
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: #24221d url('/rooms/study/night.png') center/cover fixed;
+                height: 100vh;
+                overflow: hidden;
+            }
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background: #10131b65;
+            }
+            .doc-turn-label {
+                position: absolute;
+                bottom: 20px;
+                width: 100%;
+                text-align: center;
+                font: 16px/1.6 system-ui;
+                color: #ebd6b1;
+            }
+            .doc-turn-controls {
+                position: absolute;
+                left: 20px;
+                top: 20px;
+                z-index: 50;
+                display: flex;
+                gap: 8px;
+            }
+            .doc-turn-controls button {
+                background: #373329;
+                color: #e7cfaa;
+                border: 1px solid #ab936755;
+                border-radius: 10px;
+                padding: 8px 14px;
+                cursor: pointer;
+            }
+            .diary-surface {
+                position: absolute;
+            }
+            .journal-turn-host {
+                position: absolute;
+                left: 7.5%;
+                top: 4.4%;
+                z-index: 25;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="doc-turn-controls">
+            <button id="play">翻一页</button><button id="riffle">连续三页</button><button id="reverse">往回翻</button>
+        </div>
+        <section class="object-surface diary-surface show">
+            <div class="journal-book journal-room-book">
+                <img class="journal-room-art" src="/ui/journal/book-open.webp" alt="" />
+                <div class="journal-turn-host"></div>
+                <img class="journal-quill journal-room-quill" src="/ui/journal/quill.webp" alt="" />
+            </div>
+        </section>
+        <div class="doc-turn-label">运动样板：真实文字、照片与纸一起立起；下面的新页同步露出。</div>
+        <script type="module" src="./turn-prototype.ts"></script>
+    </body>
+</html>

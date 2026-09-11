@@ -1,0 +1,70 @@
+/* Shared B-material family: opaque warm-gray paper, sage cover, neutral
+   translucent tools. The same values are linked by the design system. */
+:root {
+    --craft-paper: #d8cdba;
+    --craft-edge: #b8aa94;
+    --craft-ink: #443e35;
+    --craft-muted: #5d5448;
+    --craft-cover: #727d6b;
+    --craft-brass: #a58a5a;
+    --craft-blue: #36515e;
+    --craft-pink: #724650;
+    --craft-line: rgba(95, 84, 65, 0.2);
+    --craft-shell: rgba(65, 65, 57, 0.58);
+    --craft-shell-text: #eee3d2;
+    --craft-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23625848' opacity='.035' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+
+.stage :is(.modal.glass, .collection-surface) {
+    --glass-text: var(--craft-ink);
+    --glass-sub: var(--craft-muted);
+    --glass-line: var(--craft-line);
+    --glass-bg-2: var(--craft-paper);
+    --glass-hi: rgba(244, 235, 215, 0.35);
+    --glass-hover: rgba(114, 125, 107, 0.1);
+    --glass-active: rgba(114, 125, 107, 0.16);
+    background: var(--craft-grain), var(--craft-paper);
+    color: var(--craft-ink);
+    border: 1px solid #a8ab90;
+    border-radius: 16px;
+    backdrop-filter: none;
+    box-shadow:
+        0 4px 0 -1px var(--craft-cover),
+        0 20px 48px -18px #1b201a88;
+}
+.stage :is(.modal, .collection-surface) :is(.modal-hd, .object-hd) {
+    border-bottom: 1px solid var(--craft-line);
+    color: var(--craft-ink);
+}
+.stage :is(.modal, .collection-surface) :is(.modal-hd h2, .object-hd h2) {
+    font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+    font-weight: 500;
+}
+.stage :is(.modal, .collection-surface) .btn-primary {
+    background: var(--craft-cover);
+    color: #fff9e9;
+    box-shadow: none;
+}
+.stage :is(.modal, .collection-surface) :is(.paper, .field, .wish, .set-group) {
+    border-color: var(--craft-line);
+    box-shadow: none;
+    background: rgba(233, 223, 201, 0.22);
+}
+.stage .collection-surface .pola {
+    background: var(--craft-paper);
+}
+.stage .collection-surface .pola .tape {
+    background: #b1b39488;
+}
+.stage :is(.modal, .collection-surface) .modal-x {
+    background: transparent;
+    color: var(--craft-muted);
+    border: 0;
+}
+.stage :is(.modal, .collection-surface) :is(input, textarea, select) {
+    color: var(--craft-ink);
+}
+.stage :is(.modal, .collection-surface) :is(button, input, textarea):focus-visible {
+    outline: 2px solid var(--craft-blue);
+    outline-offset: 2px;
+}

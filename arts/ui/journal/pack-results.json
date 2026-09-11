@@ -1,0 +1,45 @@
+{
+  "source": "arts/ui/journal/book-checker-source.png",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "backgroundPixelsRemoved": 258626,
+  "retainedRgb": "unchanged before WebP encoding",
+  "book": {
+    "format": "webp",
+    "width": 1536,
+    "height": 1024,
+    "channels": 4,
+    "premultiplied": false,
+    "hasAlpha": true,
+    "size": 397418
+  },
+  "single": {
+    "format": "webp",
+    "width": 789,
+    "height": 1024,
+    "channels": 4,
+    "premultiplied": false,
+    "hasAlpha": true,
+    "size": 209774
+  },
+  "corner": {
+    "format": "webp",
+    "width": 256,
+    "height": 256,
+    "channels": 3,
+    "premultiplied": false,
+    "hasAlpha": false,
+    "size": 8032
+  },
+  "quill": {
+    "format": "webp",
+    "width": 310,
+    "height": 680,
+    "channels": 4,
+    "premultiplied": true,
+    "hasAlpha": true,
+    "size": 50688
+  }
+}

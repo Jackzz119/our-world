@@ -1,0 +1,101 @@
+{
+  "method": "Rec.709 luma from decoded screenshot patches; representative material only, not a full-image similarity score",
+  "samples": [
+    {
+      "name": "left-paper",
+      "reference": {
+        "rect": [
+          500,
+          550,
+          120,
+          40
+        ],
+        "rgb": [
+          215.92,
+          183.41,
+          142.69
+        ],
+        "luma": 187.38
+      },
+      "actual": {
+        "rect": [
+          440,
+          575,
+          120,
+          40
+        ],
+        "rgb": [
+          210.14,
+          183.77,
+          145.07
+        ],
+        "luma": 186.58
+      },
+      "lumaDifference": -0.8
+    },
+    {
+      "name": "right-paper",
+      "reference": {
+        "rect": [
+          920,
+          525,
+          120,
+          35
+        ],
+        "rgb": [
+          218.24,
+          186.41,
+          146.46
+        ],
+        "luma": 190.29
+      },
+      "actual": {
+        "rect": [
+          880,
+          550,
+          120,
+          35
+        ],
+        "rgb": [
+          209.59,
+          184.98,
+          148.99
+        ],
+        "luma": 187.61
+      },
+      "lumaDifference": -2.68
+    },
+    {
+      "name": "cover",
+      "reference": {
+        "rect": [
+          1220,
+          310,
+          18,
+          80
+        ],
+        "rgb": [
+          90.13,
+          57.72,
+          29.64
+        ],
+        "luma": 62.58
+      },
+      "actual": {
+        "rect": [
+          1165,
+          340,
+          18,
+          80
+        ],
+        "rgb": [
+          96.01,
+          53.47,
+          25.93
+        ],
+        "luma": 60.53
+      },
+      "lumaDifference": -2.05
+    }
+  ]
+}

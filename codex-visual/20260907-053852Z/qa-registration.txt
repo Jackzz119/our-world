@@ -1,0 +1,16 @@
+golden unchanged lid ROI [400,20,850,320] RGB mean absolute difference: 7.28 /255. This is photometric difference, NOT geometric registration error.
+twilight unchanged lid ROI [400,20,850,320] RGB mean absolute difference: 7.17 /255. This is photometric difference, NOT geometric registration error.
+night unchanged lid ROI [400,20,850,320] RGB mean absolute difference: 5.35 /255. This is photometric difference, NOT geometric registration error.
+platter angular sector 0 mean RGB intensity: 26.75
+platter angular sector 1 mean RGB intensity: 27.11
+platter angular sector 2 mean RGB intensity: 28.01
+platter angular sector 3 mean RGB intensity: 27.64
+platter angular sector 4 mean RGB intensity: 27.89
+platter angular sector 5 mean RGB intensity: 27.61
+platter angular sector 6 mean RGB intensity: 26.64
+platter angular sector 7 mean RGB intensity: 26.76
+platter angular sector 8 mean RGB intensity: 26.98
+platter angular sector 9 mean RGB intensity: 26.89
+platter angular sector 10 mean RGB intensity: 27.06
+platter angular sector 11 mean RGB intensity: 27.11
+platter sector range: 1.36 /255; strict angular uniformity requires zero, watercolor texture can produce variation.
