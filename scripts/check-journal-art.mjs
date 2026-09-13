@@ -9,9 +9,9 @@ const dependency = (name) =>
     require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const sharp = dependency('sharp');
-const dir = path.resolve('ai/design_system/cinnaglass/journal-room-object/book-verification');
+const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/book-verification');
 await mkdir(dir, { recursive: true });
-const reference = path.resolve('ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png');
+const reference = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/room-journal-concept.png');
 await sharp(reference)
     .extract({ left: 828, top: 224, width: 328, height: 209 })
     .png()
@@ -226,7 +226,7 @@ try {
     }
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', (error) => errors.push(error.message));
-    await docsPage.goto(`${base}/ai/design_system/cinnaglass/ui-system.html#journal-static-art`);
+    await docsPage.goto(`${base}/ai/design_system/uiux/cinnaglass/ui-system.html#journal-static-art`);
     const sample = docsPage.locator('img[src="journal-room-object/book-verification/design-content-night.png"]');
     await sample.scrollIntoViewIfNeeded();
     await sample.evaluate((img) => img.decode());

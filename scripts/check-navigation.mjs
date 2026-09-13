@@ -9,7 +9,7 @@ const dependency = (name) =>
     require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const sharp = dependency('sharp');
-const dir = path.resolve('ai/design_system/cinnaglass/journal-room-object/navigation-verification');
+const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/navigation-verification');
 await mkdir(dir, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
@@ -222,7 +222,7 @@ try {
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', (e) => errors.push(e.message));
     await docsPage.goto(
-        `${process.env.JOURNAL_URL || 'http://localhost:5175'}/ai/design_system/cinnaglass/ui-system.html#navigation-glass`
+        `${process.env.JOURNAL_URL || 'http://localhost:5175'}/ai/design_system/uiux/cinnaglass/ui-system.html#navigation-glass`
     );
     await docsPage.locator('#navigation-glass').scrollIntoViewIfNeeded();
     // The comparison is lazy-loaded; wait for its pixels, not just the heading.
@@ -240,7 +240,7 @@ try {
     await docsPage.screenshot({ path: path.join(dir, 'design-system.png') });
     await docsPage.close();
     // QA crops only; this does not modify the reference or become a runtime asset.
-    await sharp(path.resolve('ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png'))
+    await sharp(path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/room-journal-concept.png'))
         .extract({ left: 26, top: 102, width: 102, height: 412 })
         .png()
         .toFile(path.join(dir, 'reference-nav.png'));

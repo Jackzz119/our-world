@@ -61,7 +61,7 @@ const quill = await sharp('arts/ui/journal/quill-source.png')
     .resize({ height: 680 })
     .webp({ quality: 94, alphaQuality: 100 })
     .toFile(`${dir}/quill.webp`);
-const reference = 'ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png';
+const reference = 'ai/design_system/uiux/cinnaglass/journal-room-object/room-journal-concept.png';
 for (const [tone, left, top] of [
     ['blue', 401, 204],
     ['pink', 393, 372]

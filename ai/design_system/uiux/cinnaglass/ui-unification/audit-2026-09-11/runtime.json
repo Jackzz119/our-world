@@ -1,0 +1,745 @@
+{
+  "date": "2026-09-11",
+  "url": "http://localhost:5173/?enter=1",
+  "method": "isolated headless Chrome, rest mutations blocked, chat content masked, no diary opened",
+  "hiddenModalButtonCount": 37,
+  "records": [
+    {
+      "state": "night",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(153, 183, 203, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(210, 195, 160, 0.09), rgba(0, 0, 0, 0) 32%, rgba(210, 195, 160, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(76, 69, 58, 0.17) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 213, 168)",
+          "border": "1px solid rgba(213, 190, 147, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 190, 147, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 190, 147, 0.02) 0deg, rgba(153, 183, 203, 0.5) 63deg, rgba(213, 190, 147, 0.72) 135deg, rgba(213, 190, 147, 0.1) 178deg, rgba(213, 190, 147, 0.48) 229deg, rgba(213, 190, 147, 0.04) 285deg, rgba(213, 190, 147, 0.38) 328deg, rgba(213, 190, 147, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": {
+          "rect": {
+            "x": 672,
+            "y": 24,
+            "width": 96,
+            "height": 36
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "999px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-panel": null,
+        ".moment-card": {
+          "rect": {
+            "x": 1180,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 976,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": null,
+        ".chsc": null
+      }
+    },
+    {
+      "state": "golden",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(201, 211, 202, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(238, 205, 151, 0.09), rgba(0, 0, 0, 0) 32%, rgba(238, 205, 151, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(43, 36, 28, 0.52) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(255, 240, 208)",
+          "border": "1px solid rgba(243, 211, 158, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(243, 211, 158, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(243, 211, 158, 0.02) 0deg, rgba(201, 211, 202, 0.5) 63deg, rgba(243, 211, 158, 0.72) 135deg, rgba(243, 211, 158, 0.1) 178deg, rgba(243, 211, 158, 0.48) 229deg, rgba(243, 211, 158, 0.04) 285deg, rgba(243, 211, 158, 0.38) 328deg, rgba(243, 211, 158, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": {
+          "rect": {
+            "x": 662,
+            "y": 24,
+            "width": 96,
+            "height": 36
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "999px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-panel": null,
+        ".moment-card": {
+          "rect": {
+            "x": 1170,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 966,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": null,
+        ".chsc": null
+      }
+    },
+    {
+      "state": "twilight",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(161, 185, 209, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(192, 187, 185, 0.09), rgba(0, 0, 0, 0) 32%, rgba(192, 187, 185, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(63, 64, 72, 0.19) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 224, 198)",
+          "border": "1px solid rgba(213, 204, 192, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 204, 192, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 204, 192, 0.02) 0deg, rgba(161, 185, 209, 0.5) 63deg, rgba(213, 204, 192, 0.72) 135deg, rgba(213, 204, 192, 0.1) 178deg, rgba(213, 204, 192, 0.48) 229deg, rgba(213, 204, 192, 0.04) 285deg, rgba(213, 204, 192, 0.38) 328deg, rgba(213, 204, 192, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": {
+          "rect": {
+            "x": 662,
+            "y": 24,
+            "width": 96,
+            "height": 36
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "999px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-panel": null,
+        ".moment-card": {
+          "rect": {
+            "x": 1170,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 966,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": null,
+        ".chsc": null
+      }
+    },
+    {
+      "state": "twilight-rain",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(161, 185, 209, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(192, 187, 185, 0.09), rgba(0, 0, 0, 0) 32%, rgba(192, 187, 185, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(63, 64, 72, 0.19) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 224, 198)",
+          "border": "1px solid rgba(213, 204, 192, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 204, 192, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 204, 192, 0.02) 0deg, rgba(161, 185, 209, 0.5) 63deg, rgba(213, 204, 192, 0.72) 135deg, rgba(213, 204, 192, 0.1) 178deg, rgba(213, 204, 192, 0.48) 229deg, rgba(213, 204, 192, 0.04) 285deg, rgba(213, 204, 192, 0.38) 328deg, rgba(213, 204, 192, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": null,
+        ".amb-panel": {
+          "rect": {
+            "x": 607,
+            "y": 24,
+            "width": 206,
+            "height": 112
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".moment-card": {
+          "rect": {
+            "x": 1170,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 966,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": null,
+        ".chsc": null
+      }
+    },
+    {
+      "state": "widgets-twilight",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(161, 185, 209, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(192, 187, 185, 0.09), rgba(0, 0, 0, 0) 32%, rgba(192, 187, 185, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(63, 64, 72, 0.19) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 224, 198)",
+          "border": "1px solid rgba(213, 204, 192, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 204, 192, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 204, 192, 0.02) 0deg, rgba(161, 185, 209, 0.5) 63deg, rgba(213, 204, 192, 0.72) 135deg, rgba(213, 204, 192, 0.1) 178deg, rgba(213, 204, 192, 0.48) 229deg, rgba(213, 204, 192, 0.04) 285deg, rgba(213, 204, 192, 0.38) 328deg, rgba(213, 204, 192, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": null,
+        ".amb-panel": {
+          "rect": {
+            "x": 607,
+            "y": 24,
+            "width": 206,
+            "height": 112
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".moment-card": {
+          "rect": {
+            "x": 1170,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 966,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": {
+          "rect": {
+            "x": 91,
+            "y": 463,
+            "width": 277,
+            "height": 393
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "38",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".modal.show": null,
+        ".chsc": null
+      }
+    },
+    {
+      "state": "settings-twilight",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 38,
+            "y": 258,
+            "width": 74,
+            "height": 384
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(161, 185, 209, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(192, 187, 185, 0.09), rgba(0, 0, 0, 0) 32%, rgba(192, 187, 185, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(63, 64, 72, 0.19) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 224, 198)",
+          "border": "1px solid rgba(213, 204, 192, 0.16)",
+          "borderRadius": "25px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 204, 192, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 204, 192, 0.02) 0deg, rgba(161, 185, 209, 0.5) 63deg, rgba(213, 204, 192, 0.72) 135deg, rgba(213, 204, 192, 0.1) 178deg, rgba(213, 204, 192, 0.48) 229deg, rgba(213, 204, 192, 0.04) 285deg, rgba(213, 204, 192, 0.38) 328deg, rgba(213, 204, 192, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": {
+          "rect": {
+            "x": 662,
+            "y": 24,
+            "width": 96,
+            "height": 36
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "999px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-panel": null,
+        ".moment-card": {
+          "rect": {
+            "x": 1170,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": 966,
+            "y": 773,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": {
+          "rect": {
+            "x": 450,
+            "y": 120,
+            "width": 520,
+            "height": 660
+          },
+          "background": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23625848' opacity='.035' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E\") repeat scroll 0% 0% / auto padding-box border-box, rgb(216, 205, 186) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "none",
+          "color": "rgb(68, 62, 53)",
+          "border": "1px solid rgb(168, 171, 144)",
+          "borderRadius": "16px",
+          "shadow": "rgb(114, 125, 107) 0px 4px 0px -1px, rgba(27, 32, 26, 0.533) 0px 20px 48px -18px",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "21",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chsc": null
+      }
+    },
+    {
+      "state": "mobile-390",
+      "metrics": {
+        ".rail": {
+          "rect": {
+            "x": 49,
+            "y": 772,
+            "width": 292,
+            "height": 62
+          },
+          "background": "radial-gradient(at 8% 3%, rgba(161, 185, 209, 0.1), rgba(0, 0, 0, 0) 56%) repeat scroll 0% 0% / auto padding-box border-box, linear-gradient(112deg, rgba(192, 187, 185, 0.09), rgba(0, 0, 0, 0) 32%, rgba(192, 187, 185, 0.055) 78%, rgba(0, 0, 0, 0)) repeat scroll 0% 0% / auto padding-box border-box, rgba(63, 64, 72, 0.19) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(2.4px) saturate(0.7)",
+          "color": "rgb(238, 224, 198)",
+          "border": "1px solid rgba(213, 204, 192, 0.16)",
+          "borderRadius": "22px",
+          "shadow": "rgba(0, 0, 0, 0.4) 0px 8px 24px -9px, rgba(213, 204, 192, 0.16) 0px 1px 1px 0px inset, rgba(23, 22, 19, 0.3) 0px -1px 2px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "url(\"http://localhost:5173/ui/nav/frost.webp\")",
+          "texturePosition": "42% 50%",
+          "textureSize": "256px 512px",
+          "rim": "conic-gradient(from 190deg, rgba(213, 204, 192, 0.02) 0deg, rgba(161, 185, 209, 0.5) 63deg, rgba(213, 204, 192, 0.72) 135deg, rgba(213, 204, 192, 0.1) 178deg, rgba(213, 204, 192, 0.48) 229deg, rgba(213, 204, 192, 0.04) 285deg, rgba(213, 204, 192, 0.38) 328deg, rgba(213, 204, 192, 0.02))",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-pill": {
+          "rect": {
+            "x": 137,
+            "y": 24,
+            "width": 96,
+            "height": 36
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "999px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".amb-panel": null,
+        ".moment-card": {
+          "rect": {
+            "x": 120,
+            "y": 41,
+            "width": 233,
+            "height": 105
+          },
+          "background": "rgba(65, 65, 57, 0.58) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(238, 227, 210)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "19px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "35",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".music-bar": {
+          "rect": {
+            "x": -84,
+            "y": 717,
+            "width": 437,
+            "height": 88
+          },
+          "background": "rgba(57, 59, 51, 0.88) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backdrop": "blur(18px) saturate(0.85)",
+          "color": "rgb(33, 44, 72)",
+          "border": "1px solid rgba(220, 213, 187, 0.28)",
+          "borderRadius": "22px",
+          "shadow": "rgba(3, 3, 12, 0.32) 0px 10px 24px 0px, rgba(255, 255, 255, 0.23) 0px 1px 0px 0px inset",
+          "font": "\"Noto Sans SC\", \"PingFang SC\", system-ui, sans-serif",
+          "zIndex": "auto",
+          "texture": "none",
+          "texturePosition": "0% 0%",
+          "textureSize": "auto",
+          "rim": "none",
+          "role": null,
+          "ariaModal": null
+        },
+        ".chat-card": null,
+        ".modal.show": null,
+        ".chsc": null
+      }
+    }
+  ],
+  "errors": [],
+  "blocked": [],
+  "redaction": "Temporary browser CSS hides chat text and images and input values; geometry and materials are unchanged. No screenshot mask boxes.",
+  "settingsInteraction": {
+    "role": null,
+    "ariaModal": null,
+    "foreground": true
+  },
+  "hiddenModalFocusProbe": {
+    "opacity": "0",
+    "visibility": "visible",
+    "display": "flex",
+    "inert": false,
+    "programmaticFocusSucceeded": true,
+    "tabIndex": 0
+  }
+}

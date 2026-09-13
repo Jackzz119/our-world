@@ -116,7 +116,7 @@ const ScreenStyles = () => (
   .btn-pub:hover:not(:disabled){box-shadow:0 12px 26px -8px rgba(47,154,211,.75);}
 
   /* ── timeline: a co-written diary flow — one centered column, oldest →
-     newest (design ref: ai/design_system/cinnaglass/timeline-redesign.html). The spine
+     newest (design ref: ai/design_system/uiux/research/cinnaglass-history/timeline-redesign.html). The spine
      is a barely-there dotted trail, avatars hang on the cards like stickers,
      day chips are washi-style date stickers. Identity rides COLOR (--au-*),
      position only carries top-to-bottom rhythm. The tab hosts its own

@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const dependency = (name) =>
     require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
-const output = path.resolve('ai/design_system/cinnaglass/journal-book-directions/verification');
+const output = path.resolve('ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/verification');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
