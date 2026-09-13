@@ -8,7 +8,7 @@
 - [x] JT-2：接入真实页码/目录、连续触发、反向、内容加载、缩略图续签、关闭与尺寸变化。
 - [x] JT-3：实景动画与静态回归、降低动态效果、性能/停止渲染检查，更新设计系统。
 
-采用 24 条相接纸片的三维变换：真实正文、日期、页码、图片和旧纸纹理组成同一正反纸面；单张 980ms，连续 470ms/张、行程 38% 接续，最多 3 张在空中。已加载中间页不模糊；未加载历史继续通过目录获取，不伪造页数。读日记时场景与雨保持运行。实现、GIF 与边界见 [竖直翻页实装](../design_system/cinnaglass/journal-room-object/turn-implementation.md)。
+采用 24 条相接纸片的三维变换：真实正文、日期、页码、图片和旧纸纹理组成同一正反纸面；单张 980ms，连续 470ms/张、行程 38% 接续，最多 3 张在空中。已加载中间页不模糊；未加载历史继续通过目录获取，不伪造页数。读日记时场景与雨保持运行。实现、GIF 与边界见 [竖直翻页实装](../design_system/uiux/cinnaglass/journal-room-object/turn-implementation.md)。
 
 实景与静态回归已通过；修复持续阅读背景在缩放时旧唱片贴图过早释放引发的绘制异常。Vite 前端打包通过，完整类型构建仍受既有聊天 `Msg` 导入错误阻断。用户体验验收、Safari/低端设备与低带宽图片仍未覆盖，不报告“完美”或全设备通过。
 
@@ -22,13 +22,13 @@
 - [x] JA-2：居中大书本、双页留白、范围框/头像/照片纸角与书写墨色。
 - [x] JA-3：实景与同内容对照，长文/多图/窄屏、导航和草稿回归；登记设计系统。
 
-静态美术已接入，用户实景审美验收待确认；不声称逐像素完美。完整证据、当前几何、资产/字体与未覆盖项见 [棕皮旧纸静态实装](../design_system/cinnaglass/journal-room-object/book-implementation.md)。旧动画不再实例化；该轮未实施的翻页与场景不停播已由顶部当前迭代接续。
+静态美术已接入，用户实景审美验收待确认；不声称逐像素完美。完整证据、当前几何、资产/字体与未覆盖项见 [棕皮旧纸静态实装](../design_system/uiux/cinnaglass/journal-room-object/book-implementation.md)。旧动画不再实例化；该轮未实施的翻页与场景不停播已由顶部当前迭代接续。
 
-视觉参考：`ai/design_system/cinnaglass/journal-room-object/room-journal-concept.png`。实施证据仍归该设计目录，不另建样式真源。旧 B 的视觉已被否决，下文仅为历史实现记录。
+视觉参考：`ai/design_system/uiux/cinnaglass/journal-room-object/room-journal-concept.png`。实施证据仍归该设计目录，不另建样式真源。旧 B 的视觉已被否决，下文仅为历史实现记录。
 
 ## 历史实装 · B「苔绿手札」（2026-09-06，效果已否决）
 
-用户已批准 `ai/design_system/cinnaglass/journal-book-directions/codex-report.md` 推荐 B，并授权完整实施。
+用户已批准 `ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/codex-report.md` 推荐 B，并授权完整实施。
 本节覆盖下方夜灯玻璃视觉和无限滚动表现；后端链路与历史实现记录保留。
 
 - [x] JB-1：共用暖灰纸、灰苔封皮、轻壳材质与短导航；保留照片/日历/组件入口。
@@ -36,7 +36,7 @@
 - [x] JB-3：软纸翻动、连续多张、页角拖动、减少动态效果、静止停止渲染。
 - [x] JB-4：草稿/详情/屏幕尺寸回归、截图与文档同步；未覆盖事项单列在验证报告，不视为已测。
 
-实际实现及验收：[B 苔绿手札实现报告](../design_system/cinnaglass/journal-book-directions/implementation.md)。当前几何为桌面最大 760×430、中屏最大 560×360，小屏单页最大 360×560；实际高度随窗口收缩。阅读顺序仍旧→新，不分作者左右列，原无限滚动被明确替换为分页与日期目录。
+实际实现及验收：[B 苔绿手札实现报告](../design_system/uiux/research/cinnaglass-history/journal-book-directions/implementation.md)。当前几何为桌面最大 760×430、中屏最大 560×360，小屏单页最大 360×560；实际高度随窗口收缩。阅读顺序仍旧→新，不分作者左右列，原无限滚动被明确替换为分页与日期目录。
 
 影响代码：`screens.tsx`、`journal-book.tsx`、`journal-layout.ts`、`diary.css`、`materials.css`、`cinnaglass.css`、`shell/rail.tsx`（均在 `src/themes/cinnaglass/`），另含翻书依赖及本地验证脚本。
 本轮不改 Supabase、posts/storage/useFeed 数据接口，不上传测试帖子，不改场景原图或角色资产。
@@ -250,7 +250,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 
 ### 夜灯玻璃改版（2026-09-06 用户采纳并授权实装）
 
-- 采用稿：`ai/design_system/cinnaglass/timeline-night-glass/night-memory-concept.png`；工程说明与测试证据：同目录 `implementation.md`。
+- 采用稿：`ai/design_system/uiux/research/cinnaglass-history/timeline-night-glass/night-memory-concept.png`；工程说明与测试证据：同目录 `implementation.md`。
 - `screens.tsx`：头像与作者信息移到正文框外；现有头像优先，无头像时用项目已有蓝/粉狗头像；卡片可键盘打开详情；缩略图改普通只读图片（不再带上传组件的替换/删除控件）；图在文字下且保留边距；草稿与详情 Esc 一次只关一层；不活动 surface 使用 inert 排除键盘交互。
 - `diary.css`：日记域专用 token 与组件规则，也是 design system 实时引用的样式真源。烟茶外壳 + 单层 18px 磨砂，正文中性半实底；外壳 1px 局部反光，没有全圈外发光/持续动画。宽 520 / 440 / 340px，小屏仍受容器宽度限制；展开 composer 可内部滚动，动作可达。
 - **覆盖旧裁决**：日记不再恒白，取消作者色左边线、折角、封皮露边和短书签。标题/物件入口/上旧下新/分页/草稿/多图上限/签名续签不变；照片墙/心愿单不连带重做。
@@ -364,7 +364,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
     - **节点强化**：保留脊线头像节点，新增 16px 连接枝（`.tl-item::after`，颜色随作者色）把节点和卡片挂上
     - **图片挂机消失修复**：private bucket 签名 URL TTL 1 小时，页面挂机超时后图片 403"消失"。`useSignedThumbs` 每 40 分钟自动重签 + 标签页重新可见时立即重签（后台 tab 定时器会被浏览器节流）；照片墙补「正在加载照片…」态（签名在飞时不再误显"还没有照片"空态）
 
-- [x] **⑯ ST-P: 时间线单列日记流（去 zigzag / 脊线节点）**（2026-07-05 用户拍板，视觉基准 `ai/design_system/cinnaglass/timeline-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
+- [x] **⑯ ST-P: 时间线单列日记流（去 zigzag / 脊线节点）**（2026-07-05 用户拍板，视觉基准 `ai/design_system/uiux/research/cinnaglass-history/timeline-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
     - 影响文件：`src/themes/cinnaglass/screens.tsx`
     - 说明：调研结论——中央脊线 + 字母节点 + 连接枝是 Git graph/企业「发展历程」的技术叙事，与大耳狗玻璃世界观冲突；zigzag 是装饰性模式（业界在窄屏一律折回单列），且情侣/日记类产品（Between/Day One/恋爱记/SumOne）全部单列日记流。改造：单列居中（620px，宽屏 680px）；脊线退成极淡点线小路（`border-left:2px dotted`）；节点/连接枝取消，头像 36px 作贴纸挂卡片左上；day chip 升级手帐日期贴纸（⭐今天/☁️昨天/🌸更早，奶油黄/天蓝渐变按天交替微旋转）；卡片重构为「作者+时间行 → 正文」，图片帖以图为主视觉（16:10 顶部通栏，`has-media` 变体）；作者身份保持颜色三件套（延续 ST-O「颜色管身份」，「位置管节奏」简化为自上而下）；卡片不旋转（用户裁决，旋转只留给贴纸和照片墙）；宽屏 zigzag/side-l/side-r 全部删除
 - [x] **⑰ ST-Q: 照片墙拼贴手帐墙（polaroid + 自然纵横比）**（2026-07-05，tsc/eslint/build 绿 + 浏览器实测）
@@ -374,10 +374,10 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
     - 影响文件：`src/lib/storage.ts` + 一次性 dev 模块（已删）
     - 说明：`THUMB_MAX` 480 → 1024（480 在高 DPI + ~280px 列宽下竖图是放大显示，必糊；lightbox 渐进期更是马赛克）；存量帖的 480 缩略图经临时 `dev-regen-thumbs.ts`（挂 window、走登录态用户 RLS、`upsert:true` 覆盖）在浏览器一次性从原图重生成 1024 webp，跑完即删（模块 + App.tsx 临时 import）
 
-- [x] **⑲ ST-S: 白底纸感 + composer 上传区/CTA 重做**（2026-07-05 用户拍板，比稿 `ai/design_system/cinnaglass/composer-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
+- [x] **⑲ ST-S: 白底纸感 + composer 上传区/CTA 重做**（2026-07-05 用户拍板，比稿 `ai/design_system/uiux/research/cinnaglass-history/composer-redesign.html`；tsc/eslint/build 绿 + 浏览器实测）
     - 影响文件：`src/themes/cinnaglass/screens.tsx`
     - 说明：①post 卡片/详情卡/composer 统一亮白底（`.tl-card` 84% / `.pd-card` 88% / `.compose` 86% 白）——深色场景透过 66% 白玻璃显朦胧蓝，字浮在雾上；②上传区从 62px 方块（空态「图标+标题+副行」竖排三层必剪裁）改 **V1 宽条拖放区**（整宽 ×108px，Fitts 定律最大命中区，文案完整；比稿含 V2 大方块 / V3 icon-only 及否决理由）；③发布按钮改 **B1「✨ 记下这一刻」**（动词+情感价值替代平台向「发布」，与折叠态「记录此刻的我们…」同句式呼应；微光阴影 + busy 态「正在收进小世界…」；仍复用 `.btn-primary` 原子，`.btn-pub` 只加尺寸/光）
-- [x] **⑳ ST-T: 多图上传 + 溢出/省略修复 + 输入框自动长高 + 吉祥物**（2026-07-05，比稿 `ai/design_system/cinnaglass/timeline-mascot-multiimg.html`；tsc/eslint/build 绿 + 浏览器端到端实测）
+- [x] **⑳ ST-T: 多图上传 + 溢出/省略修复 + 输入框自动长高 + 吉祥物**（2026-07-05，比稿 `ai/design_system/uiux/research/cinnaglass-history/timeline-mascot-multiimg.html`；tsc/eslint/build 绿 + 浏览器端到端实测）
     - 影响文件：`src/themes/cinnaglass/screens.tsx`
     - **修「拖 B 传 A」bug**：旧 62px `<image-slot>` 方块是极小拖放目标，第二次拖拽脱靶时旧选择原样上传。Composer 弃用 image-slot，改**受控多图选择器**：整个展开态皆可拖放，空态宽条 → 已选缩略图行（×移除 / ＋追加 / 上限 9 张计数），**所见即所传**；objectURL 预览按移除/取消/发布及时 revoke
     - **多图上传**：发布循环 `uploadMemoryImage`（原图+1024 缩略图各一份）→ `posts.images` 存路径数组；卡片=首图 16:10 hero + 右下「＋N 张」徽标；详情=全部图片渐进加载（缩略图先显、签名原图逐张换入）；照片墙天然摊平多图。放开「必须有文字」：有图即可发
@@ -385,7 +385,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
     - **输入框自动长高**：textarea 随内容长高（scrollHeight，上限 220px ≈ 5-6 行后内部滚动），打开时初算
     - **吉祥物**：原创云朵小狗 SVG（非授权素材）——蓝狗睁眼在左、粉狗眯眼在右（呼应作者色语言），≥1200px 宽屏才出现、pointer-events 关闭、漂浮周期 6s/7.2s 错开、respects prefers-reduced-motion
     - **实测记录**：DataTransfer 注入 3 张 canvas 生成图（横/竖/方）→ ×移除第 3 张 → ＋追加第 4 张 → 发布 → 卡片「＋2 张」徽标 + 6 行省略 + 详情三图（顺序 A/B/D 证明移除/追加正确）+ 照片墙 6 瞬间全对；console 零报错。测试帖带【测试数据】前缀留库，上线前统一清理
-- [x] **㉑ ST-U: composer 草稿交互 + 紧凑化**（2026-07-06，UX 裁决 + 比稿 `ai/design_system/cinnaglass/composer-compact.html`；tsc/eslint/build 绿 + 浏览器实测）
+- [x] **㉑ ST-U: composer 草稿交互 + 紧凑化**（2026-07-06，UX 裁决 + 比稿 `ai/design_system/uiux/research/cinnaglass-history/composer-compact.html`；tsc/eslint/build 绿 + 浏览器实测）
     - 影响文件：`src/themes/cinnaglass/screens.tsx`
     - **草稿规则（UX 裁决）**：隐式动作永不销毁内容——点 composer 外部 / Esc → 收起且草稿保留（文字+已选图）；「取消」是唯一显式清空路径；发布成功也清空。配套设计：折叠 pill 有草稿时变**草稿预览**（accent 边框 +「✎ 草稿」奶油黄贴纸 + 首行文字省略预览 + 图片数），否则用户会误以为内容丢失（对齐 X/Gmail 的 draft-on-dismiss 惯例）
     - **紧凑化（选 H2）**：展开态 ≈258px → **实测 127px**——textarea 一行起步（min-height 70→44，自动长高不变）、96px 常驻拖放条撤销（多数发帖不带图，为少数场景常驻付 96px 不值）、照片入口改操作行左侧 34px 圆钮 `.pk-cam`、整个 composer 仍是拖放目标（拖拽悬停高亮外框 `.compose.dropping`，不做布局位移避免 dragleave 抖动）、缩略图行仅选图后出现（76→64px）

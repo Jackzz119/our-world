@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>书房原画与渐变光层 · Cinnaglass</title>
+        <style>
+            :root {
+                color-scheme: light;
+                font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+                color: #343c43;
+                background: #eeede8;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                max-width: 1320px;
+                margin: auto;
+                padding: 40px 36px 32px;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                gap: 28px;
+                align-items: end;
+                margin-bottom: 28px;
+            }
+            .eyebrow {
+                color: #667a80;
+                letter-spacing: 0.14em;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            h1 {
+                font-weight: 550;
+                font-size: 29px;
+                margin: 10px 0 12px;
+                letter-spacing: -0.025em;
+            }
+            p {
+                font-size: 13px;
+                line-height: 1.9;
+                margin: 0;
+                color: #636d70;
+            }
+            .controls {
+                min-width: 180px;
+                display: grid;
+                gap: 12px;
+                font-size: 12px;
+            }
+            select {
+                width: 100%;
+                font: inherit;
+                padding: 9px 12px;
+                border-radius: 7px;
+                border: 1px solid #c2cbc8;
+                background: #f9faf6;
+                color: inherit;
+            }
+            label {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            input {
+                accent-color: #668b92;
+            }
+            main {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 20px;
+            }
+            article {
+                background: #fafaf6;
+                border: 1px solid #d8ddd6;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            .card-title {
+                padding: 18px 18px 13px;
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+            }
+            h2 {
+                font-size: 18px;
+                font-weight: 550;
+                margin: 0;
+            }
+            small {
+                font-size: 11px;
+                color: #849090;
+            }
+            .art {
+                width: 100%;
+                display: block;
+                aspect-ratio: 1586 / 992;
+                object-fit: cover;
+            }
+            .caption {
+                padding: 10px 18px 15px;
+                border-bottom: 1px solid #e5e8e1;
+                font-size: 11px;
+                color: #747e7c;
+            }
+            .textures {
+                padding: 18px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+            .texture {
+                margin: 0;
+                min-width: 0;
+            }
+            .checker {
+                aspect-ratio: 1;
+                background-color: #cad1d1;
+                background-image: conic-gradient(#e1e5e4 25%, transparent 0 50%, #e1e5e4 0 75%, transparent 0);
+                background-size: 18px 18px;
+                border: 1px solid #c6cecb;
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            h3 {
+                font-size: 13px;
+                margin: 12px 0 4px;
+                font-weight: 600;
+            }
+            .texture p {
+                font-size: 11px;
+                line-height: 1.7;
+            }
+            a {
+                color: #39737b;
+                text-underline-offset: 3px;
+            }
+            .download {
+                font-size: 11px;
+                display: inline-block;
+                margin-top: 8px;
+            }
+            .recipe {
+                margin: 0 18px 18px;
+                padding: 12px;
+                background: #f0f2ed;
+                border-radius: 6px;
+                font-size: 11px;
+                line-height: 1.9;
+                color: #626f70;
+            }
+            .notes {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 36px;
+                margin-top: 25px;
+                border-top: 1px solid #ced5cf;
+                padding-top: 18px;
+            }
+            .notes strong {
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .notes p {
+                font-size: 12px;
+                margin-top: 6px;
+            }
+            footer {
+                margin-top: 21px;
+                font-size: 10px;
+                color: #818b88;
+                overflow-wrap: anywhere;
+            }
+            @media (max-width: 800px) {
+                body {
+                    padding: 24px 18px;
+                }
+                header {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                main {
+                    grid-template-columns: 1fr;
+                }
+                .notes {
+                    grid-template-columns: 1fr;
+                    gap: 14px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <div class="eyebrow">CINNAGLASS / LIGHTING STUDY 01</div>
+                <h1>三张原画，两种渐变光纹理</h1>
+                <p>
+                    原画已经画入窗光与室内光。下方的小纹理由 Canvas 在运行时生成，再交给 Pixi 叠加。<br />棋盘格表示透明区域；它不属于纹理。这里查看的是光层素材，不是房间最终合成结果。
+                </p>
+            </div>
+            <div class="controls">
+                <label for="weather"
+                    >环境配方
+                    <select id="weather">
+                        <option value="sun">晴天 Sun</option>
+                        <option value="rain">雨天 Rain</option>
+                    </select></label
+                >
+                <label><input id="strength" type="checkbox" />按运行时图层透明度显示</label>
+            </div>
+        </header>
+        <main id="cards"></main>
+        <div class="notes">
+            <div>
+                <strong>线性渐变 Wash · 全场色罩</strong>
+                <p>
+                    64 × 64，小图从一侧颜色平滑过渡到另一侧，方向参数 115°。在房间中拉伸为全场大小，以 normal
+                    模式叠加；纹理颜色自带透明度，之后再乘图层透明度。
+                </p>
+            </div>
+            <div>
+                <strong>径向渐变 Glow · 窗边光晕</strong>
+                <p>
+                    256 × 256，中心最浓，向外逐渐透明。在房间中放大成窗边的椭圆光晕，用 screen
+                    滤色叠加。它不识别墙面、物件遮挡或表面朝向。
+                </p>
+            </div>
+        </div>
+        <footer id="source">读取当前配方快照…</footer>
+        <script>
+            const labels = { golden: '暖金时刻', twilight: '暮色时刻', night: '夜晚' };
+            function linearTexture(top, bottom) {
+                const c = document.createElement('canvas');
+                c.width = 64;
+                c.height = 64;
+                const ctx = c.getContext('2d');
+                const rad = (115 * Math.PI) / 180;
+                const x = Math.cos(rad) * 64;
+                const y = Math.sin(rad) * 64;
+                const g = ctx.createLinearGradient(32 - x / 2, 32 - y / 2, 32 + x / 2, 32 + y / 2);
+                g.addColorStop(0, top);
+                g.addColorStop(1, bottom);
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, 64, 64);
+                return c;
+            }
+            function radialTexture(color) {
+                const c = document.createElement('canvas');
+                c.width = 256;
+                c.height = 256;
+                const ctx = c.getContext('2d');
+                const g = ctx.createRadialGradient(128, 128, 8, 128, 128, 128);
+                const rgba = (a) => color.replace(/,\s*[\d.]+\)$/, `,${a})`);
+                g.addColorStop(0, rgba(1));
+                g.addColorStop(0.55, rgba(0.45));
+                g.addColorStop(1, rgba(0));
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, 256, 256);
+                return c;
+            }
+            fetch('./recipes.json')
+                .then((response) => {
+                    if (!response.ok) throw new Error('配方读取失败');
+                    return response.json();
+                })
+                .then((data) => {
+                    function render() {
+                        const weather = document.querySelector('#weather').value;
+                        const strength = document.querySelector('#strength').checked;
+                        document.querySelector('#cards').replaceChildren();
+                        for (const mood of Object.keys(labels)) {
+                            const rec = data.recipes[mood][weather];
+                            const card = document.createElement('article');
+                            card.dataset.mood = mood;
+                            card.innerHTML = `<div class="card-title"><h2>${labels[mood]}</h2><small>${mood.toUpperCase()}</small></div><a href="/arts/rooms/study/source/${mood}.png"><img class="art" src="/arts/rooms/study/source/${mood}.png" alt="${labels[mood]}书房定稿原画" /></a><div class="caption">原始定稿 · 1586 × 992 · 已包含绘制光影</div><div class="textures"></div><div class="recipe">全场色罩：${rec.washTop}<br />→ ${rec.washBottom}<br />窗边光晕：${rec.glowColor}<br />雨天云影呼吸强度：${rec.breathAlpha}（此处未展示）</div>`;
+                            const textures = card.querySelector('.textures');
+                            for (const [type, name, canvas, alpha, mode] of [
+                                [
+                                    'wash',
+                                    '全场色罩',
+                                    linearTexture(rec.washTop, rec.washBottom),
+                                    rec.washAlpha,
+                                    'normal'
+                                ],
+                                ['glow', '窗边光晕', radialTexture(rec.glowColor), rec.glowAlpha, 'screen']
+                            ]) {
+                                const fig = document.createElement('figure');
+                                fig.className = 'texture';
+                                fig.innerHTML = `<div class="checker"></div><h3>${name}</h3><p>${canvas.width} × ${canvas.height} · ${mode}<br />运行时图层透明度 ${alpha}</p>`;
+                                canvas.dataset.type = type;
+                                canvas.style.opacity = strength ? alpha : 1;
+                                fig.querySelector('.checker').append(canvas);
+                                const link = document.createElement('a');
+                                link.className = 'download';
+                                link.download = `${mood}-${weather}-${type}.png`;
+                                link.href = canvas.toDataURL('image/png');
+                                link.textContent = '下载原始透明纹理';
+                                fig.append(link);
+                                textures.append(fig);
+                            }
+                            document.querySelector('#cards').append(card);
+                        }
+                        document.body.dataset.ready = 'true';
+                    }
+                    document.querySelector('#weather').addEventListener('change', render);
+                    document.querySelector('#strength').addEventListener('change', render);
+                    document.querySelector('#source').textContent =
+                        `2026-09-12 代码快照 · ${data.source} · SHA-256 ${data.sourceSha256.slice(0, 16)} · 与产品渐变函数同参数复现，后续代码变化需更新快照。`;
+                    render();
+                })
+                .catch((error) => {
+                    document.querySelector('#source').textContent = error.message;
+                    document.body.dataset.error = 'true';
+                });
+        </script>
+    </body>
+</html>

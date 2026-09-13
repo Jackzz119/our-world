@@ -10,7 +10,7 @@ const dependency = (name) =>
     require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const { PNG } = dependency('pngjs');
-const output = path.resolve('ai/design_system/cinnaglass/timeline-night-glass/verification');
+const output = path.resolve('ai/design_system/uiux/research/cinnaglass-history/timeline-night-glass/verification');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });

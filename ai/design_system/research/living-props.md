@@ -2,7 +2,7 @@
 
 > 需求（用户 2026-08-22）：唱片 idle 常转、hover 零件动；许愿罐星星 idle 漂浮、hover 更亮更快——
 > 「接近 3D 场景的生动感」。换图+描边高亮方案已否。
-> 调研全文来源见文末；mockup：`../concepts/pending/living-props/`（三张分解手稿）。
+> 调研全文来源见文末；mockup：`../concept/proposals/living-props`（三张分解手稿）。
 
 ## 一句话结论
 

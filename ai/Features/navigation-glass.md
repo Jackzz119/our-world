@@ -1,6 +1,8 @@
 # 导航 · 随光磨砂玻璃
 
-2026-09-07。用户批准「桌上的同一本日记」设计稿，本轮明确只实现导航。用户特别认可图标发光，覆盖原提案「压低光晕」的建议。
+2026-09-07 实现；2026-09-11 复核机制。用户批准「桌上的同一本日记」设计稿，实施轮明确只实现导航。用户特别认可图标发光，覆盖原提案「压低光晕」的建议。
+
+2026-09-11 用户将当前导航指定为全项目 A 类场景悬浮 UI 的基准。跨组件迁移、B 类任务界面与 C 类专属物件的边界见 [UI 统一计划](ui-system/ui-system.md)，不在本文另建任务列表。
 
 ## 范围与完成情况
 
@@ -11,10 +13,12 @@
 
 范围：`shell/rail.tsx`、导航专属 CSS/图标与纹理、只读验证脚本。导航自己的房间/工具小菜单属于该组件；不改日记、设置等功能弹窗，不改共用旧材质变量，不改场景暂停与后端。
 
-参考：[用户批准设计板](../design_system/cinnaglass/journal-room-object/room-journal-concept.png)。最终验证记录归该设计目录，避免生成另一份样式真源。
+参考：[用户批准设计板](../design_system/uiux/cinnaglass/journal-room-object/room-journal-concept.png)。最终验证记录归该设计目录，避免生成另一份样式真源。
 
 ## 实现摘要
 
 桌面导航 74×384，五个主按钮；窄屏/矮屏为 292×62 底部横条。材质与三时辰参数收敛在 `shell/navigation-glass.css`，纹理使用 `public/ui/nav/frost.webp`，不覆盖全局纸色。房间/工具菜单采用同材质的更厚遮光版本，工具开关补回暖色滑块；点击入口仍走原有功能回调，不新增后端写入。触屏按住由指针状态驱动，松手、取消或移出清除；点外/Escape 收起菜单。
 
-布局/材质数值、生成来源、逐项验证与未覆盖项见 [实现记录](../design_system/cinnaglass/journal-room-object/navigation-implementation.md)。Vite 与改动文件 ESLint 通过；完整类型构建仍受既有聊天 `Msg` 导入错误阻断。日记和其他功能弹窗未迁移。
+机制澄清：纹理为生成后固定保存的 512×512 透明图，CSS 固定按 256×512、42% 50% 取样，无运行时随机。实时透景由 `backdrop-filter` 处理；边缘由固定角度的 `conic-gradient` 与 mask 模拟，颜色随 mood 预设变化，不计算真实灯光反射，也不按时辰换导航图片。房间底图才有三档图片及 Pixi 交叉淡化。天气变化间接改变透过的场景，当前不直接驱动导航边光。
+
+布局/材质数值、生成来源、逐项验证与未覆盖项见 [实现记录](../design_system/uiux/cinnaglass/journal-room-object/navigation-implementation.md)。Vite 与改动文件 ESLint 通过；完整类型构建仍受既有聊天 `Msg` 导入错误阻断。日记和其他功能弹窗未迁移。

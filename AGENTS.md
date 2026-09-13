@@ -41,6 +41,8 @@
 | 创建或修改 skill 文件（`SKILL.md`、references、scripts 等）           | `skill-creator`   |
 | 安装 Codex skill                                                      | `skill-installer` |
 | 写/改/检查 log 语句、新增功能域标签                                   | `logman`          |
+| UI/UX、界面/组件、信息架构、交互、设计系统 uiux 区域                   | `ui-tailor`      |
+| 主美、概念/素材、风格统一、视觉比稿、UI 设计调度与审核                 | `monet`          |
 
 **重要**：
 
@@ -88,6 +90,18 @@ Codex skill 是用户级能力，默认放在用户 Codex 目录：
 
 本项目不需要为了 Codex skill 创建 `.codex/` 目录。项目级通用规则写在仓库根目录的
 `AGENTS.md`；跨项目复用的 Codex skill 写到 `~/.codex/skills/<skill-name>/`。
+
+本项目现有的可发现技能维护在 `.agents/skills/`；`ui-tailor`（原 `ux`）与 `monet` 延续这个位置，
+不复制到用户目录造成两套真源。项目专属角色、设计系统路径和当前风格入口登记在 `ai/PROJECT.md`，
+不登记到 `CLAUDE.md` 或 `.claude/skills/`。新增跨项目技能仍遵循上面的用户级默认位置。
+
+UI 工作先读设计系统与 Monet 要求，再由 UI Tailor 设计/验证，完成后由 Monet 审核；
+没有独立 agent 时加载相应 skill 切换职责，明确标注自审，不虚构委派。每轮产物与决定同步到设计系统。
+
+本项目当前设计入口是 `ai/design_system/design-system.md`，链接角色、场景、物件、效果及
+`uiux/uiux.md` 等常驻图文规范；README 只描述结构。技能目录只放通用方法与显示元数据，
+项目决定、素材位置和设计文档都在 `ai/` 维护。普通回合报告默认在 session 中给出，
+研究/比稿保留有价值的依据，阶段收尾清理陈旧附属资料和临时文件。
 
 创建新 Codex skill 时遵循以下结构：
 

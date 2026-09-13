@@ -5,7 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 const require = createRequire(import.meta.url);
 const sharp = require(path.join(process.env.DIARY_NODE_MODULES, 'sharp'));
-const root = 'ai/design_system/cinnaglass/journal-room-object';
+const root = 'ai/design_system/uiux/cinnaglass/journal-room-object';
 const dir = `${root}/book-verification`;
 const sources = { reference: `${root}/room-journal-concept.png`, actual: `${dir}/design-content-night.png` };
 const luma = ([r, g, b]) => r * 0.2126 + g * 0.7152 + b * 0.0722;

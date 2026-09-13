@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const require = createRequire(import.meta.url);
 const { chromium } = require(path.join(process.env.DIARY_NODE_MODULES, 'playwright'));
 const sharp = require(path.join(process.env.DIARY_NODE_MODULES, 'sharp'));
-const dir = path.resolve('ai/design_system/cinnaglass/journal-room-object/turn-verification');
+const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification');
 await mkdir(dir, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -70,7 +70,7 @@ await page.route('**/storage/v1/object/sign/memories*', async (route) => {
 });
 await page.route('**/storage/v1/object/sign/memories/turn-review.png?*', (route) =>
     route.fulfill({
-        path: path.resolve('ai/design_system/cinnaglass/journal-room-object/book-verification/reference-photo.png'),
+        path: path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/book-verification/reference-photo.png'),
         contentType: 'image/png'
     })
 );
@@ -366,7 +366,7 @@ try {
     }
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', error => errors.push(error.stack || error.message));
-    await docsPage.goto(`${base}/ai/design_system/cinnaglass/ui-system.html#journal-turn`);
+    await docsPage.goto(`${base}/ai/design_system/uiux/cinnaglass/ui-system.html#journal-turn`);
     for (const name of ['live-single.gif', 'live-continuous.gif']) {
         const preview = docsPage.locator(`img[src$="/${name}"]`);
         await preview.scrollIntoViewIfNeeded();

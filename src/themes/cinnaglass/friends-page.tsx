@@ -1,5 +1,5 @@
 // friends-page.tsx — the FRIENDS PAGE inside the chat hub (Discord-style,
-// mockup ai/design_system/cinnaglass/friends-page.html 方案 A): the hub's
+// mockup ai/design_system/uiux/research/cinnaglass-history/friends-page.html 方案 A): the hub's
 // left nav pins a 好友 entry above the DM list; selecting it swaps the right
 // pane to this page. Top tabs filter views — 全部 / 待处理 / ＋添加好友;
 // an 在线 tab is reserved until presence lands (no fake online states).

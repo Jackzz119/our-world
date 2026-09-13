@@ -1,0 +1,73 @@
+{
+    "source": "src/themes/cinnaglass/room/pixi-scene.ts",
+    "sourceSha256": "1458a43643ec45094d70645336298884d94573313fbbfd0fa08908df06da14b9",
+    "capturedAt": "2026-09-12",
+    "recipes": {
+        "golden": {
+            "sun": {
+                "actorTint": 16771279,
+                "washTop": "rgba(255,190,120,0.30)",
+                "washBottom": "rgba(150,130,190,0.12)",
+                "washAlpha": 0.5,
+                "washBlend": "normal",
+                "glowColor": "rgba(255,205,140,1)",
+                "glowAlpha": 0.42,
+                "breathAlpha": 0
+            },
+            "rain": {
+                "actorTint": 14212584,
+                "washTop": "rgba(150,170,200,0.42)",
+                "washBottom": "rgba(110,130,165,0.22)",
+                "washAlpha": 0.55,
+                "washBlend": "normal",
+                "glowColor": "rgba(205,220,238,1)",
+                "glowAlpha": 0.28,
+                "breathAlpha": 0.3
+            }
+        },
+        "twilight": {
+            "sun": {
+                "actorTint": 16309714,
+                "washTop": "rgba(235,150,150,0.22)",
+                "washBottom": "rgba(95,90,170,0.16)",
+                "washAlpha": 0.42,
+                "washBlend": "normal",
+                "glowColor": "rgba(250,170,130,1)",
+                "glowAlpha": 0.34,
+                "breathAlpha": 0
+            },
+            "rain": {
+                "actorTint": 13947620,
+                "washTop": "rgba(140,140,178,0.30)",
+                "washBottom": "rgba(75,80,130,0.22)",
+                "washAlpha": 0.47,
+                "washBlend": "normal",
+                "glowColor": "rgba(190,200,228,1)",
+                "glowAlpha": 0.24,
+                "breathAlpha": 0.34
+            }
+        },
+        "night": {
+            "sun": {
+                "actorTint": 12766182,
+                "washTop": "rgba(90,120,190,0.13)",
+                "washBottom": "rgba(25,32,68,0.20)",
+                "washAlpha": 0.47,
+                "washBlend": "normal",
+                "glowColor": "rgba(165,195,245,1)",
+                "glowAlpha": 0.2,
+                "breathAlpha": 0
+            },
+            "rain": {
+                "actorTint": 12107997,
+                "washTop": "rgba(80,100,155,0.17)",
+                "washBottom": "rgba(22,28,60,0.23)",
+                "washAlpha": 0.5,
+                "washBlend": "normal",
+                "glowColor": "rgba(150,180,235,1)",
+                "glowAlpha": 0.18,
+                "breathAlpha": 0.28
+            }
+        }
+    }
+}
