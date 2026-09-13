@@ -155,7 +155,7 @@ src/
 
 | 角色 | 技能位置与职责 | 项目入口 |
 | --- | --- | --- |
-| UI Tailor · UI 裁缝 | `.agents/skills/ui-tailor/SKILL.md`；游戏与应用的界面/交互设计、验证和常驻资料维护 | `ai/design_system/uiux/uiux.md`；主题 `uiux/cinnaglass/ui-system.md` |
+| UI Tailor · UI 裁缝 | `.agents/skills/ui-tailor/SKILL.md`；统一负责 UI 与 UX，含概念模型、用户流程、信息架构、术语命名、界面与可用性；独立 ux 技能已移除 | `ai/design_system/uiux/uiux.md`；主题 `uiux/cinnaglass/ui-system.md` |
 | Monet · 主美/概念设计师 | `.agents/skills/monet/SKILL.md`；面向游戏与应用统筹美术，调度 UI Tailor 并审核；人设不主导技术选型 | `ai/design_system/design-system.md` 及其角色/场景/物件/效果/UI 常驻子文档 |
 | 视觉制作与第二意见 | 可用时优先 `codex-visual`，缺失/不可用由上述角色使用自身工具完成；不虚构工具或独立审查 | 所有最终产物和实质调研按 concept/uiux 归档，原始批次可登记外部位置 |
 | 原画分层与环境光照 | 用户级 `art-relighting`，保留原工作流；Monet 按材质/光色分离需求调用 | `ai/design_system/research/art-relighting.md` |
