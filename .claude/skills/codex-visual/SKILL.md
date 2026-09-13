@@ -8,8 +8,8 @@ allowed-tools: Bash(node:*), Bash(codex:*), Read, Glob
 
 把**一个**视觉任务委派给 Codex，再把它返回的证据转成 Claude 的最终结论报告。
 
-**定位（2026-08-07 用户定规）：Codex 是本项目 UX 的美术与设计师。** 所有美术产出——设计稿、比稿视觉稿、
-改版探索、插画/图标/贴图、视觉调研与对标、视觉检测第二意见——都走这里委派，`ux` skill 不自己手搓交付级 mockup。
+**定位：为 UI Tailor 与 Monet 提供视觉制作和第二意见。** 设计稿、比稿、改版探索、
+插画/图标/贴图、视觉调研与对标按任务需要委派；工具不可用时按调用技能的后备流程继续。
 Claude 的职责是**给足上下文、定判断标准、复核产出**。
 
 > 本 skill 由 `codex-visual-in-cc` 插件移植进项目自带（Apache-2.0，见同目录 LICENSE/NOTICE），
@@ -43,8 +43,8 @@ node "${CLAUDE_SKILL_DIR}/scripts/codex-visual.mjs" status
 **brief 里必须交代**：产品是什么、受众、平台/视口、相关仓库文件、约束、成功标准、要交付什么。
 **保留用户自己的判断标准，不要用通用设计口味替换掉。**
 
-本项目补充：视觉资产与比稿归档在 `ai/design_system/<theme>/`，设计基线见同目录 `ui-system.html`，
-拍板结论登记在 `.claude/skills/ux/decisions.md` —— 委派前先读，把结论写进 brief 当约束。
+从项目共享登记定位常驻 `design-system.md`，沿链接读取相关 UI/UX 或美术规范及实际素材来源。
+项目决定放项目设计系统，普通报告在会话汇报；委派前将当前决定写进 brief。
 
 只跑一条命令：
 

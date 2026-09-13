@@ -65,8 +65,7 @@ chrome.exe --headless=new --disable-gpu --window-size=1400,1500 \
 
 并打印机器可读行 `CODEX_VISUAL_REPORT:` / `CODEX_VISUAL_ARTIFACT:` 供 Claude 读取复核。
 
-## 换项目时要改的地方
+## 项目设计依据
 
-`SKILL.md` 里有一段「本项目补充」写着比稿归档路径、设计基线与决策簿位置
-（`ai/design_system/`、`ui-system.html`、`.claude/skills/ux/decisions.md`）。
-换到别的项目请改成该项目的对应路径，或整段删掉——不影响功能。
+从项目共享登记找到常驻 `design-system.md`，沿链接读取当前领域/UI 规范和实际素材位置。
+项目决定留在项目文档，技能保持通用；普通验证报告在会话汇报。
