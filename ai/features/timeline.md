@@ -87,7 +87,7 @@ Composer（ready 态始终有 worldId）
 | `src/lib/profiles.ts`                                                                    | `getProfilesByIds()` —— RPC 只回 `author_id`，作者名/头像在此补                                                                | ✅               |
 | `src/hooks/useFeed.ts`                                                                   | 三态 + `worldId` + `posts`（升序）+ `profiles` + 游标分页（`hasMore/loadingOlder/loadOlder`）+ `reload` + `enabled` 懒加载闩锁 | ✅               |
 | `src/types/feed.ts`                                                                      | `FeedPost / World / FeedProfile / PostPrivacy`                                                                                 | ✅               |
-| `src/themes/cinnaglass/surfaces/object-surfaces.tsx`                                                      | 三张 ObjectSurface（日记 / 照片墙 / 心愿单）、`Composer`、`PostDetail`、`useSignedThumbs`                                      | ✅               |
+| `src/themes/cinnaglass/surfaces/object-surfaces.tsx`                                     | 三张 ObjectSurface（日记 / 照片墙 / 心愿单）、`Composer`、`PostDetail`、`useSignedThumbs`                                      | ✅               |
 | `src/themes/cinnaglass/journal/room-book.tsx` + `journal/layout.ts` + `journal-turn*.ts` | 棕皮书本的实测分页、页面装订与三维翻页引擎                                                                                     | ✅               |
 | `src/themes/cinnaglass/image-slot.js`                                                    | 用户可填图占位 web component。**Composer 已不再使用它**（ST-T 换成受控多图选择器）；现仅头像设置等处在用                       | ✅（用途已收窄） |
 
@@ -183,7 +183,7 @@ v1 数据链路 ST-A ~ ST-V **已全部完成**（27+ subtask，2026-06-27 ~ 202
 | ST-B        | `types/feed.ts` 对齐：删 `CoupleMeta`/`CoupleFeedResponse`（RPC 无 wrapper）、补 `updated_at`、新增 `Room`（后为 `World`）                                      |
 | ST-C        | `rooms.ts`（后为 `worlds.ts`）+ `posts.ts` 数据层；`getFeed` → `getFeedPosts` 返回数组                                                                          |
 | ST-D        | `useFeed` 去「未配对」态，改 `loading/ready/error` 三态                                                                                                         |
-| ST-E        | `surfaces/object-surfaces.tsx` 去配对话术                                                                                                                                        |
+| ST-E        | `surfaces/object-surfaces.tsx` 去配对话术                                                                                                                       |
 | ST-F        | SQL 文件 + 文档同步（脚本此后又经 room → world 二次改名，现为 `sql/dev-create-world.sql`）                                                                      |
 | ST-8        | Storage private bucket `memories`（25MB 上限、限图片 mime）+ 4 条按路径首段隔离的 RLS                                                                           |
 | ST-4        | `image-slot` 通过 `slot-change` 抛出原图 File + webp 缩略图（该出口后被 ST-T 的多图选择器取代）                                                                 |

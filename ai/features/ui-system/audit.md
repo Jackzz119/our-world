@@ -19,29 +19,29 @@
 
 除 pages 外，下表路径相对 `src/themes/cinnaglass/`。A/B/C 含义见主计划，"建议归属"不是已完成迁移；通用 A/B 要求见计划 §3/§4，此处只记组件独有的处置要点。行号为 2026-09-19 复核值。
 
-| 界面                     | 当前入口与主要文件/选择器                                                    | 建议归属与处置                                           |
-| ------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
-| 导航与房间/工具菜单      | `shell/rail.tsx` `Rail()` :44（`.rail/.rail-pop` :107 起）                   | A 基准；保留五入口与已认可视觉                           |
-| 右侧房间把手             | `shell/rail.tsx` `RoomHandle()` :178；`WorldPage.tsx:490` 回调为空           | A；单房间阶段收起无动作把手，锁定房间项须表达不可进入    |
-| 灯光/天气                | `shell/ambience.tsx` `Ambience()` :30；`.amb-pill`（:40）、`.amb-panel`      | A                                                        |
-| 纪念卡                   | `shell/floaters.tsx` `MomentCard()` :21；`.moment-card`                      | A；注意数字层级与窄屏避让                                |
-| 音乐折叠/展开            | `shell/floaters.tsx` `MusicMini()` :66→`music.tsx`；`.music-bar/.mp.glass`   | A 两态；一个音频状态源，播放与展开分开                   |
-| 聊天窄卡                 | 导航聊天→`shell/chat-card.tsx`；`.chat-card/.cc-*`                           | A；内容底须可读                                          |
-| 头顶状态/气泡            | `room/room-scene.tsx` 气泡 :155、状态胶囊 :236                               | A 场景锚定变体；不扩成 C，真实性依赖 Presence            |
-| 完整聊天                 | 窄卡"展开完整聊天"→`chat/chat-hub.tsx`；`.chsc/.chsc-scrim`                 | B；收敛大窗与频道栏，保功能链                            |
-| 好友/DM                  | 完整聊天导航→`chat/friends-page.tsx`；`.fr-*`                                     | B 旧入口；收外壳，留数据层                               |
-| Emoji/贴纸/导入/消息操作 | `chat/emote-picker.tsx` `.ep-*`、消息 `.abar`                                     | 附属层，跟随 A/B 宿主                                    |
-| 设置                     | 导航设置→`settings.tsx` `SettingsScreen()` :144；`.modal.mini.glass`（:200） | B 首个样板；清旧纸与彩色按钮混用，修正假保存             |
-| 世界设置                 | `WorldPage.tsx:519` 挂载 `world-settings.tsx`，无 navigate 入口              | B；已有真实保存，恢复入口而非删除                        |
-| 日历/纪念日              | 工具→`calendar.tsx` `CalendarScreen()` :102；`.modal/.cal-*`                 | B；纪念日来源须与世界设置合并                            |
-| 时钟/闹钟                | 挂钟→`calendar.tsx` `ClockScreen()` :283；`.modal/.alarm`                    | B；能编列表≠到时提醒已接通                               |
-| 照片墙/原图              | 相框或工具照片→`surfaces/object-surfaces.tsx`；`.collection-surface/.pw-*/.pola`              | 暂列 B；保留原色与原图浏览，专属相册另决策               |
-| 心愿单                   | 许愿罐→`surfaces/object-surfaces.tsx`；`.collection-surface/.wish`                            | 暂列 B；本轮不做罐子                                     |
-| 登录/忘记密码            | `/login`→`pages/LoginPage.tsx/.module.css`                                   | B 账户页形态；旧 SVG 背景在用                            |
-| 重置密码                 | `/reset-password`→`pages/ResetPasswordPage.tsx`                              | B 账户页形态；留真实重置链                               |
-| 大厅/无世界/创建/错误    | `/` 未进房间→`lobby.tsx`（`IslandArt` :32）                                  | B 入口页形态；自绘 IslandArt，不能漏 loading/empty/error |
-| 路由加载                 | `pages/ProtectedRoute.tsx` `Splash` :21–34（浅蓝渐变 :27）                   | 与账户页共用状态规范，避免孤立浅蓝画面                   |
-| 日记                     | `surfaces/object-surfaces.tsx` diary 分支、`journal-*`/`journal/diary.css`                            | C；本 session 冻结                                       |
+| 界面                     | 当前入口与主要文件/选择器                                                        | 建议归属与处置                                           |
+| ------------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 导航与房间/工具菜单      | `shell/rail.tsx` `Rail()` :44（`.rail/.rail-pop` :107 起）                       | A 基准；保留五入口与已认可视觉                           |
+| 右侧房间把手             | `shell/rail.tsx` `RoomHandle()` :178；`WorldPage.tsx:490` 回调为空               | A；单房间阶段收起无动作把手，锁定房间项须表达不可进入    |
+| 灯光/天气                | `shell/ambience.tsx` `Ambience()` :30；`.amb-pill`（:40）、`.amb-panel`          | A                                                        |
+| 纪念卡                   | `shell/floaters.tsx` `MomentCard()` :21；`.moment-card`                          | A；注意数字层级与窄屏避让                                |
+| 音乐折叠/展开            | `shell/floaters.tsx` `MusicMini()` :66→`music.tsx`；`.music-bar/.mp.glass`       | A 两态；一个音频状态源，播放与展开分开                   |
+| 聊天窄卡                 | 导航聊天→`shell/chat-card.tsx`；`.chat-card/.cc-*`                               | A；内容底须可读                                          |
+| 头顶状态/气泡            | `room/room-scene.tsx` 气泡 :155、状态胶囊 :236                                   | A 场景锚定变体；不扩成 C，真实性依赖 Presence            |
+| 完整聊天                 | 窄卡"展开完整聊天"→`chat/chat-hub.tsx`；`.chsc/.chsc-scrim`                      | B；收敛大窗与频道栏，保功能链                            |
+| 好友/DM                  | 完整聊天导航→`chat/friends-page.tsx`；`.fr-*`                                    | B 旧入口；收外壳，留数据层                               |
+| Emoji/贴纸/导入/消息操作 | `chat/emote-picker.tsx` `.ep-*`、消息 `.abar`                                    | 附属层，跟随 A/B 宿主                                    |
+| 设置                     | 导航设置→`settings.tsx` `SettingsScreen()` :144；`.modal.mini.glass`（:200）     | B 首个样板；清旧纸与彩色按钮混用，修正假保存             |
+| 世界设置                 | `WorldPage.tsx:519` 挂载 `world-settings.tsx`，无 navigate 入口                  | B；已有真实保存，恢复入口而非删除                        |
+| 日历/纪念日              | 工具→`calendar.tsx` `CalendarScreen()` :102；`.modal/.cal-*`                     | B；纪念日来源须与世界设置合并                            |
+| 时钟/闹钟                | 挂钟→`calendar.tsx` `ClockScreen()` :283；`.modal/.alarm`                        | B；能编列表≠到时提醒已接通                               |
+| 照片墙/原图              | 相框或工具照片→`surfaces/object-surfaces.tsx`；`.collection-surface/.pw-*/.pola` | 暂列 B；保留原色与原图浏览，专属相册另决策               |
+| 心愿单                   | 许愿罐→`surfaces/object-surfaces.tsx`；`.collection-surface/.wish`               | 暂列 B；本轮不做罐子                                     |
+| 登录/忘记密码            | `/login`→`pages/LoginPage.tsx/.module.css`                                       | B 账户页形态；旧 SVG 背景在用                            |
+| 重置密码                 | `/reset-password`→`pages/ResetPasswordPage.tsx`                                  | B 账户页形态；留真实重置链                               |
+| 大厅/无世界/创建/错误    | `/` 未进房间→`lobby.tsx`（`IslandArt` :32）                                      | B 入口页形态；自绘 IslandArt，不能漏 loading/empty/error |
+| 路由加载                 | `pages/ProtectedRoute.tsx` `Splash` :21–34（浅蓝渐变 :27）                       | 与账户页共用状态规范，避免孤立浅蓝画面                   |
+| 日记                     | `surfaces/object-surfaces.tsx` diary 分支、`journal-*`/`journal/diary.css`       | C；本 session 冻结                                       |
 
 双入口路由集中在 `WorldPage.tsx` 的 `onRail`/`onHotspot`（:336–350）。唱片机/挂钟/照片的入口事实说明"从活物件点击"不等于"专属拟物 UI"。
 
@@ -68,16 +68,16 @@ P1 影响本次统一的正确性/核心操作，P2 是迁移时的次级一致�
 
 ## 4. 清理时不能踩的依赖
 
-| 对象                                      | 当前证据                                                           | 结论                                                        |
-| ----------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `scene.tsx`                               | `LoginPage.tsx:8`、`ResetPasswordPage.tsx:10` import               | 仍在用，待账户背景替换后清；旧 TODO"lobby 还用则保留"不准确 |
-| `rooms.ts`                                | `WorldPage.tsx:24` 仍用 `owLoad`，其余旧房间/语音 mock 无 src 消费 | 先迁 loader 再查构建/脚本引用，不能整文件先删               |
+| 对象                                          | 当前证据                                                           | 结论                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `scene.tsx`                                   | `LoginPage.tsx:8`、`ResetPasswordPage.tsx:10` import               | 仍在用，待账户背景替换后清；旧 TODO"lobby 还用则保留"不准确 |
+| `rooms.ts`                                    | `WorldPage.tsx:24` 仍用 `owLoad`，其余旧房间/语音 mock 无 src 消费 | 先迁 loader 再查构建/脚本引用，不能整文件先删               |
 | `chat/chat-hub.tsx` / `chat/friends-page.tsx` | 从聊天窄卡展开可达，读真实聊天/好友/DM                             | 改入口与布局，留消息操作与数据功能                          |
-| `world-settings.tsx`                      | 已挂载，有真实保存链                                               | 修入口，非死文件                                            |
-| `image-slot.js`                           | `main.tsx` 副作用 import，设置头像使用                             | 仍在用，共享组件保留                                        |
-| `--cg-* / --glass-* / materials.css`      | 多个实际消费者，含日记共享区                                       | 渐进迁移；本轮不删材质文件、不改 C                          |
-| widget 注册与持久化                       | days/minimap/memory/ambient/lighting 等旧 key 与实际 JSX 不一致    | 整理消费者与存储兼容，别直接抹用户偏好                      |
-| `journal-book.tsx` 等旧书本文件/资产      | C 历史实现（现役是 `journal/room-book.tsx`）                       | 即使无引用也不在本 session 清理                             |
+| `world-settings.tsx`                          | 已挂载，有真实保存链                                               | 修入口，非死文件                                            |
+| `image-slot.js`                               | `main.tsx` 副作用 import，设置头像使用                             | 仍在用，共享组件保留                                        |
+| `--cg-* / --glass-* / materials.css`          | 多个实际消费者，含日记共享区                                       | 渐进迁移；本轮不删材质文件、不改 C                          |
+| widget 注册与持久化                           | days/minimap/memory/ambient/lighting 等旧 key 与实际 JSX 不一致    | 整理消费者与存储兼容，别直接抹用户偏好                      |
+| `journal-book.tsx` 等旧书本文件/资产          | C 历史实现（现役是 `journal/room-book.tsx`）                       | 即使无引用也不在本 session 清理                             |
 
 原表的 `src/types/database.ts`、`timeline_3d_posts.html` 两项已删除（2026-09-19 复核：工作树与 git 索引中均不存在）。
 

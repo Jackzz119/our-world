@@ -86,6 +86,6 @@
 
 ## 建议、待办和下一步
 
-1. **需要你批准的重构**（FINDINGS PA-028～033）：五个大文件的拆分方案、纪念日单一真源修复（含现存 bug）、`diary.css` 扁平化（日记冻结中）、子目录归位、其余低收益项。批准哪几项我就按方案分批提交。
+1. **重构已按批准执行**（PA-028～032 ✅，PA-033 ◐）：剩余未做项需产品决定——`image-slot.js` 换 React 头像选择器（会丢 reframe 交互与旧 localStorage 数据）、`world-settings` 弹窗入口放哪、`settings.tsx savePw` 接真实后端（应记 Bug）。**下一次有 Supabase 会话时**请走一遍：进世界、Enter 唤聊天、点五个家具热点、翻日记、改世界设置看纪念卡与日历同步、窄卡收贴纸——这些是本轮无法在本机复现的运行时验证。
 2. **第三步**（协议、后端与前端深度 review）待指令：将承接 `ReactionRow` 幻列对应的线上 DDL 核对、`world-settings` 无入口、`savePw` 假成功、`WorldPage` 未传 `anniv`、render 期改 ref 的 react-hooks 规则等行为议题。
 3. 低优先：`check:design` npm script、脚本登记表、`requirements.txt`。
