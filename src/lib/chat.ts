@@ -5,7 +5,7 @@
 // authorized by RLS on realtime.messages). The DB is the single write path —
 // clients never broadcast directly, and the sender's own change comes back
 // through the same echo.
-import { supabase } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
 
@@ -13,13 +13,6 @@ const CHANNEL_COLS = 'id, world_id, type, name, topic, scene_id, position, dm_us
 const MESSAGE_COLS = 'id, channel_id, world_id, author_id, content, created_at, edited_at, kind, emote_id';
 const REACTION_COLS = 'message_id, user_id, world_id, emoji, created_at';
 const READ_COLS = 'channel_id, user_id, world_id, last_read_at';
-
-const currentUserId = async (): Promise<string> => {
-    const { data } = await supabase.auth.getUser();
-    const id = data.user?.id;
-    if (!id) throw new Error('未登录。');
-    return id;
-};
 
 // All channels of a world in sidebar order (RLS: members only).
 export const getChannels = async (worldId: string): Promise<Channel[]> => {

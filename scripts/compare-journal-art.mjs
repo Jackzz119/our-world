@@ -1,10 +1,8 @@
 // QA-only crops and pixel sampling; the approved reference is never modified.
-import { createRequire } from 'node:module';
+import { dependency } from './lib/deps.mjs';
 import { writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import assert from 'node:assert/strict';
-const require = createRequire(import.meta.url);
-const sharp = require(path.join(process.env.DIARY_NODE_MODULES, 'sharp'));
+const sharp = dependency('sharp');
 const root = 'ai/design_system/uiux/cinnaglass/journal-room-object';
 const dir = `${root}/book-verification`;
 const sources = { reference: `${root}/room-journal-concept.png`, actual: `${dir}/design-content-night.png` };

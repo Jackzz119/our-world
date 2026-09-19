@@ -21,7 +21,7 @@ import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { ChannelScreen } from '@/themes/cinnaglass/channel-screen';
 import { useChatThreads, convsFor } from '@/themes/cinnaglass/chat-data';
-import { owLoad } from '@/themes/cinnaglass/rooms';
+import { loadJson as owLoad } from '@/lib/local-store.ts';
 import { useTweaks } from '@/themes/cinnaglass/tweaks';
 import type { Alarm, CalEvent, Profile, Weather, Widgets } from '@/themes/cinnaglass/model';
 import { getMyWorld, createWorld } from '@/lib/worlds.ts';

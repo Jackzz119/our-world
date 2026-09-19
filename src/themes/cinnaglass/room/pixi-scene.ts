@@ -14,7 +14,7 @@
 //   └─ light (wash/glow/breath, rebuilt per mood, alpha fade)
 
 import {
-    Application,
+    type Application,
     Assets,
     CanvasSource,
     Container,

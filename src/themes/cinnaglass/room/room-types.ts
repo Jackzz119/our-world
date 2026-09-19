@@ -177,9 +177,3 @@ export function resolveRoomArt(room: RoomTemplate, mood: RoomMood): string {
     throw new Error(`room "${room.id}" has no base art for mood "${mood}"`);
 }
 
-/** Map wall-clock hour to a mood. Golden covers daytime until the twilight band. */
-export function moodFromHour(hour: number): RoomMood {
-    if (hour >= 6 && hour < 16) return 'golden';
-    if (hour >= 16 && hour < 19) return 'twilight';
-    return 'night';
-}

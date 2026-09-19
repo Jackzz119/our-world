@@ -115,7 +115,6 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
 
             {pop === 'rooms' && (
                 <div className="rail-pop rooms-pop">
-                    <span className="rooms-tip" />
                     {ROOM_DEFS.map((r) => (
                         <button
                             key={r.id}

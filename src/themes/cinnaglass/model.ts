@@ -21,4 +21,3 @@ export type Alarm = { id: string; time: string; label: string; on: boolean };
 
 export type Widgets = Record<string, boolean>;
 
-export type WidgetPos = { x: number; y: number };

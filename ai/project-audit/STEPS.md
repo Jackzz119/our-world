@@ -1,5 +1,28 @@
 # STEPS — 审核子步骤
 
+## 第二步 · 蓝图版本 v1 · 运行 `2026-09-19-01`
+
+阶段目标与适用范围：全部自有源码（`src/` 61 文件 + `scripts/` + 根配置，12,894 行）的模块边界、依赖方向、文件规模/职责、重复语义、注释质量与格式化；对照现有规范（`.prettierrc`、`eslint.config.js`、`AGENTS.md` 文档规则、UI 统一计划的三类边界与日记冻结）。全面重构（大文件拆分、行为变化）只给方案。基线 `a9f7cfa`（第一步三个 commit 已推送到 `origin/dev`）。
+
+阶段报告链接：[runs/2026-09-19-01/02-structure.md](runs/2026-09-19-01/02-structure.md)
+
+| ID     | 目标 / 范围 | 依赖 / 方法 | 产出 / 验收 | 状态 |
+| ------ | --- | --- | --- | --- |
+| 02-S01 | 基线刷新：HEAD、清单、`scan-structure.mjs` 结构扫描（规模/扇入扇出/环/长函数/同体候选）、Prettier 与 lint/tsc 基线 | 无；新脚本 `scripts/scan-structure.mjs` | `metrics/structure-*.json`、`prettier-check-baseline.txt`、`run-meta.json` | 完成：63 文件、0 环、0 孤儿、34 个 >80 行函数、3 组同体候选、192 文件待格式化 |
+| 02-S02 | 本步真实调研：注释风格（Google TS 指南）、Prettier ignore 语义、react-refresh only-export-components、Vite optimizeDeps | 打开官方原文 | 报告「调研」表 | 完成 |
+| 02-S03 | room 引擎分区（pixi-scene/room-scene/room-types/study-room/tweaks/model/profile/rooms/scene）：职责、拆分方案、复用、注释审计、失效引用 | S01；agent 全文读 | `evidence/room-structure-review.md` | 进行中 |
+| 02-S04 | 日记与弹窗分区（screens、journal-*、diary/journal css、image-slot、useFeed/posts/storage/feed 类型）：同上 + 死样式 | S01 | `evidence/journal-screens-structure-review.md` | 进行中 |
+| 02-S05 | 聊天分区（chat-data、channel-screen、friends-page、emote-picker、chat-card、lib/chat|friends|emotes|logman、types/chat）：同上 + Msg 修复落点 | S01 | `evidence/chat-structure-review.md` | 进行中 |
+| 02-S06 | 壳层/页面/lib/配置分区（WorldPage、pages、shell、calendar/settings/world-settings/music/lobby/icons、css、配置、scripts）：同上 + rapier/react-refresh/.prettierignore 方案 | S01 | `evidence/shell-structure-review.md` | 进行中 |
+| 02-S07 | 汇总方案并与用户沟通：A 类直接执行项 vs B 类需批准重构；`CONVENTIONS.md` 是否需要 | S03–S06 | 报告「方案」节 | 待执行 |
+| 02-S08 | 落实 A 类：注释精简（英文，一句话职责/复杂函数 ≤4 句）、失效注释引用改指向、死样式删除、小复用（currentUserId、owLoad/load、scripts dependency）、rapier + optimizeDeps 移除、Msg 导入修复、react-refresh 修复、文件归位（若低风险） | S07；每批后 tsc/eslint/vite build | 逐文件路径与原因；AST 去注释同一性校验 | 待执行 |
+| 02-S09 | 全局格式化收尾：建 `.prettierignore`（依赖/锁文件/审核证据/原始报告/受保护协议/冻结原件/二进制/会话存档），`prettier --write .` 后 `--check`，复核差异 | S08 | 命令、范围、排除理由、结果 | 待执行 |
+| 02-S10 | 验证、覆盖、阶段报告、独立 commit | S08–S09；tsc/eslint/vite build/check-design-system；浏览器冒烟（dev server） | `coverage.csv`、`02-structure.md`、FINDINGS 更新、commit SHA | 待执行 |
+
+### 本阶段复盘
+
+（交付前填写。）
+
 ## 第一步 · 蓝图版本 v1 · 运行 `2026-09-18-01`
 
 阶段目标与适用范围：整个项目（587 个可枚举文件，不含 `.git`/`.claude`/`.agents`/`ai/sessions`/本轮审核输出），重点检查 `ai/` 上下文。判定每个文件的用途、使用者、权威性、引用与生命周期；清理证据充分的冗余；活文档逐份压缩；目录职责与命名核对。代码边界与依赖方向留给第二步。

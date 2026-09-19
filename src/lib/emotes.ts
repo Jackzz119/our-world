@@ -2,7 +2,7 @@
 // (ai/features/chat.md 表情系统 EMO-3). Images live in the private
 // `memories` bucket under <worldId>/emotes/, so the existing world-scoped
 // storage policies and signed-URL machinery apply unchanged.
-import { supabase } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { EmoteRow, EmoteSearchResult } from '@/types/chat.ts';
 
 const COLS = 'id, world_id, name, storage_path, source_url, added_by, created_at';
@@ -39,9 +39,7 @@ export const importEmoteFromUrl = async (worldId: string, url: string, name: str
 
 // Upload a local image as an emote (client-side downscale to webp).
 export const addEmoteFromFile = async (worldId: string, name: string, file: File): Promise<EmoteRow> => {
-    const { data: auth } = await supabase.auth.getUser();
-    const uid = auth.user?.id;
-    if (!uid) throw new Error('未登录。');
+    const uid = await currentUserId();
     const blob = await downscaleToWebp(file);
     const path = `${worldId}/emotes/${crypto.randomUUID()}.webp`;
     const { error: upErr } = await supabase.storage.from('memories').upload(path, blob, { contentType: 'image/webp' });

@@ -8,7 +8,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed.ts';
 import { createPost } from '@/lib/posts.ts';
-import { signImageUrls, thumbPathOf, uploadMemoryImage } from '@/lib/storage.ts';
+import { SIGNED_URL_REFRESH_MS, signImageUrls, thumbPathOf, uploadMemoryImage } from '@/lib/storage.ts';
+import { loadJson as load, saveJson as save } from '@/lib/local-store.ts';
 import type { FeedPost, FeedProfile, World } from '@/types/feed.ts';
 import { IClose, IHeart, IPhoto, IPlus, ISparkle } from './icons';
 import './diary.css';
@@ -298,21 +299,6 @@ const SEED_WISHES: Wish[] = [
     { id: 'w5', text: '去一次没去过的城市，不做攻略', done: false }
 ];
 
-function load<T>(k: string, fb: T): T {
-    try {
-        const v = localStorage.getItem(k);
-        return v ? (JSON.parse(v) as T) : fb;
-    } catch {
-        return fb;
-    }
-}
-function save<T>(k: string, v: T) {
-    try {
-        localStorage.setItem(k, JSON.stringify(v));
-    } catch {
-        /* ignore */
-    }
-}
 // Day label for dividers and captions (time-of-day lives in fmtMeta).
 const fmtDay = (iso: string): string => {
     const d = new Date(iso);
@@ -722,10 +708,9 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
 
 // Sign the thumbnails for a set of feed posts, shared by the timeline and
 // photo wall (private bucket → short-lived signed URLs). Signed URLs expire
-// after 1h (storage.ts SIGNED_URL_TTL), so an idle page would silently lose
-// its images — re-sign on an interval safely inside the TTL, and again when
-// the tab regains visibility (a backgrounded tab may have throttled timers).
-const SIGN_REFRESH_MS = 40 * 60 * 1000;
+// (storage.ts SIGNED_URL_TTL), so an idle page would silently lose its images —
+// re-sign on an interval safely inside the TTL, and again when the tab regains
+// visibility (a backgrounded tab may have throttled timers).
 function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
     const [urls, setUrls] = useState<Record<string, string>>({});
     useEffect(() => {
@@ -742,7 +727,7 @@ function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
                 });
         };
         sign();
-        const timer = window.setInterval(sign, SIGN_REFRESH_MS);
+        const timer = window.setInterval(sign, SIGNED_URL_REFRESH_MS);
         const onVisible = () => {
             if (document.visibilityState === 'visible') sign();
         };

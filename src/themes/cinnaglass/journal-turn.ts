@@ -1,3 +1,4 @@
+import { applyThumbUrls } from './journal-layout';
 // A sheet is a pair of real DOM faces, bent around the binding in 3D.
 // Text and photographs are never painted independently of their paper.
 export type TurnDirection = 1 | -1;
@@ -180,13 +181,7 @@ export class JournalTurnStage {
     }
 
     updateImages(urlFor: (path: string) => string | undefined) {
-        this.element.querySelectorAll<HTMLImageElement>('img[data-image-path]').forEach((image) => {
-            const url = urlFor(image.dataset.imagePath!);
-            if (url && image.src !== url) {
-                image.src = url;
-                image.alt = '回忆照片';
-            }
-        });
+        applyThumbUrls(this.element, urlFor);
     }
 
     destroy() {

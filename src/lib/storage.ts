@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase.ts';
 
 const BUCKET = 'memories';
 const SIGNED_URL_TTL = 60 * 60; // 1 hour
+// Re-sign well inside the TTL (2/3 of it) so an idle page never shows expired URLs.
+export const SIGNED_URL_REFRESH_MS = (SIGNED_URL_TTL * 1000 * 2) / 3;
 
 const EXT_BY_TYPE: Record<string, string> = {
     'image/png': 'png',
@@ -54,14 +56,10 @@ const makeThumbDataUrl = async (file: File): Promise<string> => {
 };
 
 // Upload the original image (+ webp thumbnail) for a world. The thumbnail is
-// regenerated from the original at display size; `fallbackThumbDataUrl` (the
-// slot preview) covers formats createImageBitmap can't decode. Returns the
-// original's storage path to persist in posts.images.
-export const uploadMemoryImage = async (
-    worldId: string,
-    file: File,
-    fallbackThumbDataUrl?: string
-): Promise<{ originalPath: string }> => {
+// regenerated from the original at display size; if the browser cannot decode
+// the format, only the original is stored. Returns the original's storage path
+// to persist in posts.images.
+export const uploadMemoryImage = async (worldId: string, file: File): Promise<{ originalPath: string }> => {
     const ext = EXT_BY_TYPE[file.type] ?? 'bin';
     const base = `${worldId}/${newId()}`;
     const originalPath = `${base}.${ext}`;
@@ -69,7 +67,7 @@ export const uploadMemoryImage = async (
     const { error: origErr } = await supabase.storage.from(BUCKET).upload(originalPath, file, { contentType: file.type, upsert: false });
     if (origErr) throw origErr;
 
-    const thumbDataUrl = await makeThumbDataUrl(file).catch(() => fallbackThumbDataUrl);
+    const thumbDataUrl = await makeThumbDataUrl(file).catch(() => undefined);
     if (thumbDataUrl) {
         const thumb = dataUrlToBlob(thumbDataUrl);
         const { error: thumbErr } = await supabase.storage

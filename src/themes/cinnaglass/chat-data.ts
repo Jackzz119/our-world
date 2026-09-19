@@ -30,7 +30,7 @@ import { getProfilesByIds } from '@/lib/profiles.ts';
 import { signImageUrls } from '@/lib/storage.ts';
 import { Logman } from '@/lib/logman.ts';
 import type { EmoteView } from './emote-picker';
-import type { Channel, ChatMessageRow, EmoteRow, FriendshipRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
+import type { Channel, ChannelReadRow, ChatMessageRow, EmoteRow, FriendshipRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
 import type { FeedProfile } from '@/types/feed.ts';
 
 const TAG = '[chat][web][chat-data]';
@@ -285,7 +285,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
     // merge one fetched batch (channels' pages + reactions + reads) into the
     // shared stores — used by both the world and the account loaders
     const absorb = useCallback(
-        (chans: Channel[], pages: ChatMessageRow[][], rxRows: ReactionRow[], readRows: { channel_id: string; user_id: string; last_read_at: string }[], merge: boolean) => {
+        (chans: Channel[], pages: ChatMessageRow[][], rxRows: ReactionRow[], readRows: ChannelReadRow[], merge: boolean) => {
             setChanRows((prev) => {
                 const next = { ...prev };
                 chans.forEach((c, i) => {
@@ -646,7 +646,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 ...prev,
                 [msgId]: mine
                     ? rows
-                    : [...rows, { message_id: msgId, user_id: me, world_id: null, channel_id: '', emoji, created_at: new Date().toISOString() }]
+                    : [...rows, { message_id: msgId, user_id: me, world_id: null, emoji, created_at: new Date().toISOString() }]
             };
         });
         (mine ? removeReaction(msgId, emoji) : addReaction(msgId, emoji)).catch((e: unknown) => Logman.warn(TAG, `reaction 失败：${errMsg(e)}`));

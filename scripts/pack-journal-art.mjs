@@ -1,11 +1,9 @@
 // Package the generated art for the game. Keep the original files in arts/.
 // The first book has a painted checkerboard instead of alpha; remove only the
 // neutral backdrop connected to the canvas boundary, retaining the warm book.
-import { createRequire } from 'node:module';
+import { dependency } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-const require = createRequire(import.meta.url);
-const sharp = require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, 'sharp') : 'sharp');
+const sharp = dependency('sharp');
 const source = 'arts/ui/journal/book-checker-source.png';
 const dir = 'public/ui/journal';
 await mkdir(dir, { recursive: true });

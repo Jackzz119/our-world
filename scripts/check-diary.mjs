@@ -1,13 +1,10 @@
 // Read-only visual regression against the local app. Never publishes a post.
 // DIARY_NODE_MODULES can point to the Codex bundled node_modules directory.
-import { createRequire } from 'node:module';
+import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 
-const require = createRequire(import.meta.url);
-const dependency = (name) =>
-    require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const { PNG } = dependency('pngjs');
 const output = path.resolve('ai/design_system/uiux/research/cinnaglass-history/timeline-night-glass/verification');
@@ -33,7 +30,7 @@ const contrast = (a, b) => {
 };
 
 try {
-    await page.goto('http://localhost:5173/?enter=1&surface=timeline');
+    await page.goto(`${baseUrl()}/?enter=1&surface=timeline`);
     await page.locator('.diary-surface.show .tl-card').first().waitFor({ timeout: 30000 });
     await page.locator('.diary-surface .compose-collapsed').click();
     const textarea = page.getByPlaceholder('今天发生了什么温柔的事？');

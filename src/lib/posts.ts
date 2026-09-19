@@ -2,7 +2,7 @@
 // Reads go through the get_feed_posts RPC, which applies privacy / unlock
 // rules server-side and returns the post rows for a world.
 // Writes insert into the posts table (author = current user).
-import { supabase } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { FeedPost, PostPrivacy } from '@/types/feed.ts';
 
 export type FeedPage = {
@@ -34,9 +34,7 @@ export type NewPost = {
 
 // Create a memory post authored by the current user in the given world.
 export const createPost = async ({ worldId, content, images = [], privacy = 'shared' }: NewPost): Promise<void> => {
-    const { data: auth } = await supabase.auth.getUser();
-    const authorId = auth.user?.id;
-    if (!authorId) throw new Error('未登录，无法发帖。');
+    const authorId = await currentUserId('未登录，无法发帖。');
 
     const { error } = await supabase.from('posts').insert({
         author_id: authorId,

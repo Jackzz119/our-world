@@ -24,13 +24,3 @@ export const VOICE_DEFAULT = [
     { id: 'music', name: '一起听歌' },
     { id: 'call', name: '煲电话粥' }
 ];
-
-// shared localStorage loader for the theme's persisted slices
-export function owLoad<T>(k: string, fb: T): T {
-    try {
-        const v = localStorage.getItem(k);
-        return v ? (JSON.parse(v) as T) : fb;
-    } catch {
-        return fb;
-    }
-}

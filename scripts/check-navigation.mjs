@@ -1,12 +1,9 @@
 // Browser-only checks: no posts, messages or shared data are written.
-import { createRequire } from 'node:module';
+import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 
-const require = createRequire(import.meta.url);
-const dependency = (name) =>
-    require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const sharp = dependency('sharp');
 const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/navigation-verification');
@@ -20,7 +17,7 @@ await page.addInitScript(() =>
 );
 const result = [];
 try {
-    await page.goto(`${process.env.JOURNAL_URL || 'http://localhost:5175'}/?enter=1`);
+    await page.goto(`${baseUrl()}/?enter=1`);
     const rail = page.getByRole('navigation', { name: '房间导航' });
     await rail.waitFor({ timeout: 30000 });
     await page.waitForTimeout(1800);
@@ -175,7 +172,7 @@ try {
     await touchPage.addInitScript(() =>
         localStorage.setItem('ow-tweaks-v1', JSON.stringify({ mood: 'night', weather: 'rain' }))
     );
-    await touchPage.goto(`${process.env.JOURNAL_URL || 'http://localhost:5175'}/?enter=1`);
+    await touchPage.goto(`${baseUrl()}/?enter=1`);
     const touchRail = touchPage.getByRole('navigation', { name: '房间导航' });
     const touchHome = touchRail.getByRole('button', { name: '房间', exact: true });
     await touchHome.waitFor();
@@ -222,7 +219,7 @@ try {
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', (e) => errors.push(e.message));
     await docsPage.goto(
-        `${process.env.JOURNAL_URL || 'http://localhost:5175'}/ai/design_system/uiux/cinnaglass/ui-system.html#navigation-glass`
+        `${baseUrl()}/ai/design_system/uiux/cinnaglass/ui-system.html#navigation-glass`
     );
     await docsPage.locator('#navigation-glass').scrollIntoViewIfNeeded();
     // The comparison is lazy-loaded; wait for its pixels, not just the heading.

@@ -1,9 +1,7 @@
 // Material-map packaging, not a painted UI: retain deviations from neutral
 // as transparent light/dark grain. A solid gray map would veil the real room.
-import { createRequire } from 'node:module';
-import path from 'node:path';
-const require = createRequire(import.meta.url);
-const sharp = require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, 'sharp') : 'sharp');
+import { dependency } from './lib/deps.mjs';
+const sharp = dependency('sharp');
 const { data, info } = await sharp('arts/ui/navigation/frost-source.png')
     .resize(512, 512)
     .grayscale()

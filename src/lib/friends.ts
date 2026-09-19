@@ -2,17 +2,10 @@
 // 阶段). Friendships are canonical pairs (user_a < user_b); accepting a
 // request triggers the DM channel creation server-side. Changes reach both
 // accounts through their `user:{uid}` broadcast topics.
-import { supabase } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { FriendshipRow } from '@/types/chat.ts';
 
 const COLS = 'user_a, user_b, requested_by, status, created_at, responded_at';
-
-const currentUserId = async (): Promise<string> => {
-    const { data } = await supabase.auth.getUser();
-    const id = data.user?.id;
-    if (!id) throw new Error('未登录。');
-    return id;
-};
 
 const pairOf = (a: string, b: string): [string, string] => (a < b ? [a, b] : [b, a]);
 

@@ -1,0 +1,26 @@
+[warn] src/pages/WorldPage.tsx
+[warn] src/themes/cinnaglass/calendar.tsx
+[warn] src/themes/cinnaglass/channel-screen.tsx
+[warn] src/themes/cinnaglass/chat-data.ts
+[warn] src/themes/cinnaglass/cinnaglass.css
+[warn] src/themes/cinnaglass/emote-picker.tsx
+[warn] src/themes/cinnaglass/friends-page.tsx
+[warn] src/themes/cinnaglass/icons.tsx
+[warn] src/themes/cinnaglass/image-slot.js
+[warn] src/themes/cinnaglass/lobby.tsx
+[warn] src/themes/cinnaglass/music.tsx
+[warn] src/themes/cinnaglass/profile.ts
+[warn] src/themes/cinnaglass/room/pixi-scene.ts
+[warn] src/themes/cinnaglass/room/room-scene.tsx
+[warn] src/themes/cinnaglass/room/room-types.ts
+[warn] src/themes/cinnaglass/room/study-room.ts
+[warn] src/themes/cinnaglass/rooms.ts
+[warn] src/themes/cinnaglass/scene.tsx
+[warn] src/themes/cinnaglass/settings.tsx
+[warn] src/themes/cinnaglass/shell/chat-card.tsx
+[warn] src/themes/cinnaglass/tweaks.ts
+[warn] src/themes/cinnaglass/world-settings.tsx
+[warn] src/types/chat.ts
+[warn] src/types/index.ts
+[warn] Code style issues found in 192 files. Run Prettier with --write to fix.
+exit=

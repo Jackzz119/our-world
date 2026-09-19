@@ -3,7 +3,7 @@
 // A world is owned by one person (owner) and may later gain one invited
 // member. A solo owner still gets a world, so the feed always has somewhere
 // to post.
-import { supabase } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { World } from '@/types/feed.ts';
 
 const WORLD_COLS = 'id, owner_id, member_id, name, anniversary, icon_emoji, icon_path, intimacy_points, created_at';
@@ -13,9 +13,7 @@ const WORLD_COLS = 'id, owner_id, member_id, name, anniversary, icon_emoji, icon
 // feed assumes you have already entered a world, so a null here is an anomaly
 // the caller should surface as an error.
 export const getMyWorld = async (): Promise<{ world: World | null; userId: string }> => {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
-    if (!userId) throw new Error('未登录，无法进入世界。');
+    const userId = await currentUserId('未登录，无法进入世界。');
 
     const { data, error } = await supabase
         .from('worlds')
@@ -31,9 +29,7 @@ export const getMyWorld = async (): Promise<{ world: World | null; userId: strin
 // member is invited later. check_world_uniqueness rejects a second world per
 // user.
 export const createWorld = async (): Promise<World> => {
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
-    if (!userId) throw new Error('未登录，无法创建世界。');
+    const userId = await currentUserId('未登录，无法创建世界。');
 
     const { data, error } = await supabase.from('worlds').insert({ owner_id: userId }).select(WORLD_COLS).single();
     if (error) throw error;

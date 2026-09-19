@@ -1,11 +1,8 @@
 // Export deterministic frames from the SAME browser geometry used by the book.
-import { createRequire } from 'node:module';
+import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-const require = createRequire(import.meta.url);
-const dep = (n) => require(path.join(process.env.DIARY_NODE_MODULES, n));
-const { chromium } = dep('playwright');
-const sharp = dep('sharp');
+const { chromium } = dependency('playwright');
+const sharp = dependency('sharp');
 const dir = 'ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification';
 await mkdir(dir, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
@@ -13,7 +10,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 try {
-    await page.goto('http://localhost:5175/ai/design_system/uiux/cinnaglass/journal-room-object/turn-prototype.html');
+    await page.goto(`${baseUrl()}/ai/design_system/uiux/cinnaglass/journal-room-object/turn-prototype.html`);
     await page.waitForFunction(() => !!window.turnDemo);
     await page.evaluate(() => Promise.all([...document.images].map((img) => img.decode().catch(() => {}))));
     for (const [kind, count] of [

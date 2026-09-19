@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ComponentType } from 're
 import type { UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
 import { thumbPathOf } from '@/lib/storage';
-import { buildJournalPages, type JournalPage } from './journal-layout';
+import { applyThumbUrls, buildJournalPages, type JournalPage } from './journal-layout';
 import { JournalTurnController } from './journal-turn-controller';
 import './journal-room.css';
 import './journal-turn.css';
@@ -59,14 +59,9 @@ export function JournalRoomBook({
 
     useEffect(() => {
         urls.current = thumbUrls;
-        slot.current?.querySelectorAll<HTMLImageElement>('img[data-image-path]').forEach((image) => {
-            const url = thumbUrls[thumbPathOf(image.dataset.imagePath!)];
-            if (url && image.src !== url) {
-                image.src = url;
-                image.alt = '回忆照片';
-            }
-        });
-        turner.current?.updateImages((path) => thumbUrls[thumbPathOf(path)]);
+        const urlFor = (path: string) => thumbUrls[thumbPathOf(path)];
+        if (slot.current) applyThumbUrls(slot.current, urlFor);
+        turner.current?.updateImages(urlFor);
     }, [thumbUrls]);
 
     useEffect(() => {

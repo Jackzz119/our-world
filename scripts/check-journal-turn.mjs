@@ -1,16 +1,15 @@
 // Fresh-browser, read-only fixtures. Never publishes a post or changes shared data.
-import { createRequire } from 'node:module';
+import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-const require = createRequire(import.meta.url);
-const { chromium } = require(path.join(process.env.DIARY_NODE_MODULES, 'playwright'));
-const sharp = require(path.join(process.env.DIARY_NODE_MODULES, 'sharp'));
+const { chromium } = dependency('playwright');
+const sharp = dependency('sharp');
 const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification');
 await mkdir(dir, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-const base = process.env.JOURNAL_URL || 'http://localhost:5175';
+const base = baseUrl();
 const errors = [];
 const results = {};
 page.on('pageerror', (error) => errors.push(error.stack || error.message));

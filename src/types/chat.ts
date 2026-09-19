@@ -65,7 +65,6 @@ export type ReactionRow = {
     message_id: string;
     user_id: string;
     world_id: string | null;
-    channel_id: string;
     emoji: string;
     created_at: string;
 };

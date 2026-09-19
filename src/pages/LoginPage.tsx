@@ -43,7 +43,8 @@ const GoogleMark = () => (
     </svg>
 );
 
-type Msg = { type: 'info' | 'error'; text: string } | null;
+// Inline notice shown under the form (shared with ResetPasswordPage).
+export type Msg = { type: 'info' | 'error'; text: string } | null;
 
 const LoginPage = () => {
     const navigate = useNavigate();

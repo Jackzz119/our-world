@@ -26,5 +26,7 @@
             "@/*": ["src/*"]
         }
     },
+    // Only the Vite config is type-checked in the node project; scripts/*.mjs are
+    // untyped tooling with external deps and stay outside tsc on purpose.
     "include": ["vite.config.ts"]
 }

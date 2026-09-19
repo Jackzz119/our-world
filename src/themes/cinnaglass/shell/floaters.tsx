@@ -6,7 +6,8 @@
 
 import { useMemo } from 'react';
 import { IChevron, IEye, IHeart, IPause, IPlay } from '../icons';
-import { MusicPlayer, TRACKS } from '../music';
+import { MusicPlayer } from '../music';
+import { TRACKS } from '../music-tracks';
 
 /* ------------------------------------------------------------------ */
 /* moment card (spec §5.4)                                             */

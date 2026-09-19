@@ -5,9 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Channel } from '@/types/chat.ts';
-import type { Conv } from '../chat-data';
-import { convsFor } from '../chat-data';
-import type { Msg } from '../model';
+import { convsFor, type Conv, type Msg } from '../chat-data';
 import { IClose, IExpand, ISend } from '../icons';
 
 const QUICK = [
@@ -82,8 +80,8 @@ export function ChatCard({ open, onClose, onExpand, inWorld, channels, dmConvs, 
                             <img src={m.from === 'me' ? AVATARS.me : AVATARS.her} alt="" draggable={false} />
                             <i className="cc-on" />
                         </span>
-                        {m.kind === 'sticker' && m.stickerUrl ? (
-                            <img className="cc-sticker" src={m.stickerUrl} alt="" draggable={false} />
+                        {m.kind === 'sticker' && m.emoteUrl ? (
+                            <img className="cc-sticker" src={m.emoteUrl} alt="" draggable={false} />
                         ) : (
                             <span className="cc-bubble">{m.text}</span>
                         )}

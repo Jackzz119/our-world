@@ -19,7 +19,7 @@ const element = (tag: string, className: string, text?: string) => {
 
 // User content is always textContent, never interpreted as markup. These
 // nodes belong to the book renderer, not React's reconciler.
-export function journalEntry(part: JournalPart, context: Context): HTMLElement {
+function journalEntry(part: JournalPart, context: Context): HTMLElement {
     const { post, text, images, continued } = part;
     const mine = post.author_id === context.userId;
     const profile = context.profiles[post.author_id];
@@ -212,4 +212,17 @@ export function buildJournalPages(posts: FeedPost[], width: number, height: numb
     } finally {
         measure.remove();
     }
+}
+
+// Swap freshly signed thumbnail URLs into every rendered photo under `root`
+// (both the resting pages and any sheets mid-turn share this). Unsigned paths
+// are left alone so a photo never flashes to a broken image.
+export function applyThumbUrls(root: ParentNode, urlFor: (path: string) => string | undefined): void {
+    root.querySelectorAll<HTMLImageElement>('img[data-image-path]').forEach((image) => {
+        const url = urlFor(image.dataset.imagePath!);
+        if (url && image.src !== url) {
+            image.src = url;
+            image.alt = '回忆照片';
+        }
+    });
 }

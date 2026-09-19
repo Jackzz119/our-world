@@ -11,7 +11,7 @@ import { RoomScene } from '@/themes/cinnaglass/scene.tsx';
 import { IEye, IEyeOff, IHeart, ILock } from '@/themes/cinnaglass/icons.tsx';
 import styles from './LoginPage.module.css';
 
-type Msg = { type: 'info' | 'error'; text: string } | null;
+import type { Msg } from './LoginPage';
 
 const ResetPasswordPage = () => {
     const navigate = useNavigate();

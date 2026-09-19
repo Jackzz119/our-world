@@ -1,12 +1,9 @@
 // Visual and read-only regression checks. Synthetic examples are intercepted
 // only inside this fresh browser, never inserted into the shared database.
-import { createRequire } from 'node:module';
+import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-const require = createRequire(import.meta.url);
-const dependency = (name) =>
-    require(process.env.DIARY_NODE_MODULES ? path.join(process.env.DIARY_NODE_MODULES, name) : name);
 const { chromium } = dependency('playwright');
 const sharp = dependency('sharp');
 const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/book-verification');
@@ -18,7 +15,7 @@ await sharp(reference)
     .toFile(path.join(dir, 'reference-photo.png'));
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
-const base = process.env.JOURNAL_URL || 'http://localhost:5175';
+const base = baseUrl();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.stack || e.message));
 await page.addInitScript(() => {

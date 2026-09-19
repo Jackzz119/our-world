@@ -1,0 +1,24 @@
+# Dependencies, build output and generated lockfile
+node_modules/
+dist/
+pnpm-lock.yaml
+
+# Protected protocol files and skill definitions: changes are reviewed by hand
+CLAUDE.md
+AGENTS.md
+.claude/
+.agents/
+
+# Frozen originals: their value is staying exactly as delivered
+ai/reboot/
+ai/codex-visual/
+ai/design_system/uiux/research/cinnaglass-history/
+ai/sessions/
+
+# Audit evidence snapshots (each run is kept as it was produced)
+ai/project-audit/runs/
+*.diff
+
+# Asset trees (binaries plus their provenance json/md)
+arts/
+public/

@@ -1,6 +1,7 @@
 // profile.ts — default profile + loader (kept out of settings.tsx so that
 // component file only exports components, per react-refresh).
 import type { Profile } from './model';
+import { loadMerged } from '@/lib/local-store.ts';
 
 export const PROFILE_DEFAULT: Profile = {
     world: '我们的小世界',
@@ -12,14 +13,7 @@ export const PROFILE_DEFAULT: Profile = {
     status: '在你身边'
 };
 
-export const gload = (k: string, fb: Profile): Profile => {
-    try {
-        const v = localStorage.getItem(k);
-        return v ? { ...fb, ...JSON.parse(v) } : fb;
-    } catch {
-        return fb;
-    }
-};
+export const gload = (k: string, fb: Profile): Profile => loadMerged(k, fb);
 
 // ── relationship date math (world.anniversary / profile.anniv, 'YYYY-MM-DD') ──
 
