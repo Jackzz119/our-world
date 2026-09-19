@@ -1,0 +1,765 @@
+/* object-surfaces.css — the room-object modal shell plus the collection
+   surfaces (photo wall, wishlist), the composer and the post-detail viewer.
+   Lifted out of the <style> element screens.tsx used to render, so it must
+   stay imported after journal-room.css/journal-turn.css: ties are decided by
+   load order and the journal's chestnut overrides have to keep winning. */
+/* ── room-object surfaces ──
+   Collections keep the existing paper treatment. The diary's approved
+   chestnut-book art and responsive overrides live in journal-room.css. No tabs. */
+/* While a room object is open the stage behind it stands down: its props go
+   invisible and un-clickable, and the diary gets a thinner scrim than the other
+   modals. These live with the shell, not with the journal's own paper. */
+.stage[data-reading='true'] :is(.moment-card, .music-wrap, .chat-card, .room-handle) {
+    visibility: hidden;
+    pointer-events: none;
+}
+.stage[data-reading='true'] .presence-tag {
+    opacity: 0;
+}
+.modal-scrim.diary-scrim {
+    background: rgba(26, 27, 23, 0.1);
+    backdrop-filter: none;
+}
+.object-scrim {
+    z-index: 30;
+}
+.object-surface {
+    --surface-shift-x: 0px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--glass-paper);
+    color: var(--paper-text);
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    box-shadow:
+        8px 8px 0 -1px rgba(226, 206, 174, 0.94),
+        var(--paper-shadow);
+    transform: translate(
+            calc(-50% + var(--surface-shift-x) + var(--object-open-x, 0px)),
+            calc(-50% + var(--object-open-y, 24px))
+        )
+        scale(0.78) rotate(var(--object-open-r, -1deg));
+    transform-origin: center;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity var(--object-open-duration) ease,
+        transform var(--object-open-duration) var(--object-open-ease);
+}
+.object-surface.show {
+    transform: translate(calc(-50% + var(--surface-shift-x)), -50%) scale(1) rotate(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+.object-surface:focus-visible {
+    outline: 3px solid rgba(47, 154, 211, 0.42);
+    outline-offset: 4px;
+}
+.object-hd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 17px 17px 13px 21px;
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--paper-line);
+}
+.object-hd h2 {
+    margin: 0;
+    flex: 1;
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 750;
+    letter-spacing: 0.025em;
+}
+.object-kicker {
+    font-size: 10px;
+    color: var(--paper-sub);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+.object-x {
+    background: transparent;
+    color: var(--paper-text);
+    border-color: var(--paper-line);
+}
+.object-x:hover {
+    background: var(--paper-hover);
+}
+.object-body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 20px 22px;
+}
+.object-body::-webkit-scrollbar {
+    width: 0;
+}
+.collection-surface {
+    width: min(720px, calc(100% - 48px));
+    height: min(760px, calc(100% - 48px));
+    border-radius: 18px;
+}
+@media (max-width: 767px) {
+    .object-hd {
+        padding: 14px 12px 11px 16px;
+    }
+    .object-hd h2 {
+        font-size: 17px;
+    }
+    .object-kicker {
+        display: none;
+    }
+    .collection-surface {
+        width: calc(100% - 28px);
+        height: calc(100% - 36px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .object-surface {
+        transition-duration: 1ms;
+    }
+}
+
+/* ── composer — inside the journal it is absolutely positioned on the paper
+   (journal-room.css). Bright white writing surface: words sit on paper,
+   not on hazy glass. Design ref:
+   ai/design_system/uiux/research/cinnaglass-history/composer-redesign.html */
+.compose {
+    border-radius: 18px;
+    padding: 10px;
+    margin-top: 10px;
+    flex: 0 0 auto;
+    background: var(--glass-paper);
+}
+/* collapsed = an input-field look: the whole pill reads as "type here".
+   Kept low — idle it's just a doorway, not a billboard. */
+.compose-collapsed {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    height: 40px;
+    padding: 0 14px 0 6px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--glass-line);
+    background: rgba(255, 255, 255, 0.6);
+    transition:
+        border-color 0.2s,
+        background 0.2s,
+        box-shadow 0.2s;
+}
+.compose-collapsed:hover {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 4px 14px -6px rgba(47, 154, 211, 0.45);
+}
+.compose-collapsed .ph {
+    color: var(--glass-sub);
+    font-size: 13.5px;
+    flex: 1;
+    min-width: 0;
+}
+.compose-collapsed .go {
+    color: var(--accent-deep);
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+.compose-collapsed:hover .go {
+    opacity: 0.85;
+}
+/* a saved draft must be visible from the collapsed pill — otherwise
+   click-outside-to-collapse reads as "my words vanished" */
+.compose-collapsed.draft {
+    border-color: rgba(124, 198, 236, 0.7);
+}
+.compose-collapsed.draft .ph {
+    color: var(--glass-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.draft-chip {
+    flex: 0 0 auto;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #8a6d3a;
+    letter-spacing: 0.06em;
+    background: linear-gradient(135deg, #fff8ec, var(--butter));
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    padding: 2.5px 10px;
+}
+.draft-imgs {
+    flex: 0 0 auto;
+    font-size: 11px;
+    color: var(--accent-deep);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+/* drag-over: highlight the whole surface, no layout shift (a strip popping
+   in mid-drag would flicker dragleave) */
+.compose.dropping {
+    border-color: var(--accent-deep);
+    box-shadow:
+        0 0 0 2px rgba(47, 154, 211, 0.35),
+        0 12px 30px -14px rgba(20, 29, 51, 0.35);
+}
+.compose-open {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.compose textarea {
+    width: 100%;
+    min-height: 70px;
+    max-height: 220px;
+    overflow-y: auto;
+    resize: none;
+    border: 0;
+    background: transparent;
+    outline: none;
+    font: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--glass-text);
+}
+.compose textarea::placeholder {
+    color: var(--glass-sub);
+}
+.compose-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+/* picker: empty = one wide drop strip (drag affordance spelled out, biggest
+   possible target); picked = thumbnail row + add tile, ×-removable.
+   The row IS the upload list. */
+.pk-strip {
+    height: 96px;
+    border-radius: 14px;
+    border: 1.5px dashed rgba(47, 154, 211, 0.45);
+    background: rgba(216, 239, 250, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: var(--glass-sub);
+    font-size: 12.5px;
+    cursor: pointer;
+    transition:
+        border-color 0.2s,
+        background 0.2s;
+}
+.pk-strip:hover,
+.compose.dropping .pk-strip {
+    border-color: var(--accent-deep);
+    background: rgba(216, 239, 250, 0.6);
+}
+.pk-strip u {
+    text-underline-offset: 2px;
+}
+.pk-add {
+    width: 64px;
+    height: 64px;
+    border-radius: 11px;
+    border: 1.5px dashed rgba(47, 154, 211, 0.5);
+    padding: 0;
+    cursor: pointer;
+    background: rgba(216, 239, 250, 0.35);
+    display: grid;
+    place-items: center;
+    color: var(--accent-deep);
+    font-size: 22px;
+    font-weight: 300;
+}
+.pk-row {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.pk {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 11px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    box-shadow: 0 6px 14px -6px rgba(20, 29, 51, 0.35);
+}
+.pk img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.pk .x {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    background: rgba(20, 29, 51, 0.55);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    line-height: 1;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+.pk-cnt {
+    font-size: 11px;
+    color: var(--glass-sub);
+    margin-left: 2px;
+}
+.compose-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 9px;
+    align-items: center;
+}
+.btn-ghost {
+    appearance: none;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    border-radius: var(--r-pill);
+    background: var(--glass-bg-2);
+    color: var(--glass-sub);
+    padding: 9px 15px;
+    font-size: 13px;
+    border: 1px solid var(--glass-line);
+    transition:
+        color 0.2s,
+        background 0.2s;
+}
+.btn-ghost:hover {
+    color: var(--glass-text);
+}
+/* publish = the moment-keeping CTA: roomier, glowing, worth pressing */
+.btn-pub {
+    padding: 11px 22px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 8px 22px -8px rgba(47, 154, 211, 0.65);
+}
+.btn-pub:hover:not(:disabled) {
+    box-shadow: 0 12px 26px -8px rgba(47, 154, 211, 0.75);
+}
+
+/* ── journal host: the body of the diary surface. The scrolling timeline
+   that used to live here is gone — the chestnut book owns its own paging
+   (journal-room-book.tsx), so only the host box is left. ── */
+.tl-host {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 16px 16px;
+}
+/* Kept on purpose: .tl also matches the journal's top-left photo corner
+   (<i class="journal-photo-corner tl">, journal-layout.ts). Removing these
+   two rules would change how that ornament paints, so they stay until the
+   collision is untangled. */
+.tl {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    padding-left: 48px;
+}
+.tl::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    bottom: 12px;
+    width: 0;
+    border-left: 2px dotted rgba(124, 198, 236, 0.35);
+}
+.ava {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border: 2px solid var(--cream);
+}
+.ava img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── widescreen: the page widens at fixed, tested breakpoints ── */
+@media (min-width: 1000px) {
+    .tl-host {
+        padding: 0 18px 18px;
+    }
+    /* wishlist keeps a readable centered column in the big modal */
+    .wl-bar,
+    .wish,
+    .wl-add {
+        max-width: 820px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .pw {
+        columns: 4;
+    }
+}
+@media (max-width: 767px) {
+    .tl-host {
+        padding: 0 10px 11px;
+    }
+    .tl {
+        padding-left: 40px;
+    }
+    .tl::before {
+        left: 12px;
+    }
+    .compose {
+        padding: 7px;
+        margin-top: 7px;
+        border-radius: 14px;
+    }
+    .compose-collapsed {
+        padding-right: 9px;
+    }
+    .compose-collapsed .go {
+        display: none;
+    }
+    .draft-chip {
+        display: none;
+    }
+}
+
+/* post detail viewer */
+.pd {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    background: rgba(20, 29, 51, 0.62);
+    -webkit-backdrop-filter: blur(9px);
+    backdrop-filter: blur(9px);
+    animation: lbIn 0.22s ease;
+}
+.pd-card {
+    cursor: auto;
+    width: min(560px, 92vw);
+    max-height: 86vh;
+    overflow-y: auto;
+    border-radius: 22px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--glass-paper);
+}
+.pd-card::-webkit-scrollbar {
+    width: 0;
+}
+.pd-hd {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+.pd-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+.pd-date {
+    font-size: 11px;
+    color: var(--glass-sub);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+.pd-img {
+    border-radius: 16px;
+    overflow: hidden;
+}
+.pd-img img {
+    width: 100%;
+    display: block;
+}
+.pd-load {
+    font-size: 11px;
+    color: var(--glass-sub);
+    text-align: center;
+    padding-top: 6px;
+}
+.pd-text {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--glass-text);
+    text-wrap: pretty;
+    white-space: pre-wrap;
+}
+
+/* ── photo wall: a collage of polaroids — natural aspect masonry, paper
+   frames, washi tape, a stable per-photo tilt that straightens on hover ── */
+.pw-head {
+    font-size: 12px;
+    color: var(--glass-sub);
+    margin-bottom: 14px;
+    letter-spacing: 0.03em;
+}
+.pw-month {
+    font-size: 12.5px;
+    color: var(--glass-sub);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin: 8px 4px 16px;
+}
+.pw-month b {
+    color: var(--accent-deep);
+    font-size: 14px;
+    margin-right: 6px;
+}
+.pw {
+    columns: 2;
+    column-gap: 16px;
+    padding-top: 8px;
+}
+@media (min-width: 560px) {
+    .pw {
+        columns: 3;
+    }
+}
+.pola {
+    break-inside: avoid;
+    position: relative;
+    margin: 0 0 20px;
+    background: #fffdf8;
+    border-radius: 6px;
+    padding: 8px 8px 28px;
+    box-shadow: 0 10px 24px -10px rgba(20, 29, 51, 0.35);
+    cursor: zoom-in;
+    transform: rotate(var(--rot, 0deg));
+    transition: transform 0.22s cubic-bezier(0.3, 0.8, 0.35, 1);
+}
+.pola:hover {
+    transform: rotate(0deg) translateY(-4px) scale(1.02);
+    z-index: 2;
+}
+.pola img {
+    width: 100%;
+    display: block;
+    border-radius: 3px;
+}
+.pola figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    text-align: center;
+    font-size: 11px;
+    color: #8b7f6a;
+    letter-spacing: 0.08em;
+}
+.pola .tape {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 64px;
+    height: 18px;
+    border-radius: 2px;
+    opacity: 0.85;
+    transform: translateX(-50%) rotate(-3deg);
+    background: repeating-linear-gradient(45deg, var(--sky-2) 0 6px, #e4f4fc 6px 12px);
+}
+.pola:nth-child(2n) .tape {
+    transform: translateX(-50%) rotate(2.5deg);
+    background: repeating-linear-gradient(45deg, var(--blush) 0 6px, #fdeef3 6px 12px);
+}
+
+/* lightbox: thumbnail first, the signed original swaps in */
+.lb {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    cursor: zoom-out;
+    background: rgba(20, 29, 51, 0.74);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: lbIn 0.22s ease;
+}
+@keyframes lbIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.lb img {
+    max-width: min(92vw, 1240px);
+    max-height: 84vh;
+    border-radius: 18px;
+    box-shadow: 0 30px 80px -20px rgba(10, 16, 32, 0.8);
+}
+.lb-cap {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    background: rgba(20, 29, 51, 0.55);
+    padding: 6px 14px;
+    border-radius: 999px;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+/* ── wishlist ── */
+.wl-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.wl-prog {
+    flex: 1;
+    height: 9px;
+    border-radius: 99px;
+    background: var(--glass-bg-2);
+    overflow: hidden;
+    border: 1px solid var(--glass-line);
+}
+.wl-prog i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent-grad);
+    transition: width 0.5s cubic-bezier(0.3, 0.8, 0.35, 1);
+}
+.wl-count {
+    font-size: 12px;
+    color: var(--glass-sub);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.wl-count b {
+    color: var(--accent-deep);
+}
+.wish {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 15px;
+    padding: 13px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition:
+        transform 0.16s,
+        background 0.2s;
+}
+.wish:active {
+    transform: scale(0.99);
+}
+.wish .box {
+    width: 24px;
+    height: 24px;
+    border-radius: 9px;
+    border: 2px solid rgba(47, 154, 211, 0.45);
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    transition:
+        background 0.25s,
+        border-color 0.25s,
+        transform 0.25s;
+}
+.wish.done .box {
+    background: linear-gradient(135deg, #f8c8d6, #ef9db4);
+    border-color: transparent;
+    transform: scale(1);
+}
+.wish .wt {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--glass-text);
+    transition: opacity 0.25s;
+}
+.wish.done .wt {
+    opacity: 0.5;
+    text-decoration: line-through;
+    text-decoration-color: var(--glass-sub);
+}
+.wl-add {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+.wl-add input {
+    flex: 1;
+    height: 44px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--glass-line);
+    background: var(--glass-paper);
+    color: var(--glass-text);
+    padding: 0 17px;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color 0.2s,
+        background 0.2s;
+}
+.wl-add input::placeholder {
+    color: var(--glass-sub);
+}
+.wl-add input:focus {
+    border-color: var(--accent);
+    background: var(--glass-hi);
+}
+.wl-add button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    transition: transform 0.18s;
+}
+.wl-add button:hover {
+    transform: scale(1.06);
+}
+.wl-add button:active {
+    transform: scale(0.9);
+}
+
+.empty-hint {
+    text-align: center;
+    color: var(--glass-sub);
+    font-size: 12px;
+    margin-top: 16px;
+    letter-spacing: 0.04em;
+}

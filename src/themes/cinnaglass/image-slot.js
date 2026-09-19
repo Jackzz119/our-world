@@ -187,7 +187,6 @@
                     this._local = null;
                     if (this.id) setSlot(this.id, null);
                     else this._render();
-                    this._emitChange(null, null);
                 }
             });
             this._input.addEventListener('change', () => {
@@ -379,26 +378,11 @@
                     this._local = val;
                     this._render();
                 }
-                this._emitChange(url, file);
             } catch (err) {
                 if (gen !== this._gen) return;
                 this._setError('无法读取该图片。');
                 console.warn('<image-slot> ingest failed:', err);
             }
-        }
-
-        // Notify React of the current selection: the original File (for Storage
-        // upload) + the webp thumbnail dataURL (for preview). Fires (null, null)
-        // on clear. The localStorage behavior above is untouched.
-        // No listener today: the composer uploads through its own file input.
-        _emitChange(dataUrl, file) {
-            this.dispatchEvent(
-                new CustomEvent('slot-change', {
-                    bubbles: true,
-                    composed: true,
-                    detail: { id: this.id || null, dataUrl, file }
-                })
-            );
         }
 
         _setError(msg) {

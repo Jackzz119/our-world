@@ -1,5 +1,5 @@
-// scene.tsx — the isometric SVG room "diorama" drawn behind the sign-in and
-// reset-password pages. A small iso-projection helper builds a cozy
+// login-backdrop.tsx — the isometric SVG room "diorama" drawn behind the
+// sign-in and reset-password pages. A small iso-projection helper builds a cozy
 // bedroom-study out of pure markup: no assets, so it paints before any texture
 // could load. The mood and weather overlays in cinnaglass.css (.scene-base /
 // .mood-* / .wx-*) tint it for twilight / golden / night lighting.
@@ -96,7 +96,7 @@ const Shadow = ({ u, v, rx = 34, ry = 17, o = 0.16 }: ShadowProps) => (
 // The whole diorama as one SVG — floor, two walls, desk, bed, rug and two
 // chibi avatars, all projected by X/Y above. shadow=false drops the outer drop
 // shadow, for embedding on a light panel.
-export function RoomArt({ shadow = true }: { shadow?: boolean }) {
+function RoomArt({ shadow = true }: { shadow?: boolean }) {
     return (
         <svg
             viewBox="0 0 1000 720"
@@ -484,7 +484,7 @@ export function RoomArt({ shadow = true }: { shadow?: boolean }) {
 
 // The sign-in backdrop: the diorama under the CSS mood and weather overlays.
 // Unrelated to room/room-scene.tsx, which mounts the live Pixi world scene.
-export function RoomScene({ weather = 'cloud' }: { weather?: string }) {
+export function LoginBackdrop({ weather = 'cloud' }: { weather?: string }) {
     return (
         <div className="scene-base" data-wx={weather}>
             <div className="scene-ambient" />

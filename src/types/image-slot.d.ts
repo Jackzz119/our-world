@@ -1,4 +1,6 @@
-// types.d.ts — JSX typing for the <image-slot> custom element (see image-slot.js).
+// image-slot.d.ts — JSX typing for the <image-slot> custom element
+// (src/themes/cinnaglass/image-slot.js). It augments react's global JSX
+// namespace, so it belongs with the shared types, not inside the theme.
 
 import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 

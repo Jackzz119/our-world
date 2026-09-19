@@ -11,10 +11,8 @@
 // register is ai/design_system/uiux/cinnaglass/decisions.md.
 import { useRef, useState } from 'react';
 import { ALL_EMOJI, EMOJI_CATEGORIES } from './emoji-data';
-import type { EmoteRow, EmoteSearchResult } from '@/types/chat.ts';
-
-// A library emote plus its signed display url (null while the url is still being signed).
-export type EmoteView = EmoteRow & { url: string | null };
+import type { EmoteSearchResult } from '@/types/chat.ts';
+import type { EmoteView } from './chat-data';
 
 // Recently picked emoji, per browser (localStorage — never synced, never server state).
 const RECENT_KEY = 'ow-emoji-recent-v1';

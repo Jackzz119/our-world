@@ -1,4 +1,9 @@
-/* B · 苔绿手札. Material values live in cinnaglass.css/materials.css. */
+/* diary.css — the journal's structural base layer: the pieces the chestnut
+   book in journal-room.css does not restate (box model, typography scale,
+   photo frames, index drawer). Every declaration journal-room.css overrode has
+   been removed, so a value is now declared in exactly one of the two files.
+   Material tokens live in cinnaglass.css/materials.css. The one shell rule
+   still lodged here (.stage .room-scene) is logged for a later pass. */
 :root {
     /* Read from screens.tsx (PostDetail author name). The other --diary-*
        aliases had no reader left and were removed. */
@@ -8,39 +13,12 @@
 .stage .room-scene {
     transform: none;
 }
-.stage[data-reading='true'] :is(.moment-card, .music-wrap, .chat-card, .room-handle) {
-    visibility: hidden;
-    pointer-events: none;
-}
-.stage[data-reading='true'] .presence-tag {
-    opacity: 0;
-}
-.modal-scrim.diary-scrim {
-    background: rgba(26, 27, 23, 0.1);
-    backdrop-filter: none;
-}
 .object-surface.diary-surface {
-    --surface-shift-x: min(14vw, 200px);
     --book-height: min(430px, 48vh);
-    width: min(760px, calc(100% - 140px));
-    height: var(--book-height);
-    top: calc(100% - 30px - var(--book-height) / 2);
-    padding: 10px 12px 14px;
-    border-radius: 20px 24px 22px 18px;
-    border: 1px solid #969a82;
-    overflow: visible;
     color: var(--craft-ink);
-    background: var(--craft-grain), linear-gradient(125deg, #929880, var(--craft-cover) 45%, #59614f);
-    box-shadow:
-        0 3px 0 #414937,
-        0 7px 0 -1px #737861,
-        0 14px 16px -8px #161b1680,
-        0 30px 64px -24px #0009,
-        inset 0 1px 2px #e2debf80;
     backdrop-filter: none;
 }
 .diary-surface::before {
-    content: '';
     position: absolute;
     inset: 5px;
     pointer-events: none;
@@ -48,7 +26,6 @@
     border-radius: 16px 21px 19px 15px;
 }
 .diary-surface::after {
-    content: '';
     position: absolute;
     inset: 2px 3px auto 52%;
     height: 1px;
@@ -58,34 +35,21 @@
 }
 .diary-surface .object-hd {
     position: absolute;
-    top: 24px;
-    left: 46px;
-    right: 48px;
     z-index: 12;
-    padding: 0;
     border: 0;
     pointer-events: none;
 }
 .diary-surface .object-hd h2 {
-    font:
-        500 22px/1.4 'Noto Serif SC',
-        'Songti SC',
-        'SimSun',
-        serif;
-    letter-spacing: 0.08em;
     color: var(--craft-ink);
 }
 .diary-surface .object-kicker {
     display: none;
 }
 .diary-surface .object-x {
-    width: 36px;
-    height: 36px;
     margin-left: auto;
     pointer-events: auto;
     background: transparent;
     border: 0;
-    color: var(--craft-muted);
 }
 .diary-surface .object-body.tl-host {
     position: relative;
@@ -124,9 +88,6 @@
 .journal-page.--left {
     background: linear-gradient(90deg, transparent 88%, #86765d24), var(--craft-grain), var(--craft-paper);
 }
-.journal-page.--right {
-    background: linear-gradient(90deg, #71634f2a, transparent 10%), var(--craft-grain), var(--craft-paper);
-}
 .journal-page-content {
     position: absolute;
     inset: 78px 0 50px;
@@ -139,12 +100,7 @@
     top: 0;
     visibility: hidden;
     pointer-events: none;
-    padding: 0 32px;
     box-sizing: border-box;
-    font:
-        16px/1.75 'Microsoft YaHei',
-        system-ui,
-        sans-serif;
 }
 .journal-entry {
     position: relative;
@@ -170,7 +126,6 @@
     object-fit: cover;
     border-radius: 50%;
     border: 2px solid #e9dfca;
-    box-shadow: 0 0 0 1px #526f7840;
     flex: none;
 }
 .theirs .journal-avatar {
@@ -244,9 +199,6 @@
     padding-bottom: 8px;
     border-bottom: 1px solid #81745f20;
 }
-.journal-page.--right .journal-running-title {
-    text-align: right;
-}
 .journal-page-number {
     display: none;
 }
@@ -261,7 +213,6 @@
     font:
         16px/1.9 'SimSun',
         serif;
-    color: var(--craft-muted);
     letter-spacing: 0.1em;
 }
 .journal-photos {
@@ -316,20 +267,7 @@
 .journal-bookmark {
     position: absolute;
     z-index: 14;
-    top: -12px;
-    right: 8px;
     writing-mode: vertical-rl;
-    letter-spacing: 0.22em;
-    min-height: 78px;
-    width: 32px;
-    border: 1px solid #9b9c7e;
-    background: var(--craft-grain), linear-gradient(90deg, #8c9376, #a1a589 60%, #858b71);
-    color: #30392a;
-    padding: 16px 8px 18px;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 89%, 0 100%);
-    font:
-        14px/1.2 'SimSun',
-        serif;
     cursor: pointer;
 }
 .journal-bookmark:hover {
@@ -337,14 +275,10 @@
 }
 .journal-index {
     position: absolute;
-    right: 6px;
-    top: 76px;
     z-index: 30;
     width: min(285px, calc(100% - 20px));
-    max-height: calc(100% - 90px);
     overflow: auto;
     padding: 20px;
-    background: var(--craft-grain), var(--craft-paper);
     border: 1px solid var(--craft-line);
     border-radius: 8px;
     box-shadow: 0 15px 30px #28281e4d;
@@ -397,8 +331,6 @@
 }
 .diary-surface .compose {
     position: absolute;
-    right: 35px;
-    bottom: 8px;
     z-index: 15;
     margin: 0;
     padding: 0;
@@ -412,7 +344,6 @@
     position: relative;
     width: auto;
     height: 38px;
-    padding: 0 14px;
     background: none;
     border: 0;
     box-shadow: none;
@@ -420,10 +351,6 @@
     gap: 8px;
 }
 .diary-surface .compose-collapsed .ph {
-    font:
-        15px/1.5 'SimSun',
-        serif;
-    color: var(--craft-ink);
     white-space: nowrap;
 }
 .diary-surface .compose-collapsed .go {
@@ -434,18 +361,7 @@
     box-shadow: none;
 }
 .journal-quill {
-    position: absolute;
-    right: -78px;
-    bottom: 8px;
-    width: 48px;
-    height: 100px;
-    transform: rotate(13deg);
-    filter: drop-shadow(2px 3px 2px #40392b40);
     pointer-events: auto;
-    cursor: pointer;
-}
-.diary-surface .compose-collapsed {
-    padding-right: 28px;
 }
 .diary-surface .compose-collapsed.draft {
     max-width: 240px;
@@ -467,8 +383,6 @@
     padding: 0;
 }
 .diary-surface .compose.is-open {
-    inset: 65px 26px 40px auto;
-    width: min(365px, calc(100% - 45px));
     overflow: auto;
     background: var(--craft-grain), var(--craft-paper);
     border: 1px solid var(--craft-line);
@@ -551,11 +465,8 @@
 }
 .journal-status {
     position: absolute;
-    left: 24px;
-    top: 82px;
     z-index: 14;
     padding: 12px;
-    background: var(--craft-paper);
     color: var(--craft-muted);
     font-size: 13px;
 }
@@ -567,36 +478,15 @@
 }
 @media (max-width: 1199px) {
     .object-surface.diary-surface {
-        --surface-shift-x: 80px;
         --book-height: min(360px, 45vh);
-        width: min(560px, calc(100% - 220px));
     }
     .journal-page-content,
     .journal-measure {
         padding-left: 24px;
         padding-right: 24px;
     }
-    .diary-surface .object-hd {
-        left: 38px;
-        right: 48px;
-    }
 }
 @media (max-width: 767px), (max-height: 599px) {
-    .object-surface.diary-surface {
-        --surface-shift-x: 0px;
-        width: min(360px, calc(100% - 32px));
-        height: min(560px, calc(100% - 100px));
-        top: calc(50% - 20px);
-        padding: 8px 9px 12px;
-    }
-    .diary-surface .object-hd {
-        top: 19px;
-        left: 30px;
-        right: 43px;
-    }
-    .diary-surface .object-hd h2 {
-        font-size: 20px;
-    }
     .journal-running-title {
         top: 46px;
         left: 24px;
@@ -604,17 +494,6 @@
     }
     .journal-page-content {
         top: 74px;
-    }
-    .diary-surface .compose {
-        right: 17px;
-    }
-    .journal-page-number {
-        display: none;
-    }
-    .journal-quill {
-        height: 82px;
-        width: 40px;
-        right: -20px;
     }
     .diary-surface .compose-collapsed.draft {
         max-width: 170px;
@@ -632,8 +511,6 @@
         gap: 6px;
     }
     .diary-surface .compose.is-open {
-        inset: 55px 8px 42px;
-        width: auto;
         padding: 13px;
     }
 }

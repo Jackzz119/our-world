@@ -7,7 +7,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
-import { RoomScene } from '@/themes/cinnaglass/scene.tsx';
+import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop.tsx';
 import { IEye, IEyeOff, IHeart, ILock } from '@/themes/cinnaglass/icons.tsx';
 import styles from './LoginPage.module.css';
 
@@ -51,7 +51,7 @@ const ResetPasswordPage = () => {
     return (
         <div className={styles.wrap}>
             <div className={styles.bg}>
-                <RoomScene />
+                <LoginBackdrop />
             </div>
             <div className={styles.veil} />
 

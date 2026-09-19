@@ -3,12 +3,13 @@
 // feed, and hands those same leaves to JournalTurnController — the turning
 // faces are clones of the real pages, never re-rendered stand-ins.
 // Feature doc: ai/features/timeline.md
-import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
 import { thumbPathOf } from '@/lib/storage';
 import { applyThumbUrls, buildJournalPages, type JournalPage } from './journal-layout';
 import { JournalTurnController } from './journal-turn-controller';
+import { Composer } from './composer';
 import './journal-room.css';
 import './journal-turn.css';
 
@@ -22,14 +23,12 @@ export function JournalRoomBook({
     feed,
     thumbUrls,
     active,
-    onDetail,
-    ComposerComponent
+    onDetail
 }: {
     feed: UseFeed;
     thumbUrls: Record<string, string>;
     active: boolean;
     onDetail: (post: FeedPost) => void;
-    ComposerComponent: ComponentType<{ worldId: string | null; onPublished: () => void }>;
 }) {
     const slot = useRef<HTMLDivElement>(null);
     const turnHost = useRef<HTMLDivElement>(null);
@@ -387,7 +386,7 @@ export function JournalRoomBook({
                     )}
                 </div>
             )}
-            <ComposerComponent worldId={feed.worldId} onPublished={published} />
+            <Composer worldId={feed.worldId} onPublished={published} />
             <img
                 className="journal-quill journal-room-quill"
                 src="/ui/journal/quill.webp"
