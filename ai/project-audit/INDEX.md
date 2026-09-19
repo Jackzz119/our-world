@@ -1,10 +1,10 @@
 # PROJECT-AUDIT — 当前审核入口
 
-当前：**第一步「文档、冗余文件与目录整理」已交付**（2026-09-19），运行 `2026-09-18-01`，本地 `dev` 基线 `3fd52a5`。结果：删除 55 个零消费者冗余文件（59.7MB）、16 份活文档压缩/改写（−32%，3 份达 2/3、13 份有据例外）、10 份短文档修陈旧陈述；PA-007～013 已按用户 2026-09-19 裁决执行（第二个 commit，PA-011 决定保留）；**第一步结束**；**第二步「工程结构、模块化与复用」进行中**（运行 `2026-09-19-01`，基线 `a9f7cfa`）。`node_modules` 为验证临时安装（gitignore）。
+当前：**第一步「文档、冗余文件与目录整理」已交付**（2026-09-19），运行 `2026-09-18-01`，本地 `dev` 基线 `3fd52a5`。结果：删除 55 个零消费者冗余文件（59.7MB）、16 份活文档压缩/改写（−32%，3 份达 2/3、13 份有据例外）、10 份短文档修陈旧陈述；PA-007～013 已按用户 2026-09-19 裁决执行（第二个 commit，PA-011 决定保留）；**第一步结束**；**第二步「工程结构、模块化与复用」已交付**（运行 `2026-09-19-01`，基线 `a9f7cfa` → 四个 commit `dc74f51`/`f3a0ad0`/`e656ac9`/`eba7dd2`，本地未推送）：A 类复用/死代码/注释/格式化已落实，`tsc -b` 首次零错误；大文件拆分等 B 类方案登记 FINDINGS PA-028～033 待用户批准。第三步待指令。`node_modules` 为验证临时安装（gitignore）。
 
 技能来源：`/Users/chengzheng/Desktop/Files/hyber_platform/hyber-operator-portal/ai/jaSkill/project-audit/`（SKILL.md、reference.md、references/）。本项目未安装该技能，本轮按技能正文执行；技能本体不复制进仓。
 
-- [子步骤与复用脚本](STEPS.md) / [当前问题](FINDINGS.md) / [拓展要求](EXTRA-STEPS.md)
+- [子步骤与复用脚本](STEPS.md) / [当前问题](FINDINGS.md) / [结构与代码规范](CONVENTIONS.md) / [拓展要求](EXTRA-STEPS.md)
 - 第二步：[报告](runs/2026-09-19-01/02-structure.md)、[结构扫描](runs/2026-09-19-01/metrics/structure-summary.json)、[证据](runs/2026-09-19-01/evidence/)
 - 第一步：[报告](runs/2026-09-18-01/01-documents.md)、[覆盖](runs/2026-09-18-01/coverage.csv)、[基线清单与元数据](runs/2026-09-18-01/metrics/baseline/)、[文档指标](runs/2026-09-18-01/metrics/documents/)、[证据](runs/2026-09-18-01/evidence/)
 
