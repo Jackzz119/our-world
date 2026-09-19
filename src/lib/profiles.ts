@@ -1,8 +1,8 @@
 // profiles.ts — data access for user profiles (display identity for the feed).
 // The feed RPC only returns author_id; author names come from public.profiles,
 // fetched once per world (owner + member) and looked up per post.
-import { supabase } from '@/lib/supabase.ts';
-import type { FeedProfile } from '@/types/feed.ts';
+import { supabase } from '@/lib/supabase';
+import type { FeedProfile } from '@/types/feed';
 
 // Fetch profiles by id, as an id -> profile map for author lookup. Nulls and
 // duplicates are filtered out and an empty input short-circuits without a

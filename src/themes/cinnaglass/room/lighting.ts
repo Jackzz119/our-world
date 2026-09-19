@@ -5,9 +5,9 @@
 // never searches the tree.
 
 import { Container, Sprite } from 'pixi.js';
-import type { PxRect, RoomMood, RoomWeather } from './room-types';
-import type { FadeQueue } from './fade-queue';
-import { linearGradientTexture, radialGradientTexture } from './textures';
+import type { PxRect, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
+import type { FadeQueue } from '@/themes/cinnaglass/room/fade-queue';
+import { linearGradientTexture, radialGradientTexture } from '@/themes/cinnaglass/room/textures';
 
 /** One mood x weather lighting setup: the actor tint plus the three light-pass sprites. */
 export type LightRecipe = {

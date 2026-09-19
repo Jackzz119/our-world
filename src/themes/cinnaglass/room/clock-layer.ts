@@ -4,7 +4,7 @@
 // never land on different sides of a second boundary.
 
 import { Container, Graphics } from 'pixi.js';
-import type { ClockSpec } from './room-types';
+import type { ClockSpec } from '@/themes/cinnaglass/room/room-types';
 
 export type ClockLayer = {
     /** The layer to add to the scene tree, already positioned on the dial. */

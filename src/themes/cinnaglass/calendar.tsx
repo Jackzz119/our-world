@@ -3,12 +3,21 @@
 // Both screens live in one file because they share CalClockStyles and the
 // .modal.mini shell.
 import { useState, type Dispatch, type SetStateAction } from 'react';
-import { ICalendar, IChevron, IClock, IClose, ICloud, IHeart, IPlus, IRain, ISnow, ISun } from './icons';
-import type { Alarm, CalEvent, Weather } from './model';
+import {
+    ICalendar,
+    IChevron,
+    IClock,
+    IClose,
+    ICloud,
+    IHeart,
+    IPlus,
+    IRain,
+    ISnow,
+    ISun
+} from '@/themes/cinnaglass/icons';
+import type { Alarm, CalEvent, Weather } from '@/themes/cinnaglass/model';
+import { daysUntilAnniversary, parseAnniv } from '@/themes/cinnaglass/profile';
 
-// DUPLICATE SOURCE — the authoritative anniversary is worlds.anniversary; this
-// constant is not wired to it, so the card below never follows world settings.
-const ANNIV = { m: 5, d: 4, year: 2025 };
 const WK = ['日', '一', '二', '三', '四', '五', '六'];
 // Local-calendar date key, 'yyyy-mm-dd' — the shape CalEvent.date and
 // worlds.anniversary both use.
@@ -111,11 +120,16 @@ const CalClockStyles = () => (
 export function CalendarScreen({
     open,
     onClose,
+    anniv,
     events,
     setEvents
 }: {
     open: boolean;
     onClose: () => void;
+    /** anniversary date, yyyy-mm-dd — worlds.anniversary as WorldPage composes
+     *  it (DB row first, local profile as the offline fallback); null when
+     *  neither has one, and then the card degrades to a prompt */
+    anniv: string | null;
     events: CalEvent[];
     setEvents: Dispatch<SetStateAction<CalEvent[]>>;
 }) {
@@ -136,17 +150,13 @@ export function CalendarScreen({
         (evByDate[e.date] = evByDate[e.date] || []).push(e);
     });
 
-    // Days to the next recurrence of ANNIV, and the year it falls in. Reads the
-    // hardcoded constant above, not the world row.
-    const nextAnniv = () => {
-        let y = tY;
-        let dn = new Date(y, ANNIV.m, ANNIV.d);
-        if (dn < new Date(tY, tM, tD)) dn = new Date(++y, ANNIV.m, ANNIV.d);
-        const diff = Math.round((dn.getTime() - new Date(tY, tM, tD).getTime()) / 864e5);
-        return { diff, y };
-    };
-    const { diff: annivDiff, y: annivYear } = nextAnniv();
-    const yearsTogether = annivYear - ANNIV.year;
+    // The anniversary, straight off the world row. Countdown comes from the
+    // shared date math; the year the next recurrence lands in is that countdown
+    // walked forward from today, which is also how many years it will make.
+    const annivDate = parseAnniv(anniv);
+    const annivDiff = daysUntilAnniversary(anniv);
+    const annivYear = new Date(tY, tM, tD + annivDiff).getFullYear();
+    const yearsTogether = annivDate ? annivYear - annivDate.getFullYear() : 0;
 
     // Step one month, rolling the year.
     const move = (d: number) =>
@@ -187,7 +197,7 @@ export function CalendarScreen({
     for (let d = 1; d <= days; d++) {
         const ds = ymd(cur.y, cur.m, d);
         const isToday = cur.y === tY && cur.m === tM && d === tD;
-        const isAnniv = cur.m === ANNIV.m && d === ANNIV.d;
+        const isAnniv = !!annivDate && cur.m === annivDate.getMonth() && d === annivDate.getDate();
         const evs = evByDate[ds];
         cells.push(
             <div
@@ -223,16 +233,26 @@ export function CalendarScreen({
                         <span className="ring">
                             <IHeart size={24} fill="#fff" sw={0} />
                         </span>
-                        <div className="ct">
-                            <div className="l">距下一个纪念日</div>
-                            <div className="n">
-                                在一起满 {yearsTogether} 周年 · {annivYear}.6.4
+                        {annivDate ? (
+                            <>
+                                <div className="ct">
+                                    <div className="l">距下一个纪念日</div>
+                                    <div className="n">
+                                        在一起满 {yearsTogether} 周年 · {annivYear}.{annivDate.getMonth() + 1}.
+                                        {annivDate.getDate()}
+                                    </div>
+                                </div>
+                                <div className="big">
+                                    {annivDiff}
+                                    <small>天</small>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="ct">
+                                <div className="l">纪念日</div>
+                                <div className="n">还没有设置 · 去世界设置里填一个吧</div>
                             </div>
-                        </div>
-                        <div className="big">
-                            {annivDiff}
-                            <small>天</small>
-                        </div>
+                        )}
                     </div>
 
                     <div className="cal-nav">

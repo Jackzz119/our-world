@@ -5,7 +5,7 @@
 //   <worldId>/<uuid>.thumb.webp   display thumbnail (made here, from the original)
 // posts.images stores the ORIGINAL path; display uses short-lived signed URLs
 // because the bucket is private.
-import { supabase } from '@/lib/supabase.ts';
+import { supabase } from '@/lib/supabase';
 
 const BUCKET = 'memories';
 // Signed URLs expire after this. Any long-lived view must re-sign before then

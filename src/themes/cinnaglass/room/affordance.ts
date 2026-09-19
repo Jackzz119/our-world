@@ -13,8 +13,8 @@
 // Hotspots without a living prop yet only sparkle on hover.
 
 import { Container, Rectangle, Sprite } from 'pixi.js';
-import type { HotspotOpenEvent, HotspotSpec, PxRect } from './room-types';
-import { sparkleTexture } from './textures';
+import type { HotspotOpenEvent, HotspotSpec, PxRect } from '@/themes/cinnaglass/room/room-types';
+import { sparkleTexture } from '@/themes/cinnaglass/room/textures';
 
 /** Runtime state of one furniture hotspot: hover, the periodic hint slot and when its next sparkle is due. */
 type Hot = {

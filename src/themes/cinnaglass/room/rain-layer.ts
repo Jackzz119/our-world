@@ -4,8 +4,8 @@
 // pane mask and whether the layer is currently fading in or out.
 
 import { Container, Graphics } from 'pixi.js';
-import type { PxRect, WindowSpec } from './room-types';
-import type { FadeQueue } from './fade-queue';
+import type { PxRect, WindowSpec } from '@/themes/cinnaglass/room/room-types';
+import type { FadeQueue } from '@/themes/cinnaglass/room/fade-queue';
 
 /** A rain streak falling down one glass pane. */
 type Streak = {

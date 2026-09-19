@@ -1,7 +1,7 @@
 // author-tone.ts — who wrote this, in colour. hashOf is the stable string hash
 // behind every "looks random but never changes" pick; avaGrad is the avatar
 // tint and toneOf the identity ring. Moved out of screens.tsx verbatim.
-import type { World } from '@/types/feed.ts';
+import type { World } from '@/types/feed';
 
 // Stable per-author avatar tint: same person, same gradient, any session.
 const AVA_GRADS = [

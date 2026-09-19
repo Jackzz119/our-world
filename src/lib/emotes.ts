@@ -3,8 +3,8 @@
 // ai/features/chat.md:13). Images live in the private
 // `memories` bucket under <worldId>/emotes/, so the existing world-scoped
 // storage policies and signed-URL machinery apply unchanged.
-import { supabase, currentUserId } from '@/lib/supabase.ts';
-import type { EmoteRow, EmoteSearchResult } from '@/types/chat.ts';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { EmoteRow, EmoteSearchResult } from '@/types/chat';
 
 // Select list; keep in sync with EmoteRow in src/types/chat.ts.
 const COLS = 'id, world_id, name, storage_path, source_url, added_by, created_at';

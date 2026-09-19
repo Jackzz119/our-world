@@ -2,9 +2,9 @@
 // doorway; open it is a textarea plus the picked-image row that IS the upload
 // list. Moved out of screens.tsx verbatim.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPost } from '@/lib/posts.ts';
-import { uploadMemoryImage } from '@/lib/storage.ts';
-import { IPhoto, ISparkle } from './icons';
+import { createPost } from '@/lib/posts';
+import { uploadMemoryImage } from '@/lib/storage';
+import { IPhoto, ISparkle } from '@/themes/cinnaglass/icons';
 
 // Controlled multi-image pick: the thumbnail row IS the upload list — what
 // you see is exactly what gets published. Object URLs are revoked on remove

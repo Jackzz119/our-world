@@ -141,13 +141,12 @@
     --r-pill: 999px;
 }
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+/* The global reset (box-sizing, zeroed margins, tap highlight, font smoothing)
+   lives in src/index.css and is loaded first — see main.tsx. What follows is
+   only the part that is this theme's own: an app that fills the viewport and
+   never scrolls the page, painted on the deep navy the scene composites over. */
 html,
 body {
-    margin: 0;
     height: 100%;
     overflow: hidden;
     background: var(--navy-2);
@@ -155,7 +154,6 @@ body {
 body {
     font-family: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
     color: var(--glass-text);
-    -webkit-font-smoothing: antialiased;
     overscroll-behavior: none;
 }
 #root {
@@ -170,6 +168,27 @@ body {
 .num {
     font-family: 'Baloo 2', 'Noto Sans SC', system-ui, sans-serif;
     font-feature-settings: 'tnum';
+}
+
+/* ── .cg-panel: the concept-c glass panel, as an atom ──
+   The one material every floating shell surface is cut from: the ambience
+   pill and panel, the moment card, the music bar, the chat card. Those
+   components keep their own <style> for size, radius and position and wear
+   this class for the material, so a retune happens here once instead of in
+   five component strings.
+   Text colour is deliberately NOT part of it — only some of those surfaces
+   paint their own --cg-icon ink, and folding it in here would repaint the
+   ones that inherit.
+   Order matters: .cg-panel-dense must stay below .cg-panel so the heavier
+   fill wins for the surfaces that carry running text. */
+.cg-panel {
+    background: var(--cg-panel);
+    border: 1px solid var(--cg-stroke);
+    backdrop-filter: var(--cg-blur);
+    box-shadow: var(--cg-shadow), var(--cg-inset);
+}
+.cg-panel-dense {
+    background: var(--cg-panel-dense);
 }
 
 /* stage: everything scene-related lives here; the chrome floats above it. */

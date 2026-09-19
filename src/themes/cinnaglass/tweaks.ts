@@ -2,8 +2,8 @@
 // alignment), persisted to localStorage under ow-tweaks-v1.
 
 import { useCallback, useState } from 'react';
-import type { RoomMood } from './room/room-types';
-import { loadMerged, saveJson } from '@/lib/local-store.ts';
+import type { RoomMood } from '@/themes/cinnaglass/room/room-types';
+import { loadMerged, saveJson } from '@/lib/local-store';
 
 // Alias of the scene's RoomMood: the panel only overrides an hour the room
 // already understands, so the two never drift apart.

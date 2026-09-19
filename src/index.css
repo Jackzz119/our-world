@@ -1,12 +1,18 @@
-/* index.css — global base. A minimal reset stands in for the removed Tailwind
-   preflight (kept behavior-identical: box-sizing, zeroed block margins, media
-   defaults, form-control font inheritance). Design tokens live per theme
-   (e.g. themes/cinnaglass/cinnaglass.css); nothing brand-specific here. */
+/* index.css — global base, and the ONLY global reset. A minimal reset stands in
+   for the removed Tailwind preflight (kept behavior-identical: box-sizing,
+   zeroed block margins, media defaults, form-control font inheritance).
+   Design tokens live per theme (e.g. themes/cinnaglass/cinnaglass.css);
+   nothing brand-specific here. A theme may still say how ITS app-shell looks
+   (cinnaglass paints html/body, locks scrolling and sets the Chinese font
+   stack) — what it must not do is restate a reset already made here. */
 
+/* -webkit-tap-highlight-color is inherited, so naming the pseudo-elements
+   changes nothing for them; it is here to keep one selector, not two. */
 *,
 ::before,
 ::after {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 h1,
@@ -75,7 +81,11 @@ button {
     -moz-osx-font-smoothing: grayscale;
 }
 
+html,
 body {
     margin: 0;
+}
+
+body {
     min-width: 320px;
 }

@@ -3,11 +3,11 @@
 // subscription that keeps them current. A reconnect refills the gap the broadcast could not cover,
 // which is why the loader takes a `merge` flag. Feature doc: ai/features/chat.md §三.
 import { useEffect, useState } from 'react';
-import { getChannelReads, getChannels, getMessages, getReactions, subscribeWorld } from '@/lib/chat.ts';
-import { Logman } from '@/lib/logman.ts';
-import { errMsg } from './chat-store';
-import type { StreamSink } from './use-message-store';
-import type { Channel } from '@/types/chat.ts';
+import { getChannelReads, getChannels, getMessages, getReactions, subscribeWorld } from '@/lib/chat';
+import { Logman } from '@/lib/logman';
+import { errMsg } from '@/themes/cinnaglass/chat-store';
+import type { StreamSink } from '@/themes/cinnaglass/use-message-store';
+import type { Channel } from '@/types/chat';
 
 const TAG = '[chat][web][use-world-stream]';
 

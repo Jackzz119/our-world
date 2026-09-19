@@ -13,9 +13,9 @@
 // several — see refit() and destroy().
 
 import { type Application, Assets, Container, PerspectiveMesh, Sprite, type Texture } from 'pixi.js';
-import type { RoomMood, RoomTemplate, TurntableSpec } from './room-types';
-import { discCorners, discHomography, type Mat3 } from './homography';
-import { type ArtImage, boxDownscale, carvePatch, shadowTexture } from './textures';
+import type { RoomMood, RoomTemplate, TurntableSpec } from '@/themes/cinnaglass/room/room-types';
+import { discCorners, discHomography, type Mat3 } from '@/themes/cinnaglass/room/homography';
+import { type ArtImage, boxDownscale, carvePatch, shadowTexture } from '@/themes/cinnaglass/room/textures';
 
 const SHADOW_ALPHA = 0.42;
 // tonearm nudge spring: stiff enough to answer within ~0.3s, damped just under

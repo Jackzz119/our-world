@@ -10,12 +10,12 @@
 // channel-screen.styles.tsx, the switcher in conv-nav.tsx, the message flow in message-list.tsx,
 // the input row in chat-composer.tsx and the delete effect in bubble-dust.ts.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { IClose, IHash } from './icons';
-import { FriendsPage } from './friends-page';
-import { ChannelStyles } from './channel-screen.styles';
-import { ChatComposer } from './chat-composer';
-import { ConvNav } from './conv-nav';
-import { MessageList } from './message-list';
+import { IClose, IHash } from '@/themes/cinnaglass/icons';
+import { FriendsPage } from '@/themes/cinnaglass/friends-page';
+import { ChannelStyles } from '@/themes/cinnaglass/channel-screen.styles';
+import { ChatComposer } from '@/themes/cinnaglass/chat-composer';
+import { ConvNav } from '@/themes/cinnaglass/conv-nav';
+import { MessageList } from '@/themes/cinnaglass/message-list';
 import {
     FRIENDS_VIEW,
     convsFor,
@@ -24,9 +24,9 @@ import {
     type FriendEntry,
     type FriendRequest,
     type Msg
-} from './chat-data';
-import type { Channel, EmoteSearchResult } from '@/types/chat.ts';
-import type { ChatAlign } from './tweaks';
+} from '@/themes/cinnaglass/chat-data';
+import type { Channel, EmoteSearchResult } from '@/types/chat';
+import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 
 // Everything the hub renders and every mutation it can trigger; all state is lifted to WorldPage so
 // the ChatCard and the hub read the same store.

@@ -6,38 +6,33 @@
 // come from the --cg-* tokens.
 
 import { useMemo } from 'react';
-import { IChevron, IEye, IHeart, IPause, IPlay } from '../icons';
-import { MusicPlayer } from '../music';
-import { TRACKS } from '../music-tracks';
+import { IChevron, IEye, IHeart, IPause, IPlay } from '@/themes/cinnaglass/icons';
+import { MusicPlayer } from '@/themes/cinnaglass/music';
+import { TRACKS } from '@/themes/cinnaglass/music-tracks';
+import { daysSince, daysUntilAnniversary, parseAnniv } from '@/themes/cinnaglass/profile';
 
 /* ------------------------------------------------------------------ */
 /* moment card                                                         */
 /* ------------------------------------------------------------------ */
 
 type MomentCardProps = {
-    /** anniversary date, yyyy-mm-dd (world.anniversary or profile fallback) */
-    anniv: string;
+    /** anniversary date, yyyy-mm-dd — worlds.anniversary as WorldPage composes
+     *  it (DB row first, local profile as the offline fallback); null when
+     *  neither has one */
+    anniv: string | null;
     onHide: () => void;
 };
 
-// Anniversary card: days together and days to the next recurrence. Renders
-// nothing when anniv is unparseable.
+// Anniversary card: days together and days to the next recurrence, both from
+// the shared date math in profile.ts. With no usable date the widget renders
+// nothing — there is no half-filled state worth showing in 233×105.
 export function MomentCard({ anniv, onHide }: MomentCardProps) {
-    const { days, toNext } = useMemo(() => {
-        const a = new Date(`${anniv}T00:00:00`);
-        if (Number.isNaN(a.getTime())) return { days: null, toNext: null };
-        const now = new Date();
-        const days = Math.max(0, Math.floor((now.getTime() - a.getTime()) / 86400000));
-        const next = new Date(a);
-        next.setFullYear(now.getFullYear());
-        if (next.getTime() < now.getTime()) next.setFullYear(now.getFullYear() + 1);
-        const toNext = Math.ceil((next.getTime() - now.getTime()) / 86400000);
-        return { days, toNext };
-    }, [anniv]);
+    if (!parseAnniv(anniv)) return null;
+    const days = daysSince(anniv);
+    const toNext = daysUntilAnniversary(anniv);
 
-    if (days === null) return null;
     return (
-        <div className="moment-card">
+        <div className="moment-card cg-panel">
             <FloaterStyles />
             {/* comp: 67×62 raster cake illustration zone, no plate */}
             <span className="mc-icon" aria-hidden>
@@ -98,7 +93,7 @@ export function MusicMini({
             <div className="music-full" style={{ display: open ? 'block' : 'none' }}>
                 <MusicPlayer spaceName={spaceName} />
             </div>
-            <div className="music-bar">
+            <div className="music-bar cg-panel cg-panel-dense">
                 <span className={`mb-disc ${open ? 'spin' : ''}`}>
                     <img src="/ui/disc-cover.png" alt="" draggable={false} />
                 </span>
@@ -128,16 +123,13 @@ export function MusicMini({
 const FloaterStyles = () => (
     <style>{`
     /* ══ moment card — 233×105 r19 ══ */
+    /* material comes from .cg-panel (cinnaglass.css) */
     .moment-card{
         position:absolute;top:41px;right:27px;z-index:35;
         width:233px;height:105px;border-radius:19px;
         display:flex;align-items:center;gap:12px;
         padding:0 12px 0 19px;
         color:var(--cg-icon);
-        background:var(--cg-panel);
-        border:1px solid var(--cg-stroke);
-        backdrop-filter:var(--cg-blur);
-        box-shadow:var(--cg-shadow), var(--cg-inset);
     }
     .mc-icon{font-size:44px;line-height:1;flex:none;
         filter:drop-shadow(0 2px 4px rgba(8,12,30,0.3));}
@@ -159,14 +151,11 @@ const FloaterStyles = () => (
     .music-wrap{position:absolute;right:27px;bottom:39px;z-index:35;
         display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
     .music-full{filter:drop-shadow(0 16px 40px rgba(8,12,30,0.4));}
+    /* material comes from .cg-panel .cg-panel-dense (cinnaglass.css) */
     .music-bar{
         width:437px;height:88px;border-radius:22px;
         display:flex;align-items:center;
         padding:0 10px 0 13px;
-        background:var(--cg-panel-dense);
-        border:1px solid var(--cg-stroke);
-        backdrop-filter:var(--cg-blur);
-        box-shadow:var(--cg-shadow), var(--cg-inset);
     }
     .mb-disc{flex:none;width:66px;height:66px;border-radius:50%;overflow:hidden;
         box-shadow:0 0 0 1px rgba(220,220,235,0.4), 0 3px 10px rgba(8,12,30,0.35);}

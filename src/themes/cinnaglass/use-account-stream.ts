@@ -4,14 +4,14 @@
 // in the lobby. It publishes its reload through `reloadRef` so a friendships event can refetch the
 // whole shape without the message store importing this hook. Feature doc: ai/features/chat.md §三.
 import { useEffect, useState } from 'react';
-import { getDmChannels, getMessages, getReactions, getReadsForChannels, subscribeUser } from '@/lib/chat.ts';
-import { listFriendships } from '@/lib/friends.ts';
-import { getProfilesByIds } from '@/lib/profiles.ts';
-import { Logman } from '@/lib/logman.ts';
-import { errMsg } from './chat-store';
-import type { StreamSink } from './use-message-store';
-import type { Channel, FriendshipRow } from '@/types/chat.ts';
-import type { FeedProfile } from '@/types/feed.ts';
+import { getDmChannels, getMessages, getReactions, getReadsForChannels, subscribeUser } from '@/lib/chat';
+import { listFriendships } from '@/lib/friends';
+import { getProfilesByIds } from '@/lib/profiles';
+import { Logman } from '@/lib/logman';
+import { errMsg } from '@/themes/cinnaglass/chat-store';
+import type { StreamSink } from '@/themes/cinnaglass/use-message-store';
+import type { Channel, FriendshipRow } from '@/types/chat';
+import type { FeedProfile } from '@/types/feed';
 
 const TAG = '[chat][web][use-account-stream]';
 

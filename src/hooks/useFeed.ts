@@ -6,10 +6,10 @@
 // time; loadOlder() walks the created_at cursor backwards for the chat-style
 // scroll-up history. Posts are exposed oldest → newest (rendering order).
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getFeedPosts } from '@/lib/posts.ts';
-import { getProfilesByIds } from '@/lib/profiles.ts';
-import { getMyWorld } from '@/lib/worlds.ts';
-import type { World, FeedPost, FeedProfile } from '@/types/feed.ts';
+import { getFeedPosts } from '@/lib/posts';
+import { getProfilesByIds } from '@/lib/profiles';
+import { getMyWorld } from '@/lib/worlds';
+import type { World, FeedPost, FeedProfile } from '@/types/feed';
 
 export type FeedStatus = 'loading' | 'ready' | 'error';
 

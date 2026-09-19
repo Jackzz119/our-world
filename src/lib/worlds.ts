@@ -3,8 +3,8 @@
 // A world is owned by one person (owner) and may later gain one invited
 // member. A solo owner still gets a world, so the feed always has somewhere
 // to post.
-import { supabase, currentUserId } from '@/lib/supabase.ts';
-import type { World } from '@/types/feed.ts';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { World } from '@/types/feed';
 
 // The column set every worlds read/write returns, so callers always get the
 // same shape.

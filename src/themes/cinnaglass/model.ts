@@ -1,7 +1,14 @@
 // model.ts — shared runtime-free types for the cinnaglass theme.
+
+// The four conditions the shell knows how to show. A closed union rather than
+// `string`, so a typo or a fifth condition is a compile error at every
+// consumer (the clock's icon picker, the room scene's rain switch) instead of
+// a silent fall-through to the cloud icon.
+export type WeatherKind = 'sun' | 'cloud' | 'rain' | 'snow';
+
 // Current weather as the shell shows it; `kind` drives both the header icon
 // and, narrowed by the room scene, whether it rains inside the painting.
-export type Weather = { kind: string; label: string; temp: number; place: string };
+export type Weather = { kind: WeatherKind; label: string; temp: number; place: string };
 
 // The couple's locally stored profile, used until the Supabase world record
 // takes over.

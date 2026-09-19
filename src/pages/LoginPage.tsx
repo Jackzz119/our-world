@@ -4,10 +4,10 @@
 // global cinnaglass.css; login-specific pieces from the scoped CSS Module.
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase.ts';
-import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop.tsx';
-import { Ico, IEye, IEyeOff, IHeart } from '@/themes/cinnaglass/icons.tsx';
-import styles from './LoginPage.module.css';
+import { supabase } from '@/lib/supabase';
+import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop';
+import { Ico, IEye, IEyeOff, IHeart } from '@/themes/cinnaglass/icons';
+import styles from '@/pages/LoginPage.module.css';
 
 // Local field icons. icons.tsx carries an IMail and an ILock too, but their
 // paths are drawn on a different grid; these two are kept so the login page's

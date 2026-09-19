@@ -4,19 +4,19 @@
 // journal-room-book.tsx; this file owns the modal shell, focus trap and the
 // photo-wall + wishlist bodies.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFeed, type UseFeed } from '@/hooks/useFeed.ts';
-import type { FeedPost } from '@/types/feed.ts';
-import { IClose } from './icons';
-import { toneOf } from './author-tone';
-import { useSignedThumbs } from './use-signed-thumbs';
-import { PhotoWall } from './photo-wall';
-import { PostDetail } from './post-detail';
-import { Wishlist } from './wishlist';
-import './diary.css';
-import { JournalRoomBook as JournalBook } from './journal-room-book';
+import { useFeed, type UseFeed } from '@/hooks/useFeed';
+import type { FeedPost } from '@/types/feed';
+import { IClose } from '@/themes/cinnaglass/icons';
+import { toneOf } from '@/themes/cinnaglass/author-tone';
+import { useSignedThumbs } from '@/themes/cinnaglass/use-signed-thumbs';
+import { PhotoWall } from '@/themes/cinnaglass/photo-wall';
+import { PostDetail } from '@/themes/cinnaglass/post-detail';
+import { Wishlist } from '@/themes/cinnaglass/wishlist';
+import '@/themes/cinnaglass/diary.css';
+import { JournalRoomBook as JournalBook } from '@/themes/cinnaglass/journal-room-book';
 // Last of the stylesheet imports on purpose: the shell's ties against
 // diary.css / journal-room.css are decided by load order.
-import './object-surfaces.css';
+import '@/themes/cinnaglass/object-surfaces.css';
 
 // Which room object is open. 'timeline' is the journal.
 type TabKey = 'timeline' | 'photos' | 'wishlist';

@@ -2,11 +2,11 @@
 // absolute date and the archival original. Avatar lives here because the
 // detail view is its only consumer. Moved out of screens.tsx verbatim.
 import { useEffect, useRef, useState } from 'react';
-import { signImageUrls, thumbPathOf } from '@/lib/storage.ts';
-import type { FeedPost, FeedProfile } from '@/types/feed.ts';
-import { IClose } from './icons';
-import { fmtFullDate } from './date-format';
-import { avaGrad, type AuthorTone } from './author-tone';
+import { signImageUrls, thumbPathOf } from '@/lib/storage';
+import type { FeedPost, FeedProfile } from '@/types/feed';
+import { IClose } from '@/themes/cinnaglass/icons';
+import { fmtFullDate } from '@/themes/cinnaglass/date-format';
+import { avaGrad, type AuthorTone } from '@/themes/cinnaglass/author-tone';
 
 // Circular author avatar: uploaded image, else the first letter of the name,
 // else a dot. The ring colour carries identity (see toneOf).

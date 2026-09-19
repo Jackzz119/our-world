@@ -3,8 +3,8 @@
 // Zero React and zero state, so each function can be reasoned about — and asserted against — on its
 // own; the hooks in chat-data.ts and its use-*.ts siblings only own the state around these.
 // Feature doc: ai/features/chat.md §三.
-import type { Channel, ChatMessageRow, EmoteRow, ReactionRow } from '@/types/chat.ts';
-import type { FeedProfile } from '@/types/feed.ts';
+import type { Channel, ChatMessageRow, EmoteRow, ReactionRow } from '@/types/chat';
+import type { FeedProfile } from '@/types/feed';
 
 // One emoji chip under a message: the tally, whether I'm in it, and who to name in the tooltip.
 export type MsgReaction = { emoji: string; count: number; mine: boolean; users: string[] };

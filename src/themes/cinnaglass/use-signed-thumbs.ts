@@ -2,8 +2,8 @@
 // bucket hands out short-lived URLs, so this hook re-signs on a timer and on
 // tab focus. Moved out of screens.tsx verbatim.
 import { useEffect, useState } from 'react';
-import { SIGNED_URL_REFRESH_MS, signImageUrls, thumbPathOf } from '@/lib/storage.ts';
-import type { FeedPost } from '@/types/feed.ts';
+import { SIGNED_URL_REFRESH_MS, signImageUrls, thumbPathOf } from '@/lib/storage';
+import type { FeedPost } from '@/types/feed';
 
 // Sign the thumbnails for a set of feed posts, shared by the timeline and
 // photo wall (private bucket → short-lived signed URLs). Signed URLs expire

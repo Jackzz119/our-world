@@ -3,8 +3,8 @@
 // reach both accounts through their `user:{uid}` broadcast topics.
 // Spec: ai/features/chat.md §三「lib/friends.ts」(状态：UI 收起);
 // status (UI frozen, table must not be dropped): ai/features/chat.md §五.3.
-import { supabase, currentUserId } from '@/lib/supabase.ts';
-import type { FriendshipRow } from '@/types/chat.ts';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { FriendshipRow } from '@/types/chat';
 
 // Select list; keep in sync with FriendshipRow in src/types/chat.ts.
 const COLS = 'user_a, user_b, requested_by, status, created_at, responded_at';

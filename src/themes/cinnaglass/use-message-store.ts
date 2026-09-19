@@ -4,10 +4,10 @@
 // deliberately one module: absorb's four setState calls must land in a single React commit, or a
 // message would paint one frame before its reactions do. Feature doc: ai/features/chat.md §三.
 import { useCallback, useRef, useState } from 'react';
-import { MESSAGE_PAGE_SIZE, getMessages, getReactions } from '@/lib/chat.ts';
-import { Logman } from '@/lib/logman.ts';
-import { dropMessageEverywhere, errMsg, mergeRows, upsertReactions, without } from './chat-store';
-import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
+import { MESSAGE_PAGE_SIZE, getMessages, getReactions } from '@/lib/chat';
+import { Logman } from '@/lib/logman';
+import { dropMessageEverywhere, errMsg, mergeRows, upsertReactions, without } from '@/themes/cinnaglass/chat-store';
+import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat';
 
 const TAG = '[chat][web][use-message-store]';
 

@@ -3,7 +3,7 @@
 // math with no state: the turntable prop is its only caller today, but any
 // future prop that turns inside a painted surface uses the same two calls.
 
-import type { PxEllipse, PxPoint } from './room-types';
+import type { PxEllipse, PxPoint } from '@/themes/cinnaglass/room/room-types';
 
 /** Row-major 3x3 matrix. */
 export type Mat3 = [number, number, number, number, number, number, number, number, number];

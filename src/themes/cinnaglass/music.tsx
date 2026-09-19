@@ -2,9 +2,9 @@
 // generative WebAudio pad, not an audio file. Shared playback is NOT
 // implemented: each client plays locally. State persists to ow-music-v1.
 import { useEffect, useRef, useState } from 'react';
-import { IHeadset, IMusic, IMute, IPause, IPlay, ISkipB, ISkipF, IVolume } from './icons';
+import { IHeadset, IMusic, IMute, IPause, IPlay, ISkipB, ISkipF, IVolume } from '@/themes/cinnaglass/icons';
 
-import { TRACKS } from './music-tracks';
+import { TRACKS } from '@/themes/cinnaglass/music-tracks';
 // Read the persisted {i, pos, muted}; a blocked or corrupt store degrades to
 // defaults.
 const muLoad = (): { i?: number; pos?: number; muted?: boolean } => {

@@ -1,6 +1,6 @@
 // Navigation silhouettes traced as native paths, retaining currentColor so
 // real icon strokes, not rectangular image bounds, receive the warm glow.
-import { Ico, type IcoProps } from '../icons';
+import { Ico, type IcoProps } from '@/themes/cinnaglass/icons';
 
 export const RailHome = (p: IcoProps) => (
     <Ico {...p}>

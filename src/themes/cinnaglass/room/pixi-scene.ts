@@ -27,15 +27,15 @@
 
 import { type Application, Assets, Container, Sprite, type Texture } from 'pixi.js';
 import { AdjustmentFilter } from 'pixi-filters';
-import type { HotspotOpenEvent, RoomMood, RoomTemplate, RoomWeather } from './room-types';
-import { resolveRoomArt } from './room-types';
-import { createAffordance } from './affordance';
-import { type CharacterAssets, createCharacterLayer } from './character-layer';
-import { createClockLayer } from './clock-layer';
-import { createFadeQueue } from './fade-queue';
-import { createLightPass, type LightRecipe, RECIPES, WEATHER_GRADE } from './lighting';
-import { createRainLayer } from './rain-layer';
-import { createTurntable, type TurntableProp } from './turntable-prop';
+import type { HotspotOpenEvent, RoomMood, RoomTemplate, RoomWeather } from '@/themes/cinnaglass/room/room-types';
+import { resolveRoomArt } from '@/themes/cinnaglass/room/room-types';
+import { createAffordance } from '@/themes/cinnaglass/room/affordance';
+import { type CharacterAssets, createCharacterLayer } from '@/themes/cinnaglass/room/character-layer';
+import { createClockLayer } from '@/themes/cinnaglass/room/clock-layer';
+import { createFadeQueue } from '@/themes/cinnaglass/room/fade-queue';
+import { createLightPass, type LightRecipe, RECIPES, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
+import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
+import { createTurntable, type TurntableProp } from '@/themes/cinnaglass/room/turntable-prop';
 
 // the character art contract lives with the layer that consumes it; the
 // compositor keeps re-exporting it so the React shell has one import

@@ -4,12 +4,12 @@
 // reload function through `reloadRef` so a world_emotes broadcast can refetch without this hook
 // having to know about the event stream. Feature doc: ai/features/chat.md §三「lib/emotes.ts」.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { addEmoteFromFile, importEmoteFromUrl, listEmotes, removeEmote, searchWebEmotes } from '@/lib/emotes.ts';
-import { signImageUrls } from '@/lib/storage.ts';
-import { Logman } from '@/lib/logman.ts';
-import { errMsg } from './chat-store';
-import type { EmoteView } from './chat-store';
-import type { EmoteRow } from '@/types/chat.ts';
+import { addEmoteFromFile, importEmoteFromUrl, listEmotes, removeEmote, searchWebEmotes } from '@/lib/emotes';
+import { signImageUrls } from '@/lib/storage';
+import { Logman } from '@/lib/logman';
+import { errMsg } from '@/themes/cinnaglass/chat-store';
+import type { EmoteView } from '@/themes/cinnaglass/chat-store';
+import type { EmoteRow } from '@/types/chat';
 
 const TAG = '[chat][web][use-emote-library]';
 

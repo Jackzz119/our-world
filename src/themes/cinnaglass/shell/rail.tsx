@@ -3,11 +3,11 @@
 
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
-import type { IcoProps } from '../icons';
-import { IBag, ICalendar, IChevron, ILock, ILogout, IPhoto } from '../icons';
-import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from './rail-icons';
-import './navigation-glass.css';
-import type { Widgets } from '../model';
+import type { IcoProps } from '@/themes/cinnaglass/icons';
+import { IBag, ICalendar, IChevron, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
+import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from '@/themes/cinnaglass/shell/rail-icons';
+import '@/themes/cinnaglass/shell/navigation-glass.css';
+import type { Widgets } from '@/themes/cinnaglass/model';
 
 // Rail actions. 'rooms' and 'modules' toggle a popover in place; every other
 // key is forwarded to onAction.

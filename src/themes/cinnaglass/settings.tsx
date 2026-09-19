@@ -1,8 +1,8 @@
 // settings.tsx — 设置 modal. Reuses the .modal.mini shell + .glass + .sw switch.
 // Three concise sections: 个人资料 / 账号与密码 / 主题外观 (theme is live via setTweak).
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
-import { supabase } from '@/lib/supabase.ts';
-import type { IcoProps } from './icons';
+import { supabase } from '@/lib/supabase';
+import type { IcoProps } from '@/themes/cinnaglass/icons';
 import {
     ICheck,
     IChevron,
@@ -19,9 +19,9 @@ import {
     IShield,
     ISun,
     IUser
-} from './icons';
-import type { Profile } from './model';
-import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from './tweaks';
+} from '@/themes/cinnaglass/icons';
+import type { Profile } from '@/themes/cinnaglass/model';
+import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
 
 // Scoped styles for the settings rows, inline edits and segmented controls.
 const SettingsStyles = () => (

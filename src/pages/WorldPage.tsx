@@ -1,31 +1,34 @@
-// WorldPage.tsx — root orchestration for the cinnaglass shell: owns every
-// piece of shared world state (world row, profile, events, alarms, widgets,
-// weather, clock) and mounts every surface above the scene.
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+// WorldPage.tsx — root orchestration for the cinnaglass shell. Each domain
+// lives in its own hook (world session, surface router, weather, clock,
+// persisted slices, chat bubble); this file reads them, composes the few
+// cross-domain actions they must not do for each other (leaving the world
+// closes surfaces and the chat card; saving world settings also syncs the
+// local profile buffer), and renders the two subtrees — in-world and lobby.
+// See ai/project-audit/runs/2026-09-19-01/evidence/shell-refactor-log.md.
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 // the pixi room compositor loads its own chunk on demand (pixi.js is chunky)
 const RoomScene = lazy(() => import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene })));
-import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
-import { SubScreen, type SurfaceOrigin, type TabKey } from '@/themes/cinnaglass/screens';
-import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
-import { SettingsScreen } from '@/themes/cinnaglass/settings';
-import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
+import { LobbyScene } from '@/themes/cinnaglass/lobby';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
-import { Rail, RoomHandle, type RailKey } from '@/themes/cinnaglass/shell/rail';
-import type { HotspotOpenEvent } from '@/themes/cinnaglass/room/room-types';
+import { Rail, RoomHandle } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
+import { WorldSurfaces } from '@/themes/cinnaglass/shell/world-surfaces';
+import { useWorldChatBubble } from '@/themes/cinnaglass/shell/use-world-chat-bubble';
 import { ChannelScreen } from '@/themes/cinnaglass/channel-screen';
 import { useChatThreads, convsFor } from '@/themes/cinnaglass/chat-data';
-import { loadJson as owLoad } from '@/lib/local-store.ts';
+import { loadJson as owLoad } from '@/lib/local-store';
 import { useTweaks } from '@/themes/cinnaglass/tweaks';
-import type { Alarm, CalEvent, Profile, Weather, Widgets } from '@/themes/cinnaglass/model';
-import { getMyWorld, createWorld } from '@/lib/worlds.ts';
-import { signImageUrls } from '@/lib/storage.ts';
-import { getProfilesByIds } from '@/lib/profiles.ts';
-import type { FeedProfile, World } from '@/types/feed.ts';
+import type { Alarm, CalEvent, Profile, Widgets } from '@/themes/cinnaglass/model';
+import type { World } from '@/types/feed';
 import { getEnvFlag } from '@/utils';
+import { useLiveClock } from '@/pages/world/useLiveClock';
+import { useWeather } from '@/pages/world/useWeather';
+import { usePersistedState } from '@/pages/world/usePersistedState';
+import { useSurfaceRouter } from '@/pages/world/useSurfaceRouter';
+import { useWorldSession } from '@/pages/world/useWorldSession';
 
 // Entry switch (see .env.example). AUTO_ENTER skips the lobby on mount when
 // a world already exists (dev convenience — players always land in the lobby
@@ -56,25 +59,6 @@ const loadWidgets = (): Widgets => {
     }
 };
 
-// WMO weather code → kind + label
-const mapWmo = (code: number): { kind: string; label: string } => {
-    if (code === 0) return { kind: 'sun', label: '晴' };
-    if (code <= 3) return { kind: 'cloud', label: '多云' };
-    if (code <= 48) return { kind: 'cloud', label: '雾' };
-    if (code <= 67) return { kind: 'rain', label: '小雨' };
-    if (code <= 77) return { kind: 'snow', label: '雪' };
-    if (code <= 82) return { kind: 'rain', label: '阵雨' };
-    if (code <= 86) return { kind: 'snow', label: '阵雪' };
-    return { kind: 'rain', label: '雷雨' };
-};
-// Fixed readings for the manual weather tweak — no network, no geolocation.
-const MANUAL_WX: Record<string, { kind: string; label: string; temp: number }> = {
-    sun: { kind: 'sun', label: '晴', temp: 26 },
-    cloud: { kind: 'cloud', label: '多云', temp: 22 },
-    rain: { kind: 'rain', label: '小雨', temp: 18 },
-    snow: { kind: 'snow', label: '雪', temp: 1 }
-};
-
 // yyyy-mm-dd N days from today, for the seeded demo events.
 const futureDate = (addDays: number) => {
     const d = new Date();
@@ -92,8 +76,6 @@ const SEED_ALARMS: Alarm[] = [
     { id: 'al2', time: '22:30', label: '晚安，说句悄悄话', on: true }
 ];
 
-// The three surfaces SubScreen owns; every other screen key maps to its own modal.
-const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'wishlist'];
 // ?surface=<tab> opens one SubScreen tab straight from the URL (dev/headless
 // screenshots only — gated on import.meta.env.DEV).
 const DEV_SURFACE = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('surface') : null;
@@ -104,37 +86,45 @@ const WorldPage = () => {
     // the stage-side chat surface; the covering hub stays one expand away.
     const [chatOpen, setChatOpen] = useState(false);
     const [musicOpen, setMusicOpen] = useState(false);
-    const [unread, setUnread] = useState(false);
     const [convOpen, setConvOpen] = useState<string | null>(null);
-    const [screen, setScreen] = useState<string | null>(() =>
-        DEV_SURFACE && MODAL_TABS.includes(DEV_SURFACE as TabKey) ? DEV_SURFACE : null
-    );
-    const [surfaceOrigin, setSurfaceOrigin] = useState<SurfaceOrigin | null>(null);
-    const [profile, setProfile] = useState(() => gload('ow-profile-v1', PROFILE_DEFAULT));
-    const [widgets, setWidgets] = useState<Widgets>(loadWidgets);
-    const [nowTs, setNowTs] = useState(() => Date.now());
-    const [weather, setWeather] = useState<Weather>({ kind: 'cloud', label: '多云', temp: 22, place: '' });
-    const [events, setEvents] = useState<CalEvent[]>(() => owLoad('ow-dates-v1', SEED_EVENTS));
-    const [alarms, setAlarms] = useState<Alarm[]>(() => owLoad('ow-alarms-v1', SEED_ALARMS));
+    // which surface is open, and the rail / hotspot routes that open one
+    const {
+        screen,
+        tab,
+        surfaceOrigin,
+        close: closeSurface,
+        onRail,
+        onHotspot
+    } = useSurfaceRouter({
+        initialScreen: DEV_SURFACE,
+        onOpenChat: () => setChatOpen(true),
+        onOpenMusic: () => setMusicOpen(true)
+    });
+    // Four localStorage-backed slices; usePersistedState mirrors each one back
+    // on every change (the read strategy stays per-slice — see the hook).
+    const [profile, setProfile] = usePersistedState('ow-profile-v1', () => gload('ow-profile-v1', PROFILE_DEFAULT));
+    const [widgets, setWidgets] = usePersistedState<Widgets>('ow-widgets-v1', loadWidgets);
+    const [events, setEvents] = usePersistedState('ow-dates-v1', () => owLoad('ow-dates-v1', SEED_EVENTS));
+    const [alarms, setAlarms] = usePersistedState('ow-alarms-v1', () => owLoad('ow-alarms-v1', SEED_ALARMS));
+    const nowTs = useLiveClock();
+    const weather = useWeather(t.weather);
 
-    // World state (DB `worlds` row — the couple's shared space; schema in
-    // ai/PROJECT.md, 数据库 section). Not to be confused with the in-scene
-    // room, which is local-only.
-    const [world, setWorld] = useState<World | null>(null);
-    // signed display URL for world.icon_path (private bucket) — see effect below
-    const [worldIconUrl, setWorldIconUrl] = useState<string | null>(null);
-    const [uid, setUid] = useState<string | null>(null);
-    // DB profiles of the world's members, by id — display names for the
-    // chrome and for chat message authorship; fall back to the localStorage
-    // profile until fetched (or on failure)
-    const [profiles, setProfiles] = useState<Record<string, FeedProfile>>({});
-    const [memberNames, setMemberNames] = useState<{ me?: string; her?: string }>({});
-    const [lobbyStatus, setLobbyStatus] = useState<LobbyStatus>('loading');
-    const [lobbyError, setLobbyError] = useState<string | null>(null);
-    const [lobbyBusy, setLobbyBusy] = useState(false);
-    // Entering the world is explicit (portal click) unless AUTO_ENTER is on.
-    const [entered, setEntered] = useState(false);
-    const [lobbyTick, setLobbyTick] = useState(0);
+    // The shared world row plus the lobby flow around it.
+    const {
+        world,
+        uid,
+        profiles,
+        memberNames,
+        worldIconUrl,
+        lobbyStatus,
+        lobbyError,
+        lobbyBusy,
+        entered,
+        enterWorld,
+        createAndEnter,
+        leaveWorld,
+        applySavedWorld
+    } = useWorldSession(AUTO_ENTER);
 
     // chat (see ai/features/chat.md): one thread store, two surfaces, two
     // owners — the covering conversation window holds channels + DMs; the chat
@@ -168,57 +158,6 @@ const WorldPage = () => {
         removeEmoteById
     } = useChatThreads(world?.id ?? null, uid, profiles);
 
-    useEffect(() => {
-        let cancelled = false;
-        getMyWorld()
-            .then(({ world, userId }) => {
-                if (cancelled) return;
-                setWorld(world);
-                setUid(userId);
-                setLobbyStatus('ready');
-                if (AUTO_ENTER && world) setEntered(true);
-            })
-            .catch((e: unknown) => {
-                if (cancelled) return;
-                setLobbyError(e instanceof Error ? e.message : String(e));
-                setLobbyStatus('error');
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [lobbyTick]);
-
-    // World icon lives in the private memories bucket, so display needs a
-    // signed URL. Re-sign every 40min (TTL is 1h — same margin as timeline's
-    // image renewal) so a long-lived tab never shows a broken icon.
-    const iconPath = world?.icon_path ?? null;
-    useEffect(() => {
-        if (!iconPath) {
-            setWorldIconUrl(null);
-            return;
-        }
-        let cancelled = false;
-        const sign = () =>
-            signImageUrls([iconPath])
-                .then((m) => {
-                    if (!cancelled) setWorldIconUrl(m[iconPath] ?? null);
-                })
-                .catch(() => {
-                    /* keep the last URL; emoji/letter fallback covers first load */
-                });
-        sign();
-        const id = setInterval(sign, 40 * 60 * 1000);
-        return () => {
-            cancelled = true;
-            clearInterval(id);
-        };
-    }, [iconPath]);
-
-    // live clock
-    useEffect(() => {
-        const id = setInterval(() => setNowTs(Date.now()), 1000);
-        return () => clearInterval(id);
-    }, []);
     // Bare Enter (no input focused) opens the chat card. Layer gate: while
     // any UI-layer surface is open, scene shortcuts stay disabled.
     useEffect(() => {
@@ -233,198 +172,19 @@ const WorldPage = () => {
         return () => window.removeEventListener('keydown', onKey);
     }, [convOpen, screen]);
 
-    // unread pip on the rail: a partner message landed while the chat card
-    // was closed. Opening any chat surface clears it.
+    // The world conversation's newest message drives both the rail's unread pip
+    // and her in-world speech bubble.
     const worldConvId = convsFor(entered && world !== null, channels, dmConvs)[0]?.id ?? '';
     const lastMsg = (threads[worldConvId] || []).at(-1);
-    useEffect(() => {
-        if (!lastMsg) return;
-        if (chatOpen || convOpen) {
-            setUnread(false);
-            return;
-        }
-        if (lastMsg.from !== 'me') setUnread(true);
-    }, [lastMsg, chatOpen, convOpen]);
+    const { unread, bubble } = useWorldChatBubble(lastMsg, { chatOpen, convOpen });
 
-    // her message surfaces in the world first: a short-lived speech bubble over
-    // her character (ai/codex-visual/20260811-044310Z/codex-report.md M2;
-    // world-first chat in ai/design_system/uiux/interaction.md)
-    const [bubble, setBubble] = useState<{ seatId: string; text: string; key: number } | null>(null);
-    const lastBubbledId = useRef<string | null>(null);
-    useEffect(() => {
-        if (!lastMsg || lastMsg.from === 'me' || lastMsg.pending) return;
-        if (lastBubbledId.current === lastMsg.id) return;
-        lastBubbledId.current = lastMsg.id;
-        const text = lastMsg.kind === 'sticker' ? '发来一张贴纸' : (lastMsg.text ?? '');
-        if (!text) return;
-        setBubble({ seatId: 'pink', text, key: Date.now() });
-        const id = setTimeout(() => setBubble(null), 4500);
-        return () => clearTimeout(id);
-    }, [lastMsg]);
-    // Mirror these slices to localStorage on every change; a blocked or full
-    // store is non-fatal, the session just loses its persistence.
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-dates-v1', JSON.stringify(events));
-        } catch {
-            /* ignore */
-        }
-    }, [events]);
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-alarms-v1', JSON.stringify(alarms));
-        } catch {
-            /* ignore */
-        }
-    }, [alarms]);
-    useEffect(() => {
-        try {
-            localStorage.setItem('ow-profile-v1', JSON.stringify(profile));
-        } catch {
-            /* ignore */
-        }
-    }, [profile]);
-
-    // weather: manual override OR real-time (geolocation → open-meteo)
-    useEffect(() => {
-        if (t.weather !== 'auto') {
-            // Manual tweak forces a fixed kind; auto path resolves async below.
-            setWeather({ ...MANUAL_WX[t.weather], place: '' });
-            return;
-        }
-        let cancel = false;
-        const fallback = () => !cancel && setWeather({ kind: 'cloud', label: '多云', temp: 22, place: '' });
-        if (!navigator.geolocation) {
-            fallback();
-            return;
-        }
-        const to = setTimeout(fallback, 7000);
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const { latitude: la, longitude: lo } = pos.coords;
-                fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`
-                )
-                    .then((r) => r.json())
-                    .then((d) => {
-                        if (cancel) return;
-                        clearTimeout(to);
-                        const c = d.current;
-                        setWeather({
-                            ...mapWmo(c.weather_code),
-                            temp: Math.round(c.temperature_2m),
-                            place: '当前位置'
-                        });
-                    })
-                    .catch(() => {
-                        clearTimeout(to);
-                        fallback();
-                    });
-            },
-            () => {
-                clearTimeout(to);
-                fallback();
-            },
-            { timeout: 6500, maximumAge: 6e5 }
-        );
-        return () => {
-            cancel = true;
-            clearTimeout(to);
-        };
-    }, [t.weather]);
-
-    // Toggle an addon widget and persist the map. Required widgets are silently
-    // ignored.
+    // Toggle an addon widget; the write-back rides on usePersistedState.
+    // Required widgets are silently ignored.
     const setWidget = (k: string, v: boolean) => {
         if (REQUIRED.includes(k)) return; // required widgets can't be removed
-        setWidgets((w) => {
-            const next = { ...w, [k]: v };
-            try {
-                localStorage.setItem('ow-widgets-v1', JSON.stringify(next));
-            } catch {
-                /* ignore */
-            }
-            return next;
-        });
-    };
-    // Open a surface. SubScreen tabs additionally record where the click came
-    // from, so the modal can grow out of that point; other screens ignore origin.
-    const navigate = (k: string, origin?: SurfaceOrigin) => {
-        if (MODAL_TABS.includes(k as TabKey))
-            setSurfaceOrigin(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2, source: 'keyboard' });
-        setScreen(k);
-    };
-
-    // rail actions → surfaces (both entry channels open the same surface)
-    const onRail = (k: RailKey, origin: { x: number; y: number; source: 'rail' }) => {
-        if (k === 'chat') setChatOpen(true);
-        else if (k === 'photos') navigate('photos', origin);
-        else if (k === 'calendar') navigate('calendar');
-        else if (k === 'music') setMusicOpen(true);
-        else if (k === 'settings') navigate('settings');
-    };
-    // furniture hotspots → the very same surfaces (ai/design_system/props.md,
-    // ai/design_system/uiux/uiux.md)
-    const onHotspot = ({ id, clientX, clientY }: HotspotOpenEvent) => {
-        if (id === 'timeline' || id === 'photos' || id === 'wishlist')
-            navigate(id, { x: clientX, y: clientY, source: 'object' });
-        else if (id === 'clock') navigate('clock');
-        else if (id === 'music') setMusicOpen(true);
-    };
-
-    // Lobby → world flow. retryLobby resets in the event handler (not the
-    // effect body) and bumps the tick so the effect refetches.
-    const retryLobby = () => {
-        setLobbyStatus('loading');
-        setLobbyError(null);
-        setLobbyTick((t) => t + 1);
-    };
-    // Explicit entry. With no known world we re-fetch instead of failing — the
-    // partner may have created one since the last check.
-    const enterWorld = () => {
-        if (world) setEntered(true);
-        else retryLobby(); // a world may have appeared elsewhere — re-check
-    };
-    // Create the world and walk straight in. Errors surface on the lobby card;
-    // lobbyBusy blocks a double-create (the DB also rejects a second world per user).
-    const createAndEnter = async () => {
-        setLobbyBusy(true);
-        setLobbyError(null);
-        try {
-            const created = await createWorld();
-            setWorld(created);
-            setEntered(true);
-        } catch (e) {
-            setLobbyError(e instanceof Error ? e.message : String(e));
-        } finally {
-            setLobbyBusy(false);
-        }
+        setWidgets((w) => ({ ...w, [k]: v }));
     };
     const inWorld = entered && world !== null;
-
-    // Identity lives in the DB (ai/features/supabase.md). Fetch the two members'
-    // display names once the world is known; render keeps working off the
-    // localStorage fallback if this fails.
-    useEffect(() => {
-        if (!world) return;
-        let cancelled = false;
-        getProfilesByIds([world.owner_id, world.member_id])
-            .then((m) => {
-                if (cancelled) return;
-                setProfiles(m);
-                const otherId = [world.owner_id, world.member_id].find((i) => i && i !== uid);
-                setMemberNames({
-                    me: (uid && m[uid]?.display_name) || undefined,
-                    her: (otherId && m[otherId]?.display_name) || undefined
-                });
-            })
-            .catch(() => {
-                /* keep localStorage names */
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [world, uid]);
 
     // What the chrome displays: DB world identity first, localStorage as
     // fallback. Settings still edits the raw local profile — the write-back to
@@ -441,15 +201,15 @@ const WorldPage = () => {
     // and sync the localStorage profile buffer so offline fallbacks agree
     // (the DB is the source of truth for these fields — ai/features/supabase.md).
     const onWorldSaved = (w: World) => {
-        setWorld(w);
+        applySavedWorld(w);
         setProfile((o) => ({ ...o, world: w.name, anniv: w.anniversary ?? o.anniv }));
     };
 
     // Leave the world back to the lobby. Voice + shared music will
     // auto-disconnect here once they exist.
     const leaveRoom = () => {
-        setEntered(false);
-        setScreen(null); // world modals don't outlive the room
+        leaveWorld();
+        closeSurface(); // world modals don't outlive the room
         setChatOpen(false);
     };
 
@@ -539,39 +299,25 @@ const WorldPage = () => {
                         />
                     </>
                 )}
-                <SubScreen
-                    screen={MODAL_TABS.includes(screen as TabKey) ? (screen as TabKey) : null}
+                <WorldSurfaces
+                    screen={screen}
+                    tab={tab}
                     origin={surfaceOrigin}
-                    onClose={() => setScreen(null)}
-                />
-                <CalendarScreen
-                    open={screen === 'calendar'}
-                    onClose={() => setScreen(null)}
+                    onClose={closeSurface}
+                    anniv={liveProfile.anniv}
                     events={events}
                     setEvents={setEvents}
-                />
-                <ClockScreen
-                    open={screen === 'clock'}
-                    onClose={() => setScreen(null)}
-                    nowTs={nowTs}
-                    weather={weather}
                     alarms={alarms}
                     setAlarms={setAlarms}
-                />
-                <SettingsScreen
-                    open={screen === 'settings'}
-                    onClose={() => setScreen(null)}
+                    nowTs={nowTs}
+                    weather={weather}
                     t={t}
                     setTweak={setTweak}
                     profile={profile}
-                    setP={setProfile}
-                />
-                <WorldSettingsScreen
-                    open={screen === 'world-settings'}
-                    onClose={() => setScreen(null)}
+                    setProfile={setProfile}
                     world={world}
-                    iconUrl={worldIconUrl}
-                    onSaved={onWorldSaved}
+                    worldIconUrl={worldIconUrl}
+                    onWorldSaved={onWorldSaved}
                 />
                 {/* covering chat hub — one expand away from the chat card */}
                 <ChannelScreen

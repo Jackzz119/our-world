@@ -2,10 +2,10 @@
 // polaroid, grouped by month, with its own progressive lightbox. Moved out of
 // screens.tsx verbatim (only the component name changed).
 import { useEffect, useState } from 'react';
-import { signImageUrls, thumbPathOf } from '@/lib/storage.ts';
-import type { FeedPost } from '@/types/feed.ts';
-import { fmtDay } from './date-format';
-import { hashOf } from './author-tone';
+import { signImageUrls, thumbPathOf } from '@/lib/storage';
+import type { FeedPost } from '@/types/feed';
+import { fmtDay } from '@/themes/cinnaglass/date-format';
+import { hashOf } from '@/themes/cinnaglass/author-tone';
 
 type LightboxPhoto = { path: string; thumb?: string; date: string };
 

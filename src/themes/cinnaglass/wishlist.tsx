@@ -2,8 +2,8 @@
 // list, its seed and its localStorage slice all live here; nothing about it is
 // shared with the other surfaces. Bodies moved out of screens.tsx verbatim.
 import { useEffect, useState } from 'react';
-import { loadJson as load, saveJson as save } from '@/lib/local-store.ts';
-import { IHeart, IPlus } from './icons';
+import { loadJson as load, saveJson as save } from '@/lib/local-store';
+import { IHeart, IPlus } from '@/themes/cinnaglass/icons';
 
 type Wish = { id: string; text: string; done: boolean };
 

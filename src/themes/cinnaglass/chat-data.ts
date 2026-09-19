@@ -13,22 +13,22 @@
 // B-3 (sticker send) is a mockup clause in
 // ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html.
 import { useCallback, useMemo, useRef } from 'react';
-import { acceptFriend, removeFriendship, sendFriendRequest } from '@/lib/friends.ts';
-import { Logman } from '@/lib/logman.ts';
-import { colorFor, errMsg, otherOf, toMsgs } from './chat-store';
-import { useAccountStream } from './use-account-stream';
-import { useEmoteLibrary } from './use-emote-library';
-import { useMessageStore } from './use-message-store';
-import { useOptimisticSend } from './use-optimistic-send';
-import { useWorldStream } from './use-world-stream';
-import type { Conv, FriendEntry, FriendRequest, Msg } from './chat-store';
-import type { Channel } from '@/types/chat.ts';
-import type { FeedProfile } from '@/types/feed.ts';
+import { acceptFriend, removeFriendship, sendFriendRequest } from '@/lib/friends';
+import { Logman } from '@/lib/logman';
+import { colorFor, errMsg, otherOf, toMsgs } from '@/themes/cinnaglass/chat-store';
+import { useAccountStream } from '@/themes/cinnaglass/use-account-stream';
+import { useEmoteLibrary } from '@/themes/cinnaglass/use-emote-library';
+import { useMessageStore } from '@/themes/cinnaglass/use-message-store';
+import { useOptimisticSend } from '@/themes/cinnaglass/use-optimistic-send';
+import { useWorldStream } from '@/themes/cinnaglass/use-world-stream';
+import type { Conv, FriendEntry, FriendRequest, Msg } from '@/themes/cinnaglass/chat-store';
+import type { Channel } from '@/types/chat';
+import type { FeedProfile } from '@/types/feed';
 
 // The view-model types and the pure projections live in chat-store.ts; both chat surfaces keep
 // importing them from here, so the split stays invisible to every consumer.
-export { colorFor, convsFor } from './chat-store';
-export type { Conv, EmoteView, FriendEntry, FriendRequest, Msg, MsgReaction } from './chat-store';
+export { colorFor, convsFor } from '@/themes/cinnaglass/chat-store';
+export type { Conv, EmoteView, FriendEntry, FriendRequest, Msg, MsgReaction } from '@/themes/cinnaglass/chat-store';
 
 // Logman tag for this module (ai/PROJECT.md §已有功能资产 keeps the domain tag pool).
 const TAG = '[chat][web][chat-data]';

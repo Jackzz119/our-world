@@ -2,7 +2,7 @@
 // All coordinates are eyeballed against the 1586x992 concept art and refined
 // in-browser; adjust here, never inside the layer components.
 
-import type { RoomTemplate } from './room-types';
+import type { RoomTemplate } from '@/themes/cinnaglass/room/room-types';
 
 // The study: every anchor below is measured against the 1586x992 base art.
 export const STUDY_ROOM: RoomTemplate = {

@@ -7,10 +7,10 @@
 // with the v2 shell. Reachable only by setting screen='world-settings'.
 // Icon display priority everywhere: image > emoji > first letter of the name.
 import { useRef, useState } from 'react';
-import { updateWorld } from '@/lib/worlds.ts';
-import { uploadWorldIcon } from '@/lib/storage.ts';
-import type { World } from '@/types/feed.ts';
-import { ICheck, IClose, IHeart, IPhoto, ISparkle } from './icons';
+import { updateWorld } from '@/lib/worlds';
+import { uploadWorldIcon } from '@/lib/storage';
+import type { World } from '@/types/feed';
+import { ICheck, IClose, IHeart, IPhoto, ISparkle } from '@/themes/cinnaglass/icons';
 
 // Scoped styles; mirrors the personal settings' field feel.
 const WorldSettingsStyles = () => (

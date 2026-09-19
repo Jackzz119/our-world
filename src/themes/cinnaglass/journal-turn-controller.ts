@@ -1,7 +1,12 @@
 // journal-turn-controller.ts — decides when paper moves. Geometry and painting
 // live in journal-turn.ts.
 // Feature doc: ai/features/timeline.md
-import { JournalTurnStage, type TurnDirection, type TurnFrame, type TurnGeometry } from './journal-turn';
+import {
+    JournalTurnStage,
+    type TurnDirection,
+    type TurnFrame,
+    type TurnGeometry
+} from '@/themes/cinnaglass/journal-turn';
 
 // A sheet in flight: where it came from, where it lands, and how far along.
 type Motion = TurnFrame & { elapsed: number; duration: number };

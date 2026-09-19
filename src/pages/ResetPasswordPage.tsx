@@ -5,13 +5,13 @@
 // Shares the cinnaglass login shell styles (LoginPage.module.css).
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase.ts';
-import { useAuth } from '@/hooks/useAuth.ts';
-import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop.tsx';
-import { IEye, IEyeOff, IHeart, ILock } from '@/themes/cinnaglass/icons.tsx';
-import styles from './LoginPage.module.css';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
+import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop';
+import { IEye, IEyeOff, IHeart, ILock } from '@/themes/cinnaglass/icons';
+import styles from '@/pages/LoginPage.module.css';
 
-import type { Msg } from './LoginPage';
+import type { Msg } from '@/pages/LoginPage';
 
 const ResetPasswordPage = () => {
     const navigate = useNavigate();

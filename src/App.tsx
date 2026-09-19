@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import WorldPage from '@/pages/WorldPage.tsx';
-import LoginPage from '@/pages/LoginPage.tsx';
-import ResetPasswordPage from '@/pages/ResetPasswordPage.tsx';
-import ProtectedRoute from '@/pages/ProtectedRoute.tsx';
+import WorldPage from '@/pages/WorldPage';
+import LoginPage from '@/pages/LoginPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import ProtectedRoute from '@/pages/ProtectedRoute';
 
 const App = () => {
     return (

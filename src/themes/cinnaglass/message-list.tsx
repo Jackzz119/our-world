@@ -6,11 +6,11 @@
 // D-7 in ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53; the read avatar
 // renders in DMs ONLY (D-7-3 修订 — ai/features/chat.md:61).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { EmotePicker } from './emote-picker';
-import { explodeBubble } from './bubble-dust';
-import type { Conv, EmoteView, Msg } from './chat-data';
-import type { EmoteSearchResult } from '@/types/chat.ts';
-import type { ChatAlign } from './tweaks';
+import { EmotePicker } from '@/themes/cinnaglass/emote-picker';
+import { explodeBubble } from '@/themes/cinnaglass/bubble-dust';
+import type { Conv, EmoteView, Msg } from '@/themes/cinnaglass/chat-data';
+import type { EmoteSearchResult } from '@/types/chat';
+import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 
 // quick reactions on the hover bar; the ➕ opens the full EmotePicker.
 const QUICK_EMOJI = ['💗', '😆', '🥺'];

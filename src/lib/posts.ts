@@ -2,8 +2,8 @@
 // Reads go through the get_feed_posts RPC, which applies privacy / unlock
 // rules server-side and returns the post rows for a world.
 // Writes insert into the posts table (author = current user).
-import { supabase, currentUserId } from '@/lib/supabase.ts';
-import type { FeedPost, PostPrivacy } from '@/types/feed.ts';
+import { supabase, currentUserId } from '@/lib/supabase';
+import type { FeedPost, PostPrivacy } from '@/types/feed';
 
 export type FeedPage = {
     // Exclusive cursor: only posts strictly older than this created_at.

@@ -5,9 +5,9 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import type { IcoProps } from '../icons';
-import { IChevron, ICloud, IDusk, IMoon, IRain, ISun } from '../icons';
-import type { Mood, WeatherTweak } from '../tweaks';
+import type { IcoProps } from '@/themes/cinnaglass/icons';
+import { IChevron, ICloud, IDusk, IMoon, IRain, ISun } from '@/themes/cinnaglass/icons';
+import type { Mood, WeatherTweak } from '@/themes/cinnaglass/tweaks';
 
 type AmbienceProps = {
     mood: Mood;
@@ -40,7 +40,7 @@ export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
         <div className="amb-wrap">
             <AmbienceStyles />
             {!open ? (
-                <button className="amb-pill" onClick={() => setOpen(true)} title="灯光与天气">
+                <button className="amb-pill cg-panel" onClick={() => setOpen(true)} title="灯光与天气">
                     <span className="amb-cur">
                         <MoodIcon size={16} sw={2.5} />
                     </span>
@@ -54,7 +54,7 @@ export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
                 </button>
             ) : (
                 <>
-                    <div className="amb-panel">
+                    <div className="amb-panel cg-panel">
                         <div className="amb-row">
                             {MOODS.map(({ k, label, Icon }) => (
                                 <button
@@ -96,14 +96,11 @@ export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
 const AmbienceStyles = () => (
     <style>{`
     .amb-wrap{position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:40;}
+    /* material comes from .cg-panel (cinnaglass.css) */
     .amb-pill{
-        appearance:none;border:0;cursor:pointer;
+        appearance:none;cursor:pointer;
         display:flex;align-items:center;gap:8px;padding:9px 13px;
         border-radius:999px;color:var(--cg-icon);
-        background:var(--cg-panel);
-        border:1px solid var(--cg-stroke);
-        backdrop-filter:var(--cg-blur);
-        box-shadow:var(--cg-shadow), var(--cg-inset);
         transition:transform 120ms ease,filter 160ms ease;
     }
     .amb-pill:hover{filter:brightness(1.08);transform:translateY(-1px);}
@@ -118,10 +115,6 @@ const AmbienceStyles = () => (
         width:206px;height:112px;border-radius:19px;
         display:flex;flex-direction:column;align-items:center;
         padding:7px 0 0;
-        background:var(--cg-panel);
-        border:1px solid var(--cg-stroke);
-        backdrop-filter:var(--cg-blur);
-        box-shadow:var(--cg-shadow), var(--cg-inset);
         animation:ambpop 220ms cubic-bezier(0.34,1.3,0.5,1);
         transform-origin:top center;
     }

@@ -10,9 +10,9 @@
 // ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-7 :53, D-9 :80); the current
 // register is ai/design_system/uiux/cinnaglass/decisions.md.
 import { useRef, useState } from 'react';
-import { ALL_EMOJI, EMOJI_CATEGORIES } from './emoji-data';
-import type { EmoteSearchResult } from '@/types/chat.ts';
-import type { EmoteView } from './chat-data';
+import { ALL_EMOJI, EMOJI_CATEGORIES } from '@/themes/cinnaglass/emoji-data';
+import type { EmoteSearchResult } from '@/types/chat';
+import type { EmoteView } from '@/themes/cinnaglass/chat-data';
 
 // Recently picked emoji, per browser (localStorage — never synced, never server state).
 const RECENT_KEY = 'ow-emoji-recent-v1';

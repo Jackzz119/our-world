@@ -3,7 +3,7 @@
 // paper. This file owns geometry and painting only; when and how far to turn is
 // JournalTurnController's job.
 // Feature doc: ai/features/timeline.md
-import { applyThumbUrls } from './journal-layout';
+import { applyThumbUrls } from '@/themes/cinnaglass/journal-layout';
 export type TurnDirection = 1 | -1;
 export type TurnGeometry = {
     width: number;

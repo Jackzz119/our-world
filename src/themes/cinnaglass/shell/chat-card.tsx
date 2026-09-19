@@ -7,9 +7,9 @@
 // ai/codex-visual/20260811-055917Z/codex-report.md:171. Materials come from --cg-* tokens.
 
 import { useEffect, useRef, useState } from 'react';
-import type { Channel } from '@/types/chat.ts';
-import { convsFor, type Conv, type Msg } from '../chat-data';
-import { IClose, IExpand, ISend } from '../icons';
+import type { Channel } from '@/types/chat';
+import { convsFor, type Conv, type Msg } from '@/themes/cinnaglass/chat-data';
+import { IClose, IExpand, ISend } from '@/themes/cinnaglass/icons';
 
 // One-tap reactions; they send as ordinary messages, not as reaction rows.
 const QUICK = [
@@ -86,7 +86,7 @@ export function ChatCard({
     };
 
     return (
-        <div className="chat-card">
+        <div className="chat-card cg-panel cg-panel-dense">
             <ChatCardStyles />
             <div className="cc-head">
                 <button className="cc-hbtn" title="展开完整聊天" onClick={onExpand}>
@@ -144,15 +144,12 @@ export function ChatCard({
 // the file header.
 const ChatCardStyles = () => (
     <style>{`
-    /* spec 5.6: 277 wide, r22, dense glass for readability */
+    /* spec 5.6: 277 wide, r22, dense glass for readability — the material
+       itself comes from .cg-panel .cg-panel-dense (cinnaglass.css) */
     .chat-card{
         position:absolute;left:101px;bottom:44px;z-index:38;
         width:277px;display:flex;flex-direction:column;
         border-radius:22px;
-        background:var(--cg-panel-dense);
-        border:1px solid var(--cg-stroke);
-        backdrop-filter:var(--cg-blur);
-        box-shadow:var(--cg-shadow), var(--cg-inset);
         animation:ccpop 220ms cubic-bezier(0.34,1.3,0.5,1);
         transform-origin:left bottom;
     }

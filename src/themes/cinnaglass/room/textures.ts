@@ -4,7 +4,7 @@
 // out, no state of their own, nothing here knows about the scene.
 
 import { CanvasSource, Texture } from 'pixi.js';
-import type { PxPoint, PxRect } from './room-types';
+import type { PxPoint, PxRect } from '@/themes/cinnaglass/room/room-types';
 
 /** A 64x64 two-stop linear gradient at the given angle, stretched into the light wash. */
 export function linearGradientTexture(top: string, bottom: string, angleDeg = 115): Texture {

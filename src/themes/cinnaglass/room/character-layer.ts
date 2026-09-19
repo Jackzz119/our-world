@@ -5,8 +5,8 @@
 // one update() per frame.
 
 import { Container, Sprite, type Texture } from 'pixi.js';
-import type { SeatAnchor } from './room-types';
-import { radialGradientTexture } from './textures';
+import type { SeatAnchor } from '@/themes/cinnaglass/room/room-types';
+import { radialGradientTexture } from '@/themes/cinnaglass/room/textures';
 
 /** Per-seat character art: the open-eye frame and the blink frame. */
 export type CharacterAssets = Record<string, { open: string; closed: string }>;

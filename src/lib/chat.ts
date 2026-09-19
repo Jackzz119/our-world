@@ -6,9 +6,9 @@
 // authorized by RLS on realtime.messages). The DB is the single write path —
 // clients never broadcast directly, and the sender's own change comes back
 // through the same echo.
-import { supabase, currentUserId } from '@/lib/supabase.ts';
+import { supabase, currentUserId } from '@/lib/supabase';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
+import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat';
 
 // Select lists. These must stay in sync with src/types/chat.ts — the row types are hand-written,
 // nothing generates them.

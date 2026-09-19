@@ -5,9 +5,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Application } from 'pixi.js';
-import type { HotspotOpenEvent, RoomMood, RoomWeather } from './room-types';
-import { buildScene, type CharacterAssets, type SceneHandle } from './pixi-scene';
-import { STUDY_ROOM } from './study-room';
+import type { HotspotOpenEvent, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
+import type { WeatherKind } from '@/themes/cinnaglass/model';
+import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/pixi-scene';
+import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
 
 // Seat id to character art. The room template names the seats; who sits in
 // them lives here.
@@ -30,11 +31,10 @@ export type SeatPresence = {
 };
 
 /**
- * The app's weather vocabulary as WorldPage reports it — 'sun' | 'cloud' |
- * 'rain' | 'snow'. Still a string alias because the upstream `Weather.kind`
- * is one; naming it keeps the intended domain in one place.
+ * The app's weather vocabulary as WorldPage reports it. Re-exported from the
+ * theme's model so the scene names the same closed union the shell does.
  */
-export type WeatherKind = string;
+export type { WeatherKind };
 
 /** Props the React shell forwards to the running scene and its DOM overlays. */
 type RoomSceneProps = {
