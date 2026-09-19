@@ -78,7 +78,7 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washBlend: 'normal',
             glowColor: 'rgba(255,205,140,1)',
             glowAlpha: 0.42,
-            breathAlpha: 0,
+            breathAlpha: 0
         },
         rain: {
             actorTint: 0xd8dde8,
@@ -88,7 +88,7 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washBlend: 'normal',
             glowColor: 'rgba(205,220,238,1)',
             glowAlpha: 0.28,
-            breathAlpha: 0.30,
+            breathAlpha: 0.3
         }
     },
     twilight: {
@@ -100,7 +100,7 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washBlend: 'normal',
             glowColor: 'rgba(250,170,130,1)',
             glowAlpha: 0.34,
-            breathAlpha: 0,
+            breathAlpha: 0
         },
         rain: {
             actorTint: 0xd4d2e4,
@@ -110,7 +110,7 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washBlend: 'normal',
             glowColor: 'rgba(190,200,228,1)',
             glowAlpha: 0.24,
-            breathAlpha: 0.34,
+            breathAlpha: 0.34
         }
     },
     night: {
@@ -121,8 +121,8 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washAlpha: 0.47,
             washBlend: 'normal',
             glowColor: 'rgba(165,195,245,1)',
-            glowAlpha: 0.20,
-            breathAlpha: 0,
+            glowAlpha: 0.2,
+            breathAlpha: 0
         },
         rain: {
             actorTint: 0xb8c0dd,
@@ -132,7 +132,7 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             washBlend: 'normal',
             glowColor: 'rgba(150,180,235,1)',
             glowAlpha: 0.18,
-            breathAlpha: 0.28,
+            breathAlpha: 0.28
         }
     }
 };
@@ -202,16 +202,29 @@ type Mat3 = [number, number, number, number, number, number, number, number, num
 /** Matrix product a*b. */
 function mul3(a: Mat3, b: Mat3): Mat3 {
     const r = new Array(9).fill(0) as Mat3;
-    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j];
+    for (let i = 0; i < 3; i++)
+        for (let j = 0; j < 3; j++) r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j];
     return r;
 }
 
 /** Matrix inverse by cofactors; the caller guarantees a non-degenerate matrix. */
 function inv3(m: Mat3): Mat3 {
     const [a, b, c, d, e, f, g, h, i] = m;
-    const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g;
+    const A = e * i - f * h,
+        B = -(d * i - f * g),
+        C = d * h - e * g;
     const det = a * A + b * B + c * C;
-    return [A, -(b * i - c * h), b * f - c * e, B, a * i - c * g, -(a * f - c * d), C, -(a * h - b * g), a * e - b * d].map((v) => v / det) as Mat3;
+    return [
+        A,
+        -(b * i - c * h),
+        b * f - c * e,
+        B,
+        a * i - c * g,
+        -(a * f - c * d),
+        C,
+        -(a * h - b * g),
+        a * e - b * d
+    ].map((v) => v / det) as Mat3;
 }
 
 /** Apply a homography to a point (with the perspective divide). */
@@ -256,7 +269,12 @@ function discCorners(H: Mat3, spin: number): Corners {
     const c = Math.cos(spin);
     const s = Math.sin(spin);
     const pts: number[] = [];
-    for (const [u, v] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+    for (const [u, v] of [
+        [-1, -1],
+        [1, -1],
+        [1, 1],
+        [-1, 1]
+    ]) {
         pts.push(...apply3(H, u * c - v * s, u * s + v * c));
     }
     return pts as Corners;
@@ -296,7 +314,12 @@ function carvePatch(img: ArtImage, poly: PxPoint[]): { tex: Texture; box: PxRect
     const ys = poly.map((p) => p.y);
     const x0 = Math.floor(Math.min(...xs)) - PAD;
     const y0 = Math.floor(Math.min(...ys)) - PAD;
-    const box: PxRect = { x: x0, y: y0, w: Math.ceil(Math.max(...xs)) + PAD - x0, h: Math.ceil(Math.max(...ys)) + PAD - y0 };
+    const box: PxRect = {
+        x: x0,
+        y: y0,
+        w: Math.ceil(Math.max(...xs)) + PAD - x0,
+        h: Math.ceil(Math.max(...ys)) + PAD - y0
+    };
     const c = document.createElement('canvas');
     c.width = box.w * RES;
     c.height = box.h * RES;
@@ -366,11 +389,29 @@ function sparkleTexture(): Texture {
 /* ------------------------------------------------------------------ */
 
 /** A rain streak falling down one glass pane. */
-type Streak = { pane: number; x: number; y: number; len: number; speed: number; drift: number; alpha: number; width: number };
+type Streak = {
+    pane: number;
+    x: number;
+    y: number;
+    len: number;
+    speed: number;
+    drift: number;
+    alpha: number;
+    width: number;
+};
 /** One sampled position of a sliding droplet's trail, aged out after TRAIL_FADE_S. */
 type TrailPoint = { x: number; y: number; age: number };
 /** A droplet on the glass: it grows in place, then slides and leaves a trail. */
-type Drop = { pane: number; x: number; y: number; r: number; vy: number; sliding: boolean; wobble: number; trail: TrailPoint[] };
+type Drop = {
+    pane: number;
+    x: number;
+    y: number;
+    r: number;
+    vy: number;
+    sliding: boolean;
+    wobble: number;
+    trail: TrailPoint[];
+};
 
 /** Uniform random number in [min, max). */
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
@@ -392,7 +433,7 @@ function makeStreak(room: RoomTemplate, pane: number, anywhere: boolean): Streak
         len: rand(14, 30),
         speed,
         drift: -speed * 0.055,
-        alpha: 0.10 + (speed / 560) * 0.22,
+        alpha: 0.1 + (speed / 560) * 0.22,
         width: rand(1, 1.7)
     };
 }
@@ -494,7 +535,18 @@ export async function buildScene(
     };
     app.renderer.runners.postrender.add(discTextureCleanup);
     if (turntable) {
-        const { platter: e, center, armPivot, arm: armSpec, armTint, armShadow, platterArt, platterLight, spindle, stills = [] } = turntable;
+        const {
+            platter: e,
+            center,
+            armPivot,
+            arm: armSpec,
+            armTint,
+            armShadow,
+            platterArt,
+            platterLight,
+            spindle,
+            stills = []
+        } = turntable;
         vinylH = discHomography(e, center);
         const platterLayer = new Container(); // the record: albedo tinted per hour, turning
         const lightLayer = new Container(); // the painting's light on the record: never turns
@@ -513,7 +565,12 @@ export async function buildScene(
         // flat albedo lit by tint; the pin is a still cut from the painting.
         const lightUrls = Object.values(platterLight).flatMap((l) => [l.add, l.mul]);
         const platterUrls = Object.values(platterArt);
-        const partTex = await Assets.load<Texture>([...platterUrls, armSpec.src, ...(spindle ? Object.values(spindle.src) : []), ...new Set(lightUrls)]);
+        const partTex = await Assets.load<Texture>([
+            ...platterUrls,
+            armSpec.src,
+            ...(spindle ? Object.values(spindle.src) : []),
+            ...new Set(lightUrls)
+        ]);
         // the disc textures ship as 512px masters and are drawn 160–400 device
         // px wide. Sampled straight they alias into sparkle while turning;
         // mipmapped, the GPU blends two levels and the grooves go soft — the
@@ -574,7 +631,10 @@ export async function buildScene(
             cuts.push(disc);
             discMeshes.push({ mesh: disc, src: platterArt[mood] });
             // the hour's light on the record, static: sheen adds, shadow side multiplies
-            for (const [src, blend] of [[platterLight[mood].mul, 'multiply'], [platterLight[mood].add, 'add']] as const) {
+            for (const [src, blend] of [
+                [platterLight[mood].mul, 'multiply'],
+                [platterLight[mood].add, 'add']
+            ] as const) {
                 const light = new PerspectiveMesh({ texture: partTex[src], verticesX: 12, verticesY: 12 });
                 light.setCorners(...restCorners);
                 light.blendMode = blend;
@@ -613,7 +673,13 @@ export async function buildScene(
                 holder.addChild(shadow);
                 armShadowGroup.addChild(holder);
                 cuts.push(holder);
-                armShadows.push({ sprite: shadow, restX: shadow.x, restY: shadow.y, dx: armShadow[mood].dx, dy: armShadow[mood].dy });
+                armShadows.push({
+                    sprite: shadow,
+                    restX: shadow.x,
+                    restY: shadow.y,
+                    dx: armShadow[mood].dx,
+                    dy: armShadow[mood].dy
+                });
             }
             const arm = new Sprite(armTexture);
             arm.position.set(armSpec.box.x - armPivot.x, armSpec.box.y - armPivot.y);
@@ -684,7 +750,7 @@ export async function buildScene(
             g.lineTo(Math.cos(a) * len, Math.sin(a) * len);
             g.stroke({ width: w, color: col ?? color, cap: 'round' });
         };
-        hand(h * 30, r * 0.50, r * 0.075, 0x5b4636);
+        hand(h * 30, r * 0.5, r * 0.075, 0x5b4636);
         hand(m * 6, r * 0.74, r * 0.055, 0x6b543f);
         hand(s * 6, r * 0.84, r * 0.026, 0xa4553f); // sweep second — quiet, cozy
         g.circle(0, 0, r * 0.05).fill({ color: col ?? 0x4c3a2c });
@@ -718,7 +784,7 @@ export async function buildScene(
         const shadowTex = radialGradientTexture('rgba(30,24,40,1)', 1);
         const shadow = new Sprite(shadowTex);
         shadow.anchor.set(0.5);
-        shadow.alpha = 0.30;
+        shadow.alpha = 0.3;
         holder.addChild(shadow);
 
         const sway = new Container();
@@ -818,7 +884,15 @@ export async function buildScene(
        Warm gold, 6–16px, sine fade in and out, at most 8 visible at once
        across the whole room. */
     /** One live sparkle particle and the curve parameters it lives out. */
-    type Spark = { sprite: Sprite; born: number; life: number; size: number; spin: number; drift: number; peak: number };
+    type Spark = {
+        sprite: Sprite;
+        born: number;
+        life: number;
+        size: number;
+        spin: number;
+        drift: number;
+        peak: number;
+    };
     const sparks: Spark[] = [];
     const sparkTex = sparkleTexture();
     const sparkLayer = new Container();
@@ -832,7 +906,7 @@ export async function buildScene(
     // Spawn one sparkle biased toward the center of `hot`'s rect. `peak` caps
     // its brightness so the three states stay ranked: idle whisper < periodic
     // hint < hover confirmation (v4 user direction).
-    const spawnSpark =(hot: Hot, t: number, sizeRange: [number, number] = [12, 22], peak = 0.78) => {
+    const spawnSpark = (hot: Hot, t: number, sizeRange: [number, number] = [12, 22], peak = 0.78) => {
         if (sparks.length >= MAX_SPARKS + 6) return; // hard cap incl. bursts
         const s = new Sprite(sparkTex);
         s.anchor.set(0.5);

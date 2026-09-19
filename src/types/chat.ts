@@ -86,6 +86,21 @@ export type WorldEvent =
     | { table: 'messages'; operation: 'DELETE'; record: null; old_record: ChatMessageRow }
     | { table: 'message_reactions'; operation: 'INSERT'; record: ReactionRow; old_record: null }
     | { table: 'message_reactions'; operation: 'DELETE'; record: null; old_record: ReactionRow }
-    | { table: 'channel_reads'; operation: 'INSERT' | 'UPDATE'; record: ChannelReadRow; old_record: ChannelReadRow | null }
-    | { table: 'friendships'; operation: 'INSERT' | 'UPDATE' | 'DELETE'; record: FriendshipRow | null; old_record: FriendshipRow | null }
-    | { table: 'world_emotes'; operation: 'INSERT' | 'UPDATE' | 'DELETE'; record: EmoteRow | null; old_record: EmoteRow | null };
+    | {
+          table: 'channel_reads';
+          operation: 'INSERT' | 'UPDATE';
+          record: ChannelReadRow;
+          old_record: ChannelReadRow | null;
+      }
+    | {
+          table: 'friendships';
+          operation: 'INSERT' | 'UPDATE' | 'DELETE';
+          record: FriendshipRow | null;
+          old_record: FriendshipRow | null;
+      }
+    | {
+          table: 'world_emotes';
+          operation: 'INSERT' | 'UPDATE' | 'DELETE';
+          record: EmoteRow | null;
+          old_record: EmoteRow | null;
+      };

@@ -10,15 +10,15 @@
 
 ## 项目画像（2026-09-18 核实）
 
-| 维度 | 事实 |
-| --- | --- |
-| 类型 / 形态 | Web 单页应用「双人放置陪伴小屋」；R1 网页 MVP 阶段，R2/R3 Electron 壳为规划 |
-| 技术栈 | React 19、TypeScript 5.9、Vite 7.3.1、React Router 7、PixiJS 8、Supabase JS 2.98；pnpm 10.22；Prettier 3.8；ESLint 9 flat config |
-| 规模 | 可枚举 587 文件、约 464MB（`codex-visual/` 161MB、`ai/` 212MB、`arts/` 49MB、`public/` 20MB）；自有源码 `src/` 64 文件；文本文件 240 |
-| 测试 / CI | 无单元测试、无 `.github`、无 CI；`scripts/check-*.mjs` 为人工浏览器验证脚本，依赖外部 `DIARY_NODE_MODULES` |
-| 后端 | Supabase 项目（auth / Postgres / Storage / Realtime）；schema 变更历史不在仓库，`sql/` 仅两份早期脚本 |
-| 协议与文档 | `CLAUDE.md`、`AGENTS.md`（受保护）；`ai/PROJECT.md`（PRD + 技术事实）、`ai/TODO.md`（任务唯一来源）、`ai/features/`、`ai/design_system/`（2026-09-12/13 刚整理的常驻设计 Markdown）、`ai/reboot/`（归档）、`ai/sessions/`（手动会话存档，不读） |
-| 技能目录 | `.claude/skills/`（Claude）与 `.agents/skills/`（Codex）正文已于 2026-09-19 对齐，仅 Codex 显示元数据 `agents/openai.yaml` 留在 `.agents` |
+| 维度        | 事实                                                                                                                                                                                                                                            |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 类型 / 形态 | Web 单页应用「双人放置陪伴小屋」；R1 网页 MVP 阶段，R2/R3 Electron 壳为规划                                                                                                                                                                     |
+| 技术栈      | React 19、TypeScript 5.9、Vite 7.3.1、React Router 7、PixiJS 8、Supabase JS 2.98；pnpm 10.22；Prettier 3.8；ESLint 9 flat config                                                                                                                |
+| 规模        | 可枚举 587 文件、约 464MB（`codex-visual/` 161MB、`ai/` 212MB、`arts/` 49MB、`public/` 20MB）；自有源码 `src/` 64 文件；文本文件 240                                                                                                            |
+| 测试 / CI   | 无单元测试、无 `.github`、无 CI；`scripts/check-*.mjs` 为人工浏览器验证脚本，依赖外部 `DIARY_NODE_MODULES`                                                                                                                                      |
+| 后端        | Supabase 项目（auth / Postgres / Storage / Realtime）；schema 变更历史不在仓库，`sql/` 仅两份早期脚本                                                                                                                                           |
+| 协议与文档  | `CLAUDE.md`、`AGENTS.md`（受保护）；`ai/PROJECT.md`（PRD + 技术事实）、`ai/TODO.md`（任务唯一来源）、`ai/features/`、`ai/design_system/`（2026-09-12/13 刚整理的常驻设计 Markdown）、`ai/reboot/`（归档）、`ai/sessions/`（手动会话存档，不读） |
+| 技能目录    | `.claude/skills/`（Claude）与 `.agents/skills/`（Codex）正文已于 2026-09-19 对齐，仅 Codex 显示元数据 `agents/openai.yaml` 留在 `.agents`                                                                                                       |
 
 ## 顺序与授权
 

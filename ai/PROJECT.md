@@ -101,19 +101,19 @@ src/
 
 ### 表（列以前端实际 select 为准）
 
-| 表 | 应用读写的列 | 备注 |
-| --- | --- | --- |
-| `allowed_emails` | email(PK) / note / created_at（待核） | 白名单表；实际拦截靠 Dashboard 关闭注册开关，**代码零引用** |
-| `profiles` | id(FK auth.users) / display_name / avatar_url | trigger `on_auth_user_created → handle_new_user()` 自动建档（待核） |
-| `worlds` | id / owner_id / member_id / name / anniversary / icon_emoji / icon_path / intimacy_points / created_at | 另有 `status`(pending\|active) 列前端不 select；约束 no_self_pair、active_requires_member（待核）；`check_world_uniqueness` 每人限一世界 |
-| `posts` | author_id / world_id / content / images[] / privacy(shared\|locked\|private) / unlock_cost / created_at / updated_at | **写直插、读只走 RPC** |
-| `post_unlocks` | post_id / user_id / unlocked_at（待核，前端不直接读写） | locked 帖解锁记录，解锁经济未启用 |
-| `channels` | id / world_id / type(text\|voice\|room\|dm) / name / topic / scene_id / position / dm_user_a / dm_user_b | world 型 + dm 型（规范序对）；新世界自动建默认频道（待核）。新方向无频道 UI，表保留当聊天管道 |
-| `messages` | id / channel_id / world_id / author_id / content(≤4000 待核) / created_at / edited_at / kind(text\|sticker) / emote_id | trigger `set_world` 回填 world_id + 广播（待核） |
-| `message_reactions` | message_id / user_id / world_id / emoji / created_at | PK(message, user, emoji) |
-| `channel_reads` | channel_id / user_id / world_id / last_read_at | 已读游标，只进不退 guard |
-| `world_emotes` | id / world_id / name / storage_path / source_url / added_by / created_at | 世界共享贴纸库；name 每世界唯一 |
-| `friendships` | user_a / user_b / requested_by / status(pending\|accepted) / created_at / responded_at | 账号级规范序对（user_a < user_b）；accepted → 自动建 DM。**UI 冻结，数据层保留不删** |
+| 表                  | 应用读写的列                                                                                                           | 备注                                                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowed_emails`    | email(PK) / note / created_at（待核）                                                                                  | 白名单表；实际拦截靠 Dashboard 关闭注册开关，**代码零引用**                                                                              |
+| `profiles`          | id(FK auth.users) / display_name / avatar_url                                                                          | trigger `on_auth_user_created → handle_new_user()` 自动建档（待核）                                                                      |
+| `worlds`            | id / owner_id / member_id / name / anniversary / icon_emoji / icon_path / intimacy_points / created_at                 | 另有 `status`(pending\|active) 列前端不 select；约束 no_self_pair、active_requires_member（待核）；`check_world_uniqueness` 每人限一世界 |
+| `posts`             | author_id / world_id / content / images[] / privacy(shared\|locked\|private) / unlock_cost / created_at / updated_at   | **写直插、读只走 RPC**                                                                                                                   |
+| `post_unlocks`      | post_id / user_id / unlocked_at（待核，前端不直接读写）                                                                | locked 帖解锁记录，解锁经济未启用                                                                                                        |
+| `channels`          | id / world_id / type(text\|voice\|room\|dm) / name / topic / scene_id / position / dm_user_a / dm_user_b               | world 型 + dm 型（规范序对）；新世界自动建默认频道（待核）。新方向无频道 UI，表保留当聊天管道                                            |
+| `messages`          | id / channel_id / world_id / author_id / content(≤4000 待核) / created_at / edited_at / kind(text\|sticker) / emote_id | trigger `set_world` 回填 world_id + 广播（待核）                                                                                         |
+| `message_reactions` | message_id / user_id / world_id / emoji / created_at                                                                   | PK(message, user, emoji)                                                                                                                 |
+| `channel_reads`     | channel_id / user_id / world_id / last_read_at                                                                         | 已读游标，只进不退 guard                                                                                                                 |
+| `world_emotes`      | id / world_id / name / storage_path / source_url / added_by / created_at                                               | 世界共享贴纸库；name 每世界唯一                                                                                                          |
+| `friendships`       | user_a / user_b / requested_by / status(pending\|accepted) / created_at / responded_at                                 | 账号级规范序对（user_a < user_b）；accepted → 自动建 DM。**UI 冻结，数据层保留不删**                                                     |
 
 ### RPC / Edge Function / Storage / Realtime
 
@@ -146,12 +146,12 @@ src/
 
 ## 美术与 UI/UX 技能登记
 
-| 角色 | 技能位置与职责 | 项目入口 |
-| --- | --- | --- |
-| UI Tailor · UI 裁缝 | `.agents/skills/ui-tailor/SKILL.md`；统一负责 UI 与 UX（概念模型、流程、信息架构、术语、界面与可用性） | `ai/design_system/uiux/uiux.md`；主题 `uiux/cinnaglass/ui-system.md` |
-| Monet · 主美/概念设计师 | `.agents/skills/monet/SKILL.md`；统筹美术，调度 UI Tailor 并审核；不主导技术选型 | `ai/design_system/design-system.md` 及领域子文档 |
-| 视觉制作与第二意见 | 可用时优先 `codex-visual`，缺失时由上述角色用自身工具完成，不虚构工具 | 产物与调研按 concept/uiux 归档，原始批次可登记外部位置 |
-| 原画分层与环境光照 | 用户级 Codex skill `art-relighting`，Monet 按材质/光色分离需求调用 | `ai/design_system/research/art-relighting.md` |
+| 角色                    | 技能位置与职责                                                                                         | 项目入口                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| UI Tailor · UI 裁缝     | `.agents/skills/ui-tailor/SKILL.md`；统一负责 UI 与 UX（概念模型、流程、信息架构、术语、界面与可用性） | `ai/design_system/uiux/uiux.md`；主题 `uiux/cinnaglass/ui-system.md` |
+| Monet · 主美/概念设计师 | `.agents/skills/monet/SKILL.md`；统筹美术，调度 UI Tailor 并审核；不主导技术选型                       | `ai/design_system/design-system.md` 及领域子文档                     |
+| 视觉制作与第二意见      | 可用时优先 `codex-visual`，缺失时由上述角色用自身工具完成，不虚构工具                                  | 产物与调研按 concept/uiux 归档，原始批次可登记外部位置               |
+| 原画分层与环境光照      | 用户级 Codex skill `art-relighting`，Monet 按材质/光色分离需求调用                                     | `ai/design_system/research/art-relighting.md`                        |
 
 工作闭环、技能与项目文档的分工规则见 `AGENTS.md`「Codex skill 放置与创建规范」；此表只登记项目侧入口。
 

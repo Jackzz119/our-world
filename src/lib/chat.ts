@@ -19,7 +19,11 @@ const READ_COLS = 'channel_id, user_id, world_id, last_read_at';
 
 // All channels of a world in nav order (RLS: members only).
 export const getChannels = async (worldId: string): Promise<Channel[]> => {
-    const { data, error } = await supabase.from('channels').select(CHANNEL_COLS).eq('world_id', worldId).order('position');
+    const { data, error } = await supabase
+        .from('channels')
+        .select(CHANNEL_COLS)
+        .eq('world_id', worldId)
+        .order('position');
     if (error) throw error;
     return (data ?? []) as Channel[];
 };
@@ -61,7 +65,9 @@ export const getMessages = async (channelId: string, page: MessagePage = {}): Pr
 // client-side so the optimistic bubble and the echo are the same message.
 export const sendMessage = async (channelId: string, content: string, id: string): Promise<void> => {
     const authorId = await currentUserId();
-    const { error } = await supabase.from('messages').insert({ id, channel_id: channelId, author_id: authorId, content });
+    const { error } = await supabase
+        .from('messages')
+        .insert({ id, channel_id: channelId, author_id: authorId, content });
     if (error) throw error;
 };
 
@@ -69,9 +75,14 @@ export const sendMessage = async (channelId: string, content: string, id: string
 // content carries the :name: fallback (conversation hint line / tombstone).
 export const sendSticker = async (channelId: string, emoteId: string, emoteName: string, id: string): Promise<void> => {
     const authorId = await currentUserId();
-    const { error } = await supabase
-        .from('messages')
-        .insert({ id, channel_id: channelId, author_id: authorId, content: `:${emoteName}:`, kind: 'sticker', emote_id: emoteId });
+    const { error } = await supabase.from('messages').insert({
+        id,
+        channel_id: channelId,
+        author_id: authorId,
+        content: `:${emoteName}:`,
+        kind: 'sticker',
+        emote_id: emoteId
+    });
     if (error) throw error;
 };
 
@@ -90,14 +101,21 @@ export const deleteMessage = async (id: string): Promise<void> => {
 // React to a message as me; the PK (message, user, emoji) makes a repeat insert a conflict.
 export const addReaction = async (messageId: string, emoji: string): Promise<void> => {
     const userId = await currentUserId();
-    const { error } = await supabase.from('message_reactions').insert({ message_id: messageId, user_id: userId, emoji });
+    const { error } = await supabase
+        .from('message_reactions')
+        .insert({ message_id: messageId, user_id: userId, emoji });
     if (error) throw error;
 };
 
 // Take back one of my reactions.
 export const removeReaction = async (messageId: string, emoji: string): Promise<void> => {
     const userId = await currentUserId();
-    const { error } = await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', userId).eq('emoji', emoji);
+    const { error } = await supabase
+        .from('message_reactions')
+        .delete()
+        .eq('message_id', messageId)
+        .eq('user_id', userId)
+        .eq('emoji', emoji);
     if (error) throw error;
 };
 
@@ -114,7 +132,10 @@ export const markChannelRead = async (channelId: string): Promise<void> => {
     const userId = await currentUserId();
     const { error } = await supabase
         .from('channel_reads')
-        .upsert({ channel_id: channelId, user_id: userId, last_read_at: new Date().toISOString() }, { onConflict: 'channel_id,user_id' });
+        .upsert(
+            { channel_id: channelId, user_id: userId, last_read_at: new Date().toISOString() },
+            { onConflict: 'channel_id,user_id' }
+        );
     if (error) throw error;
 };
 
@@ -137,13 +158,22 @@ export const getReadsForChannels = async (channelIds: string[]): Promise<Channel
 // included. onStatus reports the subscription lifecycle ('SUBSCRIBED' |
 // 'CHANNEL_ERROR' | 'TIMED_OUT' | 'CLOSED') so the caller can refetch after
 // a reconnect. Returns the unsubscribe function.
-const subscribeTopic = (topic: string, onEvent: (ev: WorldEvent) => void, onStatus?: (status: string) => void): (() => void) => {
+const subscribeTopic = (
+    topic: string,
+    onEvent: (ev: WorldEvent) => void,
+    onStatus?: (status: string) => void
+): (() => void) => {
     let disposed = false;
     let ch: RealtimeChannel | null = null;
     const handle = (operation: WorldEvent['operation']) => (msg: { payload?: unknown }) => {
         const p = msg.payload as { table?: string; record?: unknown; old_record?: unknown } | undefined;
         if (!p?.table) return;
-        onEvent({ table: p.table, operation, record: p.record ?? null, old_record: p.old_record ?? null } as WorldEvent);
+        onEvent({
+            table: p.table,
+            operation,
+            record: p.record ?? null,
+            old_record: p.old_record ?? null
+        } as WorldEvent);
     };
     // private channels authorize with the user token — joining before setAuth
     // resolves gets denied once and only self-heals on the retry, so wait
@@ -163,8 +193,11 @@ const subscribeTopic = (topic: string, onEvent: (ev: WorldEvent) => void, onStat
 };
 
 // world topic: the world's channel messages / reactions / read cursors
-export const subscribeWorld = (worldId: string, onEvent: (ev: WorldEvent) => void, onStatus?: (status: string) => void) =>
-    subscribeTopic(`world:${worldId}`, onEvent, onStatus);
+export const subscribeWorld = (
+    worldId: string,
+    onEvent: (ev: WorldEvent) => void,
+    onStatus?: (status: string) => void
+) => subscribeTopic(`world:${worldId}`, onEvent, onStatus);
 
 // account topic: all my DM traffic + friendship changes (DM 是账号级)
 export const subscribeUser = (userId: string, onEvent: (ev: WorldEvent) => void, onStatus?: (status: string) => void) =>

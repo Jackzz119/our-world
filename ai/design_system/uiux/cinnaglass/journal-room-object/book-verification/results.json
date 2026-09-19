@@ -1,242 +1,196 @@
 {
-  "measurements": [
-    {
-      "viewport": [
-        1440,
-        900
-      ],
-      "book": {
-        "x": 200,
-        "y": 115.0078125,
-        "width": 1040,
-        "height": 669.984375,
-        "top": 115.0078125,
-        "right": 1240,
-        "bottom": 784.9921875,
-        "left": 200
-      },
-      "center": [
-        720,
-        450
-      ],
-      "visiblePages": 2,
-      "overflow": [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ]
-      ],
-      "font": "\"Journal WenKai\", KaiTi, serif",
-      "noFlipEngine": true,
-      "quillPointerEvents": "none",
-      "nav": {
-        "x": 38,
-        "y": 258,
-        "width": 74,
-        "height": 384,
-        "top": 258,
-        "right": 112,
-        "bottom": 642,
-        "left": 38
-      }
+    "measurements": [
+        {
+            "viewport": [1440, 900],
+            "book": {
+                "x": 200,
+                "y": 115.0078125,
+                "width": 1040,
+                "height": 669.984375,
+                "top": 115.0078125,
+                "right": 1240,
+                "bottom": 784.9921875,
+                "left": 200
+            },
+            "center": [720, 450],
+            "visiblePages": 2,
+            "overflow": [
+                [0, 0],
+                [0, 0]
+            ],
+            "font": "\"Journal WenKai\", KaiTi, serif",
+            "noFlipEngine": true,
+            "quillPointerEvents": "none",
+            "nav": {
+                "x": 38,
+                "y": 258,
+                "width": 74,
+                "height": 384,
+                "top": 258,
+                "right": 112,
+                "bottom": 642,
+                "left": 38
+            }
+        },
+        {
+            "viewport": [960, 700],
+            "book": {
+                "x": 80,
+                "y": 92.3125,
+                "width": 800,
+                "height": 515.375,
+                "top": 92.3125,
+                "right": 880,
+                "bottom": 607.6875,
+                "left": 80
+            },
+            "center": [480, 350],
+            "visiblePages": 2,
+            "overflow": [
+                [0, 0],
+                [0, 0]
+            ],
+            "font": "\"Journal WenKai\", KaiTi, serif",
+            "noFlipEngine": true,
+            "quillPointerEvents": "none",
+            "nav": {
+                "x": 38,
+                "y": 158,
+                "width": 74,
+                "height": 384,
+                "top": 158,
+                "right": 112,
+                "bottom": 542,
+                "left": 38
+            }
+        },
+        {
+            "viewport": [640, 400],
+            "book": {
+                "x": 110,
+                "y": 28,
+                "width": 420,
+                "height": 300,
+                "top": 28,
+                "right": 530,
+                "bottom": 328,
+                "left": 110
+            },
+            "center": [320, 178],
+            "visiblePages": 1,
+            "overflow": [[0, 0]],
+            "font": "\"Journal WenKai\", KaiTi, serif",
+            "noFlipEngine": true,
+            "quillPointerEvents": "none",
+            "nav": {
+                "x": 174,
+                "y": 328,
+                "width": 292,
+                "height": 62,
+                "top": 328,
+                "right": 466,
+                "bottom": 390,
+                "left": 174
+            }
+        },
+        {
+            "viewport": [390, 844],
+            "book": {
+                "x": 10,
+                "y": 55,
+                "width": 370,
+                "height": 690,
+                "top": 55,
+                "right": 380,
+                "bottom": 745,
+                "left": 10
+            },
+            "center": [195, 400],
+            "visiblePages": 1,
+            "overflow": [[0, 0]],
+            "font": "\"Journal WenKai\", KaiTi, serif",
+            "noFlipEngine": true,
+            "quillPointerEvents": "none",
+            "nav": {
+                "x": 49,
+                "y": 772,
+                "width": 292,
+                "height": 62,
+                "top": 772,
+                "right": 341,
+                "bottom": 834,
+                "left": 49
+            }
+        }
+    ],
+    "images": [
+        {
+            "mood": "night",
+            "box": {
+                "x": 200,
+                "y": 115.0078125,
+                "width": 1040,
+                "height": 669.984375
+            }
+        },
+        {
+            "mood": "golden",
+            "box": {
+                "x": 200,
+                "y": 115.0078125,
+                "width": 1040,
+                "height": 669.984375
+            }
+        },
+        {
+            "mood": "twilight",
+            "box": {
+                "x": 200,
+                "y": 115.0078125,
+                "width": 1040,
+                "height": 669.984375
+            }
+        }
+    ],
+    "pagination": [
+        {
+            "width": 434,
+            "height": 542,
+            "pages": 12,
+            "textPreserved": true,
+            "photosPreserved": true,
+            "overflow": 0
+        },
+        {
+            "width": 334,
+            "height": 417,
+            "pages": 18,
+            "textPreserved": true,
+            "photosPreserved": true,
+            "overflow": 0
+        },
+        {
+            "width": 344,
+            "height": 255,
+            "pages": 28,
+            "textPreserved": true,
+            "photosPreserved": true,
+            "overflow": 0
+        },
+        {
+            "width": 303,
+            "height": 547,
+            "pages": 12,
+            "textPreserved": true,
+            "photosPreserved": true,
+            "overflow": 0
+        }
+    ],
+    "draft": true,
+    "detail": true,
+    "docs": {
+        "liveCss": true,
+        "sampleLoaded": true
     },
-    {
-      "viewport": [
-        960,
-        700
-      ],
-      "book": {
-        "x": 80,
-        "y": 92.3125,
-        "width": 800,
-        "height": 515.375,
-        "top": 92.3125,
-        "right": 880,
-        "bottom": 607.6875,
-        "left": 80
-      },
-      "center": [
-        480,
-        350
-      ],
-      "visiblePages": 2,
-      "overflow": [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ]
-      ],
-      "font": "\"Journal WenKai\", KaiTi, serif",
-      "noFlipEngine": true,
-      "quillPointerEvents": "none",
-      "nav": {
-        "x": 38,
-        "y": 158,
-        "width": 74,
-        "height": 384,
-        "top": 158,
-        "right": 112,
-        "bottom": 542,
-        "left": 38
-      }
-    },
-    {
-      "viewport": [
-        640,
-        400
-      ],
-      "book": {
-        "x": 110,
-        "y": 28,
-        "width": 420,
-        "height": 300,
-        "top": 28,
-        "right": 530,
-        "bottom": 328,
-        "left": 110
-      },
-      "center": [
-        320,
-        178
-      ],
-      "visiblePages": 1,
-      "overflow": [
-        [
-          0,
-          0
-        ]
-      ],
-      "font": "\"Journal WenKai\", KaiTi, serif",
-      "noFlipEngine": true,
-      "quillPointerEvents": "none",
-      "nav": {
-        "x": 174,
-        "y": 328,
-        "width": 292,
-        "height": 62,
-        "top": 328,
-        "right": 466,
-        "bottom": 390,
-        "left": 174
-      }
-    },
-    {
-      "viewport": [
-        390,
-        844
-      ],
-      "book": {
-        "x": 10,
-        "y": 55,
-        "width": 370,
-        "height": 690,
-        "top": 55,
-        "right": 380,
-        "bottom": 745,
-        "left": 10
-      },
-      "center": [
-        195,
-        400
-      ],
-      "visiblePages": 1,
-      "overflow": [
-        [
-          0,
-          0
-        ]
-      ],
-      "font": "\"Journal WenKai\", KaiTi, serif",
-      "noFlipEngine": true,
-      "quillPointerEvents": "none",
-      "nav": {
-        "x": 49,
-        "y": 772,
-        "width": 292,
-        "height": 62,
-        "top": 772,
-        "right": 341,
-        "bottom": 834,
-        "left": 49
-      }
-    }
-  ],
-  "images": [
-    {
-      "mood": "night",
-      "box": {
-        "x": 200,
-        "y": 115.0078125,
-        "width": 1040,
-        "height": 669.984375
-      }
-    },
-    {
-      "mood": "golden",
-      "box": {
-        "x": 200,
-        "y": 115.0078125,
-        "width": 1040,
-        "height": 669.984375
-      }
-    },
-    {
-      "mood": "twilight",
-      "box": {
-        "x": 200,
-        "y": 115.0078125,
-        "width": 1040,
-        "height": 669.984375
-      }
-    }
-  ],
-  "pagination": [
-    {
-      "width": 434,
-      "height": 542,
-      "pages": 12,
-      "textPreserved": true,
-      "photosPreserved": true,
-      "overflow": 0
-    },
-    {
-      "width": 334,
-      "height": 417,
-      "pages": 18,
-      "textPreserved": true,
-      "photosPreserved": true,
-      "overflow": 0
-    },
-    {
-      "width": 344,
-      "height": 255,
-      "pages": 28,
-      "textPreserved": true,
-      "photosPreserved": true,
-      "overflow": 0
-    },
-    {
-      "width": 303,
-      "height": 547,
-      "pages": 12,
-      "textPreserved": true,
-      "photosPreserved": true,
-      "overflow": 0
-    }
-  ],
-  "draft": true,
-  "detail": true,
-  "docs": {
-    "liveCss": true,
-    "sampleLoaded": true
-  },
-  "errors": []
+    "errors": []
 }

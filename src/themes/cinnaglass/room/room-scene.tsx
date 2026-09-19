@@ -167,11 +167,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
     }, [active]);
 
     return (
-        <div
-            ref={holderRef}
-            className="room-scene"
-            style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
-        >
+        <div ref={holderRef} className="room-scene" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
             {bubble && tagPos[bubble.seatId] && (
                 <div
                     key={bubble.key}
@@ -237,8 +233,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                                 background: 'rgba(55,56,84,0.8)',
                                 border: '1px solid var(--cg-stroke, rgba(233,231,242,0.54))',
                                 backdropFilter: 'blur(12px) saturate(112%)',
-                                boxShadow:
-                                    '0 10px 24px rgba(3,3,12,0.32), inset 0 1px 0 rgba(255,255,255,0.23)',
+                                boxShadow: '0 10px 24px rgba(3,3,12,0.32), inset 0 1px 0 rgba(255,255,255,0.23)',
                                 pointerEvents: 'none',
                                 whiteSpace: 'nowrap',
                                 transition: 'left 600ms linear, top 600ms linear, opacity 300ms ease'
@@ -256,7 +251,13 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                             />
                             {p.name && <b style={{ fontWeight: 600 }}>{p.name}</b>}
                             <span style={{ opacity: 0.78 }}>{p.status}</span>
-                            <span style={{ color: '#F9ABBD', filter: 'drop-shadow(0 0 5px rgba(249,171,189,0.7))', display: 'flex' }}>
+                            <span
+                                style={{
+                                    color: '#F9ABBD',
+                                    filter: 'drop-shadow(0 0 5px rgba(249,171,189,0.7))',
+                                    display: 'flex'
+                                }}
+                            >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#F9ABBD">
                                     <path d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
                                 </svg>

@@ -43,19 +43,19 @@
 
 ## 三、安全顾问发现（get_advisors security，2026-07-04）
 
-| 级别 | 发现 / 影响 | 建议 |
-| --- | --- | --- |
-| WARN×6 | public 函数 `search_path` 全可变，可被劫持（需先能建同名对象，风险低但修复零成本） | 统一 `set search_path = ''`（一个 migration） |
-| WARN | `handle_new_user`（SECURITY DEFINER）可被 anon/authenticated 经 `/rest/v1/rpc/` 直调，任何人可代插 profiles 行（受 PK 约束限制，仍不该暴露） | `revoke execute from anon, authenticated` |
-| WARN×10 | 全部表在 GraphQL schema 对 anon/authenticated 可发现，结构可枚举（行数据仍受 RLS 保护） | 评估 revoke anon select / 关闭 pg_graphql |
-| WARN | 泄露密码保护未开启，可用已泄露密码注册 | Dashboard → Auth 开启（HaveIBeenPwned 校验） |
+| 级别    | 发现 / 影响                                                                                                                                  | 建议                                          |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| WARN×6  | public 函数 `search_path` 全可变，可被劫持（需先能建同名对象，风险低但修复零成本）                                                           | 统一 `set search_path = ''`（一个 migration） |
+| WARN    | `handle_new_user`（SECURITY DEFINER）可被 anon/authenticated 经 `/rest/v1/rpc/` 直调，任何人可代插 profiles 行（受 PK 约束限制，仍不该暴露） | `revoke execute from anon, authenticated`     |
+| WARN×10 | 全部表在 GraphQL schema 对 anon/authenticated 可发现，结构可枚举（行数据仍受 RLS 保护）                                                      | 评估 revoke anon select / 关闭 pg_graphql     |
+| WARN    | 泄露密码保护未开启，可用已泄露密码注册                                                                                                       | Dashboard → Auth 开启（HaveIBeenPwned 校验）  |
 
 ## 四、性能顾问发现（get_advisors performance）
 
-| 级别 | 发现 | 建议 |
-| --- | --- | --- |
-| WARN×13 | 几乎所有 RLS 策略里 `auth.uid()` 逐行重估（initplan） | 重写为 `(select auth.uid())`（一个 migration 全改） |
-| INFO×4 | 无索引外键：`posts.author_id` / `posts.world_id` / `post_unlocks.user_id` / `worlds.member_id` | 补 4 个 btree 索引（数据量小，顺手修） |
+| 级别    | 发现                                                                                           | 建议                                                |
+| ------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| WARN×13 | 几乎所有 RLS 策略里 `auth.uid()` 逐行重估（initplan）                                          | 重写为 `(select auth.uid())`（一个 migration 全改） |
+| INFO×4  | 无索引外键：`posts.author_id` / `posts.world_id` / `post_unlocks.user_id` / `worlds.member_id` | 补 4 个 btree 索引（数据量小，顺手修）              |
 
 > 三、四的修复都是**低风险单 migration**（search_path + revoke + 索引 + 策略重写），讨论后一次做掉；泄露密码保护是 Dashboard 开关。**以上是 7-04 扫描结果，之后新增的六张表未进过扫描**，回填时须重跑 `get_advisors`。
 

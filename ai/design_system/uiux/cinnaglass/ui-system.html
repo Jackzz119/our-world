@@ -570,7 +570,8 @@
                 overflow: hidden;
                 border-radius: 20px;
                 border: 1px solid rgba(255, 255, 255, 0.14);
-                background: #171b28 url('../../concept/baselines/companionship-room/02-main-night-rain.png') center/cover no-repeat;
+                background: #171b28 url('../../concept/baselines/companionship-room/02-main-night-rain.png')
+                    center/cover no-repeat;
             }
             .doc-diary-demo::before {
                 content: '';
@@ -714,7 +715,8 @@
                 height: 96px;
                 margin: 7px -4px 0;
                 border-radius: 10px;
-                background: url('../../concept/baselines/companionship-room/02-main-night-rain.png') center 58% / cover no-repeat;
+                background: url('../../concept/baselines/companionship-room/02-main-night-rain.png') center 58% / cover
+                    no-repeat;
             }
             .doc-diary-compose {
                 height: 40px;
@@ -819,16 +821,25 @@
         </style>
     </head>
     <body>
-<div class="doc-registry" style="padding:12px 24px;background:#20282d;color:#e2eae6;font:14px/1.6 sans-serif"><a href="../../design-system.md" style="color:#d0e5e7">← 设计系统</a> · <a href="../uiux.md" style="color:#d0e5e7">UI 地图</a> · <a href="decisions.md" style="color:#d0e5e7">当前决定</a> · <a href="../research/cinnaglass-history/README.md" style="color:#d0e5e7">历史比稿</a> ｜ UI Tailor 维护 · Monet 审核</div>
+        <div
+            class="doc-registry"
+            style="padding: 12px 24px; background: #20282d; color: #e2eae6; font: 14px/1.6 sans-serif"
+        >
+            <a href="../../design-system.md" style="color: #d0e5e7">← 设计系统</a> ·
+            <a href="../uiux.md" style="color: #d0e5e7">UI 地图</a> ·
+            <a href="decisions.md" style="color: #d0e5e7">当前决定</a> ·
+            <a href="../research/cinnaglass-history/README.md" style="color: #d0e5e7">历史比稿</a> ｜ UI Tailor 维护 ·
+            Monet 审核
+        </div>
         <div class="doc-hd">
             <h1>Cinnaglass · UI Design System</h1>
             <p>
-                Our World 的视觉总览 · 2026-09-11 UI 统一审计与计划登记。Token 实时引用产品 CSS；文字说明区分当前基准、待确认建议和历史配方。
+                Our World 的视觉总览 · 2026-09-11 UI 统一审计与计划登记。Token 实时引用产品
+                CSS；文字说明区分当前基准、待确认建议和历史配方。
             </p>
             <div class="doc-nav">
                 <a href="#concept">① 设计概念</a><a href="#domains">② 表面与文字</a><a href="#tokens">③ Token 总表</a>
-                <a href="#tiers">④ 环境与材质</a><a href="#components">⑤ 组件库</a
-                ><a href="#maintain">⑥ 维护规则</a>
+                <a href="#tiers">④ 环境与材质</a><a href="#components">⑤ 组件库</a><a href="#maintain">⑥ 维护规则</a>
             </div>
         </div>
 
@@ -836,130 +847,161 @@
             <section id="concept">
                 <h2><span class="n">①</span>设计概念 · 小屋暖光与细纹磨砂</h2>
                 <p class="lead">
-                    <b>当前导航是已认可的悬浮 UI 基准。</b>视觉签名为“映着小屋暖光的细纹磨砂玻璃”：中性透景、静止细纹、局部薄边与暖光反馈。
-                    用户要求按 A 场景悬浮 / B 任务界面 / C 专属物件组织整个项目；三类共用控件与状态语义，日记本本 session 不处理，交互动画后置。
+                    <b>当前导航是已认可的悬浮 UI 基准。</b
+                    >视觉签名为“映着小屋暖光的细纹磨砂玻璃”：中性透景、静止细纹、局部薄边与暖光反馈。 用户要求按 A
+                    场景悬浮 / B 任务界面 / C 专属物件组织整个项目；三类共用控件与状态语义，日记本本 session
+                    不处理，交互动画后置。
                 </p>
-                <p class="lead doc-plan-links"><b>本轮尚未改造产品。</b>B 推荐同源厚磨砂壳与稳定阅读底，具体厚度、文字/控件和取样需实景标准板确认。
-                    <a href="../../../features/ui-system/ui-system.md">完整设计与迁移计划</a> · <a href="../../../features/ui-system/audit.md">全组件现状审计</a> · <a href="#ui-unification">本轮登记与截图</a>
+                <p class="lead doc-plan-links">
+                    <b>本轮尚未改造产品。</b>B 推荐同源厚磨砂壳与稳定阅读底，具体厚度、文字/控件和取样需实景标准板确认。
+                    <a href="../../../features/ui-system/ui-system.md">完整设计与迁移计划</a> ·
+                    <a href="../../../features/ui-system/audit.md">全组件现状审计</a> ·
+                    <a href="#ui-unification">本轮登记与截图</a>
                 </p>
                 <details class="doc-legacy">
                     <summary>历史设计依据：2026-07/08 明度阶梯与后续暖纸提案（不作为当前导航或全站最终规范）</summary>
-                <div class="docbox">
-                    <h3 style="margin-top: 0">明度阶梯 —— 沉浸感的技术定义</h3>
-                    <div class="ladder">
-                        <span style="background: #fbfcfe; color: #22335a">黄昏 · 外壳 94%</span>
-                        <span style="background: #d5d9e6; color: #1e2a4a">暮色 · 外壳 70%</span>
-                        <span style="background: #383c4a; color: #edf1f7">夜晚 · 外壳 26%</span>
+                    <div class="docbox">
+                        <h3 style="margin-top: 0">明度阶梯 —— 沉浸感的技术定义</h3>
+                        <div class="ladder">
+                            <span style="background: #fbfcfe; color: #22335a">黄昏 · 外壳 94%</span>
+                            <span style="background: #d5d9e6; color: #1e2a4a">暮色 · 外壳 70%</span>
+                            <span style="background: #383c4a; color: #edf1f7">夜晚 · 外壳 26%</span>
+                        </div>
+                        <p class="lead" style="margin: 10px 0 0">
+                            2026-09-06 用户批准
+                            B「苔绿手札」：内容用不透明暖灰纸，灯泡与天空可以更亮；深暖墨字保证阅读，中性透明轻壳留给导航与工具。
+                        </p>
+                        <div class="rule">
+                            <span class="k">1</span
+                            ><span
+                                ><b>阶梯必须拉开 ≥35%。</b>三层挤在同一明度区 = 画面「平」、眼睛找不到主角（这是
+                                2026-07-13 之前全白版本失败的根因）。</span
+                            >
+                        </div>
+                        <div class="rule">
+                            <span class="k">2</span
+                            ><span
+                                ><b>白色是奖赏，不是底色。</b
+                                >纯白只发给记忆内容——照片、日记卡、聊天气泡；导航外壳一律暮色。</span
+                            >
+                        </div>
+                        <div class="rule">
+                            <span class="k">3</span
+                            ><span
+                                ><b>大耳狗活在点缀里。</b
+                                >天蓝当发光强调色、腮红粉当情绪点，不再当大面积背景——深色底反而让这两色更鲜活。</span
+                            >
+                        </div>
+                        <div class="rule">
+                            <span class="k">4</span
+                            ><span
+                                ><b>Chrome 中性，Accent 彩色，Paper 纯白。</b
+                                >外壳是<b>中性烟熏玻璃</b>（几乎不带色相，只留一丝冷/暖倾向）——饱和的藏蓝/紫外壳会和照片、头像、强调色抢戏且很快看腻。整个界面里唯一该有明确颜色的地方：强调色、选中态、徽章、以及内容本身。</span
+                            >
+                        </div>
                     </div>
-                    <p class="lead" style="margin: 10px 0 0">
-                        2026-09-06 用户批准 B「苔绿手札」：内容用不透明暖灰纸，灯泡与天空可以更亮；深暖墨字保证阅读，中性透明轻壳留给导航与工具。
-                    </p>
-                    <div class="rule">
-                        <span class="k">1</span
-                        ><span
-                            ><b>阶梯必须拉开 ≥35%。</b>三层挤在同一明度区 = 画面「平」、眼睛找不到主角（这是 2026-07-13
-                            之前全白版本失败的根因）。</span
-                        >
-                    </div>
-                    <div class="rule">
-                        <span class="k">2</span
-                        ><span
-                            ><b>白色是奖赏，不是底色。</b
-                            >纯白只发给记忆内容——照片、日记卡、聊天气泡；导航外壳一律暮色。</span
-                        >
-                    </div>
-                    <div class="rule">
-                        <span class="k">3</span
-                        ><span
-                            ><b>大耳狗活在点缀里。</b
-                            >天蓝当发光强调色、腮红粉当情绪点，不再当大面积背景——深色底反而让这两色更鲜活。</span
-                        >
-                    </div>
-                    <div class="rule">
-                        <span class="k">4</span
-                        ><span
-                            ><b>Chrome 中性，Accent 彩色，Paper 纯白。</b
-                            >外壳是<b>中性烟熏玻璃</b>（几乎不带色相，只留一丝冷/暖倾向）——饱和的藏蓝/紫外壳会和照片、头像、强调色抢戏且很快看腻。整个界面里唯一该有明确颜色的地方：强调色、选中态、徽章、以及内容本身。</span
-                        >
-                    </div>
-                </div>
                 </details>
             </section>
 
             <section id="domains">
                 <h2><span class="n">②</span>表面与文字 · 明确归属</h2>
                 <p class="lead">
-                    A/B/C 是载体分类；外壳、内容、控件是每类内部的语义。不能因为从物件点击就归为 C，也不能把所有内容强制铺成同一种旧纸。
+                    A/B/C 是载体分类；外壳、内容、控件是每类内部的语义。不能因为从物件点击就归为
+                    C，也不能把所有内容强制铺成同一种旧纸。
                 </p>
                 <table>
-                    <tr><th>载体</th><th>当前事实</th><th>统一目标与状态</th></tr>
-                    <tr><td>A 悬浮</td><td>导航使用 --nav-*；多数 widget 仍用 --cg-*；展开音乐使用 --glass-*</td><td>以当前导航为母材质；根据内容密度加阅读底。基准已确认，迁移待做。</td></tr>
-                    <tr><td>B 任务</td><td>设置/日历多为 --craft-* 暖纸，完整聊天仍为旧 .glass</td><td>建议同源厚磨砂与稳定内容底；先做设置标准板，未获全套视觉批准。</td></tr>
-                    <tr><td>C 物件</td><td>日记专属几何/纸面/翻页体系</td><td>本 session 冻结；公共值迁移不得改写其依赖。</td></tr>
+                    <tr>
+                        <th>载体</th>
+                        <th>当前事实</th>
+                        <th>统一目标与状态</th>
+                    </tr>
+                    <tr>
+                        <td>A 悬浮</td>
+                        <td>导航使用 --nav-*；多数 widget 仍用 --cg-*；展开音乐使用 --glass-*</td>
+                        <td>以当前导航为母材质；根据内容密度加阅读底。基准已确认，迁移待做。</td>
+                    </tr>
+                    <tr>
+                        <td>B 任务</td>
+                        <td>设置/日历多为 --craft-* 暖纸，完整聊天仍为旧 .glass</td>
+                        <td>建议同源厚磨砂与稳定内容底；先做设置标准板，未获全套视觉批准。</td>
+                    </tr>
+                    <tr>
+                        <td>C 物件</td>
+                        <td>日记专属几何/纸面/翻页体系</td>
+                        <td>本 session 冻结；公共值迁移不得改写其依赖。</td>
+                    </tr>
                 </table>
                 <details class="doc-legacy">
                     <summary>现存旧组件的 SHELL / PAPER 兼容机制（仍有消费者，不能先删除）</summary>
-                <table>
-                    <tr>
-                        <th style="width: 96px">色域</th>
-                        <th>用在哪</th>
-                        <th>背景</th>
-                        <th>文字</th>
-                    </tr>
-                    <tr>
-                        <td>
-                            <b>SHELL 外壳</b><br /><span style="color: rgba(232, 237, 247, 0.5)">随时辰变明度</span>
-                        </td>
-                        <td>sidebar 面板与胶囊 rail、所有弹窗外壳、HUD 浮窗、聊天 dock、音乐播放器、登录卡</td>
-                        <td><code>.glass</code> → <code>--glass-shell</code></td>
-                        <td>
-                            <code>--glass-text</code><br /><span style="color: rgba(232, 237, 247, 0.5)"
-                                >黄昏/暮色 深色 · 夜晚 浅色</span
-                            >
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <b>PAPER 纸面</b><br /><span style="color: rgba(232, 237, 247, 0.5)">暖灰纸 · 恒定</span>
-                        </td>
-                        <td>日记页与回忆条目、照片卡、聊天气泡、设置分组、成员卡、所有输入框、表情面板</td>
-                        <td><code>.paper</code> → <code>--glass-paper</code></td>
-                        <td>恒为深色 <code>--paper-text</code></td>
-                    </tr>
-                </table>
+                    <table>
+                        <tr>
+                            <th style="width: 96px">色域</th>
+                            <th>用在哪</th>
+                            <th>背景</th>
+                            <th>文字</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>SHELL 外壳</b><br /><span style="color: rgba(232, 237, 247, 0.5)">随时辰变明度</span>
+                            </td>
+                            <td>sidebar 面板与胶囊 rail、所有弹窗外壳、HUD 浮窗、聊天 dock、音乐播放器、登录卡</td>
+                            <td><code>.glass</code> → <code>--glass-shell</code></td>
+                            <td>
+                                <code>--glass-text</code><br /><span style="color: rgba(232, 237, 247, 0.5)"
+                                    >黄昏/暮色 深色 · 夜晚 浅色</span
+                                >
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>PAPER 纸面</b><br /><span style="color: rgba(232, 237, 247, 0.5)"
+                                    >暖灰纸 · 恒定</span
+                                >
+                            </td>
+                            <td>日记页与回忆条目、照片卡、聊天气泡、设置分组、成员卡、所有输入框、表情面板</td>
+                            <td><code>.paper</code> → <code>--glass-paper</code></td>
+                            <td>恒为深色 <code>--paper-text</code></td>
+                        </tr>
+                    </table>
 
-                <div class="docbox" style="margin-top: 16px">
-                    <h3 style="margin-top: 0">实现机制：纸面自动重映射</h3>
-                    <p class="lead" style="margin-bottom: 10px">
-                        旧组件普遍引用 <code>--glass-*</code>，<code>cinnaglass.css</code> 通过选择器清单重映射纸面文字。
-                        保留它以兼容未迁移组件；新 A/B 计划采用显式表面作用域，不继续依靠组件名单猜测文字域。
-                    </p>
-                    <pre
-                        style="
-                            margin: 0;
-                            font-size: 11.5px;
-                            color: #bfe3f5;
-                            background: rgba(159, 214, 244, 0.08);
-                            padding: 12px 14px;
-                            border-radius: 10px;
-                            overflow-x: auto;
-                        "
-                    ><code>.paper, .tl-card, .set-group, .chsc-m .bub, input, textarea, … {
+                    <div class="docbox" style="margin-top: 16px">
+                        <h3 style="margin-top: 0">实现机制：纸面自动重映射</h3>
+                        <p class="lead" style="margin-bottom: 10px">
+                            旧组件普遍引用 <code>--glass-*</code>，<code>cinnaglass.css</code>
+                            通过选择器清单重映射纸面文字。 保留它以兼容未迁移组件；新 A/B
+                            计划采用显式表面作用域，不继续依靠组件名单猜测文字域。
+                        </p>
+                        <pre
+                            style="
+                                margin: 0;
+                                font-size: 11.5px;
+                                color: #bfe3f5;
+                                background: rgba(159, 214, 244, 0.08);
+                                padding: 12px 14px;
+                                border-radius: 10px;
+                                overflow-x: auto;
+                            "
+                        ><code>.paper, .tl-card, .set-group, .chsc-m .bub, input, textarea, … {
   --glass-text: var(--paper-text);
   --glass-sub:  var(--paper-sub);
   --glass-line: var(--paper-line);
   --glass-hover / --glass-active / --glass-hi …
 }</code></pre>
-                    <div class="warn" style="margin-top: 12px">
-                        <b>旧组件的文字重映射不能在迁移前删除。</b>新 A/B 的前景色与实际底色一起验收，禁止仅替换透明度或一次全局改纸色。
+                        <div class="warn" style="margin-top: 12px">
+                            <b>旧组件的文字重映射不能在迁移前删除。</b>新 A/B
+                            的前景色与实际底色一起验收，禁止仅替换透明度或一次全局改纸色。
+                        </div>
                     </div>
-                </div>
                 </details>
             </section>
 
             <section id="tokens">
                 <h2><span class="n">③</span>Token 总表</h2>
-                <p class="doc-diary-note">下表为当前真实 CSS 的基础值与旧兼容值，不是新 A/B 已落地的证明。导航实际材质在 <a href="#navigation-glass">导航登记</a>；后续按语义迁移 --nav / --cg / --shell / --glass / --craft 的消费者，再清理旧名。</p>
+                <p class="doc-diary-note">
+                    下表为当前真实 CSS 的基础值与旧兼容值，不是新 A/B 已落地的证明。导航实际材质在
+                    <a href="#navigation-glass">导航登记</a>；后续按语义迁移 --nav / --cg / --shell / --glass / --craft
+                    的消费者，再清理旧名。
+                </p>
                 <p class="lead">
                     色块由本页实时读取 <code>cinnaglass.css</code> 绘制——你看到的就是产品里真正生效的值。
                 </p>
@@ -1174,8 +1216,11 @@
             <section id="tiers">
                 <h2><span class="n">④</span>环境与材质 · 旧组件兼容预览台</h2>
                 <p class="lead">
-                    此台仍实时引用旧 <code>.glass</code> 组件的规则：<code>data-mood</code> 控制旧壳明度，<code>data-glass</code> 控制旧壳模糊/饱和度。
-                    它没有覆盖当前导航的独立配方与全部 widgets，不能作为全站同源的证据。A/B 新标准板将使用真实组件、真实房间与同一环境参数；本轮只有下方现状审计截图。
+                    此台仍实时引用旧 <code>.glass</code> 组件的规则：<code>data-mood</code> 控制旧壳明度，<code
+                        >data-glass</code
+                    >
+                    控制旧壳模糊/饱和度。 它没有覆盖当前导航的独立配方与全部 widgets，不能作为全站同源的证据。A/B
+                    新标准板将使用真实组件、真实房间与同一环境参数；本轮只有下方现状审计截图。
                 </p>
                 <div class="lab">
                     <div class="lab-bar">
@@ -1310,177 +1355,496 @@
                 </p>
 
                 <h3 id="ui-unification">2026-09-11 · 全项目 UI / UX 统一计划</h3>
-                <p class="doc-diary-note">已完成现状审计和文档；当前导航为 A 的基准。B 推荐“同源厚磨砂壳 + 稳定阅读底”，待实景标准板确认；C 日记本本 session 不处理。以下为当前产品截图，非新方案效果图。</p>
+                <p class="doc-diary-note">
+                    已完成现状审计和文档；当前导航为 A 的基准。B 推荐“同源厚磨砂壳 + 稳定阅读底”，待实景标准板确认；C
+                    日记本本 session 不处理。以下为当前产品截图，非新方案效果图。
+                </p>
                 <table>
-                    <tr><th>先定什么</th><th>本轮结论</th></tr>
-                    <tr><td>纹理</td><td>固定生成的透明 frost.webp；没有运行时随机。建议静止取样，需要变化时按组件给固定偏移，避免逐帧闪动。</td></tr>
-                    <tr><td>透景</td><td>浏览器 backdrop-filter 实时模糊后方画面；导航2.4px，当前多数 widget 18px。</td></tr>
-                    <tr><td>反光</td><td>CSS 渐变与遮罩模拟细边，颜色按 mood 预设；没有真实灯光反射计算，也没有按时辰换导航图片。</td></tr>
-                    <tr><td>共用视觉</td><td>中性烟灰/柔和米白/暖金/身份蓝粉，柔圆几何、统一文字和线性图标；状态红绿独立，不作装饰。</td></tr>
-                    <tr><td>必须一起修</td><td>弹层与焦点、音乐假播放/固定进度、设置假保存、小屏浮窗越界；有真实能力的世界设置需恢复入口。</td></tr>
-                    <tr><td>执行顺序</td><td>静态标准板 → 公共基础 → A → B → 账户/大厅/遗留清理 → 动画（后置）。未改产品代码。</td></tr>
+                    <tr>
+                        <th>先定什么</th>
+                        <th>本轮结论</th>
+                    </tr>
+                    <tr>
+                        <td>纹理</td>
+                        <td>
+                            固定生成的透明
+                            frost.webp；没有运行时随机。建议静止取样，需要变化时按组件给固定偏移，避免逐帧闪动。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>透景</td>
+                        <td>浏览器 backdrop-filter 实时模糊后方画面；导航2.4px，当前多数 widget 18px。</td>
+                    </tr>
+                    <tr>
+                        <td>反光</td>
+                        <td>
+                            CSS 渐变与遮罩模拟细边，颜色按 mood 预设；没有真实灯光反射计算，也没有按时辰换导航图片。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>共用视觉</td>
+                        <td>中性烟灰/柔和米白/暖金/身份蓝粉，柔圆几何、统一文字和线性图标；状态红绿独立，不作装饰。</td>
+                    </tr>
+                    <tr>
+                        <td>必须一起修</td>
+                        <td>
+                            弹层与焦点、音乐假播放/固定进度、设置假保存、小屏浮窗越界；有真实能力的世界设置需恢复入口。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>执行顺序</td>
+                        <td>静态标准板 → 公共基础 → A → B → 账户/大厅/遗留清理 → 动画（后置）。未改产品代码。</td>
+                    </tr>
                 </table>
-                <p class="doc-evidence-links">2026-09-12：已建立 <strong>art-relighting · 原画分层与环境光照</strong> 工作流。查看 <a href="../../research/art-relighting-preview/index.html">三张原画与实际渐变纹理（可切晴/雨）</a> · <a href="../../research/art-relighting.md">技能职责与场景/UI 共用光环境议题</a>。产品光照尚未改造，物件运动和动态阴影技能后置。</p>
-                <div class="doc-audit-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px">
+                <p class="doc-evidence-links">
+                    2026-09-12：已建立 <strong>art-relighting · 原画分层与环境光照</strong> 工作流。查看
+                    <a href="../../research/art-relighting-preview/index.html">三张原画与实际渐变纹理（可切晴/雨）</a> ·
+                    <a href="../../research/art-relighting.md">技能职责与场景/UI 共用光环境议题</a
+                    >。产品光照尚未改造，物件运动和动态阴影技能后置。
+                </p>
+                <div
+                    class="doc-audit-grid"
+                    style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+                        gap: 16px;
+                    "
+                >
                     <figure>
-                        <a href="ui-unification/audit-2026-09-11/widgets-twilight.png"><img src="ui-unification/audit-2026-09-11/widgets-twilight.png" alt="当前产品：细纹导航与灰绿天气聊天音乐等浮窗同时出现，聊天文字头像已隐去" loading="lazy" style="display:block;width:100%;height:auto" /></a>
-                        <figcaption>当前 A：导航、天气、聊天、音乐、纪念卡和状态胶囊的材质仍不同；聊天内容已隐去。</figcaption>
+                        <a href="ui-unification/audit-2026-09-11/widgets-twilight.png"
+                            ><img
+                                src="ui-unification/audit-2026-09-11/widgets-twilight.png"
+                                alt="当前产品：细纹导航与灰绿天气聊天音乐等浮窗同时出现，聊天文字头像已隐去"
+                                loading="lazy"
+                                style="display: block; width: 100%; height: auto"
+                        /></a>
+                        <figcaption>
+                            当前 A：导航、天气、聊天、音乐、纪念卡和状态胶囊的材质仍不同；聊天内容已隐去。
+                        </figcaption>
                     </figure>
                     <figure>
-                        <a href="ui-unification/audit-2026-09-11/settings-twilight.png"><img src="ui-unification/audit-2026-09-11/settings-twilight.png" alt="当前产品：设置为暖灰纸窗，导航与音乐仍位于遮罩上方；输入值已隐去" loading="lazy" style="display:block;width:100%;height:auto" /></a>
+                        <a href="ui-unification/audit-2026-09-11/settings-twilight.png"
+                            ><img
+                                src="ui-unification/audit-2026-09-11/settings-twilight.png"
+                                alt="当前产品：设置为暖灰纸窗，导航与音乐仍位于遮罩上方；输入值已隐去"
+                                loading="lazy"
+                                style="display: block; width: 100%; height: auto"
+                        /></a>
                         <figcaption>当前 B：暖灰纸设置与 A 不同源；遮罩未覆盖 A，输入值已隐去。</figcaption>
                     </figure>
                 </div>
-                <p class="doc-evidence-links"><a href="../../../features/ui-system/ui-system.md">设计方案与实施闸门</a> · <a href="../../../features/ui-system/audit.md">全部组件/清理依赖</a> · <a href="ui-unification/audit-2026-09-11/mobile-390.png">窄屏重叠证据</a> · <a href="ui-unification/audit-2026-09-11/runtime.json">运行时检查</a> · <a href="ui-unification/audit-2026-09-11/golden-scene.png">黄昏</a> / <a href="ui-unification/audit-2026-09-11/twilight-scene.png">暮色</a> / <a href="ui-unification/audit-2026-09-11/night-scene.png">夜晚</a></p>
+                <p class="doc-evidence-links">
+                    <a href="../../../features/ui-system/ui-system.md">设计方案与实施闸门</a> ·
+                    <a href="../../../features/ui-system/audit.md">全部组件/清理依赖</a> ·
+                    <a href="ui-unification/audit-2026-09-11/mobile-390.png">窄屏重叠证据</a> ·
+                    <a href="ui-unification/audit-2026-09-11/runtime.json">运行时检查</a> ·
+                    <a href="ui-unification/audit-2026-09-11/golden-scene.png">黄昏</a> /
+                    <a href="ui-unification/audit-2026-09-11/twilight-scene.png">暮色</a> /
+                    <a href="ui-unification/audit-2026-09-11/night-scene.png">夜晚</a>
+                </p>
 
                 <h3 id="journal-room-object">已批准 · 桌上的同一本日记（2026-09-07 更新）</h3>
-                <p class="doc-diary-note">用户否决上一轮 B 实装效果：新方向以场景桌面的棕色日记为原型，大幅严格居中，允许遮挡角色。导航已实施且获用户认可；棕皮旧纸书本接入真实图文随纸竖直翻动、连续翻阅与阅读时雨不停播，等待实景体验确认。羽毛笔仅作图片；拿起/收回、羽毛笔交互及其他弹窗迁移尚未实施。</p>
+                <p class="doc-diary-note">
+                    用户否决上一轮 B
+                    实装效果：新方向以场景桌面的棕色日记为原型，大幅严格居中，允许遮挡角色。导航已实施且获用户认可；棕皮旧纸书本接入真实图文随纸竖直翻动、连续翻阅与阅读时雨不停播，等待实景体验确认。羽毛笔仅作图片；拿起/收回、羽毛笔交互及其他弹窗迁移尚未实施。
+                </p>
                 <figure>
-                    <a href="journal-room-object/room-journal-concept.png"><img src="journal-room-object/room-journal-concept.png" alt="新方向：棕皮旧纸双页日记放大居中，微纹理透明导航随日光暖灯夜雨变化，下附材质与开场翻阅分镜" loading="lazy" style="display:block;width:100%;height:auto" /></a>
-                    <figcaption>生成式概念板，不是产品截图。局部房间陈设与开场第一格仍有偏差；用户已明确认可发光，落地保留暖光反馈。</figcaption>
+                    <a href="journal-room-object/room-journal-concept.png"
+                        ><img
+                            src="journal-room-object/room-journal-concept.png"
+                            alt="新方向：棕皮旧纸双页日记放大居中，微纹理透明导航随日光暖灯夜雨变化，下附材质与开场翻阅分镜"
+                            loading="lazy"
+                            style="display: block; width: 100%; height: auto"
+                    /></a>
+                    <figcaption>
+                        生成式概念板，不是产品截图。局部房间陈设与开场第一格仍有偏差；用户已明确认可发光，落地保留暖光反馈。
+                    </figcaption>
                 </figure>
-                <p><a href="journal-room-object/codex-report.md">新设计与当前翻页原理、视觉问题复核</a> · <a href="journal-room-object/prompts.md">完整生成描述</a></p>
+                <p>
+                    <a href="journal-room-object/codex-report.md">新设计与当前翻页原理、视觉问题复核</a> ·
+                    <a href="journal-room-object/prompts.md">完整生成描述</a>
+                </p>
 
                 <h3 id="journal-static-art">已接入 · 棕皮旧纸书本静态美术</h3>
-                <p class="doc-diary-note">本页直接引用真实 <code>journal-room.css</code>。封皮、叠页与纸纤维使用无字底图，日期、正文与页码为可选中的真实文字；暖褐墨色与纸色相乘，让字融入纸面。没有固定作者左右列，没有彩色左边线。新翻页登记于下方独立章节。</p>
+                <p class="doc-diary-note">
+                    本页直接引用真实
+                    <code>journal-room.css</code
+                    >。封皮、叠页与纸纤维使用无字底图，日期、正文与页码为可选中的真实文字；暖褐墨色与纸色相乘，让字融入纸面。没有固定作者左右列，没有彩色左边线。新翻页登记于下方独立章节。
+                </p>
                 <figure>
-                    <a href="journal-room-object/book-verification/design-content-night.png"><img src="journal-room-object/book-verification/design-content-night.png" alt="真实产品组件：居中棕皮双页日记，旧纸、暖褐字迹、手绘头像与照片纸角，右下静态羽毛笔" loading="lazy" style="display:block;width:100%;height:auto" /></a>
-                    <figcaption>实装截图；示例文字与照片只在独立测试浏览器替换读取结果，没有写入数据库。真实预览继续显示你们的回忆。</figcaption>
+                    <a href="journal-room-object/book-verification/design-content-night.png"
+                        ><img
+                            src="journal-room-object/book-verification/design-content-night.png"
+                            alt="真实产品组件：居中棕皮双页日记，旧纸、暖褐字迹、手绘头像与照片纸角，右下静态羽毛笔"
+                            loading="lazy"
+                            style="display: block; width: 100%; height: auto"
+                    /></a>
+                    <figcaption>
+                        实装截图；示例文字与照片只在独立测试浏览器替换读取结果，没有写入数据库。真实预览继续显示你们的回忆。
+                    </figcaption>
                 </figure>
                 <table>
-                    <tr><th>项目</th><th>书本当前规则</th></tr>
-                    <tr><td>几何</td><td>1440×900 中 1040×670，中心 720/450；960×700 中 800×515。窄屏/矮屏单页，为底部导航上移 22px。</td></tr>
-                    <tr><td>材质</td><td>栗棕皮革、蜂蜜磨边、旧米纸、暖褐墨、象牙羽毛；实际纹理来源与采用清单记录在 arts/ui/journal 与 public/ui/journal 的 manifest。</td></tr>
-                    <tr><td>文字与留白</td><td>正文 #594126；桌面标题 26px、日期 21px、正文 17px；页内两侧各 34px，上下留 86/70px。使用本地文楷与轻微墨边，文字仍可选择复制。</td></tr>
-                    <tr><td>纸色复核</td><td>左右无字纸面与批准稿的代表区域明度差 -0.80 / -2.68（满刻度 255）；只证明采样区域接近，不是全图相似度或逐像素一致证明。</td></tr>
-                    <tr><td>验证边界</td><td>三时辰、四尺寸、长文/九图/草稿/详情和导航回归完成；翻页与阅读背景运行见下节。真实花园、Safari、低端设备未覆盖；未部署。</td></tr>
+                    <tr>
+                        <th>项目</th>
+                        <th>书本当前规则</th>
+                    </tr>
+                    <tr>
+                        <td>几何</td>
+                        <td>
+                            1440×900 中 1040×670，中心 720/450；960×700 中 800×515。窄屏/矮屏单页，为底部导航上移 22px。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>材质</td>
+                        <td>
+                            栗棕皮革、蜂蜜磨边、旧米纸、暖褐墨、象牙羽毛；实际纹理来源与采用清单记录在 arts/ui/journal
+                            与 public/ui/journal 的 manifest。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>文字与留白</td>
+                        <td>
+                            正文 #594126；桌面标题 26px、日期 21px、正文 17px；页内两侧各 34px，上下留
+                            86/70px。使用本地文楷与轻微墨边，文字仍可选择复制。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>纸色复核</td>
+                        <td>
+                            左右无字纸面与批准稿的代表区域明度差 -0.80 / -2.68（满刻度
+                            255）；只证明采样区域接近，不是全图相似度或逐像素一致证明。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>验证边界</td>
+                        <td>
+                            三时辰、四尺寸、长文/九图/草稿/详情和导航回归完成；翻页与阅读背景运行见下节。真实花园、Safari、低端设备未覆盖；未部署。
+                        </td>
+                    </tr>
                 </table>
-                <p><a href="journal-room-object/book-implementation.md">本轮实现与全部验证</a> · <a href="journal-room-object/book-verification/book-comparison.png">批准稿 / 实装并排</a> · <a href="journal-room-object/book-verification/real-memories.png">真实回忆截图</a> · <a href="journal-room-object/book-verification/design-content-golden.png">黄昏</a> · <a href="journal-room-object/book-verification/design-content-twilight.png">暮色</a> · <a href="journal-room-object/book-prompts.md">生成及失败处理记录</a> · <a href="../../../../src/themes/cinnaglass/journal-room.css">实际 CSS</a></p>
+                <p>
+                    <a href="journal-room-object/book-implementation.md">本轮实现与全部验证</a> ·
+                    <a href="journal-room-object/book-verification/book-comparison.png">批准稿 / 实装并排</a> ·
+                    <a href="journal-room-object/book-verification/real-memories.png">真实回忆截图</a> ·
+                    <a href="journal-room-object/book-verification/design-content-golden.png">黄昏</a> ·
+                    <a href="journal-room-object/book-verification/design-content-twilight.png">暮色</a> ·
+                    <a href="journal-room-object/book-prompts.md">生成及失败处理记录</a> ·
+                    <a href="../../../../src/themes/cinnaglass/journal-room.css">实际 CSS</a>
+                </p>
 
                 <h3 id="journal-turn">已接入 · 竖直翻页与连续翻阅</h3>
-                <p class="doc-diary-note">同一纸面的旧纸纹、日期、正文、照片与页码共同立起弯转。经过竖直位置后露出背面；底下的新页随着遮挡移开而显露，不等动画结束才换字。采用真实网页内容的三维变换，没有自定义 shader，也不是播放视频代替内容。</p>
+                <p class="doc-diary-note">
+                    同一纸面的旧纸纹、日期、正文、照片与页码共同立起弯转。经过竖直位置后露出背面；底下的新页随着遮挡移开而显露，不等动画结束才换字。采用真实网页内容的三维变换，没有自定义
+                    shader，也不是播放视频代替内容。
+                </p>
                 <figure>
-                    <img src="journal-room-object/turn-verification/live-single.gif" alt="实际产品 GIF：右页照片和正文贴在竖起的纸面上，背面落向左页，底下下一页同步显露" loading="lazy" width="960" height="600" style="display:block;max-width:100%;height:auto" />
-                    <figcaption>单页实景录像，25 帧/秒导出；页面文字与照片仅在独立测试浏览器替换读取响应，未写入数据库。</figcaption>
+                    <img
+                        src="journal-room-object/turn-verification/live-single.gif"
+                        alt="实际产品 GIF：右页照片和正文贴在竖起的纸面上，背面落向左页，底下下一页同步显露"
+                        loading="lazy"
+                        width="960"
+                        height="600"
+                        style="display: block; max-width: 100%; height: auto"
+                    />
+                    <figcaption>
+                        单页实景录像，25 帧/秒导出；页面文字与照片仅在独立测试浏览器替换读取响应，未写入数据库。
+                    </figcaption>
                 </figure>
                 <figure>
-                    <img src="journal-room-object/turn-verification/live-continuous.gif" alt="实际产品 GIF：连续触发三次翻页，多张纸接续经过竖直位置，中间的真实图文保留" loading="lazy" width="960" height="600" style="display:block;max-width:100%;height:auto" />
-                    <figcaption>连续三张：已经加载的中间页仍为真实文字与照片，不替换模糊假字。GIF 不代表实时运行帧率。</figcaption>
+                    <img
+                        src="journal-room-object/turn-verification/live-continuous.gif"
+                        alt="实际产品 GIF：连续触发三次翻页，多张纸接续经过竖直位置，中间的真实图文保留"
+                        loading="lazy"
+                        width="960"
+                        height="600"
+                        style="display: block; max-width: 100%; height: auto"
+                    />
+                    <figcaption>
+                        连续三张：已经加载的中间页仍为真实文字与照片，不替换模糊假字。GIF 不代表实时运行帧率。
+                    </figcaption>
                 </figure>
                 <table>
-                    <tr><th>项目</th><th>当前规则</th></tr>
-                    <tr><td>纸面</td><td>24 条相接窄片形成浅弯曲；正反面绑定同一纸面，书脊固定，纸面总长保持。纹理继续取自已批准旧纸素材。</td></tr>
-                    <tr><td>时值</td><td>单张 980ms；连续 470ms/张，上张行程 38% 接续，同时最多 3 张；起落放缓，中途加速保留已转位置。</td></tr>
-                    <tr><td>输入</td><td>按钮/方向键累加目标，目录跨页逐张翻；反向先收好已出发的纸。关闭、缩放与写作收在最近跨页，减少动态效果时直接换页。</td></tr>
-                    <tr><td>加载</td><td>所有已加载中间页清晰；没有启用模糊文字降级。更早历史通过目录先加载，保持当前段落，未返回内容不算假页数。</td></tr>
-                    <tr><td>环境与清理</td><td>读日记时雨景继续运行；翻阅结束移除动画副本，不保留翻页专属逐帧循环。羽毛笔仍为静态图片。</td></tr>
-                    <tr><td>边界</td><td>浅弯曲纸片近似，不是布料模拟；Safari、低端设备、低带宽图片与真实花园未覆盖。未部署。</td></tr>
+                    <tr>
+                        <th>项目</th>
+                        <th>当前规则</th>
+                    </tr>
+                    <tr>
+                        <td>纸面</td>
+                        <td>
+                            24
+                            条相接窄片形成浅弯曲；正反面绑定同一纸面，书脊固定，纸面总长保持。纹理继续取自已批准旧纸素材。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>时值</td>
+                        <td>
+                            单张 980ms；连续 470ms/张，上张行程 38% 接续，同时最多 3
+                            张；起落放缓，中途加速保留已转位置。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>输入</td>
+                        <td>
+                            按钮/方向键累加目标，目录跨页逐张翻；反向先收好已出发的纸。关闭、缩放与写作收在最近跨页，减少动态效果时直接换页。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>加载</td>
+                        <td>
+                            所有已加载中间页清晰；没有启用模糊文字降级。更早历史通过目录先加载，保持当前段落，未返回内容不算假页数。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>环境与清理</td>
+                        <td>
+                            读日记时雨景继续运行；翻阅结束移除动画副本，不保留翻页专属逐帧循环。羽毛笔仍为静态图片。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>边界</td>
+                        <td>浅弯曲纸片近似，不是布料模拟；Safari、低端设备、低带宽图片与真实花园未覆盖。未部署。</td>
+                    </tr>
                 </table>
-                <p><a href="journal-room-object/turn-implementation.md">实现决策与验证报告</a> · <a href="journal-room-object/turn-prototype.html">独立运动样板</a> · <a href="journal-room-object/turn-verification/runtime-results.json">实际页面检查结果</a> · <a href="../../../../src/themes/cinnaglass/journal-turn.css">实际翻页 CSS</a></p>
+                <p>
+                    <a href="journal-room-object/turn-implementation.md">实现决策与验证报告</a> ·
+                    <a href="journal-room-object/turn-prototype.html">独立运动样板</a> ·
+                    <a href="journal-room-object/turn-verification/runtime-results.json">实际页面检查结果</a> ·
+                    <a href="../../../../src/themes/cinnaglass/journal-turn.css">实际翻页 CSS</a>
+                </p>
 
                 <h3 id="navigation-glass">已接入 · 随光微磨砂导航</h3>
-                <p class="doc-diary-note">导航专属材质真源为 <code>shell/navigation-glass.css</code>，本页直接引用同一文件。生成图片只提供固定透明细纹；实时背景模糊、CSS 模拟边光、暖光反馈和三时辰预设色温由样式控制。不是随机纹理或真实场景反射，没有更改全局纸面材质。</p>
+                <p class="doc-diary-note">
+                    导航专属材质真源为
+                    <code>shell/navigation-glass.css</code
+                    >，本页直接引用同一文件。生成图片只提供固定透明细纹；实时背景模糊、CSS
+                    模拟边光、暖光反馈和三时辰预设色温由样式控制。不是随机纹理或真实场景反射，没有更改全局纸面材质。
+                </p>
                 <figure>
-                    <a href="journal-room-object/navigation-verification/comparison.png"><img src="journal-room-object/navigation-verification/comparison.png" width="408" height="412" alt="同尺寸导航对照：左起批准稿、真实产品深夜悬停、黄昏悬停、暮色悬停" loading="lazy" style="display:block;max-width:100%;height:auto" /></a>
-                    <figcaption>左为批准稿，右三列为真实产品。透过的房间与 mood 预设不同，所以合成颜色不同；并非物理反射或逐像素相同的证明。</figcaption>
+                    <a href="journal-room-object/navigation-verification/comparison.png"
+                        ><img
+                            src="journal-room-object/navigation-verification/comparison.png"
+                            width="408"
+                            height="412"
+                            alt="同尺寸导航对照：左起批准稿、真实产品深夜悬停、黄昏悬停、暮色悬停"
+                            loading="lazy"
+                            style="display: block; max-width: 100%; height: auto"
+                    /></a>
+                    <figcaption>
+                        左为批准稿，右三列为真实产品。透过的房间与 mood
+                        预设不同，所以合成颜色不同；并非物理反射或逐像素相同的证明。
+                    </figcaption>
                 </figure>
                 <table>
-                    <tr><th>项目</th><th>导航当前规则</th></tr>
-                    <tr><td>几何</td><td>桌面 74×384 / 圆角 25 / 左距 38 / 垂直居中；窄或矮屏改为底部 292×62。五入口，不加无功能徽标。</td></tr>
-                    <tr><td>表面</td><td>真实透景 + 2.4px 轻模糊 + 透明细纹 + 分段强弱的 1px 反光边；深夜/黄昏/暮色采用不同烟色厚度，禁止固定刷绿。</td></tr>
-                    <tr><td>反馈</td><td>悬停有暖光晕；按住缩至 94% 且光收紧，触屏也生效；菜单打开保留较弱暖光；键盘焦点可见，减少动态效果时取消过渡。</td></tr>
-                    <tr><td>复用边界</td><td>导航房间/工具菜单采用同家族的厚玻璃（8px 模糊、底色透明度至少 0.5），暖色开关带可移动滑块。其他功能弹窗尚未迁移；书页/照片仍是实体内容，不一律变玻璃。</td></tr>
-                    <tr><td>验证</td><td>三时辰、四尺寸、鼠标/键盘/触屏模拟、点外与 Escape 完成；真实花园、Safari、低端设备未覆盖，未部署。</td></tr>
+                    <tr>
+                        <th>项目</th>
+                        <th>导航当前规则</th>
+                    </tr>
+                    <tr>
+                        <td>几何</td>
+                        <td>
+                            桌面 74×384 / 圆角 25 / 左距 38 / 垂直居中；窄或矮屏改为底部
+                            292×62。五入口，不加无功能徽标。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>表面</td>
+                        <td>
+                            真实透景 + 2.4px 轻模糊 + 透明细纹 + 分段强弱的 1px
+                            反光边；深夜/黄昏/暮色采用不同烟色厚度，禁止固定刷绿。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>反馈</td>
+                        <td>
+                            悬停有暖光晕；按住缩至 94%
+                            且光收紧，触屏也生效；菜单打开保留较弱暖光；键盘焦点可见，减少动态效果时取消过渡。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>复用边界</td>
+                        <td>
+                            导航房间/工具菜单采用同家族的厚玻璃（8px 模糊、底色透明度至少
+                            0.5），暖色开关带可移动滑块。其他功能弹窗尚未迁移；书页/照片仍是实体内容，不一律变玻璃。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>验证</td>
+                        <td>
+                            三时辰、四尺寸、鼠标/键盘/触屏模拟、点外与 Escape
+                            完成；真实花园、Safari、低端设备未覆盖，未部署。
+                        </td>
+                    </tr>
                 </table>
-                <p><a href="journal-room-object/navigation-implementation.md">实现与全部验证证据</a> · <a href="journal-room-object/navigation-texture-prompt.md">纹理生成与透明化处理</a> · <a href="../../../../src/themes/cinnaglass/shell/navigation-glass.css">实际材质 CSS</a></p>
+                <p>
+                    <a href="journal-room-object/navigation-implementation.md">实现与全部验证证据</a> ·
+                    <a href="journal-room-object/navigation-texture-prompt.md">纹理生成与透明化处理</a> ·
+                    <a href="../../../../src/themes/cinnaglass/shell/navigation-glass.css">实际材质 CSS</a>
+                </p>
 
                 <h3 id="journal-book-proposal">历史实装 · B 苔绿手札（效果已被用户否决）</h3>
                 <p class="doc-diary-note">
-                    以下保留上一轮实现记录，非当前认可的视觉标准。用户曾批准 B 概念，随后否决实装效果；新的棕色同物件方向见上方。旧实现：暖灰不透明纸、灰苔软封皮、深暖墨字、少量旧黄铜与羽毛笔。
+                    以下保留上一轮实现记录，非当前认可的视觉标准。用户曾批准 B
+                    概念，随后否决实装效果；新的棕色同物件方向见上方。旧实现：暖灰不透明纸、灰苔软封皮、深暖墨字、少量旧黄铜与羽毛笔。
                     实际书房中书本收敛到桌前偏右下，避免居中盖住角色；桌面双页、窄屏单页，日期目录、单张与连续翻页已接入。照片、心愿、日历、设置同步共用基础材质，保留原功能布局。
                     下列图片均为概念板，不是实际产品截图。图下含花园对照、材质近景和静态翻页分镜；不能代替动态验收。
-                    <a href="../research/cinnaglass-history/journal-book-directions/codex-report.md">完整提案：共用色调、三方向比较、导航、双页与连续翻页</a> ·
+                    <a href="../research/cinnaglass-history/journal-book-directions/codex-report.md"
+                        >完整提案：共用色调、三方向比较、导航、双页与连续翻页</a
+                    >
+                    ·
                     <a href="../research/cinnaglass-history/journal-book-directions/prompts.md">完整生成描述</a>
-                    · <a href="../research/cinnaglass-history/journal-book-directions/implementation.md">实现、实景尺寸与验证记录</a>
+                    ·
+                    <a href="../research/cinnaglass-history/journal-book-directions/implementation.md"
+                        >实现、实景尺寸与验证记录</a
+                    >
                 </p>
                 <figure>
-                    <a href="../research/cinnaglass-history/journal-book-directions/direction-b-sage.png"><img src="../research/cinnaglass-history/journal-book-directions/direction-b-sage.png" alt="推荐 B 苔绿手札：双页软封日记、中性透明导航、花园对照、装订近景与翻页分镜" width="1586" height="992" loading="lazy" style="display:block;width:100%;height:auto" /></a>
+                    <a href="../research/cinnaglass-history/journal-book-directions/direction-b-sage.png"
+                        ><img
+                            src="../research/cinnaglass-history/journal-book-directions/direction-b-sage.png"
+                            alt="推荐 B 苔绿手札：双页软封日记、中性透明导航、花园对照、装订近景与翻页分镜"
+                            width="1586"
+                            height="992"
+                            loading="lazy"
+                            style="display: block; width: 100%; height: auto"
+                    /></a>
                     <figcaption>B · 苔绿手札（用户已批准；上图为概念基准）</figcaption>
                 </figure>
                 <figure>
-                    <a href="../research/cinnaglass-history/journal-book-directions/verification/first-spread.png"><img src="../research/cinnaglass-history/journal-book-directions/verification/first-spread.png" alt="B 苔绿手札实际产品：暖灰双页、独立头像、短导航，书本右下落位保留角色可辨识部分" width="1440" height="900" loading="lazy" style="display:block;width:100%;height:auto" /></a>
+                    <a href="../research/cinnaglass-history/journal-book-directions/verification/first-spread.png"
+                        ><img
+                            src="../research/cinnaglass-history/journal-book-directions/verification/first-spread.png"
+                            alt="B 苔绿手札实际产品：暖灰双页、独立头像、短导航，书本右下落位保留角色可辨识部分"
+                            width="1440"
+                            height="900"
+                            loading="lazy"
+                            style="display: block; width: 100%; height: auto"
+                    /></a>
                     <figcaption>实际产品截图 · 原有测试回忆，非生成图；书本落位按真实场景调整。</figcaption>
                 </figure>
                 <details>
                     <summary>查看备选 A 亚麻藏书 / C 烟褐书房</summary>
                     <figure>
-                        <a href="../research/cinnaglass-history/journal-book-directions/direction-a-linen.png"><img src="../research/cinnaglass-history/journal-book-directions/direction-a-linen.png" alt="A 亚麻藏书：平展双页、亚麻硬封与布面书签导航" width="1586" height="992" loading="lazy" style="display:block;width:100%;height:auto" /></a>
+                        <a href="../research/cinnaglass-history/journal-book-directions/direction-a-linen.png"
+                            ><img
+                                src="../research/cinnaglass-history/journal-book-directions/direction-a-linen.png"
+                                alt="A 亚麻藏书：平展双页、亚麻硬封与布面书签导航"
+                                width="1586"
+                                height="992"
+                                loading="lazy"
+                                style="display: block; width: 100%; height: auto"
+                        /></a>
                         <figcaption>A · 亚麻藏书：最清雅，图中导航偏实，透明度需按提案修正。</figcaption>
                     </figure>
                     <figure>
-                        <a href="../research/cinnaglass-history/journal-book-directions/direction-c-leather.png"><img src="../research/cinnaglass-history/journal-book-directions/direction-c-leather.png" alt="C 烟褐书房：皮革封皮、纸叠、羽毛笔套与窄导航" width="1586" height="992" loading="lazy" style="display:block;width:100%;height:auto" /></a>
+                        <a href="../research/cinnaglass-history/journal-book-directions/direction-c-leather.png"
+                            ><img
+                                src="../research/cinnaglass-history/journal-book-directions/direction-c-leather.png"
+                                alt="C 烟褐书房：皮革封皮、纸叠、羽毛笔套与窄导航"
+                                width="1586"
+                                height="992"
+                                loading="lazy"
+                                style="display: block; width: 100%; height: auto"
+                        /></a>
                         <figcaption>C · 烟褐书房：古朴感最强，但整体更重。</figcaption>
                     </figure>
                 </details>
                 <p class="doc-diary-note">
                     下列色块直接读取产品材料变量（cinnaglass.css 引入 materials.css）：
-                    <span style="display:inline-block;background:var(--craft-paper);color:var(--craft-ink);padding:10px;border-radius:6px">暖灰纸 / 深暖墨</span>
-                    <span style="display:inline-block;background:var(--craft-cover);color:var(--craft-shell-text);padding:10px;border-radius:6px">灰苔封皮</span>
-                    <span style="display:inline-block;background:var(--craft-shell);color:var(--craft-shell-text);padding:10px;border-radius:6px">中性透明工具壳</span>。
-                    正文纸不透明，透明感只用于导航和轻工具；不再要求纸面高于场景任何光源的明度。单张 420ms 为动作上限参数，连续翻动每张 210ms；实际时长随纸面行程变化。
+                    <span
+                        style="
+                            display: inline-block;
+                            background: var(--craft-paper);
+                            color: var(--craft-ink);
+                            padding: 10px;
+                            border-radius: 6px;
+                        "
+                        >暖灰纸 / 深暖墨</span
+                    >
+                    <span
+                        style="
+                            display: inline-block;
+                            background: var(--craft-cover);
+                            color: var(--craft-shell-text);
+                            padding: 10px;
+                            border-radius: 6px;
+                        "
+                        >灰苔封皮</span
+                    >
+                    <span
+                        style="
+                            display: inline-block;
+                            background: var(--craft-shell);
+                            color: var(--craft-shell-text);
+                            padding: 10px;
+                            border-radius: 6px;
+                        "
+                        >中性透明工具壳</span
+                    >。 正文纸不透明，透明感只用于导航和轻工具；不再要求纸面高于场景任何光源的明度。单张 420ms
+                    为动作上限参数，连续翻动每张 210ms；实际时长随纸面行程变化。
                 </p>
 
-                <details><summary>历史稿 · 夜灯下的回忆（已被 B 苔绿手札替代）</summary>
-                <h3>历史已采纳并实装 · 夜灯下的回忆</h3>
-                <p class="doc-diary-note">
-                    上一轮用户采纳烟茶色磨砂面板、独立头像与柔圆文字框，已应用到日记、回忆详情与写日记区。
-                    新反馈明确要求改进视觉还原与跨场景统一；此记录仅保留历史与当前实现依据，不代表最终视觉验收通过。下图是上一轮概念参考，不是产品截图。
-                    <a href="../research/cinnaglass-history/timeline-night-glass/codex-report.md">设计说明与参考依据</a> ·
-                    <a href="../research/cinnaglass-history/timeline-night-glass/prompt.md">完整生图描述</a>
-                    · <a href="../research/cinnaglass-history/timeline-night-glass/implementation.md">实现、局部反光研究与验收</a>
-                </p>
-                <a href="../research/cinnaglass-history/timeline-night-glass/night-memory-concept.png">
-                    <img src="../research/cinnaglass-history/timeline-night-glass/night-memory-concept.png" alt="夜灯下的回忆：烟茶色磨砂日记、独立头像与柔圆正文框，房间双角色可见" style="display:block;width:100%;height:auto;border-radius:16px" />
-                </a>
-                <p class="doc-diary-note">
-                    实装收弱概念图的整圈金光：只有右上迎光弧与左下微弱反射，1px 宽，静态不扫光。
-                    该版本的配色只保留在历史图与实现记录；当前 diary.css 已用于 B，不再拿活变量冒充历史色块。
-                    三档基准宽 520 / 440 / 340px，小屏再受容器余量限制；材质随时辰变，正文保持暖象牙色。
-                </p>
+                <details>
+                    <summary>历史稿 · 夜灯下的回忆（已被 B 苔绿手札替代）</summary>
+                    <h3>历史已采纳并实装 · 夜灯下的回忆</h3>
+                    <p class="doc-diary-note">
+                        上一轮用户采纳烟茶色磨砂面板、独立头像与柔圆文字框，已应用到日记、回忆详情与写日记区。
+                        新反馈明确要求改进视觉还原与跨场景统一；此记录仅保留历史与当前实现依据，不代表最终视觉验收通过。下图是上一轮概念参考，不是产品截图。
+                        <a href="../research/cinnaglass-history/timeline-night-glass/codex-report.md"
+                            >设计说明与参考依据</a
+                        >
+                        ·
+                        <a href="../research/cinnaglass-history/timeline-night-glass/prompt.md">完整生图描述</a>
+                        ·
+                        <a href="../research/cinnaglass-history/timeline-night-glass/implementation.md"
+                            >实现、局部反光研究与验收</a
+                        >
+                    </p>
+                    <a href="../research/cinnaglass-history/timeline-night-glass/night-memory-concept.png">
+                        <img
+                            src="../research/cinnaglass-history/timeline-night-glass/night-memory-concept.png"
+                            alt="夜灯下的回忆：烟茶色磨砂日记、独立头像与柔圆正文框，房间双角色可见"
+                            style="display: block; width: 100%; height: auto; border-radius: 16px"
+                        />
+                    </a>
+                    <p class="doc-diary-note">
+                        实装收弱概念图的整圈金光：只有右上迎光弧与左下微弱反射，1px 宽，静态不扫光。
+                        该版本的配色只保留在历史图与实现记录；当前 diary.css 已用于 B，不再拿活变量冒充历史色块。
+                        三档基准宽 520 / 440 / 340px，小屏再受容器余量限制；材质随时辰变，正文保持暖象牙色。
+                    </p>
                 </details>
                 <details>
-                <summary>上一版白纸方案 · 已被用户否决，保留作历史对照</summary>
-                <h3>历史稿 ·「我们的日记」ObjectSurface（2026-09-05）</h3>
-                <div class="doc-diary-demo" aria-label="我们的日记已否决的历史组件结构预览">
-                    <article class="doc-diary-page">
-                        <span class="doc-diary-ribbon" aria-hidden="true"></span>
-                        <header class="doc-diary-hd">
-                            <h3>我们的日记</h3>
-                            <span class="doc-diary-close">×</span>
-                        </header>
-                        <div class="doc-diary-more">↑ 翻看更早的回忆</div>
-                        <div class="doc-diary-flow">
-                            <div class="doc-diary-entry">
-                                <span class="doc-diary-avatar">我</span>
-                                <div class="doc-diary-meta"><b>我</b><span>21:12</span></div>
-                                <div class="doc-diary-copy">今天都很忙，但一抬头你还在。</div>
+                    <summary>上一版白纸方案 · 已被用户否决，保留作历史对照</summary>
+                    <h3>历史稿 ·「我们的日记」ObjectSurface（2026-09-05）</h3>
+                    <div class="doc-diary-demo" aria-label="我们的日记已否决的历史组件结构预览">
+                        <article class="doc-diary-page">
+                            <span class="doc-diary-ribbon" aria-hidden="true"></span>
+                            <header class="doc-diary-hd">
+                                <h3>我们的日记</h3>
+                                <span class="doc-diary-close">×</span>
+                            </header>
+                            <div class="doc-diary-more">↑ 翻看更早的回忆</div>
+                            <div class="doc-diary-flow">
+                                <div class="doc-diary-entry">
+                                    <span class="doc-diary-avatar">我</span>
+                                    <div class="doc-diary-meta"><b>我</b><span>21:12</span></div>
+                                    <div class="doc-diary-copy">今天都很忙，但一抬头你还在。</div>
+                                </div>
+                                <div class="doc-diary-entry partner">
+                                    <span class="doc-diary-avatar">TA</span>
+                                    <div class="doc-diary-meta"><b>sherry</b><span>21:27</span></div>
+                                    <div class="doc-diary-copy">我们各看各的书，也像在一起散步。</div>
+                                    <div class="doc-diary-photo"></div>
+                                </div>
                             </div>
-                            <div class="doc-diary-entry partner">
-                                <span class="doc-diary-avatar">TA</span>
-                                <div class="doc-diary-meta"><b>sherry</b><span>21:27</span></div>
-                                <div class="doc-diary-copy">我们各看各的书，也像在一起散步。</div>
-                                <div class="doc-diary-photo"></div>
-                            </div>
-                        </div>
-                        <div class="doc-diary-compose"><i>＋</i><span>记录此刻的我们…</span></div>
-                    </article>
-                </div>
-                <p class="doc-diary-note">
-                    这是已被否决的历史结构预览：背景直接使用夜雨概念图，纸面与文字实时读取真实 token。当时采用方向 3
-                    的窄幅平纸、方向 2 的物件起点开场；打开后不保留长 tether。纸宽按 1440 / 960 / 640×400
-                    三个验收档固定为 504 / 432 /
-                    288px。完整裁决：<code>ai/codex-visual/20260905-215344Z/decisions-v2.md</code>。
-                </p>
+                            <div class="doc-diary-compose"><i>＋</i><span>记录此刻的我们…</span></div>
+                        </article>
+                    </div>
+                    <p class="doc-diary-note">
+                        这是已被否决的历史结构预览：背景直接使用夜雨概念图，纸面与文字实时读取真实 token。当时采用方向 3
+                        的窄幅平纸、方向 2 的物件起点开场；打开后不保留长 tether。纸宽按 1440 / 960 / 640×400
+                        三个验收档固定为 504 / 432 /
+                        288px。完整裁决：<code>ai/codex-visual/20260905-215344Z/decisions-v2.md</code>。
+                    </p>
                 </details>
                 <table>
                     <tr>
@@ -1492,7 +1856,8 @@
                         <td>五入口导航 rail</td>
                         <td>SHELL</td>
                         <td>
-                            2026-09-07 采用随光微磨砂材质，桌面窄竖条、窄屏底部横条；无通栏展开或糖果描边。具体以本页 <a href="#navigation-glass">导航登记</a> 与产品专属 CSS 为准。
+                            2026-09-07 采用随光微磨砂材质，桌面窄竖条、窄屏底部横条；无通栏展开或糖果描边。具体以本页
+                            <a href="#navigation-glass">导航登记</a> 与产品专属 CSS 为准。
                         </td>
                     </tr>
                     <tr>
@@ -1530,14 +1895,17 @@
                         <td>我们的日记</td>
                         <td>DIARY</td>
                         <td>
-                            灰苔软封 + 暖灰双页 + 羽毛笔 + 细线装。当前书房 1440×900 为 760×430px，960×700 为 560×315px；小屏单页宽最多 360px。尺寸与落点按真实角色遮挡复核，非照搬生成图
+                            灰苔软封 + 暖灰双页 + 羽毛笔 + 细线装。当前书房 1440×900 为 760×430px，960×700 为
+                            560×315px；小屏单页宽最多 360px。尺寸与落点按真实角色遮挡复核，非照搬生成图
                         </td>
                     </tr>
                     <tr>
                         <td>回忆条目</td>
                         <td>DIARY</td>
                         <td>
-                            独立头像 + 中性细框；作者色仅用于头像与名字，无左侧色线。左页→右页→下一张，时间连续不按作者分边。正文保持 16px/1.75；长文按实际测量续页，多图保序
+                            独立头像 +
+                            中性细框；作者色仅用于头像与名字，无左侧色线。左页→右页→下一张，时间连续不按作者分边。正文保持
+                            16px/1.75；长文按实际测量续页，多图保序
                         </td>
                     </tr>
                     <tr>
@@ -1612,12 +1980,16 @@
                     <div class="rule">
                         <span class="k">1</span
                         ><span
-                            ><b>同一语义只有一个负责定义的位置。</b>当前有导航、基础、craft 与物件作用域；先查消费者再迁移。共用材质/控件值集中管理，禁止功能组件另抄一套配方。</span
+                            ><b>同一语义只有一个负责定义的位置。</b>当前有导航、基础、craft
+                            与物件作用域；先查消费者再迁移。共用材质/控件值集中管理，禁止功能组件另抄一套配方。</span
                         >
                     </div>
                     <div class="rule">
                         <span class="k">2</span
-                        ><span><b>新 A/B 明确表面和文字作用域。</b>旧纸面重映射保留到消费者迁完；更改共用值不得影响本 session 冻结的日记。</span>
+                        ><span
+                            ><b>新 A/B 明确表面和文字作用域。</b>旧纸面重映射保留到消费者迁完；更改共用值不得影响本
+                            session 冻结的日记。</span
+                        >
                     </div>
                     <div class="rule">
                         <span class="k">3</span
@@ -1629,7 +2001,10 @@
                     <div class="rule">
                         <span class="k">4</span
                         ><span
-                            ><b>视觉裁决先标准板后落码。</b>UI Tailor 维护主题，Monet 审核；当前决定见 <a href="decisions.md">decisions.md</a>，实施计划见 <code>ai/features/ui-system/ui-system.md</code>。新产物同步常驻 Markdown 与 UI 总览，普通回合报告留在会话；历史决定不覆盖当前范围。建议未确认前不得写成用户已批准。</span
+                            ><b>视觉裁决先标准板后落码。</b>UI Tailor 维护主题，Monet 审核；当前决定见
+                            <a href="decisions.md">decisions.md</a>，实施计划见
+                            <code>ai/features/ui-system/ui-system.md</code>。新产物同步常驻 Markdown 与 UI
+                            总览，普通回合报告留在会话；历史决定不覆盖当前范围。建议未确认前不得写成用户已批准。</span
                         >
                     </div>
                     <div class="rule">

@@ -80,14 +80,27 @@ export const STUDY_ROOM: RoomTemplate = {
                 night: '/rooms/study/parts/platter-night.png'
             },
             platterLight: {
-                golden: { add: '/rooms/study/parts/platter-light-add-golden.png', mul: '/rooms/study/parts/platter-light-mul-golden.png' },
-                twilight: { add: '/rooms/study/parts/platter-light-add-twilight.png', mul: '/rooms/study/parts/platter-light-mul-twilight.png' },
-                night: { add: '/rooms/study/parts/platter-light-add-night.png', mul: '/rooms/study/parts/platter-light-mul-night.png' }
+                golden: {
+                    add: '/rooms/study/parts/platter-light-add-golden.png',
+                    mul: '/rooms/study/parts/platter-light-mul-golden.png'
+                },
+                twilight: {
+                    add: '/rooms/study/parts/platter-light-add-twilight.png',
+                    mul: '/rooms/study/parts/platter-light-mul-twilight.png'
+                },
+                night: {
+                    add: '/rooms/study/parts/platter-light-add-night.png',
+                    mul: '/rooms/study/parts/platter-light-mul-night.png'
+                }
             },
             arm: { src: '/rooms/study/parts/tonearm.png', box: { x: 976, y: 834, w: 102, h: 82 } },
             armTint: { golden: 0xffffff, twilight: 0x808bc0, night: 0x78828a },
             spindle: {
-                src: { golden: '/rooms/study/parts/spindle-golden.png', twilight: '/rooms/study/parts/spindle-twilight.png', night: '/rooms/study/parts/spindle-night.png' },
+                src: {
+                    golden: '/rooms/study/parts/spindle-golden.png',
+                    twilight: '/rooms/study/parts/spindle-twilight.png',
+                    night: '/rooms/study/parts/spindle-night.png'
+                },
                 box: { x: 954, y: 828, w: 18, h: 22 }
             },
             // light from the window (upper left) by day, from the desk lamp at
@@ -96,7 +109,7 @@ export const STUDY_ROOM: RoomTemplate = {
                 golden: { dx: 2, dy: 4 },
                 twilight: { dx: 1.5, dy: 4 },
                 night: { dx: 3, dy: 5 }
-            },
+            }
             // no `stills`: the record's own center hole shows the machine's
             // spindle pin through it, nothing else on the platter is static
         }

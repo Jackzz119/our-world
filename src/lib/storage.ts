@@ -36,7 +36,9 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
 
 // crypto.randomUUID where available, timestamp+random elsewhere.
 const newId = (): string =>
-    typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
 // Display-quality thumbnail regenerated from the original. 1024 covers hi-dpi
 // photo-wall columns and the lightbox's progressive preview; 480 was visibly
@@ -66,7 +68,9 @@ export const uploadMemoryImage = async (worldId: string, file: File): Promise<{ 
     const base = `${worldId}/${newId()}`;
     const originalPath = `${base}.${ext}`;
 
-    const { error: origErr } = await supabase.storage.from(BUCKET).upload(originalPath, file, { contentType: file.type, upsert: false });
+    const { error: origErr } = await supabase.storage
+        .from(BUCKET)
+        .upload(originalPath, file, { contentType: file.type, upsert: false });
     if (origErr) throw origErr;
 
     const thumbDataUrl = await makeThumbDataUrl(file).catch(() => undefined);
@@ -102,7 +106,9 @@ export const uploadWorldIcon = async (worldId: string, file: File): Promise<{ ic
         bitmap.close?.();
     }
     const iconPath = `${worldId}/icon-${newId()}.webp`;
-    const { error } = await supabase.storage.from(BUCKET).upload(iconPath, dataUrlToBlob(dataUrl), { contentType: 'image/webp', upsert: false });
+    const { error } = await supabase.storage
+        .from(BUCKET)
+        .upload(iconPath, dataUrlToBlob(dataUrl), { contentType: 'image/webp', upsert: false });
     if (error) throw error;
     return { iconPath };
 };

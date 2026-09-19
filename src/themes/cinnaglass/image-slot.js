@@ -455,8 +455,8 @@
                 return;
             }
             const k = g.base * this._view.s;
-            const w = (g.iw * k) / g.fw * 100 + '%';
-            const h = (g.ih * k) / g.fh * 100 + '%';
+            const w = ((g.iw * k) / g.fw) * 100 + '%';
+            const h = ((g.ih * k) / g.fh) * 100 + '%';
             const l = 50 + this._view.x + '%';
             const t = 50 + this._view.y + '%';
             this._img.style.width = w;

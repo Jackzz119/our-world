@@ -42,7 +42,10 @@ export const IBag = (p: IcoProps) => (
     </Ico>
 );
 export const IHeart = (p: IcoProps) => (
-    <Ico {...p} d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
+    <Ico
+        {...p}
+        d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z"
+    />
 );
 export const ILogout = (p: IcoProps) => (
     <Ico {...p}>
@@ -107,7 +110,9 @@ export const IMapPin = (p: IcoProps) => (
 );
 export const IChevron = (p: IcoProps) => <Ico {...p} d="M9 6l6 6-6 6" />;
 export const IClose = (p: IcoProps) => <Ico {...p} sw={2} d="M6 6l12 12M18 6L6 18" />;
-export const ISparkle = (p: IcoProps) => <Ico {...p} d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4L12 4z" />;
+export const ISparkle = (p: IcoProps) => (
+    <Ico {...p} d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4L12 4z" />
+);
 export const ICalendar = (p: IcoProps) => (
     <Ico {...p}>
         <rect x="4" y="5.5" width="16" height="14.5" rx="2.4" />
@@ -120,7 +125,10 @@ export const IThermo = (p: IcoProps) => (
     </Ico>
 );
 export const IChat = (p: IcoProps) => (
-    <Ico {...p} d="M5 5.5h14a1.5 1.5 0 011.5 1.5v8.5a1.5 1.5 0 01-1.5 1.5H10l-4 3.5V17H5a1.5 1.5 0 01-1.5-1.5V7A1.5 1.5 0 015 5.5z" />
+    <Ico
+        {...p}
+        d="M5 5.5h14a1.5 1.5 0 011.5 1.5v8.5a1.5 1.5 0 01-1.5 1.5H10l-4 3.5V17H5a1.5 1.5 0 01-1.5-1.5V7A1.5 1.5 0 015 5.5z"
+    />
 );
 export const ISend = (p: IcoProps) => (
     <Ico {...p}>
@@ -317,7 +325,10 @@ export const ISkipF = (p: IcoProps) => (
 );
 export const ISkipB = (p: IcoProps) => (
     <Ico {...p} sw={0} fill="currentColor">
-        <path d="M19 6c0-.6-.6-.9-1.1-.6l-7 5c-.5.3-.5 1 0 1.3l7 5c.5.4 1.1 0 1.1-.6V6z" transform="translate(0 -1.5)" />
+        <path
+            d="M19 6c0-.6-.6-.9-1.1-.6l-7 5c-.5.3-.5 1 0 1.3l7 5c.5.4 1.1 0 1.1-.6V6z"
+            transform="translate(0 -1.5)"
+        />
         <rect x="5.8" y="4.5" width="3.2" height="15" rx="1.2" />
     </Ico>
 );

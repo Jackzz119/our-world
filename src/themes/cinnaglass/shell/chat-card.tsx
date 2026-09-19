@@ -38,7 +38,17 @@ type ChatCardProps = {
 
 // Renders the first conversation only (no switcher, by design) and keeps the list pinned to the
 // bottom. Opening the card, or a new message arriving while it is open, moves our read cursor.
-export function ChatCard({ open, onClose, onExpand, inWorld, channels, dmConvs, threads, onSend, onSeen }: ChatCardProps) {
+export function ChatCard({
+    open,
+    onClose,
+    onExpand,
+    inWorld,
+    channels,
+    dmConvs,
+    threads,
+    onSend,
+    onSeen
+}: ChatCardProps) {
     const [text, setText] = useState('');
     const listRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);

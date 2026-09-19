@@ -69,7 +69,9 @@ await page.route('**/storage/v1/object/sign/memories*', async (route) => {
 });
 await page.route('**/storage/v1/object/sign/memories/turn-review.png?*', (route) =>
     route.fulfill({
-        path: path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/book-verification/reference-photo.png'),
+        path: path.resolve(
+            'ai/design_system/uiux/cinnaglass/journal-room-object/book-verification/reference-photo.png'
+        ),
         contentType: 'image/png'
     })
 );
@@ -364,16 +366,18 @@ try {
         }
     }
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    docsPage.on('pageerror', error => errors.push(error.stack || error.message));
+    docsPage.on('pageerror', (error) => errors.push(error.stack || error.message));
     await docsPage.goto(`${base}/ai/design_system/uiux/cinnaglass/ui-system.html#journal-turn`);
     for (const name of ['live-single.gif', 'live-continuous.gif']) {
         const preview = docsPage.locator(`img[src$="/${name}"]`);
         await preview.scrollIntoViewIfNeeded();
-        await preview.evaluate(img => img.decode());
+        await preview.evaluate((img) => img.decode());
     }
     results.designSystem = await docsPage.evaluate(() => ({
-        liveCss: [...document.styleSheets].some(sheet => sheet.href?.includes('journal-turn.css')),
-        gifs: [...document.images].filter(img => /live-(single|continuous)\.gif$/.test(img.src) && img.naturalWidth === 960).length
+        liveCss: [...document.styleSheets].some((sheet) => sheet.href?.includes('journal-turn.css')),
+        gifs: [...document.images].filter(
+            (img) => /live-(single|continuous)\.gif$/.test(img.src) && img.naturalWidth === 960
+        ).length
     }));
     assert.equal(results.designSystem.liveCss, true);
     assert.equal(results.designSystem.gifs, 2);

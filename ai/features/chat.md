@@ -22,11 +22,11 @@
 
 **同一份会话内容，多个 surface**（参考 WoW 聊天框 + Discord 频道）：
 
-| 形态 | 组件 | 定位 | 触发 |
-| --- | --- | --- | --- |
-| 场景伴随聊天 | `shell/chat-card.tsx`（左下窄卡） | 在场景里顺手聊，不遮场景 | 裸回车（无输入焦点）/ rail |
-| 聊天中心（覆盖大窗） | `channel-screen.tsx` | 遮住场景专心聊；含好友页 / 私信 / 频道 | 窄卡「展开」（唯一入口） |
-| 世界内气泡 | `WorldPage` 的 `bubble` | 对方消息先在世界里冒出来（world-first chat，`ai/UX.md` §4 / codex audit M2） | 自动 |
+| 形态                 | 组件                              | 定位                                                                         | 触发                       |
+| -------------------- | --------------------------------- | ---------------------------------------------------------------------------- | -------------------------- |
+| 场景伴随聊天         | `shell/chat-card.tsx`（左下窄卡） | 在场景里顺手聊，不遮场景                                                     | 裸回车（无输入焦点）/ rail |
+| 聊天中心（覆盖大窗） | `channel-screen.tsx`              | 遮住场景专心聊；含好友页 / 私信 / 频道                                       | 窄卡「展开」（唯一入口）   |
+| 世界内气泡           | `WorldPage` 的 `bubble`           | 对方消息先在世界里冒出来（world-first chat，`ai/UX.md` §4 / codex audit M2） | 自动                       |
 
 **会话集合规则（2026-07-05 用户定型，CH-9）**：可切换集合 = **当前世界的文字频道 + 我的私信**（大厅 = 仅私信，频道是世界概念）。集合由 `chat-data.ts` 的 `convsFor(inWorld, channels, dmConvs)` **单点生成**，窄卡与大窗左栏**强制同源**；激活会话 = 提升态 `convOpen` 单一数据源。
 
@@ -51,16 +51,16 @@ WorldPage
 
 ## 三、模块设计
 
-| 模块 | 职责 / 关键契约 | 状态 |
-| --- | --- | --- |
-| `lib/chat.ts` | 频道/消息/回应/已读数据访问 + `subscribeWorld` / `subscribeUser`；`getMessages` 用 `before`（独占游标）翻页，返回 oldest→newest | ✅ |
-| `lib/friends.ts` | `friendships` 规范序对；加好友只能按邮箱（无用户目录），走 RPC `find_profile_by_email`；accepted 由服务端建 DM channel | ✅（UI 收起） |
-| `lib/emotes.ts` | 共享贴纸库 `world_emotes`；图片存私有 `memories` 桶 `<worldId>/emotes/`（沿用世界级存储策略 + signed URL）；搜图/转存走 `emotes` Edge Function（Tenor key 留服务端，≤2MB、仅 `image/*`） | ✅ |
-| `types/chat.ts` | 单表变体模型：`ChannelType = text \| voice \| room \| dm`（room = 绑 `scene_id` 的语音频道；dm = `world_id` 为 null 的账号对频道）；`kind = text \| sticker`（`emote_id` 为 null = 贴纸已删 → 渲染墓碑，`content` 存 `:name:` 兜底） | ✅ |
-| `chat-data.ts` | 共享状态：`Conv` / `convsFor` / `FRIENDS_VIEW`（大窗内好友页的虚拟会话 id）/ `useChatThreads`（消息、乐观态、reaction、已读、贴纸、好友） | ✅ |
-| `channel-screen.tsx` | 聊天中心：左栏（好友页置顶 + 文字频道仅世界内 + 私信）+ 右侧会话流；hover 操作 / reaction / 删除粒子遵循 `ux decisions.md` D-7；**已读头像仅 DM 显示（D-7-3 修订：频道不显示已读）** | ✅ |
-| `shell/chat-card.tsx` | 窄卡：只渲染 `convsFor` 的**首个**会话（无 tab 切换），尾部 40 条、过滤 vanishing、打开即 `onSeen` | ✅ |
-| `emote-picker.tsx` / `emoji-data.ts` | emoji/贴纸选择器 + 自维护 230 emoji 中文索引 | ✅ |
+| 模块                                 | 职责 / 关键契约                                                                                                                                                                                                                      | 状态          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `lib/chat.ts`                        | 频道/消息/回应/已读数据访问 + `subscribeWorld` / `subscribeUser`；`getMessages` 用 `before`（独占游标）翻页，返回 oldest→newest                                                                                                      | ✅            |
+| `lib/friends.ts`                     | `friendships` 规范序对；加好友只能按邮箱（无用户目录），走 RPC `find_profile_by_email`；accepted 由服务端建 DM channel                                                                                                               | ✅（UI 收起） |
+| `lib/emotes.ts`                      | 共享贴纸库 `world_emotes`；图片存私有 `memories` 桶 `<worldId>/emotes/`（沿用世界级存储策略 + signed URL）；搜图/转存走 `emotes` Edge Function（Tenor key 留服务端，≤2MB、仅 `image/*`）                                             | ✅            |
+| `types/chat.ts`                      | 单表变体模型：`ChannelType = text \| voice \| room \| dm`（room = 绑 `scene_id` 的语音频道；dm = `world_id` 为 null 的账号对频道）；`kind = text \| sticker`（`emote_id` 为 null = 贴纸已删 → 渲染墓碑，`content` 存 `:name:` 兜底） | ✅            |
+| `chat-data.ts`                       | 共享状态：`Conv` / `convsFor` / `FRIENDS_VIEW`（大窗内好友页的虚拟会话 id）/ `useChatThreads`（消息、乐观态、reaction、已读、贴纸、好友）                                                                                            | ✅            |
+| `channel-screen.tsx`                 | 聊天中心：左栏（好友页置顶 + 文字频道仅世界内 + 私信）+ 右侧会话流；hover 操作 / reaction / 删除粒子遵循 `ux decisions.md` D-7；**已读头像仅 DM 显示（D-7-3 修订：频道不显示已读）**                                                 | ✅            |
+| `shell/chat-card.tsx`                | 窄卡：只渲染 `convsFor` 的**首个**会话（无 tab 切换），尾部 40 条、过滤 vanishing、打开即 `onSeen`                                                                                                                                   | ✅            |
+| `emote-picker.tsx` / `emoji-data.ts` | emoji/贴纸选择器 + 自维护 230 emoji 中文索引                                                                                                                                                                                         | ✅            |
 
 🗑 已删除：`chat-dock.tsx`、`contacts.ts`（DM mock 联系人）、旧 `chat.tsx`。
 

@@ -78,7 +78,12 @@ const ResetPasswordPage = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                            <button type="button" className={styles.eye} onClick={() => setShowPw((v) => !v)} title={showPw ? '隐藏密码' : '显示密码'}>
+                            <button
+                                type="button"
+                                className={styles.eye}
+                                onClick={() => setShowPw((v) => !v)}
+                                title={showPw ? '隐藏密码' : '显示密码'}
+                            >
                                 {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
                             </button>
                         </label>
@@ -96,13 +101,19 @@ const ResetPasswordPage = () => {
 
                         {msg && <div className={`${styles.msg} ${styles[msg.type]}`}>{msg.text}</div>}
 
-                        <button type="submit" className={`btn-primary ${styles.submit}`} disabled={busy || !password || !confirm}>
+                        <button
+                            type="submit"
+                            className={`btn-primary ${styles.submit}`}
+                            disabled={busy || !password || !confirm}
+                        >
                             {busy ? '稍等…' : '更新密码'}
                         </button>
                     </form>
                 ) : (
                     <>
-                        <div className={`${styles.msg} ${styles.error}`}>链接无效或已过期，请回到登录页重新发送重置邮件。</div>
+                        <div className={`${styles.msg} ${styles.error}`}>
+                            链接无效或已过期，请回到登录页重新发送重置邮件。
+                        </div>
                         <div className={styles.switchRow}>
                             <button type="button" onClick={() => navigate('/login')}>
                                 回到登录

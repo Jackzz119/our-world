@@ -107,7 +107,17 @@ type EmotePickerProps = {
 // The picker. Two screens in one component: the browse screen (search + tabs) and the import screen
 // reached from the world tab's ＋ tile. A non-empty search box overrides the emoji tabs but not the
 // world tab, which filters its own tiles by sticker name.
-export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticker, onSearchWeb, onImportUrl, onImportFile, onRemoveEmote }: EmotePickerProps) {
+export function EmotePicker({
+    mode,
+    emotes,
+    canImport,
+    onPickEmoji,
+    onPickSticker,
+    onSearchWeb,
+    onImportUrl,
+    onImportFile,
+    onRemoveEmote
+}: EmotePickerProps) {
     const [tab, setTab] = useState<Tab>('emoji');
     const [q, setQ] = useState('');
     const [importing, setImporting] = useState(false);
@@ -184,17 +194,37 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                 <>
                     <div className="epk-search">
                         🔍
-                        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="搜索表情…" spellCheck={false} />
+                        <input
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            placeholder="搜索表情…"
+                            spellCheck={false}
+                        />
                     </div>
                     <div className="epk-tabs">
-                        <button type="button" className={`epk-tab ${tab === 'recent' ? 'on' : ''}`} title="最近使用" onClick={() => setTab('recent')}>
+                        <button
+                            type="button"
+                            className={`epk-tab ${tab === 'recent' ? 'on' : ''}`}
+                            title="最近使用"
+                            onClick={() => setTab('recent')}
+                        >
                             🕐
                         </button>
-                        <button type="button" className={`epk-tab ${tab === 'emoji' ? 'on' : ''}`} title="Emoji" onClick={() => setTab('emoji')}>
+                        <button
+                            type="button"
+                            className={`epk-tab ${tab === 'emoji' ? 'on' : ''}`}
+                            title="Emoji"
+                            onClick={() => setTab('emoji')}
+                        >
                             😊
                         </button>
                         {mode === 'composer' && (
-                            <button type="button" className={`epk-tab ${tab === 'world' ? 'on' : ''}`} title="世界表情" onClick={() => setTab('world')}>
+                            <button
+                                type="button"
+                                className={`epk-tab ${tab === 'world' ? 'on' : ''}`}
+                                title="世界表情"
+                                onClick={() => setTab('world')}
+                            >
                                 💗
                             </button>
                         )}
@@ -229,7 +259,8 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                                 </div>
                             </>
                         )}
-                        {!query && tab === 'emoji' &&
+                        {!query &&
+                            tab === 'emoji' &&
                             EMOJI_CATEGORIES.map((cat) => (
                                 <div key={cat.name}>
                                     <div className="epk-sec">{cat.name}</div>
@@ -245,17 +276,36 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                         {tab === 'world' && mode === 'composer' && (
                             <>
                                 <div className="epk-sec">世界表情 · 你们的专属库</div>
-                                {worldHits.length === 0 && <div className="epk-empty">{query ? `没有叫「${q}」的贴纸` : '还没有贴纸，点 ＋ 去收集'}</div>}
+                                {worldHits.length === 0 && (
+                                    <div className="epk-empty">
+                                        {query ? `没有叫「${q}」的贴纸` : '还没有贴纸，点 ＋ 去收集'}
+                                    </div>
+                                )}
                                 <div className="epk-stk">
                                     {worldHits.map((e) => (
-                                        <button key={e.id} type="button" className="tile" title={`:${e.name}:`} onClick={() => onPickSticker?.(e)}>
-                                            {e.url ? <img src={e.url} alt={e.name} /> : <span style={{ fontSize: 10 }}>{e.name}</span>}
+                                        <button
+                                            key={e.id}
+                                            type="button"
+                                            className="tile"
+                                            title={`:${e.name}:`}
+                                            onClick={() => onPickSticker?.(e)}
+                                        >
+                                            {e.url ? (
+                                                <img src={e.url} alt={e.name} />
+                                            ) : (
+                                                <span style={{ fontSize: 10 }}>{e.name}</span>
+                                            )}
                                             <span
                                                 className="rmv"
                                                 title="移出表情库"
                                                 onClick={(ev) => {
                                                     ev.stopPropagation();
-                                                    if (window.confirm(`把 :${e.name}: 移出你们的表情库？已发送的贴纸会变成占位。`)) onRemoveEmote(e.id);
+                                                    if (
+                                                        window.confirm(
+                                                            `把 :${e.name}: 移出你们的表情库？已发送的贴纸会变成占位。`
+                                                        )
+                                                    )
+                                                        onRemoveEmote(e.id);
                                                 }}
                                             >
                                                 ✕
@@ -263,7 +313,12 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                                         </button>
                                     ))}
                                     {canImport && (
-                                        <button type="button" className="tile add" title="添加贴纸" onClick={() => setImporting(true)}>
+                                        <button
+                                            type="button"
+                                            className="tile add"
+                                            title="添加贴纸"
+                                            onClick={() => setImporting(true)}
+                                        >
                                             ＋
                                         </button>
                                     )}
@@ -289,12 +344,21 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                                     if (e.key === 'Enter') void runWebSearch();
                                 }}
                             />
-                            <button type="button" disabled={impBusy || !impQ.trim()} onClick={() => void runWebSearch()}>
+                            <button
+                                type="button"
+                                disabled={impBusy || !impQ.trim()}
+                                onClick={() => void runWebSearch()}
+                            >
                                 {impBusy ? '…' : '搜索'}
                             </button>
                         </div>
                         <div className="row">
-                            <input value={impName} onChange={(e) => setImpName(e.target.value)} placeholder="给它起个名字（:别名:）" spellCheck={false} />
+                            <input
+                                value={impName}
+                                onChange={(e) => setImpName(e.target.value)}
+                                placeholder="给它起个名字（:别名:）"
+                                spellCheck={false}
+                            />
                         </div>
                         {results.length > 0 && (
                             <div className="res">
@@ -303,7 +367,9 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                                         key={r.id}
                                         type="button"
                                         title="点击加入表情库"
-                                        onClick={() => void doImport(() => onImportUrl(r.url, nameOr(impQ.trim() || 'sticker')))}
+                                        onClick={() =>
+                                            void doImport(() => onImportUrl(r.url, nameOr(impQ.trim() || 'sticker')))
+                                        }
                                     >
                                         <img src={r.preview ?? r.url} alt={r.title} loading="lazy" />
                                     </button>
@@ -322,7 +388,12 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                         </div>
                         {impUrl !== '' && (
                             <div className="row">
-                                <input value={impUrl.trim()} onChange={(e) => setImpUrl(e.target.value || ' ')} placeholder="https://…" spellCheck={false} />
+                                <input
+                                    value={impUrl.trim()}
+                                    onChange={(e) => setImpUrl(e.target.value || ' ')}
+                                    placeholder="https://…"
+                                    spellCheck={false}
+                                />
                                 <button
                                     type="button"
                                     disabled={impBusy || !impUrl.trim()}
@@ -340,7 +411,10 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
                             onChange={(e) => {
                                 const f = e.target.files?.[0];
                                 e.target.value = '';
-                                if (f) void doImport(() => onImportFile(f, nameOr(f.name.replace(/\.[^.]+$/, '').slice(0, 24))));
+                                if (f)
+                                    void doImport(() =>
+                                        onImportFile(f, nameOr(f.name.replace(/\.[^.]+$/, '').slice(0, 24)))
+                                    );
                             }}
                         />
                         {impMsg && <div className={`msg ${impMsg.err ? 'err' : ''}`}>{impMsg.text}</div>}

@@ -19,13 +19,13 @@ index.html → src/main.tsx → App.tsx（路由）
 
 ## 目录与命名（已采纳：各目录内部一致；跨目录不统一属历史）
 
-| 位置 | 文件名 | 说明 |
-| --- | --- | --- |
-| `src/pages/` | PascalCase（`LoginPage.tsx` + `.module.css`） | 页面组件 |
-| `src/hooks/` | camelCase（`useAuth.ts`） | React hook |
-| `src/lib/ types/ utils/` | 小写单词 | 数据层与类型 |
-| `src/themes/cinnaglass/**` | kebab-case | 组件、引擎、CSS；`room/`、`shell/` 已分子目录 |
-| `ai/` 新目录 | kebab-case | 历史遗留 `design_system` 不改 |
+| 位置                       | 文件名                                        | 说明                                          |
+| -------------------------- | --------------------------------------------- | --------------------------------------------- |
+| `src/pages/`               | PascalCase（`LoginPage.tsx` + `.module.css`） | 页面组件                                      |
+| `src/hooks/`               | camelCase（`useAuth.ts`）                     | React hook                                    |
+| `src/lib/ types/ utils/`   | 小写单词                                      | 数据层与类型                                  |
+| `src/themes/cinnaglass/**` | kebab-case                                    | 组件、引擎、CSS；`room/`、`shell/` 已分子目录 |
+| `ai/` 新目录               | kebab-case                                    | 历史遗留 `design_system` 不改                 |
 
 - 待讨论：`journal-*`（7 文件）与聊天族（5 文件）平铺在主题根，可各建子目录；两个校验脚本硬编码了 `/src/themes/cinnaglass/*.ts` 模块 URL，移动时须同步。
 - 待讨论：import 路径写法（`@/lib/x.ts` 带扩展名 vs `./x` 不带）69 处不统一，建议统一为 `@/…` 无扩展名，随大改动一起做，不单独刷。

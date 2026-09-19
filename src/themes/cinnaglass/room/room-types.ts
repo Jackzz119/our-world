@@ -181,4 +181,3 @@ export function resolveRoomArt(room: RoomTemplate, mood: RoomMood): string {
     // A template with no art at all is a build-time mistake; fail loud in dev.
     throw new Error(`room "${room.id}" has no base art for mood "${mood}"`);
 }
-

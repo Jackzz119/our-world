@@ -35,17 +35,17 @@ GIF 是实际页面逐帧截图（含导航、正文、背景），不是生图�
 
 前四行位于 `src/themes/cinnaglass/`。
 
-| 文件 | 职责 |
-| --- | --- |
-| `journal-turn.ts` | 纸面曲线、正反面、底页显露、内容副本与签名图片更新 |
-| `journal-turn.css` | 三维层级、纸面裁片、同源旧纸材质、光暗与纸下阴影 |
-| `journal-turn-controller.ts` | 单页/连续队列、反向、时值、停止清理、减少动态效果 |
-| `journal-room-book.tsx` | 真实分页、目录/按钮、输入、阅读位置、尺寸变化、草稿 |
-| `src/pages/WorldPage.tsx` | 阅读态保持房间运行，不再停雨 |
-| `room/room-scene.tsx` | 更新暂停行为注释；未改场景绘制算法 |
-| `room/pixi-scene.ts` | 修复阅读背景持续运行时的缩放崩溃；不改唱片美术与运动 |
-| `scripts/render-journal-turn.mjs` | 从运动样板逐帧导出 GIF |
-| `scripts/check-journal-turn.mjs` | 实际页面动画、加载与边界检查；可导出产品 GIF |
+| 文件                              | 职责                                                 |
+| --------------------------------- | ---------------------------------------------------- |
+| `journal-turn.ts`                 | 纸面曲线、正反面、底页显露、内容副本与签名图片更新   |
+| `journal-turn.css`                | 三维层级、纸面裁片、同源旧纸材质、光暗与纸下阴影     |
+| `journal-turn-controller.ts`      | 单页/连续队列、反向、时值、停止清理、减少动态效果    |
+| `journal-room-book.tsx`           | 真实分页、目录/按钮、输入、阅读位置、尺寸变化、草稿  |
+| `src/pages/WorldPage.tsx`         | 阅读态保持房间运行，不再停雨                         |
+| `room/room-scene.tsx`             | 更新暂停行为注释；未改场景绘制算法                   |
+| `room/pixi-scene.ts`              | 修复阅读背景持续运行时的缩放崩溃；不改唱片美术与运动 |
+| `scripts/render-journal-turn.mjs` | 从运动样板逐帧导出 GIF                               |
+| `scripts/check-journal-turn.mjs`  | 实际页面动画、加载与边界检查；可导出产品 GIF         |
 
 工程结果见 [runtime-results.json](turn-verification/runtime-results.json)；静态回归沿用 `scripts/check-journal-art.mjs`，结果见 [book-verification/results.json](book-verification/results.json)。覆盖：正面照片完整、背面真实正文、底页提前显露、三张重叠、反向、草稿、关闭、缩放、窄屏、减少动态效果、签名图片更新、历史失败重试、场景画布持续变化。
 

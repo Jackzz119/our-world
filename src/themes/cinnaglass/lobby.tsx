@@ -73,7 +73,11 @@ function IslandArt({ onEnter, canEnter }: { onEnter: () => void; canEnter: boole
             <g filter="url(#islandShadow)">
                 {/* island body: grass top + tapered earth underside */}
                 <path d="M110,282 Q150,388 260,402 Q370,388 410,282 Z" fill={P.earthL} />
-                <path d="M110,282 Q170,368 260,380 Q300,374 330,340 Q250,362 180,320 Q140,300 110,282 Z" fill={P.earthR} opacity=".75" />
+                <path
+                    d="M110,282 Q170,368 260,380 Q300,374 330,340 Q250,362 180,320 Q140,300 110,282 Z"
+                    fill={P.earthR}
+                    opacity=".75"
+                />
                 <ellipse cx="260" cy="280" rx="152" ry="46" fill={P.grassT} />
                 <ellipse cx="260" cy="274" rx="140" ry="38" fill={P.grassHi} />
 
@@ -112,10 +116,33 @@ function IslandArt({ onEnter, canEnter }: { onEnter: () => void; canEnter: boole
                     <ellipse cx="260" cy="140" rx="86" ry="112" fill="url(#portalGlow)" />
                     <ellipse cx="260" cy="142" rx="56" ry="82" fill="url(#portalInner)" opacity=".92" />
                     <ellipse cx="260" cy="142" rx="62" ry="88" fill="none" stroke={P.ring} strokeWidth="9" />
-                    <ellipse cx="260" cy="142" rx="62" ry="88" fill="none" stroke="#FFFFFF" strokeWidth="2.5" opacity=".7" />
+                    <ellipse
+                        cx="260"
+                        cy="142"
+                        rx="62"
+                        ry="88"
+                        fill="none"
+                        stroke="#FFFFFF"
+                        strokeWidth="2.5"
+                        opacity=".7"
+                    />
                     {/* inner swirl hints */}
-                    <path d="M232,110 Q260,96 288,112" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" opacity=".65" />
-                    <path d="M236,176 Q262,190 286,174" fill="none" stroke="#E8F6FF" strokeWidth="4" strokeLinecap="round" opacity=".5" />
+                    <path
+                        d="M232,110 Q260,96 288,112"
+                        fill="none"
+                        stroke="#FFFFFF"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        opacity=".65"
+                    />
+                    <path
+                        d="M236,176 Q262,190 286,174"
+                        fill="none"
+                        stroke="#E8F6FF"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        opacity=".5"
+                    />
                 </g>
             </g>
         </svg>

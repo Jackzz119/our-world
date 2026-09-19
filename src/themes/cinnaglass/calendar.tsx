@@ -172,7 +172,10 @@ export function CalendarScreen({
     };
     const delEvent = (id: string) => setEvents(events.filter((e) => e.id !== id));
 
-    const upcoming = [...events].filter((e) => e.date >= ymd(tY, tM, tD)).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+    const upcoming = [...events]
+        .filter((e) => e.date >= ymd(tY, tM, tD))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(0, 6);
     const cntdown = (dstr: string) => {
         const [y, m, d] = dstr.split('-').map(Number);
         const diff = Math.round((new Date(y, m - 1, d).getTime() - new Date(tY, tM, tD).getTime()) / 864e5);
@@ -265,7 +268,14 @@ export function CalendarScreen({
 
                     <div className="cal-sec">即将到来的约会</div>
                     {upcoming.length === 0 && (
-                        <div style={{ color: 'var(--glass-sub)', fontSize: 12.5, textAlign: 'center', padding: '10px 0' }}>
+                        <div
+                            style={{
+                                color: 'var(--glass-sub)',
+                                fontSize: 12.5,
+                                textAlign: 'center',
+                                padding: '10px 0'
+                            }}
+                        >
                             还没有计划，点日期添加一个吧 ·
                         </div>
                     )}
@@ -318,7 +328,8 @@ export function ClockScreen({
     const [atime, setAtime] = useState('07:30');
     const [alabel, setAlabel] = useState('');
 
-    const WIcon = weather.kind === 'sun' ? ISun : weather.kind === 'rain' ? IRain : weather.kind === 'snow' ? ISnow : ICloud;
+    const WIcon =
+        weather.kind === 'sun' ? ISun : weather.kind === 'rain' ? IRain : weather.kind === 'snow' ? ISnow : ICloud;
 
     const toggle = (id: string) => setAlarms(alarms.map((a) => (a.id === id ? { ...a, on: !a.on } : a)));
     const del = (id: string) => setAlarms(alarms.filter((a) => a.id !== id));

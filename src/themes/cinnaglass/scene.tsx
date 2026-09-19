@@ -59,9 +59,33 @@ const H = 2.5; // wall height
 // isometric box → 3 faces (left=v1, right=u1, top=w1)
 const Box = ({ u0, u1, v0, v1, w0, w1, t, r, l }: BoxProps) => (
     <g>
-        <polygon points={f([[u0, v1, w1], [u1, v1, w1], [u1, v1, w0], [u0, v1, w0]])} fill={l} />
-        <polygon points={f([[u1, v0, w1], [u1, v1, w1], [u1, v1, w0], [u1, v0, w0]])} fill={r} />
-        <polygon points={f([[u0, v0, w1], [u1, v0, w1], [u1, v1, w1], [u0, v1, w1]])} fill={t} />
+        <polygon
+            points={f([
+                [u0, v1, w1],
+                [u1, v1, w1],
+                [u1, v1, w0],
+                [u0, v1, w0]
+            ])}
+            fill={l}
+        />
+        <polygon
+            points={f([
+                [u1, v0, w1],
+                [u1, v1, w1],
+                [u1, v1, w0],
+                [u1, v0, w0]
+            ])}
+            fill={r}
+        />
+        <polygon
+            points={f([
+                [u0, v0, w1],
+                [u1, v0, w1],
+                [u1, v1, w1],
+                [u0, v1, w1]
+            ])}
+            fill={t}
+        />
     </g>
 );
 // Soft ground shadow under a prop, so it reads as standing on the floor.
@@ -107,52 +131,213 @@ export function RoomArt({ shadow = true }: { shadow?: boolean }) {
                 {/* base slab (diorama thickness) */}
                 <Box u0={0} u1={4} v0={0} v1={4} w0={-0.5} w1={0} t={ROOM.floorTop} r={ROOM.woodR} l={ROOM.woodL} />
                 {/* floor top */}
-                <polygon points={f([[0, 0, 0], [4, 0, 0], [4, 4, 0], [0, 4, 0]])} fill={ROOM.floorTop} />
+                <polygon
+                    points={f([
+                        [0, 0, 0],
+                        [4, 0, 0],
+                        [4, 4, 0],
+                        [0, 4, 0]
+                    ])}
+                    fill={ROOM.floorTop}
+                />
                 {/* plank seams */}
                 {[1, 2, 3].map((i) => (
-                    <polyline key={i} points={f([[i, 0, 0], [i, 4, 0]])} fill="none" stroke="rgba(160,123,85,.28)" strokeWidth="1.5" />
+                    <polyline
+                        key={i}
+                        points={f([
+                            [i, 0, 0],
+                            [i, 4, 0]
+                        ])}
+                        fill="none"
+                        stroke="rgba(160,123,85,.28)"
+                        strokeWidth="1.5"
+                    />
                 ))}
 
                 {/* ── walls ── */}
                 {/* right wall (v=0) — lit */}
-                <polygon points={f([[0, 0, 0], [4, 0, 0], [4, 0, H], [0, 0, H]])} fill={ROOM.wallA} />
+                <polygon
+                    points={f([
+                        [0, 0, 0],
+                        [4, 0, 0],
+                        [4, 0, H],
+                        [0, 0, H]
+                    ])}
+                    fill={ROOM.wallA}
+                />
                 {/* left wall (u=0) — shaded */}
-                <polygon points={f([[0, 0, 0], [0, 4, 0], [0, 4, H], [0, 0, H]])} fill={ROOM.wallB} />
+                <polygon
+                    points={f([
+                        [0, 0, 0],
+                        [0, 4, 0],
+                        [0, 4, H],
+                        [0, 0, H]
+                    ])}
+                    fill={ROOM.wallB}
+                />
                 {/* baseboards */}
-                <polygon points={f([[0, 0, 0], [4, 0, 0], [4, 0, 0.14], [0, 0, 0.14]])} fill="#E4D6BE" />
-                <polygon points={f([[0, 0, 0], [0, 4, 0], [0, 4, 0.14], [0, 0, 0.14]])} fill="#D8C8AE" />
+                <polygon
+                    points={f([
+                        [0, 0, 0],
+                        [4, 0, 0],
+                        [4, 0, 0.14],
+                        [0, 0, 0.14]
+                    ])}
+                    fill="#E4D6BE"
+                />
+                <polygon
+                    points={f([
+                        [0, 0, 0],
+                        [0, 4, 0],
+                        [0, 4, 0.14],
+                        [0, 0, 0.14]
+                    ])}
+                    fill="#D8C8AE"
+                />
 
                 {/* window on right wall */}
-                <polygon points={f([[0.95, 0, 0.85], [3.05, 0, 0.85], [3.05, 0, 2.15], [0.95, 0, 2.15]])} fill="#EFE6D6" />
-                <polygon points={f([[1.12, 0, 0.98], [2.88, 0, 0.98], [2.88, 0, 2.02], [1.12, 0, 2.02]])} fill="url(#winGlass)" />
-                <polyline points={f([[2.0, 0, 0.98], [2.0, 0, 2.02]])} stroke="#EFE6D6" strokeWidth="3" fill="none" />
-                <polyline points={f([[1.12, 0, 1.5], [2.88, 0, 1.5]])} stroke="#EFE6D6" strokeWidth="3" fill="none" />
+                <polygon
+                    points={f([
+                        [0.95, 0, 0.85],
+                        [3.05, 0, 0.85],
+                        [3.05, 0, 2.15],
+                        [0.95, 0, 2.15]
+                    ])}
+                    fill="#EFE6D6"
+                />
+                <polygon
+                    points={f([
+                        [1.12, 0, 0.98],
+                        [2.88, 0, 0.98],
+                        [2.88, 0, 2.02],
+                        [1.12, 0, 2.02]
+                    ])}
+                    fill="url(#winGlass)"
+                />
+                <polyline
+                    points={f([
+                        [2.0, 0, 0.98],
+                        [2.0, 0, 2.02]
+                    ])}
+                    stroke="#EFE6D6"
+                    strokeWidth="3"
+                    fill="none"
+                />
+                <polyline
+                    points={f([
+                        [1.12, 0, 1.5],
+                        [2.88, 0, 1.5]
+                    ])}
+                    stroke="#EFE6D6"
+                    strokeWidth="3"
+                    fill="none"
+                />
                 {/* light spilling onto floor */}
-                <polygon points={f([[1.2, 0, 0], [2.8, 0, 0], [3.4, 1.4, 0], [1.8, 1.4, 0]])} fill="rgba(255,240,200,.30)" />
+                <polygon
+                    points={f([
+                        [1.2, 0, 0],
+                        [2.8, 0, 0],
+                        [3.4, 1.4, 0],
+                        [1.8, 1.4, 0]
+                    ])}
+                    fill="rgba(255,240,200,.30)"
+                />
 
                 {/* framed picture on left wall */}
-                <polygon points={f([[0, 2.7, 1.45], [0, 3.4, 1.45], [0, 3.4, 2.05], [0, 2.7, 2.05]])} fill="#EAD9C2" />
-                <polygon points={f([[0, 2.78, 1.52], [0, 3.32, 1.52], [0, 3.32, 1.98], [0, 2.78, 1.98]])} fill="#BFE3F5" />
+                <polygon
+                    points={f([
+                        [0, 2.7, 1.45],
+                        [0, 3.4, 1.45],
+                        [0, 3.4, 2.05],
+                        [0, 2.7, 2.05]
+                    ])}
+                    fill="#EAD9C2"
+                />
+                <polygon
+                    points={f([
+                        [0, 2.78, 1.52],
+                        [0, 3.32, 1.52],
+                        [0, 3.32, 1.98],
+                        [0, 2.78, 1.98]
+                    ])}
+                    fill="#BFE3F5"
+                />
                 <circle cx={X(0, 3.05)} cy={Y(0, 3.05, 1.62)} r="9" fill="#FCE7B0" />
 
                 {/* shelf on left wall + keepsakes */}
-                <polygon points={f([[0, 0.9, 1.55], [0, 2.3, 1.55], [0.42, 2.3, 1.55], [0.42, 0.9, 1.55]])} fill={ROOM.woodT} />
-                <polygon points={f([[0, 0.9, 1.5], [0, 2.3, 1.5], [0, 2.3, 1.55], [0, 0.9, 1.55]])} fill={ROOM.woodL} />
+                <polygon
+                    points={f([
+                        [0, 0.9, 1.55],
+                        [0, 2.3, 1.55],
+                        [0.42, 2.3, 1.55],
+                        [0.42, 0.9, 1.55]
+                    ])}
+                    fill={ROOM.woodT}
+                />
+                <polygon
+                    points={f([
+                        [0, 0.9, 1.5],
+                        [0, 2.3, 1.5],
+                        [0, 2.3, 1.55],
+                        [0, 0.9, 1.55]
+                    ])}
+                    fill={ROOM.woodL}
+                />
                 <Box u0={0.06} u1={0.3} v0={1.0} v1={1.25} w0={1.55} w1={1.95} t="#F1C75A" r="#E0B549" l="#CBA23C" />
-                <Box u0={0.06} u1={0.28} v0={1.4} v1={1.62} w0={1.55} w1={1.82} t={ROOM.blushT} r={ROOM.blushR} l={ROOM.blushL} />
+                <Box
+                    u0={0.06}
+                    u1={0.28}
+                    v0={1.4}
+                    v1={1.62}
+                    w0={1.55}
+                    w1={1.82}
+                    t={ROOM.blushT}
+                    r={ROOM.blushR}
+                    l={ROOM.blushL}
+                />
                 <circle cx={X(0.18, 2.0)} cy={Y(0.18, 2.0, 1.7)} r="11" fill="#86C99A" />
                 <rect x={X(0.18, 2.0) - 4} y={Y(0.18, 2.0, 1.62)} width="8" height="9" fill="#E0A37D" />
 
                 {/* ── desk (back-right) ── */}
                 <Shadow u={3.0} v={0.8} rx={62} ry={26} o={0.14} />
-                <Box u0={2.4} u1={3.7} v0={0.25} v1={1.35} w0={0} w1={1.02} t={ROOM.woodT} r={ROOM.woodR} l={ROOM.woodL} />
+                <Box
+                    u0={2.4}
+                    u1={3.7}
+                    v0={0.25}
+                    v1={1.35}
+                    w0={0}
+                    w1={1.02}
+                    t={ROOM.woodT}
+                    r={ROOM.woodR}
+                    l={ROOM.woodL}
+                />
                 {/* monitor */}
-                <Box u0={2.55} u1={2.64} v0={0.45} v1={1.02} w0={1.02} w1={1.78} t="#33405E" r="#2C3A56" l="url(#screen)" />
+                <Box
+                    u0={2.55}
+                    u1={2.64}
+                    v0={0.45}
+                    v1={1.02}
+                    w0={1.02}
+                    w1={1.78}
+                    t="#33405E"
+                    r="#2C3A56"
+                    l="url(#screen)"
+                />
                 <Box u0={2.55} u1={2.64} v0={0.66} v1={0.8} w0={1.0} w1={1.04} t="#3A4A6A" r="#33405E" l="#2C3A56" />
                 {/* keyboard */}
                 <Box u0={2.85} u1={3.25} v0={0.55} v1={1.0} w0={1.02} w1={1.06} t="#E9EEF5" r="#D4DCE8" l="#C6D0DF" />
                 {/* books */}
-                <Box u0={2.78} u1={3.18} v0={1.05} v1={1.28} w0={1.02} w1={1.18} t={ROOM.blushT} r={ROOM.blushR} l={ROOM.blushL} />
+                <Box
+                    u0={2.78}
+                    u1={3.18}
+                    v0={1.05}
+                    v1={1.28}
+                    w0={1.02}
+                    w1={1.18}
+                    t={ROOM.blushT}
+                    r={ROOM.blushR}
+                    l={ROOM.blushL}
+                />
                 <Box u0={2.82} u1={3.14} v0={1.08} v1={1.3} w0={1.18} w1={1.32} t="#9FD6F4" r="#83B7DD" l="#6FA6CF" />
                 {/* lamp */}
                 <Box u0={3.38} u1={3.46} v0={0.5} v1={0.58} w0={1.02} w1={1.72} t="#9AA7B8" r="#8794A6" l="#76859A" />
@@ -167,12 +352,36 @@ export function RoomArt({ shadow = true }: { shadow?: boolean }) {
                 {/* chair */}
                 <Shadow u={2.95} v={2.0} rx={40} ry={18} o={0.13} />
                 <Box u0={2.65} u1={3.2} v0={1.65} v1={2.2} w0={0} w1={0.52} t={ROOM.skyT} r={ROOM.skyR} l={ROOM.skyL} />
-                <Box u0={2.65} u1={2.78} v0={1.65} v1={2.2} w0={0.52} w1={1.18} t={ROOM.skyT} r={ROOM.skyR} l={ROOM.skyL} />
+                <Box
+                    u0={2.65}
+                    u1={2.78}
+                    v0={1.65}
+                    v1={2.2}
+                    w0={0.52}
+                    w1={1.18}
+                    t={ROOM.skyT}
+                    r={ROOM.skyR}
+                    l={ROOM.skyL}
+                />
 
                 {/* ── rug ── */}
-                <polygon points={f([[0.7, 1.0, 0.012], [2.9, 1.0, 0.012], [2.9, 3.1, 0.012], [0.7, 3.1, 0.012]])} fill={ROOM.rug} opacity="0.82" />
                 <polygon
-                    points={f([[1.0, 1.3, 0.014], [2.6, 1.3, 0.014], [2.6, 2.8, 0.014], [1.0, 2.8, 0.014]])}
+                    points={f([
+                        [0.7, 1.0, 0.012],
+                        [2.9, 1.0, 0.012],
+                        [2.9, 3.1, 0.012],
+                        [0.7, 3.1, 0.012]
+                    ])}
+                    fill={ROOM.rug}
+                    opacity="0.82"
+                />
+                <polygon
+                    points={f([
+                        [1.0, 1.3, 0.014],
+                        [2.6, 1.3, 0.014],
+                        [2.6, 2.8, 0.014],
+                        [1.0, 2.8, 0.014]
+                    ])}
                     fill="none"
                     stroke="rgba(255,255,255,.55)"
                     strokeWidth="2.5"
@@ -180,14 +389,64 @@ export function RoomArt({ shadow = true }: { shadow?: boolean }) {
 
                 {/* ── bed (front-left) ── */}
                 <Shadow u={1.1} v={2.85} rx={86} ry={34} o={0.15} />
-                <Box u0={0.3} u1={1.95} v0={2.0} v1={3.7} w0={0} w1={0.42} t={ROOM.woodT} r={ROOM.woodR} l={ROOM.woodL} />
+                <Box
+                    u0={0.3}
+                    u1={1.95}
+                    v0={2.0}
+                    v1={3.7}
+                    w0={0}
+                    w1={0.42}
+                    t={ROOM.woodT}
+                    r={ROOM.woodR}
+                    l={ROOM.woodL}
+                />
                 {/* mattress */}
-                <Box u0={0.35} u1={1.9} v0={2.05} v1={3.65} w0={0.42} w1={0.74} t={ROOM.creamT} r={ROOM.creamR} l={ROOM.creamL} />
+                <Box
+                    u0={0.35}
+                    u1={1.9}
+                    v0={2.05}
+                    v1={3.65}
+                    w0={0.42}
+                    w1={0.74}
+                    t={ROOM.creamT}
+                    r={ROOM.creamR}
+                    l={ROOM.creamL}
+                />
                 {/* blanket (front portion) */}
-                <Box u0={0.34} u1={1.91} v0={2.75} v1={3.66} w0={0.7} w1={0.9} t={ROOM.skyT} r={ROOM.skyR} l={ROOM.skyL} />
+                <Box
+                    u0={0.34}
+                    u1={1.91}
+                    v0={2.75}
+                    v1={3.66}
+                    w0={0.7}
+                    w1={0.9}
+                    t={ROOM.skyT}
+                    r={ROOM.skyR}
+                    l={ROOM.skyL}
+                />
                 {/* pillows */}
-                <Box u0={0.5} u1={1.02} v0={2.12} v1={2.55} w0={0.74} w1={1.0} t={ROOM.creamT} r={ROOM.creamR} l={ROOM.creamL} />
-                <Box u0={1.1} u1={1.6} v0={2.12} v1={2.55} w0={0.74} w1={0.98} t={ROOM.blushT} r={ROOM.blushR} l={ROOM.blushL} />
+                <Box
+                    u0={0.5}
+                    u1={1.02}
+                    v0={2.12}
+                    v1={2.55}
+                    w0={0.74}
+                    w1={1.0}
+                    t={ROOM.creamT}
+                    r={ROOM.creamR}
+                    l={ROOM.creamL}
+                />
+                <Box
+                    u0={1.1}
+                    u1={1.6}
+                    v0={2.12}
+                    v1={2.55}
+                    w0={0.74}
+                    w1={0.98}
+                    t={ROOM.blushT}
+                    r={ROOM.blushR}
+                    l={ROOM.blushL}
+                />
 
                 {/* floor plant (front-left corner) */}
                 <Box u0={0.25} u1={0.6} v0={3.35} v1={3.7} w0={0} w1={0.5} t="#E0A37D" r="#CE916C" l="#B97F5C" />

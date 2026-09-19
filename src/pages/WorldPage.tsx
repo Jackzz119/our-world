@@ -4,9 +4,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 // the pixi room compositor loads its own chunk on demand (pixi.js is chunky)
-const RoomScene = lazy(() =>
-    import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene }))
-);
+const RoomScene = lazy(() => import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene })));
 import { LobbyScene, type LobbyStatus } from '@/themes/cinnaglass/lobby';
 import { SubScreen, type SurfaceOrigin, type TabKey } from '@/themes/cinnaglass/screens';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
@@ -304,13 +302,19 @@ const WorldPage = () => {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude: la, longitude: lo } = pos.coords;
-                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`)
+                fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`
+                )
                     .then((r) => r.json())
                     .then((d) => {
                         if (cancel) return;
                         clearTimeout(to);
                         const c = d.current;
-                        setWeather({ ...mapWmo(c.weather_code), temp: Math.round(c.temperature_2m), place: '当前位置' });
+                        setWeather({
+                            ...mapWmo(c.weather_code),
+                            temp: Math.round(c.temperature_2m),
+                            place: '当前位置'
+                        });
                     })
                     .catch(() => {
                         clearTimeout(to);
@@ -455,7 +459,11 @@ const WorldPage = () => {
                 chrome piece floats above it. The Discord-era sidebar/HUD
                 retired with the idle-companion pivot
                 (ai/design_system/uiux/uiux.md). */}
-            <div className="stage" data-reading={screen === 'timeline' || undefined} style={{ position: 'absolute', inset: 0 }}>
+            <div
+                className="stage"
+                data-reading={screen === 'timeline' || undefined}
+                style={{ position: 'absolute', inset: 0 }}
+            >
                 {inWorld ? (
                     <Suspense fallback={null}>
                         <RoomScene
@@ -536,10 +544,35 @@ const WorldPage = () => {
                     origin={surfaceOrigin}
                     onClose={() => setScreen(null)}
                 />
-                <CalendarScreen open={screen === 'calendar'} onClose={() => setScreen(null)} events={events} setEvents={setEvents} />
-                <ClockScreen open={screen === 'clock'} onClose={() => setScreen(null)} nowTs={nowTs} weather={weather} alarms={alarms} setAlarms={setAlarms} />
-                <SettingsScreen open={screen === 'settings'} onClose={() => setScreen(null)} t={t} setTweak={setTweak} profile={profile} setP={setProfile} />
-                <WorldSettingsScreen open={screen === 'world-settings'} onClose={() => setScreen(null)} world={world} iconUrl={worldIconUrl} onSaved={onWorldSaved} />
+                <CalendarScreen
+                    open={screen === 'calendar'}
+                    onClose={() => setScreen(null)}
+                    events={events}
+                    setEvents={setEvents}
+                />
+                <ClockScreen
+                    open={screen === 'clock'}
+                    onClose={() => setScreen(null)}
+                    nowTs={nowTs}
+                    weather={weather}
+                    alarms={alarms}
+                    setAlarms={setAlarms}
+                />
+                <SettingsScreen
+                    open={screen === 'settings'}
+                    onClose={() => setScreen(null)}
+                    t={t}
+                    setTweak={setTweak}
+                    profile={profile}
+                    setP={setProfile}
+                />
+                <WorldSettingsScreen
+                    open={screen === 'world-settings'}
+                    onClose={() => setScreen(null)}
+                    world={world}
+                    iconUrl={worldIconUrl}
+                    onSaved={onWorldSaved}
+                />
                 {/* covering chat hub — one expand away from the chat card */}
                 <ChannelScreen
                     convId={convOpen}

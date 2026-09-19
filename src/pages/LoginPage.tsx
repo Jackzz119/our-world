@@ -167,14 +167,23 @@ const LoginPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                        <button type="button" className={styles.eye} onClick={() => setShowPw((v) => !v)} title={showPw ? '隐藏密码' : '显示密码'}>
+                        <button
+                            type="button"
+                            className={styles.eye}
+                            onClick={() => setShowPw((v) => !v)}
+                            title={showPw ? '隐藏密码' : '显示密码'}
+                        >
                             {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
                         </button>
                     </label>
 
                     {msg && <div className={`${styles.msg} ${styles[msg.type]}`}>{msg.text}</div>}
 
-                    <button type="submit" className={`btn-primary ${styles.submit}`} disabled={busy || !email || !password}>
+                    <button
+                        type="submit"
+                        className={`btn-primary ${styles.submit}`}
+                        disabled={busy || !email || !password}
+                    >
                         {busy ? '稍等…' : signUpMode ? '注册' : '登录'}
                     </button>
                 </form>

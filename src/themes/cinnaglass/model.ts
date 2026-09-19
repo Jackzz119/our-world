@@ -29,4 +29,3 @@ export type Alarm = { id: string; time: string; label: string; on: boolean };
 
 // Which shell widgets are switched on, keyed by widget id.
 export type Widgets = Record<string, boolean>;
-

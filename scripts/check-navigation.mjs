@@ -218,9 +218,7 @@ try {
     await touchContext.close();
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', (e) => errors.push(e.message));
-    await docsPage.goto(
-        `${baseUrl()}/ai/design_system/uiux/cinnaglass/ui-system.html#navigation-glass`
-    );
+    await docsPage.goto(`${baseUrl()}/ai/design_system/uiux/cinnaglass/ui-system.html#navigation-glass`);
     await docsPage.locator('#navigation-glass').scrollIntoViewIfNeeded();
     // The comparison is lazy-loaded; wait for its pixels, not just the heading.
     const comparisonImage = docsPage.locator('img[src="journal-room-object/navigation-verification/comparison.png"]');

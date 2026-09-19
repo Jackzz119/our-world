@@ -109,7 +109,9 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
     // WebAudio is unavailable — every caller must tolerate that.
     const ensure = (): AudioPad | null => {
         if (audio.current) return audio.current;
-        const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        const AC =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
         if (!AC) return null;
         const ctx = new AC();
         const master = ctx.createGain();
@@ -147,7 +149,8 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
         if (!a) return;
         t.chord.forEach((semi, k) => {
             const v = a.voices[k];
-            if (v) v.o.frequency.setValueAtTime((t.root * Math.pow(2, semi / 12)) / (k === 0 ? 2 : 1), a.ctx.currentTime);
+            if (v)
+                v.o.frequency.setValueAtTime((t.root * Math.pow(2, semi / 12)) / (k === 0 ? 2 : 1), a.ctx.currentTime);
         });
     };
     // Fade the master gain in/out instead of hard-starting — a hard start clicks.

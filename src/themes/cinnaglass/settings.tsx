@@ -3,7 +3,23 @@
 import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import { supabase } from '@/lib/supabase.ts';
 import type { IcoProps } from './icons';
-import { ICheck, IChevron, IClose, ICog, IDusk, IHeart, IKey, ILock, ILogout, IMail, IMoon, IPaint, IShield, ISun, IUser } from './icons';
+import {
+    ICheck,
+    IChevron,
+    IClose,
+    ICog,
+    IDusk,
+    IHeart,
+    IKey,
+    ILock,
+    ILogout,
+    IMail,
+    IMoon,
+    IPaint,
+    IShield,
+    ISun,
+    IUser
+} from './icons';
 import type { Profile } from './model';
 import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from './tweaks';
 
@@ -98,7 +114,17 @@ const MOOD_OPTS: SegOpt[] = [
 ];
 
 // Segmented control: one option is always on; the caller owns the value.
-function Segmented({ opts, value, onChange, withIcon }: { opts: SegOpt[]; value: string; onChange: (k: string) => void; withIcon?: boolean }) {
+function Segmented({
+    opts,
+    value,
+    onChange,
+    withIcon
+}: {
+    opts: SegOpt[];
+    value: string;
+    onChange: (k: string) => void;
+    withIcon?: boolean;
+}) {
     return (
         <div className="seg">
             {opts.map((o) => (
@@ -139,7 +165,14 @@ function PersonRow({
                 <image-slot id={slotId} shape="circle" placeholder=""></image-slot>
             </span>
             <div className="set-body">
-                <input className="set-edit" value={name} onChange={(e) => onName(e.target.value)} spellCheck={false} maxLength={12} aria-label="昵称" />
+                <input
+                    className="set-edit"
+                    value={name}
+                    onChange={(e) => onName(e.target.value)}
+                    spellCheck={false}
+                    maxLength={12}
+                    aria-label="昵称"
+                />
             </div>
             <span className="set-tag">{role}</span>
         </div>
@@ -266,7 +299,9 @@ export function SettingsScreen({
                                     spellCheck={false}
                                     aria-label="绑定邮箱"
                                 />
-                                <div className="set-s" style={{ paddingLeft: 8 }}>绑定的邮箱</div>
+                                <div className="set-s" style={{ paddingLeft: 8 }}>
+                                    绑定的邮箱
+                                </div>
                             </div>
                         </div>
                         <div className="set-row tap" onClick={() => setPwOpen((o) => !o)}>
@@ -277,13 +312,21 @@ export function SettingsScreen({
                                 <div className="set-t">修改密码</div>
                                 <div className="set-s">{pwOpen ? '输入旧密码与新密码' : '上次更新于 3 个月前'}</div>
                             </div>
-                            <span className="set-chev" style={{ transform: pwOpen ? 'rotate(90deg)' : 'none', transition: 'transform .25s' }}>
+                            <span
+                                className="set-chev"
+                                style={{ transform: pwOpen ? 'rotate(90deg)' : 'none', transition: 'transform .25s' }}
+                            >
                                 <IChevron size={17} />
                             </span>
                         </div>
                         <div className={`set-expand ${pwOpen ? 'open' : ''}`}>
                             <div className="set-pw">
-                                <input type="password" placeholder="当前密码" value={pw.cur} onChange={(e) => setPw((s) => ({ ...s, cur: e.target.value }))} />
+                                <input
+                                    type="password"
+                                    placeholder="当前密码"
+                                    value={pw.cur}
+                                    onChange={(e) => setPw((s) => ({ ...s, cur: e.target.value }))}
+                                />
                                 <input
                                     type="password"
                                     placeholder="新密码（至少 4 位）"
@@ -324,8 +367,12 @@ export function SettingsScreen({
                                 <ILogout size={16} />
                             </span>
                             <div className="set-body">
-                                <div className="set-t" style={{ color: '#C25A72' }}>退出账号</div>
-                                <div className="set-s">{loggingOut ? '正在退出…' : '回到登录页 · 回忆都在云端，不会丢'}</div>
+                                <div className="set-t" style={{ color: '#C25A72' }}>
+                                    退出账号
+                                </div>
+                                <div className="set-s">
+                                    {loggingOut ? '正在退出…' : '回到登录页 · 回忆都在云端，不会丢'}
+                                </div>
                             </div>
                             <span className="set-chev">
                                 <IChevron size={17} />
@@ -346,21 +393,34 @@ export function SettingsScreen({
                                 <div className="set-t">玻璃质感</div>
                                 <div className="set-s">界面卡片的材质</div>
                             </div>
-                            <Segmented opts={GLASS_OPTS} value={t.glassStyle} onChange={(k) => setTweak('glassStyle', k as GlassStyle)} />
+                            <Segmented
+                                opts={GLASS_OPTS}
+                                value={t.glassStyle}
+                                onChange={(k) => setTweak('glassStyle', k as GlassStyle)}
+                            />
                         </div>
                         <div className="set-row" style={{ flexWrap: 'wrap' }}>
                             <div className="set-body">
                                 <div className="set-t">光线时段</div>
                                 <div className="set-s">一天里的光与氛围</div>
                             </div>
-                            <Segmented opts={MOOD_OPTS} value={t.mood} onChange={(k) => setTweak('mood', k as Mood)} withIcon />
+                            <Segmented
+                                opts={MOOD_OPTS}
+                                value={t.mood}
+                                onChange={(k) => setTweak('mood', k as Mood)}
+                                withIcon
+                            />
                         </div>
                         <div className="set-row">
                             <div className="set-body">
                                 <div className="set-t">聊天消息排列</div>
                                 <div className="set-s">全部靠左（Discord 式）或自己的消息靠右</div>
                             </div>
-                            <Segmented opts={CHAT_ALIGN_OPTS} value={t.chatAlign} onChange={(k) => setTweak('chatAlign', k as ChatAlign)} />
+                            <Segmented
+                                opts={CHAT_ALIGN_OPTS}
+                                value={t.chatAlign}
+                                onChange={(k) => setTweak('chatAlign', k as ChatAlign)}
+                            />
                         </div>
                     </div>
 

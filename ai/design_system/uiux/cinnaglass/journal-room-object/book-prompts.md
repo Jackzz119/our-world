@@ -27,5 +27,3 @@ Use case: stylized-concept. Asset type: isolated transparent quill pen sprite fo
 ```text
 Use case: background-extraction. Edit ONLY the background of this exact book asset: remove all the fake white/light-gray checkerboard outside the outer silhouette of the leather book and bottom ribbon. Output REAL transparent alpha there, not a drawn checkerboard. Keep every part of the book unchanged: same blank paper, textures, colors, geometry, tab, ribbon, scale, pixels within book. Do not redraw, restyle, relight or add anything. The thin brown leather edge must remain crisp, all paper opaque, bottom ribbon retained. This is a transparent game sprite extraction, not a photo on a background. Actual alpha transparency, no checkerboard, no matte.
 ```
-
-

@@ -222,7 +222,17 @@ function explodeBubble(canvas: HTMLCanvasElement, host: HTMLElement, el: HTMLEle
     canvas.height = sr.height;
     const x0 = r.left - sr.left;
     const y0 = r.top - sr.top;
-    type P = { x: number; y: number; vx: number; vy: number; r: number; a: number; da: number; c: string; delay: number };
+    type P = {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        r: number;
+        a: number;
+        da: number;
+        c: string;
+        delay: number;
+    };
     const parts: P[] = [];
     const cols = Math.max(4, Math.floor(r.width / 7));
     const rows = Math.max(3, Math.floor(r.height / 7));
@@ -443,7 +453,11 @@ export function ChannelScreen({
                 {/* conversation switcher — the same set convsFor() gives the ChatCard,
                     plus the pinned friends entry (Discord-style, above DMs) */}
                 <div className="chsc-nav">
-                    <div className={`chsc-nav-item friends ${isFriends ? 'on' : ''}`} onClick={() => onSelect(FRIENDS_VIEW)} title="好友">
+                    <div
+                        className={`chsc-nav-item friends ${isFriends ? 'on' : ''}`}
+                        onClick={() => onSelect(FRIENDS_VIEW)}
+                        title="好友"
+                    >
                         <span className="ic">💗</span>
                         <span className="nm">好友</span>
                         {requestsIn.length > 0 && <span className="chsc-nav-bdg">{requestsIn.length}</span>}
@@ -452,7 +466,12 @@ export function ChannelScreen({
                         <>
                             <div className="chsc-cat">文字频道</div>
                             {chConvs.map((c) => (
-                                <div key={c.id} className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`} onClick={() => onSelect(c.id)} title={c.hint}>
+                                <div
+                                    key={c.id}
+                                    className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`}
+                                    onClick={() => onSelect(c.id)}
+                                    title={c.hint}
+                                >
                                     <span className="ic">
                                         <IHash size={15} />
                                     </span>
@@ -464,7 +483,12 @@ export function ChannelScreen({
                     <div className="chsc-cat">私信</div>
                     {dmConvs.length === 0 && <div className="chsc-empty">添加好友后这里会出现私信</div>}
                     {dmConvs.map((c) => (
-                        <div key={c.id} className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`} onClick={() => onSelect(c.id)} title={`私信 ${c.name}`}>
+                        <div
+                            key={c.id}
+                            className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`}
+                            onClick={() => onSelect(c.id)}
+                            title={`私信 ${c.name}`}
+                        >
                             <span className="ava-s" style={{ background: c.color }}>
                                 {c.ini}
                             </span>
@@ -487,216 +511,250 @@ export function ChannelScreen({
                         />
                     ) : (
                         <>
-                    <div className="chsc-hd">
-                        {ch ? (
-                            <span className="ic">
-                                <IHash size={18} />
-                            </span>
-                        ) : (
-                            <span className="chsc-ava" style={{ background: dm!.color }}>
-                                {dm!.ini}
-                            </span>
-                        )}
-                        <h3>{ch ? ch.name : dm!.name}</h3>
-                        <span className="topic">{ch ? ch.topic : '私信 · 只有你们两个人看得到'}</span>
-                        <div className="chsc-x" onClick={onClose} title="关闭">
-                            <IClose size={16} />
-                        </div>
-                    </div>
-                    <div
-                        className={`chsc-msgs ${chatAlign === 'left' ? 'left' : ''}`}
-                        ref={msgsRef}
-                        onScroll={onScroll}
-                        onClick={() => {
-                            setPickerFor(null);
-                            setInputPicker(false);
-                        }}
-                    >
-                        <div className="chsc-top-hint">
-                            {reachedStart[convId] ? (ch ? '这里是这个频道的开头 ✨' : '这里是你们私信的开头 ✨') : '上滚加载更早的消息…'}
-                        </div>
-                        {msgs.map((m, i) => {
-                            const own = m.from === 'me';
-                            const canOp = !m.pending && !m.failed && !m.vanishing;
-                            if (editingId === m.id && own) {
-                                return (
-                                    <div key={m.id} className="chsc-m me chsc-edit">
-                                        <textarea
-                                            rows={Math.min(6, Math.max(1, editText.split('\n').length))}
-                                            value={editText}
-                                            autoFocus
-                                            onChange={(e) => setEditText(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && !e.shiftKey) {
-                                                    e.preventDefault();
-                                                    commitEdit();
-                                                } else if (e.key === 'Escape') {
-                                                    setEditingId(null);
-                                                }
-                                            }}
-                                        />
-                                        <div className="hint">Enter 保存 · Esc 取消</div>
-                                    </div>
-                                );
-                            }
-                            return (
-                                <div key={m.id} className={`chsc-m ${own ? 'me' : ''} ${m.pending ? 'sending' : ''} ${m.failed ? 'failed' : ''} ${m.vanishing ? 'vanish' : ''}`}>
-                                    <span className="meta">
-                                        {own ? '我' : m.sender || '对方'} · {m.time}
-                                        {m.edited && <span className="edited">(已编辑)</span>}
+                            <div className="chsc-hd">
+                                {ch ? (
+                                    <span className="ic">
+                                        <IHash size={18} />
                                     </span>
-                                    {m.kind === 'sticker' ? (
-                                        <span
-                                            className="chsc-stkm"
-                                            ref={(el) => {
-                                                if (el) bubbleEls.current.set(m.id, el);
-                                                else bubbleEls.current.delete(m.id);
-                                            }}
-                                        >
-                                            {m.emoteGone ? (
-                                                <span className="chsc-stk-ghost">✨ 这张贴纸已被移出表情库</span>
-                                            ) : m.emoteUrl ? (
-                                                <img src={m.emoteUrl} alt={m.text} title={m.text} />
-                                            ) : (
-                                                <span className="chsc-stk-ghost">{m.text}</span>
-                                            )}
-                                            {m.pending && <span className="send-cloud">☁️</span>}
-                                        </span>
-                                    ) : (
-                                        <span
-                                            className="bub"
-                                            ref={(el) => {
-                                                if (el) bubbleEls.current.set(m.id, el);
-                                                else bubbleEls.current.delete(m.id);
-                                            }}
-                                        >
-                                            {m.text}
-                                            {m.pending && <span className="send-cloud">☁️</span>}
-                                        </span>
-                                    )}
-                                    {canOp && (
-                                        <div className="abar" onClick={(e) => e.stopPropagation()}>
-                                            {QUICK_EMOJI.map((em) => (
-                                                <button key={em} type="button" onClick={() => onReact(m.id, em)}>
-                                                    {em}
-                                                </button>
-                                            ))}
-                                            <button type="button" title="更多表情" onClick={() => setPickerFor(pickerFor === m.id ? null : m.id)}>
-                                                ➕
-                                            </button>
-                                            {own && (
-                                                <>
-                                                    {m.kind !== 'sticker' && (
-                                                        <button type="button" title="编辑" onClick={() => beginEdit(m)}>
-                                                            ✏️
-                                                        </button>
-                                                    )}
-                                                    <button type="button" title="删除" onClick={() => onDelete(m.id)}>
-                                                        🗑️
-                                                    </button>
-                                                </>
-                                            )}
-                                            <button type="button" title="回复（即将上线）" disabled>
-                                                ↩︎
-                                            </button>
-                                        </div>
-                                    )}
-                                    {pickerFor === m.id && (
-                                        <div className="chsc-pop" onClick={(e) => e.stopPropagation()}>
-                                            <EmotePicker
-                                                mode="reaction"
-                                                emotes={emotes}
-                                                canImport={false}
-                                                onPickEmoji={(em) => {
-                                                    onReact(m.id, em);
-                                                    setPickerFor(null);
-                                                }}
-                                                onSearchWeb={onSearchWeb}
-                                                onImportUrl={onImportUrl}
-                                                onImportFile={onImportFile}
-                                                onRemoveEmote={onRemoveEmote}
-                                            />
-                                        </div>
-                                    )}
-                                    {m.failed && (
-                                        <div className="chsc-fail">
-                                            🌧️ 没送出去
-                                            <span className="lnk" onClick={() => onRetry(m.id)}>
-                                                重试
-                                            </span>
-                                            <span className="lnk mute" onClick={() => onDiscard(m.id)}>
-                                                删除
-                                            </span>
-                                        </div>
-                                    )}
-                                    {!!m.reactions?.length && (
-                                        <div className="chsc-rx">
-                                            {m.reactions.map((rx) => (
-                                                <span
-                                                    key={rx.emoji}
-                                                    className={`rx ${rx.mine ? 'on' : ''}`}
-                                                    title={rx.users.join('、')}
-                                                    onClick={() => canOp && onReact(m.id, rx.emoji)}
-                                                >
-                                                    {rx.emoji} {rx.count}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {dm && i === readCursorIdx && (
-                                        <div className="chsc-read">
-                                            <span
-                                                // remount at a new position replays the pop-in
-                                                key={`${dm.otherId}:${i}`}
-                                                className="ava"
-                                                style={{ background: dm.color }}
-                                                title={readAt ? `${dm.name} 已读 ${new Date(readAt).toTimeString().slice(0, 5)}` : `${dm.name} 已读`}
-                                            >
-                                                {dm.ini}
-                                            </span>
-                                        </div>
-                                    )}
+                                ) : (
+                                    <span className="chsc-ava" style={{ background: dm!.color }}>
+                                        {dm!.ini}
+                                    </span>
+                                )}
+                                <h3>{ch ? ch.name : dm!.name}</h3>
+                                <span className="topic">{ch ? ch.topic : '私信 · 只有你们两个人看得到'}</span>
+                                <div className="chsc-x" onClick={onClose} title="关闭">
+                                    <IClose size={16} />
                                 </div>
-                            );
-                        })}
-                    </div>
-                    <canvas className="chsc-dust" ref={dustRef} />
-                    <form className="chsc-input" onSubmit={submit}>
-                        <button type="button" className="chsc-emo" title="表情" onClick={() => setInputPicker((v) => !v)}>
-                            😊
-                        </button>
-                        {inputPicker && (
-                            <div className="chsc-pop for-input" onClick={(e) => e.stopPropagation()}>
-                                <EmotePicker
-                                    mode="composer"
-                                    emotes={emotes}
-                                    canImport={hasWorld}
-                                    onPickEmoji={insertEmoji}
-                                    onPickSticker={(emote) => {
-                                        onSendSticker(convId, emote);
-                                        setInputPicker(false);
-                                    }}
-                                    onSearchWeb={onSearchWeb}
-                                    onImportUrl={onImportUrl}
-                                    onImportFile={onImportFile}
-                                    onRemoveEmote={onRemoveEmote}
-                                />
                             </div>
-                        )}
-                        <input
-                            key={convId}
-                            ref={composerRef}
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
-                            maxLength={500}
-                            spellCheck={false}
-                            autoFocus
-                        />
-                        <button type="submit" aria-label="发送">
-                            <ISend size={17} />
-                        </button>
-                    </form>
+                            <div
+                                className={`chsc-msgs ${chatAlign === 'left' ? 'left' : ''}`}
+                                ref={msgsRef}
+                                onScroll={onScroll}
+                                onClick={() => {
+                                    setPickerFor(null);
+                                    setInputPicker(false);
+                                }}
+                            >
+                                <div className="chsc-top-hint">
+                                    {reachedStart[convId]
+                                        ? ch
+                                            ? '这里是这个频道的开头 ✨'
+                                            : '这里是你们私信的开头 ✨'
+                                        : '上滚加载更早的消息…'}
+                                </div>
+                                {msgs.map((m, i) => {
+                                    const own = m.from === 'me';
+                                    const canOp = !m.pending && !m.failed && !m.vanishing;
+                                    if (editingId === m.id && own) {
+                                        return (
+                                            <div key={m.id} className="chsc-m me chsc-edit">
+                                                <textarea
+                                                    rows={Math.min(6, Math.max(1, editText.split('\n').length))}
+                                                    value={editText}
+                                                    autoFocus
+                                                    onChange={(e) => setEditText(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            commitEdit();
+                                                        } else if (e.key === 'Escape') {
+                                                            setEditingId(null);
+                                                        }
+                                                    }}
+                                                />
+                                                <div className="hint">Enter 保存 · Esc 取消</div>
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <div
+                                            key={m.id}
+                                            className={`chsc-m ${own ? 'me' : ''} ${m.pending ? 'sending' : ''} ${m.failed ? 'failed' : ''} ${m.vanishing ? 'vanish' : ''}`}
+                                        >
+                                            <span className="meta">
+                                                {own ? '我' : m.sender || '对方'} · {m.time}
+                                                {m.edited && <span className="edited">(已编辑)</span>}
+                                            </span>
+                                            {m.kind === 'sticker' ? (
+                                                <span
+                                                    className="chsc-stkm"
+                                                    ref={(el) => {
+                                                        if (el) bubbleEls.current.set(m.id, el);
+                                                        else bubbleEls.current.delete(m.id);
+                                                    }}
+                                                >
+                                                    {m.emoteGone ? (
+                                                        <span className="chsc-stk-ghost">
+                                                            ✨ 这张贴纸已被移出表情库
+                                                        </span>
+                                                    ) : m.emoteUrl ? (
+                                                        <img src={m.emoteUrl} alt={m.text} title={m.text} />
+                                                    ) : (
+                                                        <span className="chsc-stk-ghost">{m.text}</span>
+                                                    )}
+                                                    {m.pending && <span className="send-cloud">☁️</span>}
+                                                </span>
+                                            ) : (
+                                                <span
+                                                    className="bub"
+                                                    ref={(el) => {
+                                                        if (el) bubbleEls.current.set(m.id, el);
+                                                        else bubbleEls.current.delete(m.id);
+                                                    }}
+                                                >
+                                                    {m.text}
+                                                    {m.pending && <span className="send-cloud">☁️</span>}
+                                                </span>
+                                            )}
+                                            {canOp && (
+                                                <div className="abar" onClick={(e) => e.stopPropagation()}>
+                                                    {QUICK_EMOJI.map((em) => (
+                                                        <button
+                                                            key={em}
+                                                            type="button"
+                                                            onClick={() => onReact(m.id, em)}
+                                                        >
+                                                            {em}
+                                                        </button>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        title="更多表情"
+                                                        onClick={() => setPickerFor(pickerFor === m.id ? null : m.id)}
+                                                    >
+                                                        ➕
+                                                    </button>
+                                                    {own && (
+                                                        <>
+                                                            {m.kind !== 'sticker' && (
+                                                                <button
+                                                                    type="button"
+                                                                    title="编辑"
+                                                                    onClick={() => beginEdit(m)}
+                                                                >
+                                                                    ✏️
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                type="button"
+                                                                title="删除"
+                                                                onClick={() => onDelete(m.id)}
+                                                            >
+                                                                🗑️
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    <button type="button" title="回复（即将上线）" disabled>
+                                                        ↩︎
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {pickerFor === m.id && (
+                                                <div className="chsc-pop" onClick={(e) => e.stopPropagation()}>
+                                                    <EmotePicker
+                                                        mode="reaction"
+                                                        emotes={emotes}
+                                                        canImport={false}
+                                                        onPickEmoji={(em) => {
+                                                            onReact(m.id, em);
+                                                            setPickerFor(null);
+                                                        }}
+                                                        onSearchWeb={onSearchWeb}
+                                                        onImportUrl={onImportUrl}
+                                                        onImportFile={onImportFile}
+                                                        onRemoveEmote={onRemoveEmote}
+                                                    />
+                                                </div>
+                                            )}
+                                            {m.failed && (
+                                                <div className="chsc-fail">
+                                                    🌧️ 没送出去
+                                                    <span className="lnk" onClick={() => onRetry(m.id)}>
+                                                        重试
+                                                    </span>
+                                                    <span className="lnk mute" onClick={() => onDiscard(m.id)}>
+                                                        删除
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {!!m.reactions?.length && (
+                                                <div className="chsc-rx">
+                                                    {m.reactions.map((rx) => (
+                                                        <span
+                                                            key={rx.emoji}
+                                                            className={`rx ${rx.mine ? 'on' : ''}`}
+                                                            title={rx.users.join('、')}
+                                                            onClick={() => canOp && onReact(m.id, rx.emoji)}
+                                                        >
+                                                            {rx.emoji} {rx.count}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {dm && i === readCursorIdx && (
+                                                <div className="chsc-read">
+                                                    <span
+                                                        // remount at a new position replays the pop-in
+                                                        key={`${dm.otherId}:${i}`}
+                                                        className="ava"
+                                                        style={{ background: dm.color }}
+                                                        title={
+                                                            readAt
+                                                                ? `${dm.name} 已读 ${new Date(readAt).toTimeString().slice(0, 5)}`
+                                                                : `${dm.name} 已读`
+                                                        }
+                                                    >
+                                                        {dm.ini}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <canvas className="chsc-dust" ref={dustRef} />
+                            <form className="chsc-input" onSubmit={submit}>
+                                <button
+                                    type="button"
+                                    className="chsc-emo"
+                                    title="表情"
+                                    onClick={() => setInputPicker((v) => !v)}
+                                >
+                                    😊
+                                </button>
+                                {inputPicker && (
+                                    <div className="chsc-pop for-input" onClick={(e) => e.stopPropagation()}>
+                                        <EmotePicker
+                                            mode="composer"
+                                            emotes={emotes}
+                                            canImport={hasWorld}
+                                            onPickEmoji={insertEmoji}
+                                            onPickSticker={(emote) => {
+                                                onSendSticker(convId, emote);
+                                                setInputPicker(false);
+                                            }}
+                                            onSearchWeb={onSearchWeb}
+                                            onImportUrl={onImportUrl}
+                                            onImportFile={onImportFile}
+                                            onRemoveEmote={onRemoveEmote}
+                                        />
+                                    </div>
+                                )}
+                                <input
+                                    key={convId}
+                                    ref={composerRef}
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
+                                    maxLength={500}
+                                    spellCheck={false}
+                                    autoFocus
+                                />
+                                <button type="submit" aria-label="发送">
+                                    <ISend size={17} />
+                                </button>
+                            </form>
                         </>
                     )}
                 </div>

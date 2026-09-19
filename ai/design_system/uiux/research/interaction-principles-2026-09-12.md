@@ -2,11 +2,11 @@
 
 > 查看日期：2026-09-12。目的：更新设计技能的验证方法；不是本轮批准新的产品外观或实现功能。
 
-| 官方依据 | 可采用的机制 | 本项目用法与边界 |
-| --- | --- | --- |
-| [W3C WCAG 2.2：Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) | AA 指针目标至少 24×24 CSS px，标准有间距等例外；更大的目标通常更好用 | 不再用旧技能“所有平台 ≥36px”作万能规则。导航/窄屏浮窗按实际点击区、间距与输入设备验收，视觉图标可小于点击区域 |
-| [WAI-ARIA APG：Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) | 模态打开后焦点进入；Tab/Shift+Tab 留在内部；Esc 关闭；结束后合理返回焦点 | M2 应验证完整生命周期，不能只检查遮罩外观；关闭与草稿保留仍按项目业务语义设计 |
-| [Xbox XAG 102：Contrast](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/102) | 正文、聊天、控件和重要图形均需在其实际背景上辨识 | 透明 UI 与场景同屏取样，晴/雨与时辰分别检查；不以单独 token 色值宣称合成后可读 |
+| 官方依据                                                                                                         | 可采用的机制                                                             | 本项目用法与边界                                                                                              |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| [W3C WCAG 2.2：Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)      | AA 指针目标至少 24×24 CSS px，标准有间距等例外；更大的目标通常更好用     | 不再用旧技能“所有平台 ≥36px”作万能规则。导航/窄屏浮窗按实际点击区、间距与输入设备验收，视觉图标可小于点击区域 |
+| [WAI-ARIA APG：Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)                             | 模态打开后焦点进入；Tab/Shift+Tab 留在内部；Esc 关闭；结束后合理返回焦点 | M2 应验证完整生命周期，不能只检查遮罩外观；关闭与草稿保留仍按项目业务语义设计                                 |
+| [Xbox XAG 102：Contrast](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/102) | 正文、聊天、控件和重要图形均需在其实际背景上辨识                         | 透明 UI 与场景同屏取样，晴/雨与时辰分别检查；不以单独 token 色值宣称合成后可读                                |
 
 **落入技能的方法**：新设计读取项目标准，再带上述具体问题研究适用方案；同景并排展示，独立记录交互检查和 Monet 视觉审核。官方准则提供检查依据，不要求 Our World 复制其他品牌外观。
 

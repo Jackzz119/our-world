@@ -76,7 +76,16 @@ type FriendsPageProps = {
 
 // Renders one of the three tabs over the same friend lists. Removing a friend and declining or
 // cancelling a request are the same call (onRemove) — the row just reads differently.
-export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onAccept, onRemove, onOpenDm, onClose }: FriendsPageProps) {
+export function FriendsPage({
+    friends,
+    requestsIn,
+    requestsOut,
+    onAddFriend,
+    onAccept,
+    onRemove,
+    onOpenDm,
+    onClose
+}: FriendsPageProps) {
     const [tab, setTab] = useState<Tab>('all');
     const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
@@ -110,14 +119,22 @@ export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onA
                 <button type="button" className={`fpg-tab ${tab === 'all' ? 'on' : ''}`} onClick={() => setTab('all')}>
                     全部
                 </button>
-                <button type="button" className={`fpg-tab ${tab === 'pending' ? 'on' : ''}`} onClick={() => setTab('pending')}>
+                <button
+                    type="button"
+                    className={`fpg-tab ${tab === 'pending' ? 'on' : ''}`}
+                    onClick={() => setTab('pending')}
+                >
                     待处理
                     {pendingCount > 0 && <span className="fpg-bdg">{pendingCount}</span>}
                 </button>
                 <button type="button" className="fpg-tab" disabled title="在场系统上线后开放">
                     在线
                 </button>
-                <button type="button" className={`fpg-tab add ${tab === 'add' ? 'on' : ''}`} onClick={() => setTab('add')}>
+                <button
+                    type="button"
+                    className={`fpg-tab add ${tab === 'add' ? 'on' : ''}`}
+                    onClick={() => setTab('add')}
+                >
                     ＋ 添加好友
                 </button>
                 <div className="fpg-x" onClick={onClose} title="关闭">
@@ -128,7 +145,9 @@ export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onA
                 {tab === 'all' && (
                     <>
                         <div className="fpg-sec">全部好友 — {friends.length}</div>
-                        {friends.length === 0 && <div className="fpg-empty">还没有好友，去「＋ 添加好友」把 ta 加进来吧</div>}
+                        {friends.length === 0 && (
+                            <div className="fpg-empty">还没有好友，去「＋ 添加好友」把 ta 加进来吧</div>
+                        )}
                         {friends.map((f) => (
                             <div key={f.otherId} className="fpg-row">
                                 <span className="ava" style={{ background: f.color }}>
@@ -148,7 +167,8 @@ export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onA
                                         type="button"
                                         title="解除好友"
                                         onClick={() => {
-                                            if (window.confirm(`确定要解除和 ${f.name} 的好友关系吗？聊天记录会保留。`)) onRemove(f.otherId);
+                                            if (window.confirm(`确定要解除和 ${f.name} 的好友关系吗？聊天记录会保留。`))
+                                                onRemove(f.otherId);
                                         }}
                                     >
                                         ✕
@@ -221,7 +241,12 @@ export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onA
                                     if (e.key === 'Enter') void submitAdd();
                                 }}
                             />
-                            <button type="button" className="go" disabled={busy || !email.trim()} onClick={() => void submitAdd()}>
+                            <button
+                                type="button"
+                                className="go"
+                                disabled={busy || !email.trim()}
+                                onClick={() => void submitAdd()}
+                            >
                                 {busy ? '发送中…' : '发送申请 ✨'}
                             </button>
                         </div>

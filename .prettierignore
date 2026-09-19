@@ -22,3 +22,6 @@ ai/project-audit/runs/
 # Asset trees (binaries plus their provenance json/md)
 arts/
 public/
+
+# Tool-managed metadata (agent-toolkit pull manifest)
+.agent-toolkit.json

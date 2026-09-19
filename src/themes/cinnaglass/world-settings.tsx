@@ -73,9 +73,30 @@ const WorldSettingsStyles = () => (
 
 // Curated Cinnamoroll-adjacent set — a picker, not an emoji keyboard.
 const ICON_EMOJIS = [
-    '💗', '🏠', '🌸', '🌙', '⭐', '☁️', '🌈', '🍓',
-    '🐰', '🐶', '🦊', '🐻', '🌻', '🍀', '🎀', '🧸',
-    '🍰', '🫧', '🌊', '🔮', '🎠', '🪐', '🍭', '💌'
+    '💗',
+    '🏠',
+    '🌸',
+    '🌙',
+    '⭐',
+    '☁️',
+    '🌈',
+    '🍓',
+    '🐰',
+    '🐶',
+    '🦊',
+    '🐻',
+    '🌻',
+    '🍀',
+    '🎀',
+    '🧸',
+    '🍰',
+    '🫧',
+    '🌊',
+    '🔮',
+    '🎠',
+    '🪐',
+    '🍭',
+    '💌'
 ];
 
 type Draft = {
@@ -222,7 +243,9 @@ export function WorldSettingsScreen({
                     </div>
                     <div className="ws-group paper">
                         <div className="ws-row">
-                            <span className="ws-ico">{showImage ? <img src={showImage} alt="世界 icon" /> : fallbackGlyph}</span>
+                            <span className="ws-ico">
+                                {showImage ? <img src={showImage} alt="世界 icon" /> : fallbackGlyph}
+                            </span>
                             <div className="ws-ico-hint">
                                 这是世界的小脸——会出现在侧边栏和大厅卡片上。
                                 <br />
@@ -231,7 +254,13 @@ export function WorldSettingsScreen({
                         </div>
                         <div className="ws-emojis">
                             {ICON_EMOJIS.map((e) => (
-                                <button key={e} type="button" className={!showImage && draft.emoji === e ? 'on' : ''} onClick={() => pickEmoji(e)} aria-label={`选择 ${e}`}>
+                                <button
+                                    key={e}
+                                    type="button"
+                                    className={!showImage && draft.emoji === e ? 'on' : ''}
+                                    onClick={() => pickEmoji(e)}
+                                    aria-label={`选择 ${e}`}
+                                >
                                     {e}
                                 </button>
                             ))}
@@ -281,10 +310,20 @@ export function WorldSettingsScreen({
                         </div>
                         <div className="ws-row">
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--glass-text)' }}>在一起的那天</div>
-                                <div className="ws-sub" style={{ paddingLeft: 0 }}>从这天开始数你们的日子</div>
+                                <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--glass-text)' }}>
+                                    在一起的那天
+                                </div>
+                                <div className="ws-sub" style={{ paddingLeft: 0 }}>
+                                    从这天开始数你们的日子
+                                </div>
                             </div>
-                            <input className="ws-date" type="date" value={draft.anniv} onChange={(e) => setDraft((d) => ({ ...d, anniv: e.target.value }))} aria-label="纪念日" />
+                            <input
+                                className="ws-date"
+                                type="date"
+                                value={draft.anniv}
+                                onChange={(e) => setDraft((d) => ({ ...d, anniv: e.target.value }))}
+                                aria-label="纪念日"
+                            />
                         </div>
                     </div>
 

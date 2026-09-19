@@ -33,7 +33,15 @@ import { getProfilesByIds } from '@/lib/profiles.ts';
 import { signImageUrls } from '@/lib/storage.ts';
 import { Logman } from '@/lib/logman.ts';
 import type { EmoteView } from './emote-picker';
-import type { Channel, ChannelReadRow, ChatMessageRow, EmoteRow, FriendshipRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
+import type {
+    Channel,
+    ChannelReadRow,
+    ChatMessageRow,
+    EmoteRow,
+    FriendshipRow,
+    ReactionRow,
+    WorldEvent
+} from '@/types/chat.ts';
 import type { FeedProfile } from '@/types/feed.ts';
 
 // Logman tag for this module (ai/PROJECT.md §已有功能资产 keeps the domain tag pool).
@@ -92,7 +100,9 @@ export type Conv = {
 // account-level and therefore present in the lobby too.
 export const convsFor = (inWorld: boolean, channels: Channel[], dmConvs: Conv[]): Conv[] => [
     ...(inWorld
-        ? channels.filter((ch) => ch.type === 'text').map((ch): Conv => ({ id: ch.id, kind: 'channel', name: ch.name, hint: ch.topic ?? '' }))
+        ? channels
+              .filter((ch) => ch.type === 'text')
+              .map((ch): Conv => ({ id: ch.id, kind: 'channel', name: ch.name, hint: ch.topic ?? '' }))
         : []),
     ...dmConvs
 ];
@@ -183,7 +193,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
     }, [emotes]);
 
     // ready-to-render sticker library for the picker
-    const emoteViews = useMemo(() => emotes.map((e): EmoteView => ({ ...e, url: emoteUrls[e.storage_path] ?? null })), [emotes, emoteUrls]);
+    const emoteViews = useMemo(
+        () => emotes.map((e): EmoteView => ({ ...e, url: emoteUrls[e.storage_path] ?? null })),
+        [emotes, emoteUrls]
+    );
 
     // channel rows → Msg at render time, so late-arriving profile names /
     // reaction echoes / state flags all re-resolve without re-fetching
@@ -236,7 +249,15 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 const other = otherOf(c, uid);
                 const name = nameMap[other]?.display_name ?? '好友';
                 const last = (chanRows[c.id] ?? []).at(-1);
-                return { id: c.id, kind: 'dm', name, hint: last?.content ?? '私信', otherId: other, ini: name.slice(0, 1), color: colorFor(other) };
+                return {
+                    id: c.id,
+                    kind: 'dm',
+                    name,
+                    hint: last?.content ?? '私信',
+                    otherId: other,
+                    ini: name.slice(0, 1),
+                    color: colorFor(other)
+                };
             }),
         [dmChannels, uid, nameMap, chanRows]
     );
@@ -249,7 +270,12 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 .map((f): FriendEntry => {
                     const other = f.user_a === uid ? f.user_b : f.user_a;
                     const dm = dmChannels.find((c) => other === otherOf(c, uid));
-                    return { otherId: other, name: nameMap[other]?.display_name ?? '好友', color: colorFor(other), dmChannelId: dm?.id ?? null };
+                    return {
+                        otherId: other,
+                        name: nameMap[other]?.display_name ?? '好友',
+                        color: colorFor(other),
+                        dmChannelId: dm?.id ?? null
+                    };
                 }),
         [friendships, dmChannels, uid, nameMap]
     );
@@ -298,7 +324,13 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
     // merge one fetched batch (channels' pages + reactions + reads) into the
     // shared stores — used by both the world and the account loaders
     const absorb = useCallback(
-        (chans: Channel[], pages: ChatMessageRow[][], rxRows: ReactionRow[], readRows: ChannelReadRow[], merge: boolean) => {
+        (
+            chans: Channel[],
+            pages: ChatMessageRow[][],
+            rxRows: ReactionRow[],
+            readRows: ChannelReadRow[],
+            merge: boolean
+        ) => {
             setChanRows((prev) => {
                 const next = { ...prev };
                 chans.forEach((c, i) => {
@@ -338,7 +370,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                     startVanish(ev.old_record.id);
                 } else {
                     const row = ev.record;
-                    setChanRows((prev) => ({ ...prev, [row.channel_id]: mergeRows(prev[row.channel_id] ?? [], [row]) }));
+                    setChanRows((prev) => ({
+                        ...prev,
+                        [row.channel_id]: mergeRows(prev[row.channel_id] ?? [], [row])
+                    }));
                     if (ev.operation === 'INSERT') {
                         // echo of an optimistic send — confirmed
                         setPendingIds((s) => {
@@ -359,7 +394,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
             } else if (ev.table === 'channel_reads') {
                 const row = ev.record;
                 if (!row) return;
-                setReads((prev) => ({ ...prev, [row.channel_id]: { ...prev[row.channel_id], [row.user_id]: row.last_read_at } }));
+                setReads((prev) => ({
+                    ...prev,
+                    [row.channel_id]: { ...prev[row.channel_id], [row.user_id]: row.last_read_at }
+                }));
             } else if (ev.table === 'friendships') {
                 // friend lists and dm channels changed shape — refetch them
                 reloadAccountRef.current?.();
@@ -404,7 +442,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
             if (cancelled) return;
             setChannels(chs);
             const text = chs.filter((c) => c.type === 'text');
-            const [pages, readRows] = await Promise.all([Promise.all(text.map((c) => getMessages(c.id))), getChannelReads(worldId)]);
+            const [pages, readRows] = await Promise.all([
+                Promise.all(text.map((c) => getMessages(c.id))),
+                getChannelReads(worldId)
+            ]);
             if (cancelled) return;
             const rxRows = await getReactions(pages.flat().map((r) => r.id));
             if (cancelled) return;
@@ -635,7 +676,9 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         setChanRows((prev) => {
             const next: Record<string, ChatMessageRow[]> = {};
             for (const [cid, rows] of Object.entries(prev))
-                next[cid] = rows.map((r) => (r.id === msgId ? { ...r, content: v, edited_at: r.edited_at ?? new Date().toISOString() } : r));
+                next[cid] = rows.map((r) =>
+                    r.id === msgId ? { ...r, content: v, edited_at: r.edited_at ?? new Date().toISOString() } : r
+                );
             return next;
         });
         updateMessage(msgId, v).catch((e: unknown) => Logman.error(TAG, `编辑失败（${msgId}）：${errMsg(e)}`));
@@ -662,10 +705,21 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 ...prev,
                 [msgId]: mine
                     ? rows
-                    : [...rows, { message_id: msgId, user_id: me, world_id: null, emoji, created_at: new Date().toISOString() }]
+                    : [
+                          ...rows,
+                          {
+                              message_id: msgId,
+                              user_id: me,
+                              world_id: null,
+                              emoji,
+                              created_at: new Date().toISOString()
+                          }
+                      ]
             };
         });
-        (mine ? removeReaction(msgId, emoji) : addReaction(msgId, emoji)).catch((e: unknown) => Logman.warn(TAG, `reaction 失败：${errMsg(e)}`));
+        (mine ? removeReaction(msgId, emoji) : addReaction(msgId, emoji)).catch((e: unknown) =>
+            Logman.warn(TAG, `reaction 失败：${errMsg(e)}`)
+        );
     }, []);
 
     // mark a conversation as read up to now — throttled by the cursor itself:
