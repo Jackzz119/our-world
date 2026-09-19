@@ -1,6 +1,6 @@
 # PROJECT-AUDIT — 当前审核入口
 
-当前：**第一步「文档、冗余文件与目录整理」已交付**（2026-09-19），运行 `2026-09-18-01`，本地 `dev` 基线 `3fd52a5`。结果：删除 55 个零消费者冗余文件（59.7MB）、16 份活文档压缩/改写（−32%，3 份达 2/3、13 份有据例外）、10 份短文档修陈旧陈述；PA-007～013 待用户决定，第二步待用户指令开始。`node_modules` 为验证临时安装（gitignore）。
+当前：**第一步「文档、冗余文件与目录整理」已交付**（2026-09-19），运行 `2026-09-18-01`，本地 `dev` 基线 `3fd52a5`。结果：删除 55 个零消费者冗余文件（59.7MB）、16 份活文档压缩/改写（−32%，3 份达 2/3、13 份有据例外）、10 份短文档修陈旧陈述；PA-007～013 已按用户 2026-09-19 裁决执行（第二个 commit）；第二步待用户指令开始。`node_modules` 为验证临时安装（gitignore）。
 
 技能来源：`/Users/chengzheng/Desktop/Files/hyber_platform/hyber-operator-portal/ai/jaSkill/project-audit/`（SKILL.md、reference.md、references/）。本项目未安装该技能，本轮按技能正文执行；技能本体不复制进仓。
 
@@ -16,8 +16,8 @@
 | 规模 | 可枚举 587 文件、约 464MB（`codex-visual/` 161MB、`ai/` 212MB、`arts/` 49MB、`public/` 20MB）；自有源码 `src/` 64 文件；文本文件 240 |
 | 测试 / CI | 无单元测试、无 `.github`、无 CI；`scripts/check-*.mjs` 为人工浏览器验证脚本，依赖外部 `DIARY_NODE_MODULES` |
 | 后端 | Supabase 项目（auth / Postgres / Storage / Realtime）；schema 变更历史不在仓库，`sql/` 仅两份早期脚本 |
-| 协议与文档 | `CLAUDE.md`、`AGENTS.md`（受保护）；`ai/PROJECT.md`（PRD + 技术事实）、`ai/TODO.md`（任务唯一来源）、`ai/Features/`、`ai/design_system/`（2026-09-12/13 刚整理的常驻设计 Markdown）、`ai/reboot/`（归档）、`ai/sessions/`（手动会话存档，不读） |
-| 技能目录 | `.claude/skills/`（Claude）与 `.agents/skills/`（Codex）各一套，内容已漂移（见 `runs/2026-09-18-01/evidence/skills-dir-drift.txt`）；均为受保护范围，只登记不改 |
+| 协议与文档 | `CLAUDE.md`、`AGENTS.md`（受保护）；`ai/PROJECT.md`（PRD + 技术事实）、`ai/TODO.md`（任务唯一来源）、`ai/features/`、`ai/design_system/`（2026-09-12/13 刚整理的常驻设计 Markdown）、`ai/reboot/`（归档）、`ai/sessions/`（手动会话存档，不读） |
+| 技能目录 | `.claude/skills/`（Claude）与 `.agents/skills/`（Codex）正文已于 2026-09-19 对齐，仅 Codex 显示元数据 `agents/openai.yaml` 留在 `.agents` |
 
 ## 顺序与授权
 

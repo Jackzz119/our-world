@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  page-flip@2.0.7:
-    hash: 333ac2e280de6ddda4baf0936a68846e8dcfb1c1adfaa190b6ac7a32564f195e
-    path: patches/page-flip@2.0.7.patch
-
 importers:
 
   .:
@@ -19,9 +14,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.98.0
         version: 2.98.0
-      page-flip:
-        specifier: 2.0.7
-        version: 2.0.7(patch_hash=333ac2e280de6ddda4baf0936a68846e8dcfb1c1adfaa190b6ac7a32564f195e)
       pixi-filters:
         specifier: ^6.1.5
         version: 6.1.5(pixi.js@8.19.0)
@@ -1152,9 +1144,6 @@ packages:
   p-locate@5.0.0:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
-
-  page-flip@2.0.7:
-    resolution: {integrity: sha512-96lQFUUz7r/LZzEUZJ3yBIMEKU9+m8HMFDzTvTdD6P7Ag/wXINjp9n0W7b4wanwnDbQETo4uNUoL3zMqpFxwGA==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -2447,8 +2436,6 @@ snapshots:
   p-locate@5.0.0:
     dependencies:
       p-limit: 3.1.0
-
-  page-flip@2.0.7(patch_hash=333ac2e280de6ddda4baf0936a68846e8dcfb1c1adfaa190b6ac7a32564f195e): {}
 
   parent-module@1.0.1:
     dependencies:

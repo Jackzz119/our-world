@@ -11,13 +11,13 @@
 
 | 类别与采用界面 | 当前外观/行为 | 常驻规范与实施依据 |
 | --- | --- | --- |
-| A 导航 | 五入口中性细纹磨砂；工具菜单、选中/悬停/按压反馈 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[导航功能说明](../../Features/navigation-glass.md) |
-| A 天气/聊天/音乐 | 当前独立灰绿配方；实况/手动天气、聊天窄卡、音乐两态 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[现状审计](../../Features/ui-system/audit.md) |
-| A 纪念卡/头顶状态/气泡 | 纪念信息与在场/聊天反馈；小屏有重叠问题待处理 | [交互规则](interaction.md)、[审计](../../Features/ui-system/audit.md) |
-| B 设置/确认/选择/错误弹窗 | 当前暖灰纸；背景层级、焦点与真实保存语义需统一 | [主题 B](cinnaglass/ui-system.md#b-任务与功能弹窗)、[统一计划](../../Features/ui-system/ui-system.md) |
+| A 导航 | 五入口中性细纹磨砂；工具菜单、选中/悬停/按压反馈 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[导航功能说明](../../features/navigation-glass.md) |
+| A 天气/聊天/音乐 | 当前独立灰绿配方；实况/手动天气、聊天窄卡、音乐两态 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[现状审计](../../features/ui-system/audit.md) |
+| A 纪念卡/头顶状态/气泡 | 纪念信息与在场/聊天反馈；小屏有重叠问题待处理 | [交互规则](interaction.md)、[审计](../../features/ui-system/audit.md) |
+| B 设置/确认/选择/错误弹窗 | 当前暖灰纸；背景层级、焦点与真实保存语义需统一 | [主题 B](cinnaglass/ui-system.md#b-任务与功能弹窗)、[统一计划](../../features/ui-system/ui-system.md) |
 | B 日历/时钟/完整聊天/照片/心愿通用壳 | 有真实功能，也有旧外壳/特殊内部内容 | [主题 B](cinnaglass/ui-system.md#b-任务与功能弹窗)、[交互规则](interaction.md) |
-| C 日记 | 棕皮旧纸、手写风文字、图文随纸翻页 | [主题 C](cinnaglass/ui-system.md#c-专属物件-ui)、[timeline 功能](../../Features/timeline.md)；本 session 冻结 |
-| 登录/重置/大厅/加载与错误页 | 当前主题实现，待 M5 收敛；有意保留的数据功能不随样式删除 | [主题边缘页面](cinnaglass/ui-system.md#边缘页面与公共规则)、[审计](../../Features/ui-system/audit.md) |
+| C 日记 | 棕皮旧纸、手写风文字、图文随纸翻页 | [主题 C](cinnaglass/ui-system.md#c-专属物件-ui)、[timeline 功能](../../features/timeline.md)；本 session 冻结 |
+| 登录/重置/大厅/加载与错误页 | 当前主题实现，待 M5 收敛；有意保留的数据功能不随样式删除 | [主题边缘页面](cinnaglass/ui-system.md#边缘页面与公共规则)、[审计](../../features/ui-system/audit.md) |
 
 每项采用 UI 的图片、特征、交互/动画与来源在上述常驻主题/交互文档中维护。全局 Monet 不能只管理 concept 而忽略这些链接。
 

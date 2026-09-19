@@ -1,7 +1,7 @@
 # 原画分层与环境光照
 
 > 2026-09-12 建立 `art-relighting` 技能与光层预览。资产制作流程首版，**产品的房间资产与光照实现尚未改造**。
-> 状态唯一来源：[TODO](../../TODO.md)。UI 顺序：[UI / UX 统一](../../Features/ui-system/ui-system.md)。运动研究：[living props](living-props.md)。
+> 状态唯一来源：[TODO](../../TODO.md)。UI 顺序：[UI / UX 统一](../../features/ui-system/ui-system.md)。运动研究：[living props](living-props.md)。
 
 ## 目标
 

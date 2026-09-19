@@ -38,5 +38,5 @@ pnpm dev                     # http://localhost:5173
 | `arts/` | 原画真源、生成派生层与打包前素材 |
 | `scripts/` | 素材装配/打包与人工验证脚本（依赖与用法见各脚本头注释） |
 | `ai/` | 项目文档、设计系统、功能文档、审核记录 |
-| `codex-visual/` | Codex 视觉批次原始归档 |
+| `ai/codex-visual/` | `codex-visual` 技能产出的比稿/审核原始归档（12 个批次） |
 | `sql/` | 两份早期 Supabase 脚本；线上 schema 变更历史不在仓库 |

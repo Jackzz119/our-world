@@ -8,11 +8,11 @@
 
 ![导航同尺寸对照：批准参考与三时辰实际悬停](journal-room-object/navigation-verification/comparison.png)
 
-**导航**：圆润窄 rail、克制图标、悬停/按压暖光；五入口为房间、聊天、音乐、工具、设置，工具再展开具体功能。键盘焦点与触屏按压需可辨认。材质机制与素材生成不在本页复述，见 [导航说明](../../../Features/navigation-glass.md)。来源：[navigation-glass.css](../../../../src/themes/cinnaglass/shell/navigation-glass.css)、[frost.webp](../../../../public/ui/nav/frost.webp)、[源素材](../../../../arts/ui/navigation/)。
+**导航**：圆润窄 rail、克制图标、悬停/按压暖光；五入口为房间、聊天、音乐、工具、设置，工具再展开具体功能。键盘焦点与触屏按压需可辨认。材质机制与素材生成不在本页复述，见 [导航说明](../../../features/navigation-glass.md)。来源：[navigation-glass.css](../../../../src/themes/cinnaglass/shell/navigation-glass.css)、[frost.webp](../../../../public/ui/nav/frost.webp)、[源素材](../../../../arts/ui/navigation/)。
 
 ![当前天气、聊天、音乐与导航同屏，聊天内容已隐藏](ui-unification/audit-2026-09-11/widgets-twilight.png)
 
-**天气/聊天/音乐/纪念卡/头顶状态**仍是各自配方，目标是继承导航材质与反馈、按内容加稳定阅读底。天气支持实况与手动晴/雨；聊天有窄卡和头顶气泡；音乐有展开与收起。实况失败语义、音乐假播放/进度、小屏越界与多窗重叠按 [审计](../../../Features/ui-system/audit.md) 修正，**不能只改外观就宣称完成**。
+**天气/聊天/音乐/纪念卡/头顶状态**仍是各自配方，目标是继承导航材质与反馈、按内容加稳定阅读底。天气支持实况与手动晴/雨；聊天有窄卡和头顶气泡；音乐有展开与收起。实况失败语义、音乐假播放/进度、小屏越界与多窗重叠按 [审计](../../../features/ui-system/audit.md) 修正，**不能只改外观就宣称完成**。
 
 ## B 任务与功能弹窗
 
@@ -20,7 +20,7 @@
 
 设置、照片、心愿、日历/时钟等通用壳混用暖灰纸与旧玻璃，纸色/文字以 [materials.css](../../../../src/themes/cinnaglass/materials.css) 为准；同源较厚磨砂外壳加稳定内容底**尚未批准或迁移**。照片仍用拍立得拼贴，心愿/时钟等内部内容无需强套书本。
 
-弹层规范须同时解决：打开/关闭、背景是否可操作、焦点进入/返回、隐藏后能否获焦、草稿保存、加载/错误、实际提交。已知层级/隐藏焦点/假成功问题见 [交互](../interaction.md) 与 [M2/M4 计划](../../../Features/ui-system/ui-system.md)。
+弹层规范须同时解决：打开/关闭、背景是否可操作、焦点进入/返回、隐藏后能否获焦、草稿保存、加载/错误、实际提交。已知层级/隐藏焦点/假成功问题见 [交互](../interaction.md) 与 [M2/M4 计划](../../../features/ui-system/ui-system.md)。
 
 ## C 专属物件 UI
 
@@ -30,11 +30,11 @@
 
 棕皮、旧米纸、叠页与手写风墨色，文字与图片随真实纸面一起翻动。桌面双页、小屏单页；允许遮挡角色，阅读时雨继续。拿起/收回与羽毛笔交互待做。
 
-[原素材](../../../../arts/ui/journal/) · [运行时素材](../../../../public/ui/journal/) · [journal-room.css](../../../../src/themes/cinnaglass/journal-room.css) · [journal-turn.css](../../../../src/themes/cinnaglass/journal-turn.css) · [功能与翻页机制](../../../Features/timeline.md)。
+[原素材](../../../../arts/ui/journal/) · [运行时素材](../../../../public/ui/journal/) · [journal-room.css](../../../../src/themes/cinnaglass/journal-room.css) · [journal-turn.css](../../../../src/themes/cinnaglass/journal-turn.css) · [功能与翻页机制](../../../features/timeline.md)。
 
 ## 边缘页面与公共规则
 
-登录、重置、大厅、加载/空态/错误仍用 [screens.tsx](../../../../src/themes/cinnaglass/screens.tsx) 等现有主题代码，范围见 [全组件审计](../../../Features/ui-system/audit.md)；M5 与公共控件一起收敛，有消费者的旧样式逐项迁移后再清。
+登录、重置、大厅、加载/空态/错误仍用 [screens.tsx](../../../../src/themes/cinnaglass/screens.tsx) 等现有主题代码，范围见 [全组件审计](../../../features/ui-system/audit.md)；M5 与公共控件一起收敛，有消费者的旧样式逐项迁移后再清。
 
 色彩、字体、间距、图标、选中/禁用/焦点/错误共享语义，A/B/C 不另建三套品牌。当前 `--nav`、`--cg`、`--shell/--glass`、`--craft` 并存，参数在 [cinnaglass.css](../../../../src/themes/cinnaglass/cinnaglass.css) 及组件文件；不另建手抄 tokens.md。
 

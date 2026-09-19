@@ -1,4 +1,0 @@
-﻿mood,raw_plate_size,safe_rgb_mae,max_channel_error,safe_pixels_over_2_percent,part_min_x,part_min_y,part_max_x,part_max_y,raw_exact_green_fraction
-golden,1434x1097,7.758,190,96.328,532,468,834,690,0.000000
-twilight,1435x1096,7.158,227,93.161,537,468,830,693,0.000003
-night,1434x1097,4.059,85,83.516,500,447,831,602,0.000000

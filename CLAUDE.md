@@ -87,8 +87,8 @@ allowed-tools: Bash, Read, Edit   # 预批准工具，免去每次确认
 - 技术实现细节（数据库结构、配置等）只在实际执行完成后才更新到 PROJECT.md，待办的改动只写在 TODO.md
 - TODO.md 只写高层描述，不写数据结构细节
 - PROJECT.md 的功能模块和数据库章节保持与线上实际状态一致
-- **Feature 文档已记录的细节不重复写入 PROJECT.md**：`Ai/Features/*.md` 中有详细说明的内容，PROJECT.md 只写一句摘要 + 文档路径引用，不做内容搬运
-- **功能文档超过单个 markdown 时建功能文件夹（2026-07-13 用户定规）**：当一个功能的文档与研究内容超过一个 .md（有 subfeature、调研文档、html mockup、图片等），在 `ai/Features/<功能名>/` 下建文件夹集中存放（例：`ai/Features/metaspace-controls/`），主文档与附属材料互相链接
+- **Feature 文档已记录的细节不重复写入 PROJECT.md**：`ai/features/*.md` 中有详细说明的内容，PROJECT.md 只写一句摘要 + 文档路径引用，不做内容搬运
+- **功能文档超过单个 markdown 时建功能文件夹（2026-07-13 用户定规）**：当一个功能的文档与研究内容超过一个 .md（有 subfeature、调研文档、html mockup、图片等），在 `ai/features/<功能名>/` 下建文件夹集中存放（例：`ai/features/metaspace-controls/`），主文档与附属材料互相链接
 
 ## 命名规则
 

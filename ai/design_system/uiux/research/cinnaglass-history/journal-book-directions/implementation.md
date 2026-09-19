@@ -4,7 +4,7 @@
 
 2026-09-06。用户批准推荐 B 后实施，未部署、未提交 git。
 
-入口：[设计系统](../../../cinnaglass/ui-system.html#journal-book-proposal) · [原始设计提案](codex-report.md) · [功能文档](../../../../../Features/timeline.md)
+入口：[设计系统](../../../cinnaglass/ui-system.html#journal-book-proposal) · [原始设计提案](codex-report.md) · [功能文档](../../../../../features/timeline.md)
 
 ## 1. 已落地的设计
 

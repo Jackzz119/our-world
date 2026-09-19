@@ -1,5 +1,5 @@
 // emotes.ts — data access for the world emote (sticker) library
-// (ai/Features/chat.md 表情系统 EMO-3). Images live in the private
+// (ai/features/chat.md 表情系统 EMO-3). Images live in the private
 // `memories` bucket under <worldId>/emotes/, so the existing world-scoped
 // storage policies and signed-URL machinery apply unchanged.
 import { supabase } from '@/lib/supabase.ts';

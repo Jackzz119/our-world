@@ -1,7 +1,7 @@
 # Our World 项目文档
 
 > v2「放置陪伴小屋」，2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
-> 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/Features/*.md`（功能细节）。
+> 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
 > 最后更新：2026-09-18（审核第一步：精简为当前事实 + 索引，细节以 Features/设计系统为准；产品未改，日记本冻结）
 
 ## 产品定位（PRD）
@@ -53,7 +53,7 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
-- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击。**活物件（living props）**：家具从底图分离后自己动，hover 只改参数不换图；唱片机已按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转。分层原则、闸门数值与教训见 `ai/design_system/research/living-props.md`（唯一技术正文），物件规范 `ai/design_system/props.md`，进度 `ai/TODO.md`「活物件」；装配器 `scripts/build-turntable-parts.py` → `public/rooms/study/parts/`，量测 `scripts/fit-disc-ellipse.py`，原画真源 `arts/rooms/study/source/`，装配输入 `arts/rooms/study/generated/`
+- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击。**活物件（living props）**：家具从底图分离后自己动，hover 只改参数不换图；唱片机已按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转。分层原则、闸门数值与教训见 `ai/design_system/research/living-props.md`（唯一技术正文），物件规范 `ai/design_system/props.md`，进度 `ai/TODO.md`「活物件」；装配器 `scripts/build-turntable-parts.py` → `public/rooms/study/parts/`，量测 `scripts/fit-disc-ellipse.py`，原画真源 `arts/rooms/study/source/`，装配输入与产物清单 `arts/rooms/study/generated/`（见其 README）
 - **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸/摇摆/眨眼），与场景共享光照（参数见 `ai/design_system/character.md`）；动作丰富化再评估 Rive/Spine（`ai/reboot/tech-plan.md` §2）
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -83,21 +83,21 @@ src/
 
 ## 已有功能资产（v1 保留部分的技术事实）
 
-> 功能细节在 `ai/Features/*.md`，此处只留摘要。`7c93c3c`（2026-08-09）误删该目录，2026-08-22 恢复 timeline / chat / supabase 三份；channel / sidebar / settings / world / world-space-ui / image-slot / handoff 随 Discord 壳层作废不恢复（现 `ai/Features/ui-system/` 为 2026-09-11 新建）。
+> 功能细节在 `ai/features/*.md`，此处只留摘要。`7c93c3c`（2026-08-09）误删该目录，2026-08-22 恢复 timeline / chat / supabase 三份；channel / sidebar / settings / world / world-space-ui / image-slot / handoff 随 Discord 壳层作废不恢复（现 `ai/features/ui-system/` 为 2026-09-11 新建）。
 
 - **auth 地基**：登录页 + 路由守卫 + 忘记密码/重置 + 登出；白名单 = Supabase 关闭注册开关（已验证 422 拦截）；`VITE_DEV` = 用 `VITE_DEV_EMAIL/PASSWORD` 自动**真登录**（无会话则 RLS 全空，见 `.env.example`）；加账号走 Dashboard/Admin API，不 SQL 直插
-- **timeline / 我们的日记**（2026-09-07）：棕皮旧纸双页、真实图文随纸竖直翻页、连续翻阅、阅读时雨不停播；羽毛笔仍为静态图。细节 `ai/Features/timeline.md`，设计 `ai/design_system/uiux/cinnaglass/ui-system.md`
+- **timeline / 我们的日记**（2026-09-07）：棕皮旧纸双页、真实图文随纸竖直翻页、连续翻阅、阅读时雨不停播；羽毛笔仍为静态图。细节 `ai/features/timeline.md`，设计 `ai/design_system/uiux/cinnaglass/ui-system.md`
 - **照片墙**：自然纵横比 polaroid 拼贴（纸框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载（细节 timeline.md）
-- **随光磨砂导航**（2026-09-07）：固定细纹图 + backdrop 模糊 + 按 mood 的 CSS 边光，无运行时随机/物理反射；A 类悬浮 UI 基准，见 `ai/Features/navigation-glass.md`
-- **聊天全链路**：Broadcast from Database（客户端只写库，trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除/reaction/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function `emotes` 代理 Tenor 搜图转存 + EmotePicker 自维护 emoji 中文索引）；DM = `channels.type='dm'`（账号级 topic `user:{uid}`）。**DM/好友 UI 在新方向收起，数据层冻结保留**。细节 `ai/Features/chat.md`（ChatDock 已被聊天窄卡 `shell/chat-card.tsx` + 头顶气泡取代）
+- **随光磨砂导航**（2026-09-07）：固定细纹图 + backdrop 模糊 + 按 mood 的 CSS 边光，无运行时随机/物理反射；A 类悬浮 UI 基准，见 `ai/features/navigation-glass.md`
+- **聊天全链路**：Broadcast from Database（客户端只写库，trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除/reaction/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function `emotes` 代理 Tenor 搜图转存 + EmotePicker 自维护 emoji 中文索引）；DM = `channels.type='dm'`（账号级 topic `user:{uid}`）。**DM/好友 UI 在新方向收起，数据层冻结保留**。细节 `ai/features/chat.md`（ChatDock 已被聊天窄卡 `shell/chat-card.tsx` + 头顶气泡取代）
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 存 memories 桶 256px webp）；纪念日/在一起天数由 DB 实时计算；**欠：昵称写回 `profiles.display_name`**（TODO 继承待办）
 - **双实例调试**：`pnpm dev2`（5174 端口）双账号互发验收
-- **UI 基建现状**：四套材质变量并存、弹层各自独立，不是统一体系；消费者表与迁移计划见 `ai/Features/ui-system/audit.md`、`ui-system.md`
+- **UI 基建现状**：四套材质变量并存、弹层各自独立，不是统一体系；消费者表与迁移计划见 `ai/features/ui-system/audit.md`、`ui-system.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。在用标签：`chat`；`auth` 域尚未走 Logman（`settings.tsx` 一处直接 `console.warn`）
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
 
-> 全部继续服役，零迁移开工。**下表是当前结构的临时真源**：2026-08-21 按 `src/lib/*.ts` 的 select 反查，未做线上 DDL 复核，与线上有差异以线上为准；标「待核」者来自 07-04 快照。`ai/Features/supabase.md` 待连 MCP 回填后接管唯一真源、本节缩为摘要（TODO 继承待办）。schema 变更历史不在仓库，`sql/` 只有两份早期脚本。
+> 全部继续服役，零迁移开工。**下表是当前结构的临时真源**：2026-08-21 按 `src/lib/*.ts` 的 select 反查，未做线上 DDL 复核，与线上有差异以线上为准；标「待核」者来自 07-04 快照。`ai/features/supabase.md` 待连 MCP 回填后接管唯一真源、本节缩为摘要（TODO 继承待办）。schema 变更历史不在仓库，`sql/` 只有两份早期脚本。
 
 ### 表（列以前端实际 select 为准）
 
@@ -125,11 +125,11 @@ src/
 
 ### 代码侧不一致（清理项）
 
-- `src/types/database.ts` 死文件（只声明不存在的 `todos` 表，零引用）→ 删；`package.json` 残留 `@react-three/rapier`（src 零引用）→ 删。均在 TODO「退役清理」
+- `package.json` 残留 `@react-three/rapier`（src 零引用）→ 删，在 TODO「退役清理」；`database.ts`、page-flip 链、3D 源文件已于 2026-09-19 清理
 
 ### 待执行的审计遗留（2026-07-04 顾问扫描）
 
-**⚠️ `worlds` owner/member 外键 `ON DELETE CASCADE`——member 删号会连带删掉整个世界和全部回忆，应改 `SET NULL` + status 回退 pending**；另有安全包（6 函数 `search_path`、`handle_new_user` revoke、GraphQL 收紧、泄露密码保护）与性能包（13 条 RLS initplan、4 个 FK 索引）。原始发现 `ai/Features/supabase.md` §三/四，执行项在 TODO 继承待办。
+**⚠️ `worlds` owner/member 外键 `ON DELETE CASCADE`——member 删号会连带删掉整个世界和全部回忆，应改 `SET NULL` + status 回退 pending**；另有安全包（6 函数 `search_path`、`handle_new_user` revoke、GraphQL 收紧、泄露密码保护）与性能包（13 条 RLS initplan、4 个 FK 索引）。原始发现 `ai/features/supabase.md` §三/四，执行项在 TODO 继承待办。
 
 ## Brain Dump / 待探索想法
 
@@ -158,9 +158,9 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/Features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `ui-system/ui-system.md` + `audit.md` UI 统一计划与现状证据
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `ui-system/ui-system.md` + `audit.md` UI 统一计划与现状证据
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`research/`、`uiux/research/` 调研与比稿
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
 - `ai/project-audit/` — 项目审核记录（`INDEX.md` 入口），普通开发不需加载
-- `codex-visual/` — 原始制作批次与历史上下文（18 个时间戳目录），使用中资料以常驻设计系统为准
+- `ai/codex-visual/` — `codex-visual` 技能产出的比稿/审核原始归档（12 个批次）；生产用生成原件在 `arts/`，使用中资料以常驻设计系统为准

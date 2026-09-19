@@ -1,6 +1,6 @@
 # 棕皮旧纸日记 · 竖直翻页实装
 
-2026-09-07。保持已批准的书本美术、导航、纸色与排版（见 [book-implementation.md](book-implementation.md)），把真实内容接到竖起的纸面上，不恢复已否决的旧平面翻折引擎。仅本地实施，未部署、未提交。功能说明见 `ai/Features/timeline.md`。
+2026-09-07。保持已批准的书本美术、导航、纸色与排版（见 [book-implementation.md](book-implementation.md)），把真实内容接到竖起的纸面上，不恢复已否决的旧平面翻折引擎。仅本地实施，未部署、未提交。功能说明见 `ai/features/timeline.md`。
 
 ## 1. 证据 GIF
 

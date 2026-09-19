@@ -128,7 +128,7 @@ const WorldPage = () => {
     const [entered, setEntered] = useState(false);
     const [lobbyTick, setLobbyTick] = useState(0);
 
-    // chat (see ai/Features/chat.md): one thread store, two surfaces, two
+    // chat (see ai/features/chat.md): one thread store, two surfaces, two
     // owners — the sidebar only opens the covering conversation window
     // (channels + DMs); the dock is stage-owned (chat button / Enter only).
     // Channel messages are real (DB + world broadcast topic); DMs stay mock.

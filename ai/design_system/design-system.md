@@ -40,11 +40,11 @@ Monet 的职责是整体艺术与体验判断；光照只是其中一项。当�
 | 内容 | 原始/编辑来源 | 运行时或实现 |
 | --- | --- | --- |
 | 书房原画/派生部件 | [arts/rooms/study](../../arts/rooms/study/) | [public/rooms/study](../../public/rooms/study/)、[房间模板](../../src/themes/cinnaglass/room/study-room.ts) |
-| 双角色 | [原始生产批次](../../codex-visual/20260810-000437Z/) | [public/characters](../../public/characters/)；没有另建角色源素材目录 |
+| 双角色 | [原始生产批次](../../arts/characters/) | [public/characters](../../public/characters/)；没有另建角色源素材目录 |
 | 导航细纹 | [arts/ui/navigation](../../arts/ui/navigation/) | [public/ui/nav](../../public/ui/nav/)、[navigation-glass.css](../../src/themes/cinnaglass/shell/navigation-glass.css) |
 | 日记本/羽毛笔 | [arts/ui/journal](../../arts/ui/journal/) | [public/ui/journal](../../public/ui/journal/)；设计与交互见主题文档 |
 | UI 主题、字体、图标等 | [主题源码](../../src/themes/cinnaglass/)、[字体资源](../../public/fonts/) | [实际样式变量](../../src/themes/cinnaglass/cinnaglass.css)、[UI 资源](../../public/ui/) |
-| 其他房间缩略图 | [原始制作批次](../../codex-visual/20260811-042411Z/) | [棋牌室](../../public/rooms/gameroom/)、[植物园](../../public/rooms/garden/) |
+| 其他房间缩略图 | [原始制作批次](../../arts/rooms/thumbs/) | [棋牌室](../../public/rooms/gameroom/)、[植物园](../../public/rooms/garden/) |
 
 ## 当前边界与后续设计
 
@@ -52,7 +52,7 @@ Monet 的职责是整体艺术与体验判断；光照只是其中一项。当�
 - B 弹窗目前暖灰纸；较厚同源磨砂是待确认建议，不能写成最终批准。
 - C 日记本保持当前棕皮旧纸及翻页；本 session 冻结，不重做它。
 - 场景/UI 共用光环境待讨论；UI 交互动画在静态规范、状态和焦点之后处理。
-- [UI 当前决定](uiux/cinnaglass/decisions.md)、[统一计划](../Features/ui-system/ui-system.md)、[任务列表](../TODO.md) 管理决定与实施状态。
+- [UI 当前决定](uiux/cinnaglass/decisions.md)、[统一计划](../features/ui-system/ui-system.md)、[任务列表](../TODO.md) 管理决定与实施状态。
 
 整体构想、未来想法和否决理由见 [concept 档案](concept/README.md)；研究与比稿见 [research](research/README.md) 和 [UI research](uiux/research/README.md)。这些资料提供依据，不能取代当前规范。
 

@@ -33,6 +33,6 @@
 ## 素材与实现
 
 - 当前四张立绘：[public/characters](../../public/characters/)。
-- 原始生成/处理记录：[20260810-000437Z](../../codex-visual/20260810-000437Z/codex-report.md)。
+- 原始生成/处理记录：[20260810-000437Z](../../arts/characters/codex-report.md)。
 - 贴装与相位：[study-room.ts](../../src/themes/cinnaglass/room/study-room.ts)；动画：[pixi-scene.ts](../../src/themes/cinnaglass/room/pixi-scene.ts)。
 - 验收重点：实际小尺寸下脸部与蓝耳轮廓可辨认，摆动不滑离座位，两角色不机械同步。

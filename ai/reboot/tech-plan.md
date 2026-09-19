@@ -36,7 +36,7 @@
 
 ### 场景：预渲染 2.5D，维持上一批结论
 
-场景媒介沿用 `codex-visual/20260809-083950Z/codex-report.md` 已论证的方案：**Blender 离线渲染分层图（far / base / light_fx / foreground + depth）+ 运行时合成**，时辰四档交叉淡化，雨雪为独立粒子/窗外层。新定位下更简化：
+场景媒介沿用 `ai/codex-visual/20260809-083950Z/codex-report.md` 已论证的方案：**Blender 离线渲染分层图（far / base / light_fx / foreground + depth）+ 运行时合成**，时辰四档交叉淡化，雨雪为独立粒子/窗外层。新定位下更简化：
 
 - 构图从「五机位全屋」收缩为「**近景一角单机位**」（新概念图 01 基线）——MVP 只需 1 机位 × 4 时辰的分层资产，上一批「135 张资产」的量级焦虑直接消解
 - 老报告 §7.3 的 base 层跨 mood 矛盾在单机位下仍需技术样板验证（base 随 mood 出 vs albedo+运行时打光），但资产量已小到两种路线都可承受
@@ -108,7 +108,7 @@ Phase R4（远期）   Steam 公开发行 / WE·Lively 只读壁纸输出口—�
 | 决策/文档历史（ux decisions、feature 文档） | git 与文档连续 | 断档 |
 | 心理干净感 | 靠删旧代码达成 | 天然干净 |
 
-「干净感」通过翻新动作本身达成：壳层文件（sidebar/大厅/HUD/metaspace）在新场景层站稳后成批删除，`ai/Features/` 老文档按新结构重写归档。**推翻的是信息架构，不是仓库。**
+「干净感」通过翻新动作本身达成：壳层文件（sidebar/大厅/HUD/metaspace）在新场景层站稳后成批删除，`ai/features/` 老文档按新结构重写归档。**推翻的是信息架构，不是仓库。**
 
 ### 翻新的落地形状（拍板后细化为 TODO）
 
@@ -116,7 +116,7 @@ Phase R4（远期）   Steam 公开发行 / WE·Lively 只读壁纸输出口—�
 2. 功能弹层按概念图 04 的「单张白纸卡」规范收敛（现有弹窗壳已有统一基建 UI-1）
 3. presence 接 Supabase Realtime Presence，驱动对方角色状态
 4. sidebar/大厅/SpaceScreen/HUD/metaspace 退役删除
-5. 旧 `ai/Features/*.md` 重写：保留 timeline/chat/supabase 等仍然有效的文档，废弃 channel/sidebar/metaspace 系
+5. 旧 `ai/features/*.md` 重写：保留 timeline/chat/supabase 等仍然有效的文档，废弃 channel/sidebar/metaspace 系
 6. TODO.md 按新 MVP 重写 Phase 结构
 
 ## 5. 数据库翻新预估（Q3 附属）

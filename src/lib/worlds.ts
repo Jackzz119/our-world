@@ -1,5 +1,5 @@
 // worlds.ts — data access for worlds (the couple's shared space; DB `worlds`,
-// formerly "rooms"/"couples" — terminology in ai/Features/channel.md).
+// formerly "rooms"/"couples" — terminology in ai/features/channel.md).
 // A world is owned by one person (owner) and may later gain one invited
 // member. A solo owner still gets a world, so the feed always has somewhere
 // to post.

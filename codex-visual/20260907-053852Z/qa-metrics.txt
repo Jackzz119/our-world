@@ -1,5 +1,0 @@
-﻿golden : source=1434x1097; final=1020x780; pure_green=0; despilled=0; foreground_bbox=1020,780,0,0
-twilight : source=1434x1097; final=1020x780; pure_green=0; despilled=0; foreground_bbox=1020,780,0,0
-night : source=1435x1096; final=1020x780; pure_green=0; despilled=0; foreground_bbox=1020,780,0,0
-platter : source=1254x1254; final=1024x1024; pure_green=318899; despilled=63803; foreground_bbox=30,27,992,993
-tonearm : source=1433x1098; final=1020x780; pure_green=784054; despilled=76; foreground_bbox=537,466,824,693

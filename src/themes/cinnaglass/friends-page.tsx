@@ -4,7 +4,7 @@
 // pane to this page. Top tabs filter views — 全部 / 待处理 / ＋添加好友;
 // an 在线 tab is reserved until presence lands (no fake online states).
 // Friend management lives ONLY here; the sidebar home panel just links in.
-// See ai/Features/chat.md DM 阶段.
+// See ai/features/chat.md DM 阶段.
 import { useState } from 'react';
 import type { FriendEntry, FriendRequest } from './chat-data';
 

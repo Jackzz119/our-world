@@ -350,6 +350,8 @@ def main():
     ap.add_argument("--gen", required=True, help="dir with machine-<mood>.png, platter.png, tonearm.png")
     ap.add_argument("--src", required=True, help="dir with the untouched room arts")
     ap.add_argument("--out", required=True, help="dir receiving <mood>.png plates and parts/")
+    ap.add_argument("--manifest", default="arts/rooms/study/generated/turntable.json",
+                    help="where to write the geometry manifest (kept out of public/, values are copied into study-room.ts)")
     ap.add_argument("--review", required=True, help="dir receiving review strips")
     ap.add_argument("--platter", help="override: top-down record PNG whose label print is used (default <gen>/platter.png)")
     args = ap.parse_args()
@@ -466,7 +468,7 @@ def main():
             strip.paste(t, (x, 0))
             x += t.width + 10
         strip.save(os.path.join(args.review, f"turntable-{mood}.png"))
-    with open(os.path.join(args.out, "parts", "turntable.json"), "w", encoding="utf-8") as f:
+    with open(args.manifest, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=1)
     print("manifest:", json.dumps(manifest))
 

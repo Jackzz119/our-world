@@ -104,6 +104,16 @@
 
 未验证：浏览器脚本（`check-*.mjs`）与 Python 装配脚本未运行；线上 Supabase 结构；模型 token 实测；删除的选帧/纹理是否能一键再生只核了脚本源码的写出路径，未实际重跑。
 
+## 用户决定后的执行（2026-09-19，第二个 commit）
+
+用户对 PA-007～013 的裁决及执行结果见 [FINDINGS](../../FINDINGS.md)「用户已决定并于 2026-09-19 执行」。要点：
+
+- **删除**：`ai/blender/`（3 脚本）、`arts/meshes/`（3 个 .blend）；page-flip 链六件；`codex-visual/` 生产批次 20260906-054721Z、20260906-192932Z 整批与 20260907-053852Z/055939Z 的 codex-visual 侧副本（arts 侧只留装配器读取的 `machine-*.png`、`tonearm.png`、`platter.png` 与两份报告）；比稿批次内与设计系统/public 重复的 15 张图；旧验证截图 35 张。
+- **移动**：`codex-visual/` → `ai/codex-visual/`（12 批次）；角色四张原件 → `arts/characters/`；缩略图原件 → `arts/rooms/thumbs/`；三档原画报告 → `arts/rooms/study/source/codex-report.md`；`public/` 四份 manifest/turntable.json → `arts/`（`build-turntable-parts.py` 新增 `--manifest`，默认写 `arts/rooms/study/generated/turntable.json`）；`ai/Features` → `ai/features`。
+- **同步**：链接与路径改写按「解析旧绝对路径 → 映射新路径 → 重算相对链接」程序化处理 13 个文件，`ai/Features` 引用 30 个文件（含 `CLAUDE.md`/`AGENTS.md` 中的示例路径、8 个源码注释、1 个 sql 注释）；新增 `arts/rooms/study/generated/README.md` 登记装配输入。
+- **技能目录**：`.claude/skills` 与 `.agents/skills` 正文对齐（以 2026-09-13 更新的一侧为准），差异仅剩 Codex 显示元数据。
+- **验证**：`check-design-system.mjs` 57 文档 387 链接 0 失败；全仓 Markdown/HTML 相对链接 0 断链；`tsc -b` 仍只有既有 `Msg` 错误；`eslint` 既有 1 错 2 警；`vite build` 通过；`pnpm install` 刷新 lockfile 后 page-flip 与其 three-stdlib 等间接依赖移除。
+
 ## 建议、待办和下一步
 
 1. **需要用户决定**（FINDINGS PA-007～013）：3D 源文件去留、page-flip 历史链时点、codex-visual 与设计系统/arts 双份策略（三选一）、约 48MB 验证截图存档、13.9MB 字体源、技能目录双套漂移（须经 `skill-creator`）、`Features` 目录命名。

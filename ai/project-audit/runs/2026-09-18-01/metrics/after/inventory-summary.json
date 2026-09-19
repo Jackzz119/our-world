@@ -1,7 +1,7 @@
 {
-  "files": 539,
-  "bytes": 404000592,
-  "text_files": 240,
+  "files": 395,
+  "bytes": 239282578,
+  "text_files": 211,
   "exclusions": [
     {
       "path": ".agents",
@@ -34,195 +34,26 @@
   ],
   "exact_duplicate_candidates": [
     [
-      "ai/design_system/concept/baselines/companionship-room/01-main-morning.png",
-      "codex-visual/20260809-101107Z/01-main-morning.png"
+      "ai/codex-visual/20260810-060422Z/codex-report.md",
+      "ai/design_system/uiux/research/cinnaglass-history/navigation-concepts/codex-report.md"
     ],
     [
-      "ai/design_system/concept/baselines/companionship-room/02-main-night-rain.png",
-      "codex-visual/20260809-101107Z/02-main-night-rain.png"
-    ],
-    [
-      "ai/design_system/concept/baselines/companionship-room/03-desktop-widget.png",
-      "codex-visual/20260809-101107Z/03-desktop-widget.png"
-    ],
-    [
-      "ai/design_system/concept/baselines/companionship-room/04-timeline-open-state.png",
-      "codex-visual/20260809-101107Z/04-timeline-open-state.png"
-    ],
-    [
-      "ai/design_system/concept/baselines/companionship-room/05-character-action-atlas.png",
-      "codex-visual/20260809-101107Z/05-character-action-atlas.png"
-    ],
-    [
-      "ai/design_system/concept/baselines/companionship-room/06-presence-comparison.png",
-      "codex-visual/20260809-101107Z/06-presence-comparison.png"
-    ],
-    [
-      "ai/design_system/concept/proposals/living-props/anim-exploded-jar.png",
-      "codex-visual/20260823-054106Z/anim-exploded-jar.png"
-    ],
-    [
-      "ai/design_system/concept/proposals/living-props/anim-exploded-turntable.png",
-      "codex-visual/20260823-054106Z/anim-exploded-turntable.png"
-    ],
-    [
-      "ai/design_system/concept/proposals/living-props/anim-scene-map.png",
-      "codex-visual/20260823-054106Z/anim-scene-map.png"
-    ],
-    [
-      "ai/design_system/uiux/research/cinnaglass-history/navigation-concepts/codex-report.md",
-      "codex-visual/20260810-060422Z/codex-report.md"
-    ],
-    [
-      "ai/design_system/uiux/research/cinnaglass-history/navigation-concepts/concept-a-pocket-radial.png",
-      "codex-visual/20260810-060422Z/concept-a-pocket-radial.png"
-    ],
-    [
-      "ai/design_system/uiux/research/cinnaglass-history/navigation-concepts/concept-b-floating-capsule.png",
-      "codex-visual/20260810-060422Z/concept-b-floating-capsule.png"
-    ],
-    [
-      "ai/design_system/uiux/research/cinnaglass-history/navigation-concepts/concept-c-narrow-rail.png",
-      "codex-visual/20260810-060422Z/concept-c-narrow-rail.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/codex-report.md",
-      "codex-visual/20260906-192932Z/codex-report.md"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/part-tonearm-golden.png",
-      "codex-visual/20260906-192932Z/part-tonearm-golden.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/part-tonearm-night.png",
-      "codex-visual/20260906-192932Z/part-tonearm-night.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/part-tonearm-twilight.png",
-      "codex-visual/20260906-192932Z/part-tonearm-twilight.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/plate-golden.png",
-      "codex-visual/20260906-192932Z/plate-golden.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/plate-night.png",
-      "codex-visual/20260906-192932Z/plate-night.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260906-192932Z/plate-twilight.png",
-      "codex-visual/20260906-192932Z/plate-twilight.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/codex-report.md",
-      "codex-visual/20260907-053852Z/codex-report.md"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/machine-golden.png",
-      "codex-visual/20260907-053852Z/machine-golden.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/machine-night.png",
-      "codex-visual/20260907-053852Z/machine-night.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/machine-twilight.png",
-      "codex-visual/20260907-053852Z/machine-twilight.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/platter.png",
-      "codex-visual/20260907-053852Z/platter.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/review.png",
-      "codex-visual/20260907-053852Z/review.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-053852Z/tonearm.png",
-      "codex-visual/20260907-053852Z/tonearm.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-055939Z/codex-report.md",
-      "codex-visual/20260907-055939Z/codex-report.md"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-055939Z/platter.png",
-      "codex-visual/20260907-055939Z/platter.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-055939Z/review.png",
-      "codex-visual/20260907-055939Z/review.png"
-    ],
-    [
-      "arts/rooms/study/generated/20260907-055939Z/spindle.png",
-      "codex-visual/20260907-055939Z/spindle.png"
-    ],
-    [
-      "arts/rooms/study/source/golden.png",
-      "codex-visual/20260810-024945Z/room-study-golden-clean.png"
-    ],
-    [
-      "arts/rooms/study/source/night.png",
-      "codex-visual/20260810-024945Z/room-study-night-clean.png"
-    ],
-    [
-      "arts/rooms/study/source/twilight.png",
-      "codex-visual/20260810-024945Z/room-study-twilight-clean.png"
-    ],
-    [
-      "codex-visual/20260810-000437Z/char-blue-reading-closed.png",
+      "arts/characters/blue-reading-closed.png",
       "public/characters/blue-reading-closed.png"
     ],
     [
-      "codex-visual/20260810-000437Z/char-blue-reading-open.png",
+      "arts/characters/blue-reading-open.png",
       "public/characters/blue-reading-open.png"
     ],
     [
-      "codex-visual/20260810-000437Z/char-pink-writing-closed.png",
+      "arts/characters/pink-writing-closed.png",
       "public/characters/pink-writing-closed.png"
     ],
     [
-      "codex-visual/20260810-000437Z/char-pink-writing-open.png",
+      "arts/characters/pink-writing-open.png",
       "public/characters/pink-writing-open.png"
-    ],
-    [
-      "codex-visual/20260811-055917Z/avatar-blue.png",
-      "public/avatars/blue.png"
-    ],
-    [
-      "codex-visual/20260811-055917Z/avatar-pink.png",
-      "public/avatars/pink.png"
-    ],
-    [
-      "codex-visual/20260811-055917Z/disc-cover.png",
-      "public/ui/disc-cover.png"
     ]
   ],
-  "unresolved_link_candidates": [
-    {
-      "path": "ai/project-audit/INDEX.md",
-      "line": 8,
-      "target": "runs/2026-09-18-01/coverage.csv",
-      "status": "未解析到本地文件"
-    },
-    {
-      "path": "arts/rooms/study/generated/20260906-192932Z/codex-report.md",
-      "line": 85,
-      "target": "review-golden.png",
-      "status": "未解析到本地文件"
-    },
-    {
-      "path": "arts/rooms/study/generated/20260906-192932Z/codex-report.md",
-      "line": 86,
-      "target": "review-twilight.png",
-      "status": "未解析到本地文件"
-    },
-    {
-      "path": "arts/rooms/study/generated/20260906-192932Z/codex-report.md",
-      "line": 87,
-      "target": "review-night.png",
-      "status": "未解析到本地文件"
-    }
-  ],
+  "unresolved_link_candidates": [],
   "limitations": "不枚举排除目录；大小/哈希/链接线索不构成人工审阅或删除依据；链接解析不含锚点与全部Markdown语法。"
 }

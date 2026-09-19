@@ -6,7 +6,7 @@
 // the dock tabs via convsFor). Threads are shared with the in-scene ChatDock.
 // Message states / hover actions / reactions / delete particles follow
 // ux decisions.md D-7; the read cursor avatar renders in DMs ONLY
-// (D-7-3 修订: 频道不显示已读). See ai/Features/chat.md.
+// (D-7-3 修订: 频道不显示已读). See ai/features/chat.md.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IClose, IHash, ISend } from './icons';
 import { FriendsPage } from './friends-page';

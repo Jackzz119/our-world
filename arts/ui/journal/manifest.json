@@ -9,7 +9,7 @@
     { "file": "book-alpha-rejected.png", "status": "rejected: background-extraction retry produced a brown background" },
     { "file": "quill-source.png", "status": "adopted native transparent feather", "size": [847, 1857] }
   ],
-  "runtimeManifest": "public/ui/journal/manifest.json",
+  "runtimeManifest": "arts/ui/journal/runtime-manifest.json",
   "packager": "scripts/pack-journal-art.mjs",
   "packReport": "pack-results.json",
   "font": { "source": "LXGWWenKaiLite-Regular.ttf", "runtime": "public/fonts/journal/LXGWWenKaiLite-Regular.woff2", "license": "public/fonts/journal/OFL.txt" }

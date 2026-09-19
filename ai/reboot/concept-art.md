@@ -1,8 +1,8 @@
 # 概念图：放置陪伴形态（2026-08-09 批次）
 
 > Reboot Kit 之一。codex 产出 + Claude 独立复核。
-> 产物目录：`codex-visual/20260809-101107Z/`（6 张 PNG + codex-report.md）
-> 前代基线：`codex-visual/20260809-083950Z/`（媒介重估六构图，04「近景一角」为本批灵感原点）
+> 产物目录：`ai/codex-visual/20260809-101107Z/`（6 张 PNG + codex-report.md）
+> 前代基线：`ai/codex-visual/20260809-083950Z/`（媒介重估六构图，04「近景一角」为本批灵感原点）
 
 ## 图册总览
 

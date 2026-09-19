@@ -6,11 +6,11 @@ allowed-tools: Bash(node:*), Bash(codex:*), Read, Glob
 
 # Codex Visual Studio（项目内置版）
 
-把**一个**视觉任务委派给 Codex，再把它返回的证据转成 Claude 的最终结论报告。
+把**一个**视觉任务委派给 Codex，再由调用者独立复核其证据并向用户报告。
 
-**定位：为 UI Tailor 与 Monet 提供视觉制作和第二意见。** 设计稿、比稿、改版探索、
-插画/图标/贴图、视觉调研与对标按任务需要委派；工具不可用时按调用技能的后备流程继续。
-Claude 的职责是**给足上下文、定判断标准、复核产出**。
+**接口更新（2026-09-12 用户定规）：UI Tailor 与 Monet 优先使用本技能完成视觉产出与第二意见。**
+调用者负责给足设计系统上下文、标准和批准参考，并复核结果。本能力缺失/不可用时，两者可用自身工具完成，
+不能因工具依赖停止工作；实际执行方式必须如实说明。
 
 > 本 skill 由 `codex-visual-in-cc` 插件移植进项目自带（Apache-2.0，见同目录 LICENSE/NOTICE），
 > 已适配 codex-cli ≥ 0.147（`--full-auto` 移除 → `--sandbox workspace-write`），无需安装插件即可使用。
@@ -20,9 +20,10 @@ Claude 的职责是**给足上下文、定判断标准、复核产出**。
 ## 前置检查
 
 ```bash
-node "${CLAUDE_SKILL_DIR}/scripts/codex-visual.mjs" status
+node "<skill-dir>/scripts/codex-visual.mjs" status
 ```
 
+`<skill-dir>` 替换为当前实际加载的本技能目录，不依赖另一平台的环境变量。
 `Ready: yes` 才继续。要点：需 `codex login`（ChatGPT 账号走订阅额度）、Node ≥ 18.18、codex-cli ≥ 0.142。
 
 ## 准备委派
@@ -43,16 +44,17 @@ node "${CLAUDE_SKILL_DIR}/scripts/codex-visual.mjs" status
 **brief 里必须交代**：产品是什么、受众、平台/视口、相关仓库文件、约束、成功标准、要交付什么。
 **保留用户自己的判断标准，不要用通用设计口味替换掉。**
 
-从项目共享登记定位常驻 `design-system.md`，沿链接读取相关 UI/UX 或美术规范及实际素材来源。
-项目决定放项目设计系统，普通报告在会话汇报；委派前将当前决定写进 brief。
+从项目共享登记定位常驻 `design-system.md`，沿链接读取领域或 UI/UX 规范；主题 Markdown
+记录采用规范，HTML 仅作预览。concept 保存构想/否决档案，research 保存研究/比稿。
+委派前读取相关常驻规范，素材位置从项目登记取得；普通报告在 session 汇报，不用旧技能附件代替当前标准。
 
 只跑一条命令：
 
 ```bash
-node "${CLAUDE_SKILL_DIR}/scripts/codex-visual.mjs" run [flags] "<brief>"
+node "<skill-dir>/scripts/codex-visual.mjs" run [flags] "<brief>"
 ```
 
-除非用户明确要求再来一轮，**不要重复跑第二次 Codex 或第二次生图**。
+先消费并复核本轮结果，再决定是否需要修正；已有授权覆盖的具体缺陷可继续迭代，不为凑方案重复调用。
 
 ## 消费结果
 
@@ -62,11 +64,11 @@ node "${CLAUDE_SKILL_DIR}/scripts/codex-visual.mjs" run [flags] "<brief>"
 - `CODEX_VISUAL_REPORT: <markdown 绝对路径>`
 - `CODEX_VISUAL_ARTIFACT: <图片绝对路径>`
 
-失败就展示错误并停止。成功则：
+失败时说明原因，由调用者按 UI Tailor / Monet 的后备路径继续可做的工作，不虚报成功。成功则：
 
 1. 读报告文件
 2. **读每一张相关产物图片**——有图时不要只信文字描述
-3. 区分「Codex 的观察」与「Claude 的独立复核」
+3. 区分「受托工具的观察」与「调用者的复核」，没有独立 agent 时明确是自审
 4. 用用户的语言回复，包含：一句话结论 / 评分表或按优先级排序的问题清单 / 最强证据与关键不确定性 / 建议的下一步 / 报告与产物的可点击路径
 5. 比较类任务：证据足够才点名胜者，否则说明决策条件或建议混合方案
 6. 生成类任务：说明每张产物如何回应 brief、哪个方向该推进

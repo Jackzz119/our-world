@@ -1,6 +1,6 @@
 // chat-data.ts — shared conversation state for the two chat surfaces:
 // the in-scene ChatDock (WoW-style ambient box) and the covering
-// ChannelScreen. Same threads, two experiences — see ai/Features/chat.md.
+// ChannelScreen. Same threads, two experiences — see ai/features/chat.md.
 // Everything is real now: world text channels ride the world topic, DMs and
 // friendships ride the account topic `user:{uid}` (DM 是账号级). The message
 // pipeline (rows / reactions / read cursors / optimistic states) is shared by

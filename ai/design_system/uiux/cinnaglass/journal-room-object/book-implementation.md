@@ -1,6 +1,6 @@
 # 棕皮旧纸书本 · 静态美术实装
 
-2026-09-07。静态美术已接入本地，待用户实景审美验收；**工程检查通过 ≠ 逐像素复刻**。未部署未提交。功能说明见 `ai/Features/timeline.md`；同日接续的翻页见 [turn-implementation.md](turn-implementation.md)。
+2026-09-07。静态美术已接入本地，待用户实景审美验收；**工程检查通过 ≠ 逐像素复刻**。未部署未提交。功能说明见 `ai/features/timeline.md`；同日接续的翻页见 [turn-implementation.md](turn-implementation.md)。
 
 ## 1. 活代码与资产真源
 

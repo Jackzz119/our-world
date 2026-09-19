@@ -12,7 +12,7 @@
 | `timeline-redesign.html`、`timeline-mascot-multiimg.html`、`diary-surface-v2.html` | 旧时间线与日记形态，已由当前物件日记替代 |
 | `journal-book-directions/` | 亚麻/苔绿/烟褐比稿与阶段验收；苔绿方案已否决，当前见 `../../cinnaglass/journal-room-object` |
 | `timeline-night-glass/` | 旧暗夜玻璃日记比稿/实现记录，已被棕皮旧纸方向替代 |
-| `navigation-concepts/` | 重定位早期导航/界面探索（2026-08-10 三方向比稿），保留 brief 与比较，具体采用以当前导航为准；原重复副本 `ui-concepts/` 已于 2026-09-18 删除，原件另在 `codex-visual/20260810-060422Z/` |
+| `navigation-concepts/` | 重定位早期导航/界面探索（2026-08-10 三方向比稿），保留 brief 与比较，具体采用以当前导航为准；原重复副本 `ui-concepts/` 已于 2026-09-18 删除，原件另在 `ai/codex-visual/20260810-060422Z/` |
 | `_shots/` | 历史样板/实装检查截图；文件名和来源保留，不作为今天的运行证据 |
 
 当前采用见 [UI 主题 Markdown](../../cinnaglass/ui-system.md)。这里保留有价值的比较与历史论证；不明确的旧行为按现行功能核实。没有独有价值的旧附属说明在处理引用后清理，不靠新增机器清单维持另一份登记。

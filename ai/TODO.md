@@ -12,14 +12,14 @@
 ## Epics & Milestones
 
 - **E1 放置陪伴 MVP**（R0+R1）：两人真实用上「开着就行的小屋」；里程碑：媒介拍板 → 房间上线 → presence 通 → 三物件挂载完
-- **E1-U UI / UX 定稿**（进行中）：以已认可导航为 A 基准，收敛 A 悬浮 UI / B 任务界面 / C 专属物件；本 session 不处理日记，动画最后做。计划见 `ai/Features/ui-system/ui-system.md`
+- **E1-U UI / UX 定稿**（进行中）：以已认可导航为 A 基准，收敛 A 悬浮 UI / B 任务界面 / C 专属物件；本 session 不处理日记，动画最后做。计划见 `ai/features/ui-system/ui-system.md`
 - **E2 桌面形态**（R2+R3）：Electron 壳与桌宠模式
 - **E3 玩法扩展**（R4）：养成/小游戏/多房间（Brain Dump 孵化）
 
 ## Bugs
 
 - [x] `--accent-deep` 双真源复核已消失（2026-09-11，`cinnaglass.css` 均为 `#2f9ad3`）
-- [ ] **[BUG] UI 任务弹窗层级与焦点**：设置打开后导航/浮窗仍盖在遮罩上，隐藏弹窗仍可获焦；随 E1-U M2 处理。证据 `ai/Features/ui-system/audit.md`
+- [ ] **[BUG] UI 任务弹窗层级与焦点**：设置打开后导航/浮窗仍盖在遮罩上，隐藏弹窗仍可获焦；随 E1-U M2 处理。证据 `ai/features/ui-system/audit.md`
 - [ ] **[BUG] UI 控件状态与真实行为不符**：迷你音乐播放/进度、设置密码/邮箱/应用锁存在占位或假成功语义；随 M3/M4 修正，超出 UI 的功能接通另拆任务
 - [ ] **[BUG] 窄屏浮窗越界和重叠**：390px 下音乐条越界并被底导航遮挡，天气与纪念卡重叠；随 M3 停靠规则处理
 - [ ] **[BUG] 聊天窄卡类型检查阻塞**：`shell/chat-card.tsx:10` 从 `../model` 导入未导出的 `Msg`（实际在 `chat-data.ts`），阻断 `tsc -b`；A 迁移开工时修复
@@ -36,7 +36,7 @@
 
 ### UI / UX 体系定稿（本 session 优先）
 
-> 阶段闸门见 `ai/Features/ui-system/ui-system.md` §6，实景盘点见同目录 `audit.md`。导航是基准，B 厚磨砂是待确认建议，未宣称全站已批准或已迁移。
+> 阶段闸门见 `ai/features/ui-system/ui-system.md` §6，实景盘点见同目录 `audit.md`。导航是基准，B 厚磨砂是待确认建议，未宣称全站已批准或已迁移。
 
 - [x] **M0 全项目审计与计划**（2026-09-11）：见 `ui-system.md` / `audit.md`
 - [x] **设计技能与资料库重构**（2026-09-13）：UI Tailor 统一承接 UI/UX，常驻设计 Markdown 上线；登记见 `ai/PROJECT.md`「美术与 UI/UX 技能登记」
@@ -97,7 +97,7 @@
 
 ### UI 壳既有交付（历史记录；迁移看 E1-U）
 
-- [x] 随光磨砂导航（2026-09-07，用户已认可，A 类基准）：`ai/Features/navigation-glass.md`
+- [x] 随光磨砂导航（2026-09-07，用户已认可，A 类基准）：`ai/features/navigation-glass.md`
 - [x] concept-c 壳件（2026-08-10，`shell/*`）：氛围 pill、纪念卡、音乐迷你条（播放/进度仍占位 → M3）、聊天窄卡、presence 头顶胶囊（占位文案）、场景满屏 + 壳件悬浮
 
 ### 退役清理
@@ -105,7 +105,7 @@
 - [x] 已删（2026-08-10/11）：metaspace.tsx（3D）、sidebar.tsx、hud.tsx、space.tsx、chat-dock.tsx、public/models、public/draco、`three` 主依赖
 - [ ] `@react-three/rapier` 仍在 `package.json` dependencies（src 零引用，three 时代残留）→ 随 M5 移除
 - [ ] 仍待清（并入 M4/M5）：channel-screen 服务器式布局、lobby 入口风格、rooms.ts mock、死样式；`scene.tsx` **仍被登录/重置页使用**，`rooms.ts` 的 `owLoad` 仍被 WorldPage 使用，迁出消费者后才能删
-- [ ] 死文件清理（2026-08-21 扫出；2026-09-18 审核第一步确证零引用，删除清单见 `ai/project-audit/runs/2026-09-18-01/01-documents.md`）：`src/types/database.ts`、根目录 `timeline_3d_posts.html`、`public/mock/couple-feed.json`
+- [x] 死文件清理（2026-09-18/19 审核第一步）：`src/types/database.ts`、`timeline_3d_posts.html`、`public/mock/couple-feed.json`、旧 page-flip 翻页链（`journal-book.tsx`/补丁/依赖/`check-journal.mjs`）、退役 3D 源（`ai/blender/`、`arts/meshes/`）；清单见 `ai/project-audit/runs/2026-09-18-01/01-documents.md`
 - [ ] 好友/DM UI 收起（数据层冻结保留）
 
 ## 📦 Phase R2 — Electron 壳
@@ -131,7 +131,7 @@
 
 ## 🧾 继承待办（v1 遗留，与新方向无关但仍要做）
 
-- [ ] **连 Supabase MCP 拉真实结构回填 `ai/Features/supabase.md` 第一章**（表/列/RLS/触发器/RPC + `get_advisors`）→ 该文接管后端结构唯一真源，PROJECT.md 数据库章节缩为摘要 + 引用。**⚠️ 前置：`SUPABASE_ACCESS_TOKEN` 已失效**（2026-09-05 管理 API 401），重新生成或改 OAuth 后重启会话，步骤见该文档头
+- [ ] **连 Supabase MCP 拉真实结构回填 `ai/features/supabase.md` 第一章**（表/列/RLS/触发器/RPC + `get_advisors`）→ 该文接管后端结构唯一真源，PROJECT.md 数据库章节缩为摘要 + 引用。**⚠️ 前置：`SUPABASE_ACCESS_TOKEN` 已失效**（2026-09-05 管理 API 401），重新生成或改 OAuth 后重启会话，步骤见该文档头
 - [ ] **Supabase 审计遗留 migration**（要点见 PROJECT.md 数据库章节 + `supabase.md` 三/四章）：⚠️ worlds 外键 CASCADE→SET NULL（member 删号不该灭世界）+ 安全包（search_path/revoke/GraphQL/泄露密码保护）+ 性能包（RLS initplan×13 + FK 索引×4）
 - [ ] 昵称编辑写回 `profiles.display_name`（个人设置仍本地缓冲；`src/lib/profiles.ts` 目前只读）
 - [ ] TENOR_API_KEY 配置（免费申请 → Supabase Secrets，`emotes` Edge Function 贴纸搜图即活）
@@ -150,4 +150,4 @@
 - **配色光照递进定稿 + UI Design System 建册**（2026-08-07/08，D-9~D-12）：历史决策 `ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md`，全局外观规则已被后续裁决覆盖
 - **产品重定位启动包**（2026-08-09）：`ai/reboot/` 四文档，用户拍板转向放置陪伴
 - **文档体系 v2 重构**（2026-08-09）：三件套 PROJECT/TODO/STYLE 上线；STYLE 现已降为兼容入口，设计正文在 `ai/design_system/`
-- **Features 体系恢复**（2026-08-22）：`7c93c3c` 误删 `ai/Features/`（违背 tech-plan §119），已原文恢复 timeline/chat/supabase 三份并加状态头
+- **Features 体系恢复**（2026-08-22）：`7c93c3c` 误删 `ai/features/`（违背 tech-plan §119），已原文恢复 timeline/chat/supabase 三份并加状态头

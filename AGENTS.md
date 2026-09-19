@@ -8,7 +8,7 @@
 每次对话开始时：
 
 1. 读取 `ai/PROJECT.md` 和 `ai/TODO.md`，将项目现状和任务列表纳入上下文
-2. 根据任务需要读取 `ai/Features/*.md`、`ai/UNITY_PROJECT.md`、`ai/UNITY_TODO.md`
+2. 根据任务需要读取 `ai/features/*.md`、`ai/UNITY_PROJECT.md`、`ai/UNITY_TODO.md`
 3. 了解当前运行环境中可用的 skill：
    - Claude 扫描 `.claude/skills/` 目录
    - Codex 查看当前会话提供的 Codex skill 列表，并按需读取对应 `SKILL.md`
@@ -154,8 +154,8 @@ Codex 主要读取 `name` 和 `description` 来判断是否触发 skill。描述
 - 技术实现细节（数据库结构、配置等）只在实际执行完成后才更新到 PROJECT.md，待办的改动只写在 TODO.md
 - TODO.md 只写高层描述，不写数据结构细节
 - PROJECT.md 的功能模块和数据库章节保持与线上实际状态一致
-- **Feature 文档已记录的细节不重复写入 PROJECT.md**：`ai/Features/*.md` 中有详细说明的内容，PROJECT.md 只写一句摘要 + 文档路径引用，不做内容搬运
-- **功能文档超过单个 Markdown 时建功能文件夹**（2026-07-13 用户定规）：当一个功能的文档与研究内容超过一个 `.md`（有 subfeature、调研文档、HTML mockup、图片等），在 `ai/Features/<功能名>/` 下建文件夹集中存放（例：`ai/Features/metaspace-controls/`），主文档与附属材料互相链接
+- **Feature 文档已记录的细节不重复写入 PROJECT.md**：`ai/features/*.md` 中有详细说明的内容，PROJECT.md 只写一句摘要 + 文档路径引用，不做内容搬运
+- **功能文档超过单个 Markdown 时建功能文件夹**（2026-07-13 用户定规）：当一个功能的文档与研究内容超过一个 `.md`（有 subfeature、调研文档、HTML mockup、图片等），在 `ai/features/<功能名>/` 下建文件夹集中存放（例：`ai/features/metaspace-controls/`），主文档与附属材料互相链接
 
 ## 命名规则
 
