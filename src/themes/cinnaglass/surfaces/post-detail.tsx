@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { signImageUrls, thumbPathOf } from '@/lib/storage';
 import type { FeedPost, FeedProfile } from '@/types/feed';
 import { IClose } from '@/themes/cinnaglass/icons';
-import { fmtFullDate } from '@/themes/cinnaglass/date-format';
-import { avaGrad, type AuthorTone } from '@/themes/cinnaglass/author-tone';
+import { fmtFullDate } from '@/themes/cinnaglass/surfaces/date-format';
+import { avaGrad, type AuthorTone } from '@/themes/cinnaglass/surfaces/author-tone';
 
 // Circular author avatar: uploaded image, else the first letter of the name,
 // else a dot. The ring colour carries identity (see toneOf).

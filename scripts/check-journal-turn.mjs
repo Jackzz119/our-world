@@ -252,7 +252,7 @@ try {
 
     // Numeric geometry and signed-image refresh, using the same renderer module.
     results.geometry = await page.evaluate(async () => {
-        const { sheetPose, JournalTurnStage } = await import('/src/themes/cinnaglass/journal-turn.ts');
+        const { sheetPose, JournalTurnStage } = await import('/src/themes/cinnaglass/journal/turn.ts');
         let maxLengthError = 0;
         for (const direction of [1, -1])
             for (const progress of [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1]) {

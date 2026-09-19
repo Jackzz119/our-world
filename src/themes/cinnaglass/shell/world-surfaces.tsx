@@ -4,7 +4,7 @@
 // and animate themselves in and out, so this is a mounting point, not a switch.
 // The chat hub (channel-screen) is not here — it belongs to the chat domain.
 import type { Dispatch, SetStateAction } from 'react';
-import { SubScreen, type SurfaceOrigin, type TabKey } from '@/themes/cinnaglass/screens';
+import { SubScreen, type SurfaceOrigin, type TabKey } from '@/themes/cinnaglass/surfaces/object-surfaces';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';

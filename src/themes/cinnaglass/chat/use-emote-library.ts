@@ -7,8 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { addEmoteFromFile, importEmoteFromUrl, listEmotes, removeEmote, searchWebEmotes } from '@/lib/emotes';
 import { signImageUrls } from '@/lib/storage';
 import { Logman } from '@/lib/logman';
-import { errMsg } from '@/themes/cinnaglass/chat-store';
-import type { EmoteView } from '@/themes/cinnaglass/chat-store';
+import { errMsg } from '@/themes/cinnaglass/chat/store';
+import type { EmoteView } from '@/themes/cinnaglass/chat/store';
 import type { EmoteRow } from '@/types/chat';
 
 const TAG = '[chat][web][use-emote-library]';

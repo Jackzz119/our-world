@@ -3,8 +3,8 @@
 // the stage-side ChatCard, so both surfaces always agree on what a conversation is.
 // Split out of channel-screen.tsx; it holds no state, it only reports the id you clicked.
 import { IHash } from '@/themes/cinnaglass/icons';
-import { FRIENDS_VIEW } from '@/themes/cinnaglass/chat-data';
-import type { Conv } from '@/themes/cinnaglass/chat-data';
+import { FRIENDS_VIEW } from '@/themes/cinnaglass/chat/chat-data';
+import type { Conv } from '@/themes/cinnaglass/chat/chat-data';
 
 type ConvNavProps = {
     convId: string | null; // the active entry, or FRIENDS_VIEW

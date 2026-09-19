@@ -6,7 +6,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { MESSAGE_PAGE_SIZE, getMessages, getReactions } from '@/lib/chat';
 import { Logman } from '@/lib/logman';
-import { dropMessageEverywhere, errMsg, mergeRows, upsertReactions, without } from '@/themes/cinnaglass/chat-store';
+import { dropMessageEverywhere, errMsg, mergeRows, upsertReactions, without } from '@/themes/cinnaglass/chat/store';
 import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat';
 
 const TAG = '[chat][web][use-message-store]';

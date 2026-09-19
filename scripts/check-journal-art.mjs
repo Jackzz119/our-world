@@ -174,7 +174,7 @@ try {
         await page.setViewportSize({ width: viewport[0], height: viewport[1] });
         await page.waitForTimeout(250);
         const outcome = await page.evaluate(async ([width, height]) => {
-            const { buildJournalPages } = await import('/src/themes/cinnaglass/journal-layout.ts');
+            const { buildJournalPages } = await import('/src/themes/cinnaglass/journal/layout.ts');
             const content = ('雨天与旧日记。👩🏽‍🌾🌷\n' + 'unbroken-long-link-'.repeat(12) + '\n').repeat(6);
             const post = {
                 post_id: 'local-layout',

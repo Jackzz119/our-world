@@ -21,7 +21,7 @@
 
 ### 渐变不是另一张房间原画
 
-`src/themes/cinnaglass/room/pixi-scene.ts` 的 `RECIPES` 加两个小画布函数生成：
+`src/themes/cinnaglass/room/compositor.ts` 的 `RECIPES` 加两个小画布函数生成：
 
 - **wash**：64×64 线性 RGBA 渐变，方向 115°，拉伸覆盖房间，现有配方均 normal 叠加。
 - **glow**：256×256 径向 RGBA 渐变，中心浓边缘透，按窗位放大，screen 叠加。
@@ -31,7 +31,7 @@
 
 ### 唱片给出的边界
 
-v5 盘面是**旋转对称基底 + 标签印花 + 固定 add/multiply 光层**（细节见 [living props](living-props.md)）。「拆出了光和 tint」不能概括盘面：基底仍含沟槽与部分对称的绘制光影，**不是严格去光的 albedo**；**角向统计只适用于旋转对称物体**，不能套到房间或角色。以 `study-room.ts`、`pixi-scene.ts`、`build-turntable-parts.py` 为准，旧命名注释里的 albedo 不作物理语义证明。
+v5 盘面是**旋转对称基底 + 标签印花 + 固定 add/multiply 光层**（细节见 [living props](living-props.md)）。「拆出了光和 tint」不能概括盘面：基底仍含沟槽与部分对称的绘制光影，**不是严格去光的 albedo**；**角向统计只适用于旋转对称物体**，不能套到房间或角色。以 `study-room.ts`、`room/compositor.ts`、`build-turntable-parts.py` 为准，旧命名注释里的 albedo 不作物理语义证明。
 
 ## 资产工作流的两条路线
 

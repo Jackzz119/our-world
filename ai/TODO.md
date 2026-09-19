@@ -56,7 +56,7 @@
 
 ### 场景与角色
 
-- [x] 场景媒介与房间模板（2026-08-09/10）：静态底图 + 动效插槽多层合成，**PixiJS v8** 合成器 `room/pixi-scene.ts` + `RoomTemplate`；技术事实见 `ai/PROJECT.md`「技术栈」，设计见 `ai/design_system/scene.md`
+- [x] 场景媒介与房间模板（2026-08-09/10）：静态底图 + 动效插槽多层合成，**PixiJS v8** 合成器 `room/compositor.ts` + `RoomTemplate`；技术事实见 `ai/PROJECT.md`「技术栈」，设计见 `ai/design_system/scene.md`
 - [x] 首个房间资产（书房三档底图 + 双角色四张立绘 + 棋牌室/植物园缩略图）：位置见 `ai/design_system/design-system.md`「实际素材位置」
 - [x] 角色动画第一版（双帧贴图 + 程序变形，零引擎）：参数见 `ai/design_system/character.md`；Rive/Spine 留给动作丰富化阶段
 - [ ] 双角色动作扩展：看书翻页 / 写字 / 喝咖啡 / 趴睡循环（需评估 Rive 或逐帧资产；方向见 `character.md`）

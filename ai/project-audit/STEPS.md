@@ -19,6 +19,8 @@
 | 02-S09 | 全局格式化收尾：建 `.prettierignore`（依赖/锁文件/审核证据/原始报告/受保护协议/冻结原件/二进制/会话存档），`prettier --write .` 后 `--check`，复核差异                                                                               | S08                                                                          | 命令、范围、排除理由、结果                                                 | 完成：`.prettierignore` + `prettier --write .`，check 192 → 0，受保护/冻结路径零改动（commit `e656ac9`）                                                   |
 | 02-S10 | 验证、覆盖、阶段报告、独立 commit                                                                                                                                                                                                    | S08–S09；tsc/eslint/vite build/check-design-system；浏览器冒烟（dev server） | `coverage.csv`、`02-structure.md`、FINDINGS 更新、commit SHA               | 完成：83 项覆盖；tsc 0 错 / eslint 1 既有警告 / vite build 通过 / 设计系统链接 0 失败；浏览器冒烟未做                                                      |
 
+| 02-S11 | 用户批准后的重构：三条线并行拆分（room 九模块 / surfaces 八模块 / chat 六 hook + 五组件）→ WorldPage 拆分 + 纪念日单一真源 + 玻璃原子类 + reset 合并 + Weather.kind 收窄 + import 统一 → 归子目录与改名 | 分阶段避免同文件冲突；每批 tsc/eslint/build；等价性：帧像素、计算样式 dump、纯函数断言、AST | commits `e674a96`、`ff96938`、归位 commit；四份 `*-refactor-log.md` | 完成；运行时冒烟受限（无 `.env.local`） |
+
 ### 本阶段复盘（v1 → v1.1）
 
 - 「分区审阅 → 审核先做跨分区复用 → 分区 agent 各自只改本分区文件」的顺序有效：四个 agent 并行写同一工作区未冲突，因为文件集合互斥且跨分区共享实现先由审核一次提交。
@@ -27,6 +29,8 @@
 - 模板字符串里的 CSS 注释会让 AST 校验报 code-changed，需单独证明剥离 CSS 注释后模板逐字相同。
 - eslint 的「未使用 disable 指令」不能机械删：删掉暴露 react-hooks 新规则错误，属行为议题，留第三步。
 - 行数不是收益指标：注释补齐 + Prettier 换行使总行数 12,894 → 14,157，同时死代码/死样式约 400 行被删；应看同体候选 0、无注释声明 −47%、tsc 零错、构建通过。
+- 大重构分三阶段、每阶段文件集合互斥且入口路径不动，四个 agent 并行零冲突；跨文件的目录归位与改名放最后由审核用脚本一次做完（解析 import → 映射 → 重写为 `@/` 形式），tsc 兜底。
+- react-hooks v7 的编译器规则对超大函数会静默跳过分析，拆小后才暴露 setState-in-effect / render 期改 ref 等问题——拆分本身就是一种检查。
 - Prettier 会重排审核目录里的 Markdown 表格，后续用精确字符串改状态列会失配；改用按行 ID 的正则替换。
 
 ## 第一步 · 蓝图版本 v1 · 运行 `2026-09-18-01`

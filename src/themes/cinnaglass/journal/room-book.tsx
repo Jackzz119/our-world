@@ -7,11 +7,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
 import { thumbPathOf } from '@/lib/storage';
-import { applyThumbUrls, buildJournalPages, type JournalPage } from '@/themes/cinnaglass/journal-layout';
-import { JournalTurnController } from '@/themes/cinnaglass/journal-turn-controller';
-import { Composer } from '@/themes/cinnaglass/composer';
-import '@/themes/cinnaglass/journal-room.css';
-import '@/themes/cinnaglass/journal-turn.css';
+import { applyThumbUrls, buildJournalPages, type JournalPage } from '@/themes/cinnaglass/journal/layout';
+import { JournalTurnController } from '@/themes/cinnaglass/journal/turn-controller';
+import { Composer } from '@/themes/cinnaglass/surfaces/composer';
+import '@/themes/cinnaglass/journal/room.css';
+import '@/themes/cinnaglass/journal/turn.css';
 
 // Non-reactive book state: mutating it must not re-render (the leaves are
 // plain DOM, owned by this file, not by React).

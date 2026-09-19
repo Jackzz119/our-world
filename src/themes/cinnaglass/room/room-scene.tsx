@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Application } from 'pixi.js';
 import type { HotspotOpenEvent, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
 import type { WeatherKind } from '@/themes/cinnaglass/model';
-import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/pixi-scene';
+import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/compositor';
 import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
 
 // Seat id to character art. The room template names the seats; who sits in

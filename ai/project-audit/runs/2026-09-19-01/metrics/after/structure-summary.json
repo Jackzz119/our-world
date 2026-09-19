@@ -1,33 +1,13 @@
 {
- "files": 66,
- "totalLines": 14157,
+ "files": 99,
+ "totalLines": 14928,
  "largest": [
   [
-   "src/themes/cinnaglass/room/pixi-scene.ts",
-   1312
-  ],
-  [
-   "src/themes/cinnaglass/screens.tsx",
-   1062
-  ],
-  [
-   "src/themes/cinnaglass/chat-data.ts",
-   798
-  ],
-  [
-   "src/themes/cinnaglass/channel-screen.tsx",
-   765
-  ],
-  [
-   "src/pages/WorldPage.tsx",
-   616
-  ],
-  [
    "src/themes/cinnaglass/image-slot.js",
-   537
+   521
   ],
   [
-   "src/themes/cinnaglass/scene.tsx",
+   "src/themes/cinnaglass/login-backdrop.tsx",
    508
   ],
   [
@@ -35,79 +15,115 @@
    438
   ],
   [
-   "src/themes/cinnaglass/emote-picker.tsx",
-   427
-  ],
-  [
    "src/themes/cinnaglass/calendar.tsx",
-   408
+   428
   ],
   [
-   "src/themes/cinnaglass/journal-room-book.tsx",
-   401
+   "src/themes/cinnaglass/chat/emote-picker.tsx",
+   425
+  ],
+  [
+   "src/themes/cinnaglass/journal/room-book.tsx",
+   400
   ],
   [
    "scripts/check-journal-turn.mjs",
    398
+  ],
+  [
+   "src/pages/WorldPage.tsx",
+   362
+  ],
+  [
+   "src/themes/cinnaglass/icons.tsx",
+   349
+  ],
+  [
+   "src/themes/cinnaglass/world-settings.tsx",
+   348
+  ],
+  [
+   "src/themes/cinnaglass/chat/message-list.tsx",
+   319
+  ],
+  [
+   "src/themes/cinnaglass/music.tsx",
+   287
   ]
  ],
  "fanInTop": [
   [
    "src/themes/cinnaglass/icons.tsx",
-   14
+   18
+  ],
+  [
+   "src/types/feed.ts",
+   18
+  ],
+  [
+   "src/types/chat.ts",
+   15
+  ],
+  [
+   "src/themes/cinnaglass/room/room-types.ts",
+   13
   ],
   [
    "src/lib/supabase.ts",
    12
   ],
   [
-   "src/types/feed.ts",
-   10
+   "src/lib/storage.ts",
+   9
+  ],
+  [
+   "src/themes/cinnaglass/chat/chat-data.ts",
+   9
   ],
   [
    "scripts/lib/deps.mjs",
    8
   ],
   [
-   "src/types/chat.ts",
-   7
-  ],
-  [
-   "src/lib/storage.ts",
-   6
-  ],
-  [
    "src/themes/cinnaglass/model.ts",
-   6
-  ],
-  [
-   "src/themes/cinnaglass/room/room-types.ts",
-   5
+   8
   ],
   [
    "src/themes/cinnaglass/tweaks.ts",
-   5
-  ],
-  [
-   "src/lib/local-store.ts",
-   4
+   7
   ]
  ],
  "fanOutTop": [
   [
    "src/pages/WorldPage.tsx",
-   22
+   21
   ],
   [
-   "src/themes/cinnaglass/chat-data.ts",
+   "src/themes/cinnaglass/chat/chat-data.ts",
+   10
+  ],
+  [
+   "src/themes/cinnaglass/chat/chat-hub.tsx",
    9
   ],
   [
-   "src/themes/cinnaglass/screens.tsx",
+   "src/themes/cinnaglass/surfaces/object-surfaces.tsx",
+   9
+  ],
+  [
+   "src/themes/cinnaglass/chat/use-account-stream.ts",
+   8
+  ],
+  [
+   "src/themes/cinnaglass/room/compositor.ts",
+   8
+  ],
+  [
+   "src/themes/cinnaglass/shell/world-surfaces.tsx",
    7
   ],
   [
-   "src/themes/cinnaglass/channel-screen.tsx",
+   "src/themes/cinnaglass/journal/room-book.tsx",
    6
   ],
   [
@@ -115,30 +131,12 @@
    5
   ],
   [
-   "src/themes/cinnaglass/journal-room-book.tsx",
+   "src/pages/world/useWorldSession.ts",
    5
-  ],
-  [
-   "src/App.tsx",
-   4
-  ],
-  [
-   "src/hooks/useFeed.ts",
-   4
-  ],
-  [
-   "src/themes/cinnaglass/settings.tsx",
-   4
-  ],
-  [
-   "src/themes/cinnaglass/world-settings.tsx",
-   4
   ]
  ],
  "cycles": [],
- "orphans": [
-  "src/themes/cinnaglass/rooms.ts"
- ],
+ "orphans": [],
  "unresolvedImports": [],
  "externals": [
   "@eslint/js",
@@ -161,48 +159,38 @@
   "typescript-eslint",
   "vite"
  ],
- "declarations": 381,
- "declarationsWithoutComment": 155,
+ "declarations": 422,
+ "declarationsWithoutComment": 173,
  "longFunctions": [
   [
-   "src/themes/cinnaglass/room/pixi-scene.ts:467",
-   "buildScene",
-   845
-  ],
-  [
-   "src/themes/cinnaglass/chat-data.ts:143",
-   "useChatThreads",
-   655
-  ],
-  [
-   "src/pages/WorldPage.tsx:101",
-   "WorldPage",
-   513
-  ],
-  [
-   "src/themes/cinnaglass/channel-screen.tsx:283",
-   "ChannelScreen",
-   482
-  ],
-  [
-   "src/themes/cinnaglass/image-slot.js:133",
-   "ImageSlot",
-   399
-  ],
-  [
-   "src/themes/cinnaglass/scene.tsx:99",
+   "src/themes/cinnaglass/login-backdrop.tsx:99",
    "RoomArt",
    385
   ],
   [
-   "src/themes/cinnaglass/journal-room-book.tsx:21",
-   "JournalRoomBook",
-   380
+   "src/themes/cinnaglass/image-slot.js:133",
+   "ImageSlot",
+   383
   ],
   [
-   "src/themes/cinnaglass/emote-picker.tsx:110",
+   "src/themes/cinnaglass/journal/room-book.tsx:22",
+   "JournalRoomBook",
+   378
+  ],
+  [
+   "src/themes/cinnaglass/chat/emote-picker.tsx:108",
    "EmotePicker",
    317
+  ],
+  [
+   "src/pages/WorldPage.tsx:83",
+   "WorldPage",
+   277
+  ],
+  [
+   "src/themes/cinnaglass/chat/message-list.tsx:54",
+   "MessageList",
+   265
   ],
   [
    "src/themes/cinnaglass/settings.tsx:184",
@@ -215,7 +203,7 @@
    228
   ],
   [
-   "src/themes/cinnaglass/screens.tsx:452",
+   "src/themes/cinnaglass/surfaces/composer.tsx:19",
    "Composer",
    225
   ],
@@ -225,8 +213,8 @@
    210
   ],
   [
-   "src/themes/cinnaglass/screens.tsx:19",
-   "ScreenStyles",
+   "src/themes/cinnaglass/room/compositor.ts:65",
+   "buildScene",
    209
   ],
   [
@@ -235,22 +223,27 @@
    208
   ],
   [
-   "src/themes/cinnaglass/calendar.tsx:111",
+   "src/themes/cinnaglass/room/turntable-prop.ts:49",
+   "createTurntable",
+   206
+  ],
+  [
+   "src/themes/cinnaglass/calendar.tsx:120",
    "CalendarScreen",
-   192
+   203
   ],
   [
-   "src/themes/cinnaglass/room/pixi-scene.ts:1043",
-   "tick",
-   183
+   "src/themes/cinnaglass/chat/use-optimistic-send.ts:40",
+   "useOptimisticSend",
+   196
   ],
   [
-   "src/themes/cinnaglass/friends-page.tsx:79",
+   "src/themes/cinnaglass/chat/friends-page.tsx:79",
    "FriendsPage",
    181
   ],
   [
-   "src/themes/cinnaglass/journal-turn-controller.ts:23",
+   "src/themes/cinnaglass/journal/turn-controller.ts:28",
    "JournalTurnController",
    166
   ],
@@ -260,19 +253,44 @@
    162
   ],
   [
-   "src/themes/cinnaglass/journal-turn.ts:51",
+   "src/themes/cinnaglass/chat/use-message-store.ts:26",
+   "useMessageStore",
+   157
+  ],
+  [
+   "src/themes/cinnaglass/journal/turn.ts:51",
    "JournalTurnStage",
    157
   ],
   [
-   "src/themes/cinnaglass/channel-screen.tsx:25",
+   "src/themes/cinnaglass/chat/chat-hub.styles.tsx:7",
    "ChannelStyles",
    148
   ],
   [
-   "src/themes/cinnaglass/screens.tsx:919",
-   "SubScreen",
+   "src/themes/cinnaglass/room/affordance.ts:66",
+   "createAffordance",
+   148
+  ],
+  [
+   "src/themes/cinnaglass/chat/chat-hub.tsx:73",
+   "ChannelScreen",
+   143
+  ],
+  [
+   "src/themes/cinnaglass/chat/chat-data.ts:49",
+   "useChatThreads",
    141
+  ],
+  [
+   "src/pages/world/useWorldSession.ts:20",
+   "useWorldSession",
+   139
+  ],
+  [
+   "src/themes/cinnaglass/surfaces/object-surfaces.tsx:67",
+   "SubScreen",
+   138
   ],
   [
    "src/themes/cinnaglass/shell/rail.tsx:51",
@@ -280,9 +298,14 @@
    129
   ],
   [
-   "src/themes/cinnaglass/journal-layout.ts:104",
+   "src/themes/cinnaglass/journal/layout.ts:104",
    "buildJournalPages",
    125
+  ],
+  [
+   "src/themes/cinnaglass/room/rain-layer.ts:52",
+   "createRainLayer",
+   123
   ],
   [
    "src/themes/cinnaglass/lobby.tsx:33",
@@ -295,12 +318,12 @@
    112
   ],
   [
-   "src/themes/cinnaglass/screens.tsx:755",
-   "PhotosBody",
+   "src/themes/cinnaglass/surfaces/photo-wall.tsx:15",
+   "PhotoWall",
    108
   ],
   [
-   "src/themes/cinnaglass/calendar.tsx:307",
+   "src/themes/cinnaglass/calendar.tsx:327",
    "ClockScreen",
    101
   ],
@@ -310,14 +333,9 @@
    101
   ],
   [
-   "src/themes/cinnaglass/screens.tsx:344",
+   "src/themes/cinnaglass/surfaces/post-detail.tsx:41",
    "PostDetail",
    97
-  ],
-  [
-   "src/themes/cinnaglass/shell/chat-card.tsx:145",
-   "ChatCardStyles",
-   95
   ],
   [
    "src/hooks/useFeed.ts:41",
@@ -325,13 +343,18 @@
    94
   ],
   [
-   "src/themes/cinnaglass/calendar.tsx:19",
+   "src/themes/cinnaglass/shell/chat-card.tsx:145",
+   "ChatCardStyles",
+   92
+  ],
+  [
+   "src/themes/cinnaglass/calendar.tsx:28",
    "CalClockStyles",
    88
   ],
   [
-   "src/themes/cinnaglass/shell/floaters.tsx:128",
-   "FloaterStyles",
+   "src/themes/cinnaglass/room/character-layer.ts:41",
+   "createCharacterLayer",
    84
   ]
  ],

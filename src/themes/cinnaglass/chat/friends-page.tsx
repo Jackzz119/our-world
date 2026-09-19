@@ -5,7 +5,7 @@
 // Mockup 方案 A: ai/design_system/uiux/research/cinnaglass-history/friends-page.html
 // Status (UI frozen, data layer kept): ai/features/chat.md §五.3「好友 / DM 定位待定」.
 import { useState } from 'react';
-import type { FriendEntry, FriendRequest } from '@/themes/cinnaglass/chat-data';
+import type { FriendEntry, FriendRequest } from '@/themes/cinnaglass/chat/chat-data';
 
 // Friends-page CSS, injected alongside the hub's own <style>.
 const FriendsStyles = () => (

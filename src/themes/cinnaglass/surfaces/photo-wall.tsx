@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react';
 import { signImageUrls, thumbPathOf } from '@/lib/storage';
 import type { FeedPost } from '@/types/feed';
-import { fmtDay } from '@/themes/cinnaglass/date-format';
-import { hashOf } from '@/themes/cinnaglass/author-tone';
+import { fmtDay } from '@/themes/cinnaglass/surfaces/date-format';
+import { hashOf } from '@/themes/cinnaglass/surfaces/author-tone';
 
 type LightboxPhoto = { path: string; thumb?: string; date: string };
 

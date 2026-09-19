@@ -8,14 +8,14 @@
 index.html → src/main.tsx → App.tsx（路由）
   pages/          页面与路由守卫（PascalCase 文件）
     ↓ 只向下
-  themes/cinnaglass/   UI 主题：组件、Pixi 房间（room/）、悬浮壳层（shell/）、日记族（journal-*）、聊天族
+  themes/cinnaglass/   UI 主题：Pixi 房间（room/）、悬浮壳层（shell/）、日记（journal/）、物件功能面（surfaces/）、聊天（chat/）与平铺的弹窗/设置组件
     ↓ 只向下
   hooks/  lib/  types/  utils/   数据访问与纯逻辑：lib/* 零 React、零 themes 依赖
 ```
 
 - `lib/*` 只依赖 `@/lib/supabase` 与 `@/types/*`，抛错不打日志（调用方决定提示）。
 - `types/*.ts` 一个类型对应一张表或一条契约（`feed.ts`、`chat.ts`）；视图模型（如聊天的 `Msg`/`Conv`）留在主题层，不下沉。
-- 待讨论：`chat-data.ts` 从 UI 组件导入 `EmoteView` 是唯一的「数据 → UI」逆向边，建议把该类型移到数据层。
+- 已采纳：`EmoteView` 类型已移入 `chat/store.ts`，数据层不再依赖 UI 组件（2026-09-19）。
 
 ## 目录与命名（已采纳：各目录内部一致；跨目录不统一属历史）
 
@@ -28,7 +28,7 @@ index.html → src/main.tsx → App.tsx（路由）
 | `src/themes/cinnaglass/**` | kebab-case                                    | 组件、引擎、CSS；`room/`、`shell/` 已分子目录 |
 | `ai/` 新目录               | kebab-case                                    | 历史遗留 `design_system` 不改                 |
 
-- 待讨论：`journal-*`（7 文件）与聊天族（5 文件）平铺在主题根，可各建子目录；两个校验脚本硬编码了 `/src/themes/cinnaglass/*.ts` 模块 URL，移动时须同步。
+- 已采纳（2026-09-19）：日记、物件功能面、聊天分别归 `journal/`、`surfaces/`、`chat/`；合成器入口为 `room/compositor.ts`，聊天大窗为 `chat/chat-hub.tsx`；两个校验脚本的模块 URL 已同步。
 - **已采纳（2026-09-19，PA-031 同批落地）：import 路径一律写 `@/…`，TS/TSX 不带扩展名。** 覆盖全 `src`，含同目录引用（`./model` → `@/themes/cinnaglass/model`）。三条细则：
     - 指向 `<目录>/index.ts(x)` 的写目录名（`@/utils`、`@/types`），不写 `@/utils/index`；
     - `.css` 与 `.js`（`image-slot.js`）保留扩展名——它们不是 TS 模块，解析器不该去猜；
@@ -39,7 +39,7 @@ index.html → src/main.tsx → App.tsx（路由）
 
 - 同一语义只留一个实现：localStorage 读写在 `lib/local-store.ts`；当前用户 id 在 `lib/supabase.ts` 的 `currentUserId()`；签名续签周期由 `lib/storage.ts` 的 `SIGNED_URL_REFRESH_MS` 派生自 TTL。
 - 外形相似但变化原因不同的不抽象：设置词汇 `WeatherTweak`（含 `auto`）≠ 合成器能力 `RoomWeather`；登录页 SVG 背景 ≠ Pixi 房间；`Room`（侧栏 mock）≠ `RoomTemplate`（美术契约）。
-- 大文件是调查信号不是禁令：`pixi-scene.ts` 1168 行 / `screens.tsx` 1094 行 / `chat-data.ts` 728 行 / `WorldPage.tsx` 560 行 的拆分方案见第二步报告与分区 review，按职责与变化原因拆，不拆成 build/update/dispose 三件套式碎片；每批独立提交并附等价验证。
+- 大文件是调查信号不是禁令：2026-09-19 已按职责与变化原因拆分 `room/compositor.ts`（1168 → 273）、`surfaces/object-surfaces.tsx`（1094 → 211）、`chat/chat-data.ts`（797 → 189）、`chat/chat-hub.tsx`（764 → 215）、`WorldPage.tsx`（615 → 361）；不拆成 build/update/dispose 三件套式碎片；每批独立提交并附等价验证（AST/纯函数断言/帧像素或计算样式 diff）。
 - 图标库（`icons.tsx`）允许保留零消费者导出，删了下次要重画；其它零消费者导出、字段、样式随审核删除。
 
 ## 注释（已采纳：英文，说人话）

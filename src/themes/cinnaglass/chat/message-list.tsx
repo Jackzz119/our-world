@@ -6,9 +6,9 @@
 // D-7 in ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53; the read avatar
 // renders in DMs ONLY (D-7-3 修订 — ai/features/chat.md:61).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { EmotePicker } from '@/themes/cinnaglass/emote-picker';
-import { explodeBubble } from '@/themes/cinnaglass/bubble-dust';
-import type { Conv, EmoteView, Msg } from '@/themes/cinnaglass/chat-data';
+import { EmotePicker } from '@/themes/cinnaglass/chat/emote-picker';
+import { explodeBubble } from '@/themes/cinnaglass/chat/bubble-dust';
+import type { Conv, EmoteView, Msg } from '@/themes/cinnaglass/chat/chat-data';
 import type { EmoteSearchResult } from '@/types/chat';
 import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 

@@ -4,7 +4,7 @@
 // M2; world-first chat in ai/design_system/uiux/interaction.md). Split out of
 // WorldPage (shell-structure-review.md §2.2 S5).
 import { useEffect, useRef, useState } from 'react';
-import type { Msg } from '@/themes/cinnaglass/chat-data';
+import type { Msg } from '@/themes/cinnaglass/chat/chat-data';
 
 /** Transient overhead bubble; `key` restarts the animation for a repeat text. */
 export type WorldBubble = { seatId: string; text: string; key: number };

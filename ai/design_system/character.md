@@ -22,7 +22,7 @@
 | 眨眼     | 睁/闭两张图切换，闭眼约 140ms；通常间隔随机 2.4–6.5 秒，可有短间隔二次眨眼 |
 | 环境受色 | 独立角色层使用场景配方 tint 和接触阴影，不是每个时辰另画一套角色           |
 
-以上数值来自 [pixi-scene.ts](../../src/themes/cinnaglass/room/pixi-scene.ts)，是当前实现记录，不是新动画设计要求。静态立绘只能展示姿态，呼吸与摆动需在运行场景中查看。
+以上数值来自 [pixi-scene.ts](../../src/themes/cinnaglass/room/compositor.ts)，是当前实现记录，不是新动画设计要求。静态立绘只能展示姿态，呼吸与摆动需在运行场景中查看。
 
 ## 交互与未完成部分
 
@@ -34,5 +34,5 @@
 
 - 当前四张立绘：[public/characters](../../public/characters/)。
 - 原始生成/处理记录：[20260810-000437Z](../../arts/characters/codex-report.md)。
-- 贴装与相位：[study-room.ts](../../src/themes/cinnaglass/room/study-room.ts)；动画：[pixi-scene.ts](../../src/themes/cinnaglass/room/pixi-scene.ts)。
+- 贴装与相位：[study-room.ts](../../src/themes/cinnaglass/room/study-room.ts)；动画：[pixi-scene.ts](../../src/themes/cinnaglass/room/compositor.ts)。
 - 验收重点：实际小尺寸下脸部与蓝耳轮廓可辨认，摆动不滑离座位，两角色不机械同步。

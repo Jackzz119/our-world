@@ -14,7 +14,7 @@ import {
     updateMessage
 } from '@/lib/chat';
 import { Logman } from '@/lib/logman';
-import { dropMessageEverywhere, errMsg, without } from '@/themes/cinnaglass/chat-store';
+import { dropMessageEverywhere, errMsg, without } from '@/themes/cinnaglass/chat/store';
 import type { Channel, ChatMessageRow, EmoteRow, ReactionRow } from '@/types/chat';
 
 const TAG = '[chat][web][use-optimistic-send]';

@@ -31,6 +31,6 @@
 
 ## 来源与检查
 
-[原画](../../arts/rooms/study/source/) · [生产派生层](../../arts/rooms/study/generated/) · [运行时素材](../../public/rooms/study/) · [模板](../../src/themes/cinnaglass/room/study-room.ts) · [合成器](../../src/themes/cinnaglass/room/pixi-scene.ts)
+[原画](../../arts/rooms/study/source/) · [生产派生层](../../arts/rooms/study/generated/) · [运行时素材](../../public/rooms/study/) · [模板](../../src/themes/cinnaglass/room/study-room.ts) · [合成器](../../src/themes/cinnaglass/room/compositor.ts)
 
 验收时同时看实际视口、角色表情、层级与热点位置；场景开着时应安静耐看，性能目标要实测，不能以图片静止推断渲染成本。

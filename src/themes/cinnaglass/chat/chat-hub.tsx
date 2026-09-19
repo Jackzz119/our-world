@@ -11,11 +11,11 @@
 // the input row in chat-composer.tsx and the delete effect in bubble-dust.ts.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IClose, IHash } from '@/themes/cinnaglass/icons';
-import { FriendsPage } from '@/themes/cinnaglass/friends-page';
-import { ChannelStyles } from '@/themes/cinnaglass/channel-screen.styles';
-import { ChatComposer } from '@/themes/cinnaglass/chat-composer';
-import { ConvNav } from '@/themes/cinnaglass/conv-nav';
-import { MessageList } from '@/themes/cinnaglass/message-list';
+import { FriendsPage } from '@/themes/cinnaglass/chat/friends-page';
+import { ChannelStyles } from '@/themes/cinnaglass/chat/chat-hub.styles';
+import { ChatComposer } from '@/themes/cinnaglass/chat/chat-composer';
+import { ConvNav } from '@/themes/cinnaglass/chat/conv-nav';
+import { MessageList } from '@/themes/cinnaglass/chat/message-list';
 import {
     FRIENDS_VIEW,
     convsFor,
@@ -24,7 +24,7 @@ import {
     type FriendEntry,
     type FriendRequest,
     type Msg
-} from '@/themes/cinnaglass/chat-data';
+} from '@/themes/cinnaglass/chat/chat-data';
 import type { Channel, EmoteSearchResult } from '@/types/chat';
 import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 

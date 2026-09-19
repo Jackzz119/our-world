@@ -8,8 +8,8 @@ import { getDmChannels, getMessages, getReactions, getReadsForChannels, subscrib
 import { listFriendships } from '@/lib/friends';
 import { getProfilesByIds } from '@/lib/profiles';
 import { Logman } from '@/lib/logman';
-import { errMsg } from '@/themes/cinnaglass/chat-store';
-import type { StreamSink } from '@/themes/cinnaglass/use-message-store';
+import { errMsg } from '@/themes/cinnaglass/chat/store';
+import type { StreamSink } from '@/themes/cinnaglass/chat/use-message-store';
 import type { Channel, FriendshipRow } from '@/types/chat';
 import type { FeedProfile } from '@/types/feed';
 

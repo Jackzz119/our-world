@@ -9,5 +9,5 @@
     { "file": "avatar-blue.webp", "size": [84, 84], "role": "approved original-character portrait crop; default self avatar only" },
     { "file": "avatar-pink.webp", "size": [84, 84], "role": "approved original-character portrait crop; default partner avatar only" }
   ],
-  "style": "src/themes/cinnaglass/journal-room.css"
+  "style": "src/themes/cinnaglass/journal/room.css"
 }

@@ -5,8 +5,8 @@
 // Split out of channel-screen.tsx. Specs: ai/features/chat.md §三.
 import { useRef, useState } from 'react';
 import { ISend } from '@/themes/cinnaglass/icons';
-import { EmotePicker } from '@/themes/cinnaglass/emote-picker';
-import type { EmoteView } from '@/themes/cinnaglass/chat-data';
+import { EmotePicker } from '@/themes/cinnaglass/chat/emote-picker';
+import type { EmoteView } from '@/themes/cinnaglass/chat/chat-data';
 import type { EmoteSearchResult } from '@/types/chat';
 
 // The hub mounts this with key={convId}, so switching conversations drops the unsent draft.

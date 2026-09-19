@@ -3,7 +3,7 @@
 // (ai/design_system/props.md, ai/design_system/uiux/uiux.md). Split out of
 // WorldPage (shell-structure-review.md §2.2 S4).
 import { useState } from 'react';
-import type { SurfaceOrigin, TabKey } from '@/themes/cinnaglass/screens';
+import type { SurfaceOrigin, TabKey } from '@/themes/cinnaglass/surfaces/object-surfaces';
 import type { RailKey } from '@/themes/cinnaglass/shell/rail';
 import type { HotspotOpenEvent } from '@/themes/cinnaglass/room/room-types';
 

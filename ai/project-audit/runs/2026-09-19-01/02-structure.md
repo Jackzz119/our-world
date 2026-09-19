@@ -72,6 +72,18 @@
 | `node scripts/check-design-system.mjs` | 57 文档 387 链接 0 失败 |
 | 未验证 | 浏览器运行冒烟（贴纸显示、弹窗开关、日记翻页）；Python 装配脚本；性能（第四步） |
 
+## 用户批准后的重构执行（2026-09-19，第二阶段交付）
+
+用户批准全部 B 类方案后分三阶段执行（详见 [FINDINGS](../../FINDINGS.md) PA-028～033 与 `evidence/*-refactor-log.md`）：
+
+| 阶段 | 内容 | commit | 关键等价证据 |
+| --- | --- | --- | --- |
+| 1 | room：`buildScene` 拆九模块（1311 → 273 行）；surfaces：`screens.tsx` 拆八模块（1061 → 211）+ `diary.css` 扁平化；chat：`useChatThreads` 拆六 hook（797 → 189）+ `ChannelScreen` 拆五组件（764 → 215）；`scene.tsx` → `login-backdrop.tsx` | `e674a96` | 10 组冻结帧 PNG 逐字节相同；315 节点 × 4 断点计算样式 dump 差异 0；58 条纯函数断言；WorldPage 返回面 25 字段 diff 为空 |
+| 2 | `WorldPage` 615 → 361（五个 hook + 两个 shell 模块）；纪念日单一真源（修 bug：改设置后日历不更新、当天倒数显示 365）；`.cg-panel` 原子类；reset 归 `index.css`；`Weather.kind` 联合类型；import 统一 `@/` | `ff96938` | 99×56034、30×16980 属性差异 0；tsc 全查越界 |
+| 3 | 归位 `journal/`、`surfaces/`、`chat/`；`pixi-scene.ts` → `room/compositor.ts`、`channel-screen.tsx` → `chat/chat-hub.tsx`；33 个文件移动、25 个文件 import 重写、23 份文档与 2 个脚本的路径同步 | 见本 commit | tsc 0 错、eslint 1 既有警告、build 通过、0 环、设计系统链接 387/0 失败 |
+
+**行为变化（刻意，已单独说明）**：① 纪念日与在一起天数只读 `world.anniversary`，「在一起 N 天」按纪念日当天为第 1 天计（整体 +1）；② 拆小后 react-hooks v7 编译器规则新暴露的 setState-in-effect，三处改为 render 期派生（结果相同），一处带理由 disable。**未验证**：真实进出世界、Enter 快捷键、Pixi 家具点击回调链在真实会话下的表现（无 `.env.local`）。最终结构指标：99 个源文件、14,928 行、0 环、同体候选 0、无注释声明 173（拆分新增匿名回调式声明）。
+
 ## 建议、待办和下一步
 
 1. **需要你批准的重构**（FINDINGS PA-028～033）：五个大文件的拆分方案、纪念日单一真源修复（含现存 bug）、`diary.css` 扁平化（日记冻结中）、子目录归位、其余低收益项。批准哪几项我就按方案分批提交。

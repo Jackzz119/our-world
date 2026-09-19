@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Channel } from '@/types/chat';
-import { convsFor, type Conv, type Msg } from '@/themes/cinnaglass/chat-data';
+import { convsFor, type Conv, type Msg } from '@/themes/cinnaglass/chat/chat-data';
 import { IClose, IExpand, ISend } from '@/themes/cinnaglass/icons';
 
 // One-tap reactions; they send as ordinary messages, not as reaction rows.

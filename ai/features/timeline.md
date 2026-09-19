@@ -3,7 +3,7 @@
 > 🟢 **在役活文档**。回忆链路（时间线/日记本 + 照片墙 + Composer + Storage）的功能细节唯一载体，PROJECT.md 只留摘要 + 本文引用。
 > 最后更新：2026-09-07（棕皮旧纸竖直翻页、连续翻阅、阅读时雨不停播接入本地；拿起/收回与羽毛笔交互仍待办，数据链路未动）
 > 路线图位置：① 回忆存储（核心）——见 `ai/PROJECT.md` / `ai/TODO.md`
-> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`、`src/lib/worlds.ts`、`src/lib/profiles.ts`、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/screens.tsx`、`journal-room-book.tsx`、`journal-layout.ts`、`journal-turn.ts`、`journal-turn-controller.ts`、`journal-room.css`、`journal-turn.css`、`diary.css`
+> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`、`src/lib/worlds.ts`、`src/lib/profiles.ts`、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/surfaces/object-surfaces.tsx`、`journal/room-book.tsx`、`journal/layout.ts`、`journal/turn.ts`、`journal/turn-controller.ts`、`journal/room.css`、`journal/turn.css`、`journal/diary.css`
 >
 > ⚠️ **术语映射（2026-07-04 完成迁移）**：`couples` → `rooms` → **`worlds`**。历史 ST 条目与已归档的实现报告里写的 `rooms` / `Room` / `getMyRoom` / `room_id` / `roomId`（更早写 `couple*`），线上与代码均已是 `worlds` / `World` / `getMyWorld`（`src/lib/worlds.ts`）/ `world_id` / `worldId`。表结构与 RPC 现状真源见 [`ai/PROJECT.md`「数据库」章](../PROJECT.md)。本文一至六章已按当前命名改写，下方「实现计划」的历史条目保留原始措辞不回溯改写。
 
@@ -87,8 +87,8 @@ Composer（ready 态始终有 worldId）
 | `src/lib/profiles.ts`                                                                    | `getProfilesByIds()` —— RPC 只回 `author_id`，作者名/头像在此补                                                                | ✅               |
 | `src/hooks/useFeed.ts`                                                                   | 三态 + `worldId` + `posts`（升序）+ `profiles` + 游标分页（`hasMore/loadingOlder/loadOlder`）+ `reload` + `enabled` 懒加载闩锁 | ✅               |
 | `src/types/feed.ts`                                                                      | `FeedPost / World / FeedProfile / PostPrivacy`                                                                                 | ✅               |
-| `src/themes/cinnaglass/screens.tsx`                                                      | 三张 ObjectSurface（日记 / 照片墙 / 心愿单）、`Composer`、`PostDetail`、`useSignedThumbs`                                      | ✅               |
-| `src/themes/cinnaglass/journal-room-book.tsx` + `journal-layout.ts` + `journal-turn*.ts` | 棕皮书本的实测分页、页面装订与三维翻页引擎                                                                                     | ✅               |
+| `src/themes/cinnaglass/surfaces/object-surfaces.tsx`                                                      | 三张 ObjectSurface（日记 / 照片墙 / 心愿单）、`Composer`、`PostDetail`、`useSignedThumbs`                                      | ✅               |
+| `src/themes/cinnaglass/journal/room-book.tsx` + `journal/layout.ts` + `journal-turn*.ts` | 棕皮书本的实测分页、页面装订与三维翻页引擎                                                                                     | ✅               |
 | `src/themes/cinnaglass/image-slot.js`                                                    | 用户可填图占位 web component。**Composer 已不再使用它**（ST-T 换成受控多图选择器）；现仅头像设置等处在用                       | ✅（用途已收窄） |
 
 **数据层设计要点（仍是硬约束）：**
@@ -175,7 +175,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 
 ## 实现计划
 
-v1 数据链路 ST-A ~ ST-V **已全部完成**（27+ subtask，2026-06-27 ~ 2026-07-06，逐条都过 tsc/eslint/build + 浏览器实测）。完整逐条记录不再保留，以下为可追溯索引 —— 其它文档（`chat-data.ts`、`supabase.md`、Codex 报告）引用的 ST 编号在此解析。执行顺序当年按「建世界 → 发 post → 渲染 post」重排，编号保留原始序号。
+v1 数据链路 ST-A ~ ST-V **已全部完成**（27+ subtask，2026-06-27 ~ 2026-07-06，逐条都过 tsc/eslint/build + 浏览器实测）。完整逐条记录不再保留，以下为可追溯索引 —— 其它文档（`chat/chat-data.ts`、`supabase.md`、Codex 报告）引用的 ST 编号在此解析。执行顺序当年按「建世界 → 发 post → 渲染 post」重排，编号保留原始序号。
 
 | 编号        | 内容                                                                                                                                                            |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -183,7 +183,7 @@ v1 数据链路 ST-A ~ ST-V **已全部完成**（27+ subtask，2026-06-27 ~ 202
 | ST-B        | `types/feed.ts` 对齐：删 `CoupleMeta`/`CoupleFeedResponse`（RPC 无 wrapper）、补 `updated_at`、新增 `Room`（后为 `World`）                                      |
 | ST-C        | `rooms.ts`（后为 `worlds.ts`）+ `posts.ts` 数据层；`getFeed` → `getFeedPosts` 返回数组                                                                          |
 | ST-D        | `useFeed` 去「未配对」态，改 `loading/ready/error` 三态                                                                                                         |
-| ST-E        | `screens.tsx` 去配对话术                                                                                                                                        |
+| ST-E        | `surfaces/object-surfaces.tsx` 去配对话术                                                                                                                                        |
 | ST-F        | SQL 文件 + 文档同步（脚本此后又经 room → world 二次改名，现为 `sql/dev-create-world.sql`）                                                                      |
 | ST-8        | Storage private bucket `memories`（25MB 上限、限图片 mime）+ 4 条按路径首段隔离的 RLS                                                                           |
 | ST-4        | `image-slot` 通过 `slot-change` 抛出原图 File + webp 缩略图（该出口后被 ST-T 的多图选择器取代）                                                                 |

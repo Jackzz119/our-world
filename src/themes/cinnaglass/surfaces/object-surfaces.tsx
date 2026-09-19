@@ -7,16 +7,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
 import { IClose } from '@/themes/cinnaglass/icons';
-import { toneOf } from '@/themes/cinnaglass/author-tone';
-import { useSignedThumbs } from '@/themes/cinnaglass/use-signed-thumbs';
-import { PhotoWall } from '@/themes/cinnaglass/photo-wall';
-import { PostDetail } from '@/themes/cinnaglass/post-detail';
-import { Wishlist } from '@/themes/cinnaglass/wishlist';
-import '@/themes/cinnaglass/diary.css';
-import { JournalRoomBook as JournalBook } from '@/themes/cinnaglass/journal-room-book';
+import { toneOf } from '@/themes/cinnaglass/surfaces/author-tone';
+import { useSignedThumbs } from '@/themes/cinnaglass/surfaces/use-signed-thumbs';
+import { PhotoWall } from '@/themes/cinnaglass/surfaces/photo-wall';
+import { PostDetail } from '@/themes/cinnaglass/surfaces/post-detail';
+import { Wishlist } from '@/themes/cinnaglass/surfaces/wishlist';
+import '@/themes/cinnaglass/journal/diary.css';
+import { JournalRoomBook as JournalBook } from '@/themes/cinnaglass/journal/room-book';
 // Last of the stylesheet imports on purpose: the shell's ties against
 // diary.css / journal-room.css are decided by load order.
-import '@/themes/cinnaglass/object-surfaces.css';
+import '@/themes/cinnaglass/surfaces/object-surfaces.css';
 
 // Which room object is open. 'timeline' is the journal.
 type TabKey = 'timeline' | 'photos' | 'wishlist';

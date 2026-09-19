@@ -6,7 +6,7 @@ import {
     type TurnDirection,
     type TurnFrame,
     type TurnGeometry
-} from '@/themes/cinnaglass/journal-turn';
+} from '@/themes/cinnaglass/journal/turn';
 
 // A sheet in flight: where it came from, where it lands, and how far along.
 type Motion = TurnFrame & { elapsed: number; duration: number };

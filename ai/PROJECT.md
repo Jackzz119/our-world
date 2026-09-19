@@ -53,7 +53,7 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
-- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/pixi-scene.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击。**活物件（living props）**：家具从底图分离后自己动，hover 只改参数不换图；唱片机已按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转。分层原则、闸门数值与教训见 `ai/design_system/research/living-props.md`（唯一技术正文），物件规范 `ai/design_system/props.md`，进度 `ai/TODO.md`「活物件」；装配器 `scripts/build-turntable-parts.py` → `public/rooms/study/parts/`，量测 `scripts/fit-disc-ellipse.py`，原画真源 `arts/rooms/study/source/`，装配输入与产物清单 `arts/rooms/study/generated/`（见其 README）
+- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/compositor.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击。**活物件（living props）**：家具从底图分离后自己动，hover 只改参数不换图；唱片机已按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转。分层原则、闸门数值与教训见 `ai/design_system/research/living-props.md`（唯一技术正文），物件规范 `ai/design_system/props.md`，进度 `ai/TODO.md`「活物件」；装配器 `scripts/build-turntable-parts.py` → `public/rooms/study/parts/`，量测 `scripts/fit-disc-ellipse.py`，原画真源 `arts/rooms/study/source/`，装配输入与产物清单 `arts/rooms/study/generated/`（见其 README）
 - **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸/摇摆/眨眼），与场景共享光照（参数见 `ai/design_system/character.md`）；动作丰富化再评估 Rive/Spine（`ai/reboot/tech-plan.md` §2）
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -64,20 +64,21 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 ```
 src/
 ├── App.tsx / main.tsx   # 路由 /login、/reset-password、/（ProtectedRoute → WorldPage）
-├── pages/               # LoginPage · ResetPasswordPage · ProtectedRoute（VITE_DEV 自动真登录）· WorldPage（场景满屏 + 悬浮壳 + 弹窗编排）
+├── pages/               # LoginPage · ResetPasswordPage · ProtectedRoute（VITE_DEV 自动真登录）· WorldPage（编排，361 行）
+│   └── world/           # WorldPage 的 hooks：useWorldSession · useSurfaceRouter · useWeather · useLiveClock · usePersistedState
 ├── hooks/ · utils/      # useAuth、useFeed · getEnv/getEnvFlag
 ├── lib/                 # supabase（含 currentUserId）/ worlds / posts / storage / profiles / chat / emotes / friends / logman / local-store
-├── types/               # feed.ts、chat.ts（一个类型对一张表）
+├── types/               # feed.ts、chat.ts（一个类型对一张表）、image-slot.d.ts
 └── themes/cinnaglass/
-    ├── cinnaglass.css · materials.css · diary.css   # token、mood 氛围层、暖纸覆盖
-    ├── room/            # pixi-scene（合成器）· room-scene（React 壳）· room-types · study-room
-    ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card
-    ├── journal-*        # 日记本实体与翻页（C 类物件 UI，冻结）
-    ├── screens.tsx      # 时间线/照片墙/心愿单弹窗 + lightbox
-    ├── calendar · settings · world-settings · music + music-tracks · emote-picker + emoji-data · chat-data
-    ├── channel-screen · friends-page · lobby        # 完整聊天大窗、旧社交入口、大厅（待 M4/M5 收敛）
-    ├── scene.tsx        # 旧 SVG 背景，仍被登录/重置页使用
-    └── image-slot.js    # 图片选择器 web component，仍在用
+    ├── cinnaglass.css · materials.css       # token、mood 氛围层、.cg-panel 玻璃原子类；reset 在 src/index.css
+    ├── room/            # compositor（Pixi 合成器入口）+ textures · homography · lighting · fade-queue · rain-layer · clock-layer · character-layer · affordance · turntable-prop · room-scene（React 壳）· room-types · study-room
+    ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card · world-surfaces · use-world-chat-bubble
+    ├── journal/         # 日记本实体与翻页（C 类物件 UI，冻结）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
+    ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· composer · photo-wall · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
+    ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
+    ├── calendar · settings · world-settings · music + music-tracks · lobby · icons · model · profile · tweaks
+    ├── login-backdrop.tsx   # 登录/重置页 SVG 背景
+    └── image-slot.js    # 图片选择器 web component，仅设置页头像在用
 ```
 
 ## 已有功能资产（v1 保留部分的技术事实）

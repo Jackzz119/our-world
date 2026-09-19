@@ -1,5 +1,5 @@
-import { buildJournalPages } from '/src/themes/cinnaglass/journal-layout.ts';
-import { JournalTurnStage } from '/src/themes/cinnaglass/journal-turn.ts';
+import { buildJournalPages } from '/src/themes/cinnaglass/journal/layout.ts';
+import { JournalTurnStage } from '/src/themes/cinnaglass/journal/turn.ts';
 await document.fonts.load('17px "Journal WenKai"');
 const surface = document.querySelector('.diary-surface');
 const width = Math.floor((surface.clientWidth * 0.835) / 2);

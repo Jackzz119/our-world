@@ -5,8 +5,8 @@
 import { useEffect, useState } from 'react';
 import { getChannelReads, getChannels, getMessages, getReactions, subscribeWorld } from '@/lib/chat';
 import { Logman } from '@/lib/logman';
-import { errMsg } from '@/themes/cinnaglass/chat-store';
-import type { StreamSink } from '@/themes/cinnaglass/use-message-store';
+import { errMsg } from '@/themes/cinnaglass/chat/store';
+import type { StreamSink } from '@/themes/cinnaglass/chat/use-message-store';
 import type { Channel } from '@/types/chat';
 
 const TAG = '[chat][web][use-world-stream]';

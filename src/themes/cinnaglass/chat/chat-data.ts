@@ -15,20 +15,20 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { acceptFriend, removeFriendship, sendFriendRequest } from '@/lib/friends';
 import { Logman } from '@/lib/logman';
-import { colorFor, errMsg, otherOf, toMsgs } from '@/themes/cinnaglass/chat-store';
-import { useAccountStream } from '@/themes/cinnaglass/use-account-stream';
-import { useEmoteLibrary } from '@/themes/cinnaglass/use-emote-library';
-import { useMessageStore } from '@/themes/cinnaglass/use-message-store';
-import { useOptimisticSend } from '@/themes/cinnaglass/use-optimistic-send';
-import { useWorldStream } from '@/themes/cinnaglass/use-world-stream';
-import type { Conv, FriendEntry, FriendRequest, Msg } from '@/themes/cinnaglass/chat-store';
+import { colorFor, errMsg, otherOf, toMsgs } from '@/themes/cinnaglass/chat/store';
+import { useAccountStream } from '@/themes/cinnaglass/chat/use-account-stream';
+import { useEmoteLibrary } from '@/themes/cinnaglass/chat/use-emote-library';
+import { useMessageStore } from '@/themes/cinnaglass/chat/use-message-store';
+import { useOptimisticSend } from '@/themes/cinnaglass/chat/use-optimistic-send';
+import { useWorldStream } from '@/themes/cinnaglass/chat/use-world-stream';
+import type { Conv, FriendEntry, FriendRequest, Msg } from '@/themes/cinnaglass/chat/store';
 import type { Channel } from '@/types/chat';
 import type { FeedProfile } from '@/types/feed';
 
 // The view-model types and the pure projections live in chat-store.ts; both chat surfaces keep
 // importing them from here, so the split stays invisible to every consumer.
-export { colorFor, convsFor } from '@/themes/cinnaglass/chat-store';
-export type { Conv, EmoteView, FriendEntry, FriendRequest, Msg, MsgReaction } from '@/themes/cinnaglass/chat-store';
+export { colorFor, convsFor } from '@/themes/cinnaglass/chat/store';
+export type { Conv, EmoteView, FriendEntry, FriendRequest, Msg, MsgReaction } from '@/themes/cinnaglass/chat/store';
 
 // Logman tag for this module (ai/PROJECT.md §已有功能资产 keeps the domain tag pool).
 const TAG = '[chat][web][chat-data]';

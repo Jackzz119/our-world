@@ -37,13 +37,13 @@ GIF 是实际页面逐帧截图（含导航、正文、背景），不是生图�
 
 | 文件                              | 职责                                                 |
 | --------------------------------- | ---------------------------------------------------- |
-| `journal-turn.ts`                 | 纸面曲线、正反面、底页显露、内容副本与签名图片更新   |
-| `journal-turn.css`                | 三维层级、纸面裁片、同源旧纸材质、光暗与纸下阴影     |
-| `journal-turn-controller.ts`      | 单页/连续队列、反向、时值、停止清理、减少动态效果    |
-| `journal-room-book.tsx`           | 真实分页、目录/按钮、输入、阅读位置、尺寸变化、草稿  |
+| `journal/turn.ts`                 | 纸面曲线、正反面、底页显露、内容副本与签名图片更新   |
+| `journal/turn.css`                | 三维层级、纸面裁片、同源旧纸材质、光暗与纸下阴影     |
+| `journal/turn-controller.ts`      | 单页/连续队列、反向、时值、停止清理、减少动态效果    |
+| `journal/room-book.tsx`           | 真实分页、目录/按钮、输入、阅读位置、尺寸变化、草稿  |
 | `src/pages/WorldPage.tsx`         | 阅读态保持房间运行，不再停雨                         |
 | `room/room-scene.tsx`             | 更新暂停行为注释；未改场景绘制算法                   |
-| `room/pixi-scene.ts`              | 修复阅读背景持续运行时的缩放崩溃；不改唱片美术与运动 |
+| `room/compositor.ts`              | 修复阅读背景持续运行时的缩放崩溃；不改唱片美术与运动 |
 | `scripts/render-journal-turn.mjs` | 从运动样板逐帧导出 GIF                               |
 | `scripts/check-journal-turn.mjs`  | 实际页面动画、加载与边界检查；可导出产品 GIF         |
 

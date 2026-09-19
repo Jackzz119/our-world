@@ -1,5 +1,5 @@
 {
-    "source": "src/themes/cinnaglass/room/pixi-scene.ts",
+    "source": "src/themes/cinnaglass/room/compositor.ts",
     "sourceSha256": "1458a43643ec45094d70645336298884d94573313fbbfd0fa08908df06da14b9",
     "capturedAt": "2026-09-12",
     "recipes": {
