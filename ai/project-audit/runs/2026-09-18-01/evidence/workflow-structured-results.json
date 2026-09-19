@@ -1,0 +1,674 @@
+[
+ {
+  "docs": [
+   {
+    "path": "ai/design_system/design-system.md",
+    "bytes": 5425,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。核验方法：表中 18 个素材/源码路径逐一 ls 存在；room-types.ts L6 RoomMood 仅 golden|twilight|night 与 L17「三档现状」一致；TODO.md L8（1 房间 × 4 时辰）与 L53（共用光环境定稿待办）证实「四时辰与共享光环境是目标、尚未实现」；rail.tsx L109-114 五个主层按钮证实导航五入口；twilight-scene.png 存在；node scripts/check-design-system.mjs 实际运行通过（374 链接、0 失败）。结构为风格约束表 + 领域入口表 + 素材位置表 + 边界 + 更新方式，无完成流水。唯一可精简处：L51-54「当前边界与后续设计」与 uiux.md L32、decisions.md U-01～U-04 三处重述同一组边界（A 母材质/B 待批准/日记冻结/动画后置），建议 decisions.md 作唯一登记，此处留一行链接；L59-63「更新方式」与 README.md L21-25 重复。体量小，保留。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/uiux/uiux.md",
+     "ai/design_system/uiux/cinnaglass/decisions.md",
+     "ai/design_system/README.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/character.md",
+    "bytes": 2789,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。对照 src/themes/cinnaglass/room/pixi-scene.ts L979-995：呼吸周期 3.6s、scale.y 1+0.016·sin、scale.x 1−0.003·sin（纵 ±1.6%/横反向 ±0.3%）、摆动 7.4s ±0.009 rad、闭眼 140ms、下次眨眼 rand(2400,6500)ms、15% 概率 180ms 后二次眨眼——L20-22 全部数值一致；study-room.ts L36-51 座位 blue foot(468,798) 在左、pink foot(1005,634) 在右，与 L12「蓝耳左沙发、粉耳右书桌」一致，phase 0/1.7 证实相位错开；public/characters 四张 PNG、05-character-action-atlas.png、codex-visual/20260810-000437Z/codex-report.md 均存在；presence 待办见 TODO.md L64/L70-71。无完成流水。L14「日记打开允许遮挡角色、不再沿用避让」与 scene.md L22、TODO.md L87 三处重复，可只留一处。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/scene.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/scene.md",
+    "bytes": 2694,
+    "verdict": "fix-only",
+    "reason": "全文阅读。file 命令核验 arts/rooms/study/source 三张原画均为 1586×992 ✓；study-room.ts L10-16 注释证实运行时底图是抹除唱臂的 clean plate（L9「装配处理」✓）；public/rooms/{gameroom,garden}/thumb.png 存在且 rail.tsx L23-24 标 locked:true，与「完整房间尚未开放」一致 ✓；arts/rooms/study/generated、public/rooms/study、模板、合成器均存在 ✓。唯一不符：L15 声称房间模板含「音景预设」，room-types.ts RoomTemplate（L154-168）字段仅 base/art/moodFallback/window/clock/seats/hotspots/props，grep sound|audio|ambien 在 room-types.ts/study-room.ts/rooms.ts 零命中。PROJECT.md L48 有同一句（S05 范围），属同源陈旧。",
+    "stale_statements": [
+     {
+      "line": 15,
+      "statement": "房间模板拆分为时辰底图、角色座位锚点、物件热点、窗格区域、钟面与音景预设",
+      "actual": "room-types.ts RoomTemplate 字段为 base / art / moodFallback / window(panes+glow) / clock / seats / hotspots / props(turntable)，没有任何音景字段；音景仅是 TODO.md L8、PROJECT.md L14/L42 的 MVP 目标",
+      "suggested_fix": "改为「…窗格区域、钟面与活物件（唱片机）；音景预设是目标字段，尚未进入模板」。PROJECT.md L48 同句需由 S05 同步"
+     }
+    ],
+    "duplicate_of": [
+     "ai/design_system/character.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/props.md",
+    "bytes": 2996,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。study-room.ts L54-60 五个热点 timeline/photos/clock/music/wishlist 与表中日记/相框/挂钟/唱片机/许愿罐一一对应 ✓；pixi-scene.ts L2-14 结构注释证实 clock (shadow + hands)、角色 mood tint ✓；pixi-scene.ts L422-436 与 PROJECT.md L56 证实 hover = 转速提升 + 抬针（lift）✓；public/rooms/study/parts/platter-golden.png、tonearm.png、turn-verification/live-single.gif、scripts/build-turntable-parts.py、research/living-props.md 存在 ✓；ui-system.md L27「## C 专属物件 UI」使锚点 #c-专属物件-ui 有效 ✓；design-system.md L36「## 实际素材位置」锚点有效 ✓；拿起/收回/羽毛笔待办见 TODO.md L90 ✓；「描边/换图路线已否决」与 room-types.ts L136-138 注释一致 ✓。无流水、无过期陈述。",
+    "stale_statements": [],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/effects.md",
+    "bytes": 2647,
+    "verdict": "fix-only",
+    "reason": "全文阅读。对照 pixi-scene.ts：wash/glow/breath 光层配方 L43-125、雨层 mask 到窗格 L11、四角星 sparkle L296-307、天气整体分级 AdjustmentFilter L129-132、RoomWeather 仅 sun|rain（room-types.ts L7）✓；「雪待做」见 TODO.md L66 ✓；gradient-textures.png、art-relighting-preview/index.html、art-relighting.md 存在 ✓。两处措辞与代码/文档现状不符：L27「网页默认静音启动」——music.tsx L83 muted 初值来自 localStorage 默认 false，真正机制是 L87 注释「never autoplay sound without a gesture」；L27 指向 PROJECT.md 的「音景与声音功能」，PROJECT.md 只有 PRD 目标（L14、L42），无实现说明。",
+    "stale_statements": [
+     {
+      "line": 27,
+      "statement": "网页默认静音启动",
+      "actual": "music.tsx L83 `muted = !!init.muted`（默认 false，读 localStorage ow-music-v1）；L87 注释「persist (not playing — never autoplay sound without a gesture)」。是「不自动播放」，不是静音开关默认开",
+      "suggested_fix": "改为「网页不自动播放声音，需用户手势后才出声；静音开关跟随本地存储」"
+     },
+     {
+      "line": 27,
+      "statement": "房间音景与声音功能详见 [项目说明](../PROJECT.md)",
+      "actual": "PROJECT.md 仅在 L14「ASMR 声音」与 L42 MVP 定义中把音景列为目标，没有已实现的音景功能描述；当前实现只有 music.tsx / shell/floaters.tsx 的音乐播放器",
+      "suggested_fix": "改为「ASMR 音景为 MVP 目标（见 PROJECT.md PRD），当前仅有音乐播放器（music.tsx / floaters.tsx）」"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/README.md",
+    "bytes": 1551,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。目录树与 find ai/design_system 结果一致（五份领域 md、uiux/{uiux.md,interaction.md,cinnaglass/,research/}、concept/、research/）✓；L23 `node scripts/check-design-system.mjs` 实际运行（node v22）通过：maintainedDocuments 9、documents 58、checkedLinks 374、failures 0；脚本 L1 自述「writes no project reports」，通读 93 行确认只读。L21-25 更新方式/HTML 展示版/报告在 session 三句与 design-system.md L59-63 重复；「普通报告只在 session 汇报」这句在 6 份文档重复（design-system L61、本文 L23、research/README L13、uiux.md L34、uiux/README L11、uiux/research/README L9），建议只留本 README 一处。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/design-system.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/concept/README.md",
+    "bytes": 1309,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。5 个链接目标逐一存在：baselines/companionship-room/codex-report.md、05-character-action-atlas.png、03-desktop-widget.png、proposals/living-props/anim-scene-map.png、../uiux/research/cinnaglass-history/README.md ✓。L10「唱片机已有部分实现」与 study-room.ts L65-100 props.turntable 一致；L7「桌宠仍是未来设想」与 PROJECT.md L22「桌面壳与桌宠是纯增量演进」一致。只有档案表 + 使用规则，无流水。",
+    "stale_statements": [],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/research/README.md",
+    "bytes": 1045,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。5 个链接目标存在（living-props.md、art-relighting.md、art-relighting-preview/index.html、visual-principles-2026-09-12.md、production-batches.md）✓；art-relighting-preview 目录含 index.html + recipes.json + 16 张 wash/glow PNG，与「可切换检查、非完整实时重光照」描述一致。L13 末句「普通过程报告只在 session 汇报」属 6 处重复 boilerplate。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/README.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/research/production-batches.md",
+    "bytes": 2540,
+    "verdict": "fix-only",
+    "reason": "全文阅读。13 个 codex-visual 批次的 codex-report.md 逐一 ls 存在 ✓；与 uiux/research/production-batches.md 的 5 个批次合计 18，等于 ls codex-visual 实际目录数 ✓；L9 public/characters/、L10 arts/rooms/study/ 存在 ✓；L19「转盘还原算法见 PROJECT」对应 PROJECT.md L56 长段 ✓。唯一陈旧：L3 以「STYLE」为采用范围依据，ai/STYLE.md 自 2026-09-13（9645dbc）起为 5 行跳转桩。与 UI 索引互补而非重复。",
+    "stale_statements": [
+     {
+      "line": 3,
+      "statement": "采用范围以 [概念地图](../concept/README.md) 和 STYLE 为准",
+      "actual": "ai/STYLE.md 现为 358 字节跳转桩，无风格正文；当前采用登记在 design-system.md 与领域文档；concept/README.md 标题为「概念档案」且自述为构想/否决档案，不是当前采用依据",
+      "suggested_fix": "改为「采用范围以 [design-system.md](../design-system.md) 为准，否决与构想见 [概念档案](../concept/README.md)」"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/research/visual-principles-2026-09-12.md",
+    "bytes": 1558,
+    "verdict": "fix-only",
+    "reason": "全文阅读。两条外链（Xbox XAG 102/117）未联网核验，只确认格式；内链 ../../STYLE.md 与 ../uiux/research/interaction-principles-2026-09-12.md 存在 ✓；L6「日记阅读雨不停播已定」与 WorldPage.tsx L439 `active={screen === null || screen === 'timeline'}` 实现一致 ✓。两处措辞随 2026-09-13 重组变旧：L3 把 STYLE 当艺术签名来源（已是桩）；L9「当前采用状态只在 concept/uiux 入口登记」与 concept/README.md L3 自述为档案的定位矛盾。",
+    "stale_statements": [
+     {
+      "line": 3,
+      "statement": "具体艺术签名沿用 [STYLE](../../STYLE.md)",
+      "actual": "ai/STYLE.md 为跳转桩；风格正文在 ai/design_system/design-system.md",
+      "suggested_fix": "链接改为 [design-system.md](../design-system.md)"
+     },
+     {
+      "line": 9,
+      "statement": "当前采用状态只在 concept/uiux 入口登记",
+      "actual": "concept/README.md L3 自述「整体构想、脑暴、未来想法和否决方向留在这里；当前在用设计看 design-system.md」；当前采用在 design-system.md + character/scene/props/effects + uiux.md",
+      "suggested_fix": "改为「当前采用状态只在 design-system.md 及其领域文档与 uiux.md 登记」"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/uiux.md",
+    "bytes": 3386,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。rail.tsx L109-114 主层按钮 rooms/chat/music/modules/settings 恰为五个 ✓「五入口」；音乐两态 = shell/floaters.tsx 迷你条 + music.tsx 展开播放器（TODO.md L105 同述）✓；ui-system.md L7/L19/L27/L37 四个标题使 #a-场景悬浮-ui、#b-任务与功能弹窗、#c-专属物件-ui、#边缘页面与公共规则 锚点有效 ✓；Features/navigation-glass.md、ui-system/audit.md、ui-system/ui-system.md、timeline.md 存在 ✓；L20「待 M5 收敛」对应 Features/ui-system/ui-system.md L158 与 TODO.md L47 ✓；widgets-twilight.png 存在 ✓。L32「当前设计边界」一段与 design-system.md L51-54、decisions.md U-01～U-04 重复，建议只留 decisions.md。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/design-system.md",
+     "ai/design_system/uiux/cinnaglass/decisions.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/uiux/README.md",
+    "bytes": 692,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。列出的 uiux.md、interaction.md、cinnaglass/ui-system.md、cinnaglass/ui-system.html、cinnaglass/decisions.md、research/ 均存在 ✓。L11「不逐轮创建 report 文件」属 6 处重复 boilerplate，其余为目录说明，无流水。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/README.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/README.md",
+    "bytes": 411,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。ui-system.md、decisions.md、../uiux.md、ui-system.html、journal-room-object/、ui-unification/、../research/README.md 均存在 ✓；ui-unification/audit-2026-09-11/ 含 7 个截图/JSON，与「现状审计素材」一致。5 行纯目录说明。",
+    "stale_statements": [],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/decisions.md",
+    "bytes": 1954,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。6 个链接目标存在；PROJECT.md L154 标题「## 美术与 UI/UX 技能登记」生成锚点 #美术与-uiux-技能登记 ✓；../research/cinnaglass-history/ux-decisions.md 存在 ✓；U-03「固定纹理 + 实时背景模糊 + 按 mood 绘制边光」与 shell/navigation-glass.css L91 `url('/ui/nav/frost.webp')` 及 L10/L27 --nav-frost 变量一致 ✓；U-04「B 厚磨砂未批准」与 Features/ui-system/ui-system.md L45「待标准板验收」、TODO.md L43 M1 一致 ✓。是当前决定唯一表，design-system.md 与 uiux.md 对其边界的重述应回指此处。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/design-system.md",
+     "ai/design_system/uiux/uiux.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/uiux/research/README.md",
+    "bytes": 747,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。interaction-principles-2026-09-12.md、cinnaglass-history/README.md、production-batches.md、../../concept/README.md 存在 ✓。L9「新一轮回归…直接在 session 汇报」属 6 处重复 boilerplate。",
+    "stale_statements": [],
+    "duplicate_of": [
+     "ai/design_system/README.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/uiux/research/production-batches.md",
+    "bytes": 1353,
+    "verdict": "fix-only",
+    "reason": "全文阅读。5 个 codex-visual 批次 codex-report.md 逐一存在 ✓；L13「其余 13 个批次」与美术索引条目数一致 ✓；L11「棕皮旧纸方案已替代、日记冻结」与 TODO.md L87-90 一致 ✓。两处措辞不准：L8「规范结果在 theme archive」——仓库无此目录名，历史稿实际在 uiux/research/cinnaglass-history/；L13 链接文字「concept 制作索引」指向 ../../research/production-batches.md，该文标题为「美术原始制作批次索引」且不在 concept/ 下。",
+    "stale_statements": [
+     {
+      "line": 8,
+      "statement": "早期三种游戏 UI 方向；历史比稿，规范结果在 theme archive",
+      "actual": "仓库中不存在名为 theme archive 的目录；对应历史资料在 ai/design_system/uiux/research/cinnaglass-history/（ui-concepts/、navigation-concepts/、ux-decisions.md）",
+      "suggested_fix": "改为「规范结果见 [cinnaglass-history](cinnaglass-history/README.md)」"
+     },
+     {
+      "line": 13,
+      "statement": "房间/角色/热点/活物其余 13 个批次见 [concept 制作索引](../../research/production-batches.md)",
+      "actual": "目标文件位于 research/ 而非 concept/，标题为「美术原始制作批次索引」",
+      "suggested_fix": "链接文字改为「美术制作批次索引」"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/research/interaction-principles-2026-09-12.md",
+    "bytes": 1659,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。3 条外链（W3C WCAG 2.2、WAI-ARIA APG、Xbox XAG 102）未联网核验；L8「M2 应验证完整生命周期」对应 Features/ui-system/ui-system.md L155 M2 与 TODO.md L44 ✓；L13 ../../research/visual-principles-2026-09-12.md 存在 ✓。表格式准则 + 边界，无流水。",
+    "stale_statements": [],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/research/cinnaglass-history/README.md",
+    "bytes": 1998,
+    "verdict": "fix-only",
+    "reason": "全文阅读。表中 22 个文件/目录名逐一对照 find 结果均存在 ✓；L12/L14「已由当前物件日记替代」与 screens.tsx L15 只导入 journal-room-book 一致 ✓。发现一处重复资产：L15 把 navigation-concepts/ 与 ui-concepts/ 并列为两份资料，shasum -a 256 核验两目录各 4 个文件（codex-report.md、concept-a/b/c PNG）逐个字节相同；全仓 grep 只有 uiux/interaction.md L4/L94 引用 navigation-concepts/，无任何文件引用 ui-concepts/。",
+    "stale_statements": [
+     {
+      "line": 15,
+      "statement": "| `navigation-concepts/`、`ui-concepts/` | 重定位早期导航/界面探索，保留 brief 与比较，具体采用以当前导航为准 |",
+      "actual": "两目录 4 个文件 sha256 完全一致（codex-report.md 均为 cc4afaff…，三张 PNG 亦相同）；ui-concepts/ 零引用，navigation-concepts/ 被 interaction.md 引用",
+      "suggested_fix": "表行只保留 navigation-concepts/；ui-concepts/ 作为完全重复副本交由负责 cinnaglass-history 附属文件的子任务列入删除候选"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/STYLE.md",
+    "bytes": 358,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。两个链接（design_system/design-system.md、design_system/README.md、TODO.md）存在 ✓；PROJECT.md L177 登记其为「旧链接兼容入口」✓。grep 全仓：room-types.ts L124 注释「ai/STYLE.md §6」、arts/rooms/study/generated/20260907-053852Z/codex-report.md L7、codex-visual 五份报告、concept/baselines/…/codex-report.md L3、research/production-batches.md L3、visual-principles L3 仍引用——桩必须保留。但源码注释引用的章节号在桩中不存在，读者无法回溯。",
+    "stale_statements": [
+     {
+      "line": 5,
+      "statement": "此文件保留旧入口兼容，不再维护第二份风格正文",
+      "actual": "src/themes/cinnaglass/room/room-types.ts L124 仍写「sync reads as mechanical, see ai/STYLE.md §6」，桩内没有 §6，对应内容现在是 design_system/character.md「当前动画怎样运行」",
+      "suggested_fix": "桩中追加一行旧章节映射（如「旧 §6 动效 → design_system/character.md」），或由代码子任务把注释改为指向 character.md"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/UX.md",
+    "bytes": 311,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。两个链接（design_system/uiux/uiux.md、interaction.md）存在 ✓；PROJECT.md L177 登记为兼容入口 ✓。grep 全仓：study-room.ts L52「ai/UX.md §2」、room-types.ts L136「ai/UX.md §2/§5」、WorldPage.tsx L242「ai/UX.md §4」/L345「§2」/L434、shell/rail.tsx L27「ai/UX.md §2」、Features/timeline.md L227「UX.md §2」、codex-visual 三份报告仍引用——桩必须保留。桩内无旧章节号，7 处按 § 引用的位置失去回溯目标。",
+    "stale_statements": [
+     {
+      "line": 6,
+      "statement": "此文件只兼容旧链接",
+      "actual": "6 处源码注释（study-room.ts L52、room-types.ts L136、WorldPage.tsx L242/L345/L434、rail.tsx L27）与 Features/timeline.md L227 仍按旧章节 §2/§4/§5 引用本文，桩中无对应章节",
+      "suggested_fix": "桩中追加旧章节映射（§2 物件入口地图 → design_system/props.md 与 uiux/uiux.md；§4 聊天 → uiux/interaction.md；§5 热点 → props.md），或由代码子任务改注释"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/reboot/README.md",
+    "bytes": 2078,
+    "verdict": "compress",
+    "reason": "全文阅读。四份子文档 product-vision/market-research/tech-plan/concept-art.md 存在 ✓；PROJECT.md L3/L181 与 TODO.md L5/L158 均把 ai/reboot/ 定义为「决策依据与调研归档」✓。git log 显示本文自 2026-08-09（63f6ef1）未再更新。陈旧点：L4「新三件套…ai/STYLE.md」——STYLE.md 已于 2026-09-13 变为桩，风格正文迁至 ai/design_system/；L14-17 状态列「✅ 初稿」对已归档文档无信息量；L19-29「决策清单（用户拍板用）」是拍板前的提问清单，五项结论已落在 PROJECT.md（L9 网页优先、L57 角色层双帧+程序变形并推迟 Rive/Spine、L100 原地翻新零迁移、design_system/concept/baselines 概念基准），清单本身属已完成流水。预计可删：L19-29 整节（11 行）替换为一行「当时待拍板五项，结论见 PROJECT.md §形态路线/§技术栈 与 design_system/concept」；L12-17 状态列删除或统一改「归档」。保留：标题归档说明、一句话愿景、文档导航表（修正 L4）。若用户希望保留提问原貌，可降为 fix-only，只把「用户拍板用」改为「当时待拍板事项，结论见 PROJECT.md」。",
+    "stale_statements": [
+     {
+      "line": 4,
+      "statement": "结论已吸收进新三件套（`ai/PROJECT.md` / `ai/TODO.md` / `ai/STYLE.md`）",
+      "actual": "ai/STYLE.md 自 2026-09-13 起为跳转桩；风格正文在 ai/design_system/design-system.md 及领域文档",
+      "suggested_fix": "改为「结论已吸收进 ai/PROJECT.md / ai/TODO.md / ai/design_system/」"
+     },
+     {
+      "line": 14,
+      "statement": "| [product-vision.md] … | ✅ 初稿 |（L14-17 四行状态列）",
+      "actual": "四份文档自 2026-08-09 归档后未再改动，「初稿」状态已无意义",
+      "suggested_fix": "删除状态列，或统一为「归档」"
+     },
+     {
+      "line": 21,
+      "statement": "看完四份文档后需要拍板的事项：1.产品定位…5.MVP 概念图基准",
+      "actual": "五项已于 2026-08-09 同日拍板（本文 L3 自述）；结论记录在 PROJECT.md L9/L22（网页优先）、L57（角色媒介）、L100（原地翻新）及 design_system/concept/baselines/",
+      "suggested_fix": "整节压为一行指向 PROJECT.md 与 concept 档案的结论指针"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/journal-room-object/codex-report.md",
+    "bytes": 8214,
+    "verdict": "compress",
+    "reason": "全文阅读并逐条对照源码。L19「journal-book.tsx 用 page-flip@2.0.7 HTML 模式」——screens.tsx L15 现在只导入 journal-room-book.tsx，grep 全 src 无任何文件导入 journal-book.tsx（已成死码，package.json L17 仍留 page-flip 依赖，属代码子任务范围）；L29「WorldPage 传入 active={screen === null}…日记打开后场景暂停」——WorldPage.tsx L439 现为 `active={screen === null || screen === 'timeline'}`，日记打开时场景与雨继续；L28「rail.tsx 使用单个 --cg-panel 底」——rail.tsx 与 shell/navigation-glass.css grep 均无 --cg-panel；L3 状态「新翻页、开合与场景不停播未实施」——turn-implementation.md（2026-09-07）标题即「竖直翻页实装」并声明「阅读时雨不停播」，commit 5b96700（2026-09-11「feat: add journal page turns」）已落地，仅「拿起/收回」仍待办（TODO.md L90）；L74 提议的 PixiJS Mesh 路线未被采用，turn-implementation.md §2 记录实际决定是「用真实网页内容做三维纸面，不用自定义 shader」。文档结构：L9-15 用户边界（有效规则）+ §1 旧代码分析 L17-29（全部过期）+ §2 设计裁决 L31-63（有效设计依据；L63「光晕应下调」已被 L5 状态更新覆盖）+ §3 技术提案 L65-76（已被替代方案落地）+ §4 生成板复核 L78-84（对图板局限的说明仍有效，L84 验收方法已在 turn-implementation 执行）+ L86 过程日志。预计可删：§1 整节压成一句「旧 page-flip 引擎与场景暂停问题已由 turn-implementation.md 解决」；§3 整节替换为一行指向 turn-implementation.md §2；L84 验收方法段与 L86 过程日志。保留并更新：L3 状态行、边界、§2 设计裁决、§4 图板局限。",
+    "stale_statements": [
+     {
+      "line": 3,
+      "statement": "本轮羽毛笔仅静态图，新翻页、开合与场景不停播未实施",
+      "actual": "turn-implementation.md（2026-09-07）与 commit 5b96700（2026-09-11）已实施竖直翻页、连续翻阅与阅读时雨不停播；WorldPage.tsx L439 日记打开时场景保持 active；仅拿起/收回与羽毛笔交互仍待办（TODO.md L90）",
+      "suggested_fix": "状态行改为「翻页与雨不停播已实施（见 turn-implementation.md）；拿起/收回、羽毛笔交互待办；日记本 session 冻结」"
+     },
+     {
+      "line": 19,
+      "statement": "本地 `journal-book.tsx` 用 `page-flip@2.0.7` 的 HTML 模式",
+      "actual": "screens.tsx L15 `import { JournalRoomBook as JournalBook } from './journal-room-book'`；journal-book.tsx 无任何导入者；翻页由 journal-turn.ts / journal-turn-controller.ts 实现",
+      "suggested_fix": "§1 改为一句历史说明：「2026-09-06 时旧翻页基于 page-flip HTML 模式，已被 journal-room-book + journal-turn 替代」"
+     },
+     {
+      "line": 28,
+      "statement": "`rail.tsx` 使用单个 `--cg-panel` 底、均匀描边，相关值固定偏绿",
+      "actual": "rail.tsx 与 shell/navigation-glass.css 均无 --cg-panel；导航材质为 frost.webp 纹理 + backdrop 模糊 + 按 mood 边光（navigation-glass.css L10/L27/L91）",
+      "suggested_fix": "删除该条或标注「2026-09-06 时状态，已由 navigation-implementation.md 替代」"
+     },
+     {
+      "line": 29,
+      "statement": "`WorldPage.tsx` 传入 `active={screen === null}`，`room-scene.tsx` 在不 active 时调用 `app.stop()`。日记打开后整个场景绘制暂停，雨自然也会停",
+      "actual": "WorldPage.tsx L439 `active={screen === null || screen === 'timeline'}`；room-scene.tsx L145-146 仍按 active 启停，但日记（timeline）打开时保持运行",
+      "suggested_fix": "删除或改为「已修：日记打开时场景保持运行」"
+     },
+     {
+      "line": 74,
+      "statement": "项目现有 PixiJS 的网格系统支持顶点和纹理映射控制…复用现有引擎成为合理的先行研究方向",
+      "actual": "turn-implementation.md §2 记录实际采用「真实网页内容做三维纸面（CSS 3D），不用自定义 shader / Pixi mesh」",
+      "suggested_fix": "§3 整节替换为一行「翻页技术路线最终见 turn-implementation.md §2；本提案的 Pixi Mesh 方向未采用」"
+     }
+    ],
+    "duplicate_of": [
+     "ai/design_system/uiux/cinnaglass/journal-room-object/turn-implementation.md",
+     "ai/design_system/uiux/cinnaglass/journal-room-object/navigation-implementation.md"
+    ]
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/journal-room-object/prompts.md",
+    "bytes": 5959,
+    "verdict": "fix-only",
+    "reason": "全文阅读。纯生成描述记录（L9-17 一条完整 prompt），被 codex-report.md L7 与 ui-system.html L1342 引用，是设计板 room-journal-concept.png 的唯一生成来源，不应删。public/rooms/study/night.png、golden.png 存在 ✓。L5 第三张参考写作 `journal-book-directions/direction-b-sage.png`，该文件现位于 ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/（2026-09-12 迁入 research），相对本目录不存在此路径。",
+    "stale_statements": [
+     {
+      "line": 5,
+      "statement": "`journal-book-directions/direction-b-sage.png`（仅手作质感、头像/范围框与羽毛笔，不继承绿色）",
+      "actual": "文件实际位于 ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/direction-b-sage.png；journal-room-object/ 下无 journal-book-directions 目录",
+      "suggested_fix": "路径改为 `../../research/cinnaglass-history/journal-book-directions/direction-b-sage.png`"
+     }
+    ],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/journal-room-object/book-prompts.md",
+    "bytes": 4478,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。arts/ui/journal/book-checker-source.png、quill-source.png、book-alpha-rejected.png、同目录 room-journal-concept.png、scripts/pack-journal-art.mjs 全部存在 ✓；public/ui/journal/avatar-blue.webp、avatar-pink.webp、quill.webp、book-open.webp 证实 L5「默认头像裁切、羽毛笔原生透明」产物存在 ✓；被 book-implementation.md L82 与 ui-system.html L1358 引用。三段 prompt 是资产生成来源的唯一记录，含失败尝试保留说明，无可删段落。",
+    "stale_statements": [],
+    "duplicate_of": []
+   },
+   {
+    "path": "ai/design_system/uiux/cinnaglass/journal-room-object/navigation-texture-prompt.md",
+    "bytes": 2267,
+    "verdict": "exception-keep",
+    "reason": "全文阅读。arts/ui/navigation/frost-source.png、navigation-verification/reference-nav.png 存在 ✓；scripts/pack-navigation-texture.mjs L8 `.resize(512, 512)`、L23-24 `.webp({quality:90, alphaQuality:100}).toFile('public/ui/nav/frost.webp')` 与 L13「512×512 带透明通道 WebP」一致 ✓；shell/navigation-glass.css L91 `background: url('/ui/nav/frost.webp')` 与 L10/L27 --nav-frost 透明度变量证实 L14 ✓；shell/rail-icons.tsx 存在证实 L15 矢量图标 ✓；L12「最终未采用 soft-light」是对 prompt 与实装差异的必要说明；被 navigation-implementation.md L87 与 ui-system.html L1395 引用。无可删段落。",
+    "stale_statements": [],
+    "duplicate_of": []
+   }
+  ]
+ },
+ {
+  "partition": "ai-core（01-S05）：ai/ 下除 ai/design_system/ 与 ai/sessions/ 外全部文件——ai/PROJECT.md、ai/TODO.md、ai/STYLE.md、ai/UX.md、ai/Features/**、ai/reboot/**、ai/blender/**、ai/project-audit/scripts/*",
+  "files_total": 20,
+  "files_checked": 20,
+  "files_not_applicable": 0,
+  "files_restricted": 0,
+  "review_path": "ai/project-audit/runs/2026-09-18-01/evidence/ai-core-review.md",
+  "coverage_csv_path": "ai/project-audit/runs/2026-09-18-01/evidence/ai-core-coverage.csv",
+  "findings": [
+   {
+    "title": "timeline.md 链接 sql/dev-create-couple.sql 未解析（实际 sql/dev-create-world.sql）",
+    "category": "断链",
+    "files": [
+     "ai/Features/timeline.md"
+    ],
+    "evidence": "timeline.md:173 `](../../sql/dev-create-couple.sql)`；`ls sql/` 只有 dev-create-world.sql、storage-memories-bucket.sql；`git log --follow sql/dev-create-world.sql`：ST-F(2026-06-30) couple→room，7938619 room→world。python 解析本分区 32 条相对链接，唯一失败项。timeline.md:182/:290 另提历史文件名（历史记录）。",
+    "proposal": "把 :173 链接改为 ../../sql/dev-create-world.sql 并括号注明改名链；:182/:290 属历史记录不改。",
+    "risk": "低",
+    "verification": "改后重跑链接解析脚本，unresolved 应为 0。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "已作废 Features 文档名（channel/sidebar/room/world/settings/ui-system.md）仍被 9 处引用",
+    "category": "断链",
+    "files": [
+     "ai/Features/chat.md",
+     "ai/Features/supabase.md",
+     "ai/Features/timeline.md",
+     "src/types/chat.ts",
+     "src/lib/worlds.ts",
+     "sql/dev-create-world.sql",
+     "ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md"
+    ],
+    "evidence": "chat.md:18 → sidebar.md/channel.md；supabase.md:20 → channel.md/room.md；timeline.md:60 → channel.md；src/types/chat.ts:3、src/lib/worlds.ts:2 → channel.md；sql/dev-create-world.sql:9 → ai/Features/world.md；ux-decisions.md:9 → ai/Features/ui-system.md（实为 ui-system/ui-system.md）、:24 → channel.md、:37 → settings.md。`ls ai/Features/` 无这些文件；7c93c3c 删除、2026-08-22 仅恢复三份，PROJECT.md:84 明确不恢复。",
+    "proposal": "PROJECT.md §文档索引 Features 条目下加一行「已作废不恢复：channel/sidebar/room/world/settings/handoff…，术语与数据模型以 PROJECT.md §数据库与 src/lib 注释为准」；5 处代码/sql 注释改指 PROJECT.md 对应节；ux-decisions.md:9 修正为 ui-system/ui-system.md。",
+    "risk": "低",
+    "verification": "grep -rn 'Features/(channel|sidebar|room|world|settings|ui-system)\\.md' 应只剩 PROJECT.md 索引说明行。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "STYLE.md / UX.md 已缩为兼容 stub，但源码 6 处按已消失的章节号引用",
+    "category": "陈旧陈述",
+    "files": [
+     "ai/STYLE.md",
+     "ai/UX.md",
+     "src/pages/WorldPage.tsx",
+     "src/themes/cinnaglass/shell/rail.tsx",
+     "src/themes/cinnaglass/room/room-types.ts",
+     "src/themes/cinnaglass/room/study-room.ts"
+    ],
+    "evidence": "`git show 9645dbc --stat`：STYLE.md 95→5 行、UX.md 101→6 行（2026-09-13）。src 引用：WorldPage.tsx:242 `ai/UX.md §4`、:345 `§2`、:434；rail.tsx:27 `§2`；room-types.ts:124 `ai/STYLE.md §6`、:136 `ai/UX.md §2/§5`；study-room.ts:52 `§2`。对应正文现位于 ai/design_system/uiux/interaction.md（§2 功能入口地图、§4 聊天体系、§5 可点击物件提示）。其它入向：design_system/research/visual-principles-2026-09-12.md:3、concept/baselines/companionship-room/codex-report.md:3、reboot/README.md:4、codex-visual 多份历史报告。",
+    "proposal": "保留两 stub（入向引用多）；将 6 处代码注释改为 `ai/design_system/uiux/interaction.md §N`。备选：删 stub 前先改全部 8 处非归档引用。",
+    "risk": "低；删 stub 会让 codex-visual 历史报告与 reboot/README 的引用变断链",
+    "verification": "grep -rn 'UX.md §\\|STYLE.md §' src 为 0。",
+    "needs_user_decision": true
+   },
+   {
+    "title": "PROJECT.md 声称标签池含 auth，源码只有 chat 标签",
+    "category": "陈旧陈述",
+    "files": [
+     "ai/PROJECT.md",
+     "src/lib/logman.ts"
+    ],
+    "evidence": "PROJECT.md:96「现有标签池：auth、chat」；`grep -rn 'Logman\\.' src`：仅 chat-data.ts 19 处，TAG='[chat][web][chat-data]'；useAuth.ts/supabase.ts/pages 无 Logman/console 调用。logman.ts:3-4 注释反指 PROJECT.md 为标签池来源。",
+    "proposal": "PROJECT.md:96 改为「现有标签池：chat；auth 域尚无日志调用」，或按 logman skill 决定给 auth 补日志。",
+    "risk": "低",
+    "verification": "grep 统计 Logman 标签集合与 PROJECT.md 一致。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "TODO 称 three 全家依赖已删，@react-three/rapier 仍在 package.json 且零引用",
+    "category": "依赖",
+    "files": [
+     "ai/TODO.md",
+     "package.json"
+    ],
+    "evidence": "TODO.md:113「已删…three 全家依赖」；`git show 4619fff -- package.json` 只删 three/@react-three/fiber/@react-three/drei/@types/three；package.json:15 仍有 `\"@react-three/rapier\": \"^2.2.0\"`（822fa92 加入）；`grep -rn rapier src` 零命中。",
+    "proposal": "TODO.md:113 追加「@react-three/rapier 漏删」并列入退役清理；root 分区登记删依赖（需重生 pnpm-lock.yaml）。",
+    "risk": "低（无代码引用）",
+    "verification": "pnpm remove 后 vite build 通过。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "ai/reboot/ 为冻结归档原件：不压缩不改，但含多条已作废方案与时点陈述",
+    "category": "目录组织",
+    "files": [
+     "ai/reboot/README.md",
+     "ai/reboot/product-vision.md",
+     "ai/reboot/market-research.md",
+     "ai/reboot/tech-plan.md",
+     "ai/reboot/concept-art.md"
+    ],
+    "evidence": "5 文件自 63f6ef1（2026-08-09）零改动；README:4 自述归档。活文档引用为决策出处而非规范：PROJECT.md:3,18,57,84,181、TODO.md:5,158、三份 Features 状态头引 tech-plan §119。已作废内容：tech-plan.md:33 Blender 转产、:39/:60 R3F quad shader + Rive 主推（2026-08-10 定 PixiJS、双帧立绘）；product-vision.md:34 天气脱钩（代码有 Open-Meteo 实况档）；concept-art 白色细光环/纸恒白（TODO.md:76 否决）；README:4「三件套含 STYLE」「Features 已清理」已过时。",
+    "proposal": "整目录冻结保留，不改正文；PROJECT.md:181 索引行补一句「时点 2026-08-09，其中三件套/Features/媒介方案表述已被后续决策取代」。",
+    "risk": "无",
+    "verification": "git diff ai/reboot 为空。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "ai/blender/ 三脚本 + arts/meshes 整条 3D 管线无消费者",
+    "category": "冗余文件",
+    "files": [
+     "ai/blender/scripts/build_metaspace.py",
+     "ai/blender/scripts/build_avatar.py",
+     "ai/blender/scripts/preview_cameras.py",
+     "arts/meshes/metaspace.blend",
+     "arts/meshes/avatar.blend",
+     "arts/meshes/scene.blend",
+     "arts/meshes/scene.blend1"
+    ],
+    "evidence": "全仓 grep（md/ts/tsx/py/json/html/css/sh/yaml/txt，排除 .claude/.agents/sessions/node_modules/.git）：脚本名、arts/meshes、*.blend 仅出现在脚本自身与 ai/reboot/tech-plan.md:33（归档中的「转产原料」计划）；design_system 零提及；package.json scripts 与 scripts/ 目录无 blender 调用。脚本引用的 public/models/*.glb、public/draco、src/themes/cinnaglass/metaspace.tsx、R3F 依赖均于 4619fff（2026-08-10）删除；`ai/blender/metaspace.md`（build_metaspace.py:3 声明的 spec）与 `ai/blender/renders/` 从未入 git；REPO=D:\\Repo\\our-world 为 Windows 路径。房间底图实际来自 codex（4619fff 从 codex-visual/20260810-024945Z 引入 public/rooms/study/*.png），Blender 预渲染方案未执行。scene.blend/scene.blend1 无任何脚本产出。",
+    "proposal": "删除 ai/blender/ 三脚本；arts/meshes 4 文件由 batches 分区按同一结论处理。恢复依据 git checkout 3fd52a5 -- ai/blender arts/meshes。若用户仍在另机维护 Blender 源并想留作远期 3D/桌宠素材，则改为移入归档目录并在 PROJECT.md 索引标「已退役」。",
+    "risk": "中：可能丢失用户另机维护的 Blender 大宅参数化源（脚本可再生 .blend，但 scene.blend 来源不明）",
+    "verification": "删除后 grep 全仓无 blender/meshes 引用；vite build 不受影响（本就无引用）。",
+    "needs_user_decision": true
+   },
+   {
+    "title": "唱片机分层管线在 PROJECT.md 技术栈与 TODO.md 活物件条目中长段重复",
+    "category": "重复内容",
+    "files": [
+     "ai/PROJECT.md",
+     "ai/TODO.md",
+     "ai/design_system/props.md",
+     "ai/design_system/research/living-props.md",
+     "ai/sessions/活物件-唱片机-生成优先分层管线.md"
+    ],
+    "evidence": "PROJECT.md:56 单行约 600 字；TODO.md:78-82 五轮合计约 2500 字，含闸门数值（mean 2.2–2.5/255、p95 6.4–8.2）、教训、脚本路径；design_system/props.md §唱片机的活动部分、research/living-props.md 各有一份；sessions 存档一份（未读）。CLAUDE.md 规则：TODO 只写高层描述；Feature/设计文档已记录的细节不重复写入 PROJECT.md。",
+    "proposal": "权威正文：当前实现事实 → ai/design_system/props.md + scripts/build-turntable-parts.py 头注释；过程/教训 → sessions 存档。PROJECT.md:56 缩为 2-3 句 + 链接；TODO.md 五轮各压成一行结论 + 指向。",
+    "risk": "低；压缩 TODO 已完成条目会丢失可搜索的过程细节（sessions 仍有）",
+    "verification": "PROJECT.md 技术栈节不再含闸门数值；TODO 活物件条目每轮 ≤2 行。",
+    "needs_user_decision": true
+   },
+   {
+    "title": "ai/ 子目录命名三种风格并存（Features / design_system / reboot·blender·sessions·project-audit）",
+    "category": "目录组织",
+    "files": [
+     "ai/Features",
+     "ai/design_system",
+     "ai/reboot",
+     "ai/blender",
+     "ai/sessions",
+     "ai/project-audit"
+    ],
+    "evidence": "`ls ai/`；CLAUDE.md:91 / AGENTS.md:158 示例即用 ai/Features/<功能名>/（CLAUDE.md:90 甚至写 Ai/Features）；Features/ 被 src 8 处注释、design_system 15+ 处链接、sql 1 处、codex-visual 多处引用。Features/ui-system/ 子目录规则（>1 md 建文件夹）已遵守；navigation-glass.md 单文件正确。",
+    "proposal": "不重命名 Features 与 design_system（引用面广、协议文件受保护、design_system 2026-09-13 刚整理）；登记为已知历史不一致；新目录统一 kebab-case。",
+    "risk": "重命名会牵动 25+ 处引用与受保护协议文件",
+    "verification": "—",
+    "needs_user_decision": true
+   },
+   {
+    "title": "timeline.md 结构臃肿：三套已否决视觉方案与在役数据链路事实混排",
+    "category": "目录组织",
+    "files": [
+     "ai/Features/timeline.md"
+    ],
+    "evidence": "422 行，顺序为：当前迭代(09-07 翻页)→上一轮(09-07 静态)→历史 B 苔绿(09-06 已否决)→2026-08-22 状态头→2026-07-04 元信息→v1 §一~六→§七 v2 白纸比稿(09-05 视觉已否决)→夜灯玻璃(09-06 已否决)→ST-A~V→测试记录；四套视觉中三套已否决且各自 implementation.md 已在 design_system；§五待实现列表全部过时（有术语映射注）；:226 accent-deep 双真源记录未标已修（css 现 #2f9ad3）。",
+    "proposal": "重排为「状态头 → 当前功能事实（数据链 + 当前日记形态）→ 历史（三套已否决各 3-5 行 + 链接 design_system implementation.md）→ v1 ST 记录 → 测试记录」；:226 加「已修」；不删数据链路正文。",
+    "risk": "低；编辑量中等",
+    "verification": "文档顶部即能读出当前形态与数据约束；历史节链接全部解析。",
+    "needs_user_decision": true
+   },
+   {
+    "title": "根 README.md 仍是 Supabase todos 模板，引用不存在的 services/hooks 文件（入向登记）",
+    "category": "陈旧陈述",
+    "files": [
+     "README.md",
+     "ai/TODO.md"
+    ],
+    "evidence": "README.md 引用 src/services/todos.service.ts、src/hooks/useTodos.ts（不存在）与 src/types/database.ts（TODO.md:115 列为死文件）；不提 ai/PROJECT.md。",
+    "proposal": "root 分区重写 README 为项目入口（指向 ai/PROJECT.md、ai/TODO.md）；TODO.md:115 死文件清理条目追加「根 README.md 重写」。",
+    "risk": "低",
+    "verification": "README 无不存在路径。",
+    "needs_user_decision": false
+   },
+   {
+    "title": "ui-system.md §2.1 复述 navigation-glass.md 的导航机制（机制事实两处维护）",
+    "category": "重复内容",
+    "files": [
+     "ai/Features/ui-system/ui-system.md",
+     "ai/Features/navigation-glass.md",
+     "ai/design_system/uiux/cinnaglass/journal-room-object/navigation-implementation.md"
+    ],
+    "evidence": "navigation-glass.md:20-22（frost.webp 512×512 固定纹理、256×512 42% 50% 取样、backdrop-filter、conic-gradient 边光、74×384 / 292×62）与 ui-system.md:27-36 六行表格内容一致；design_system 的 cinnaglass/ui-system.md:13、interaction.md、navigation-implementation.md、ui-system.html#navigation-glass 另有 4 处。",
+    "proposal": "机制事实权威 → navigation-glass.md；数值/生成/验证 → navigation-implementation.md；ui-system.md §2.1 改为一句引用，保留 §2.2-2.4 规则。",
+    "risk": "低",
+    "verification": "ui-system.md 不再含 frost.webp 取样参数。",
+    "needs_user_decision": false
+   }
+  ],
+  "deletion_candidates": [
+   {
+    "path": "ai/blender/scripts/build_metaspace.py",
+    "reason": "Blender 参数化大宅→metaspace.blend + public/models/metaspace.glb（R3F 用）。消费者 metaspace.tsx、产物 GLB/draco、R3F 依赖均于 4619fff（2026-08-10）删除；脚本第 3 行声明的 spec ai/blender/metaspace.md 从未入库；REPO 为 Windows 路径 D:\\Repo；房间底图实际走 codex 生成图路线，tech-plan §2 的 Blender 预渲染方案未执行。",
+    "refs_checked": "全仓 grep（--include md/ts/tsx/py/json/html/css/sh/yaml/yml/txt，排除 .claude/.agents/ai/sessions/node_modules/.git/ai/project-audit）：命中仅脚本自身与 ai/reboot/tech-plan.md:33（归档）；design_system 全部 md/html 零命中；package.json scripts 无 blender；scripts/ 12 文件无 blender 调用；git log --all -- ai/blender/metaspace.md 与 ai/blender/renders 为空；git show 4619fff --stat 确认 metaspace.tsx/public/models/public/draco 删除。",
+    "recovery": "git checkout 3fd52a5 -- ai/blender/scripts/build_metaspace.py",
+    "confidence": "medium"
+   },
+   {
+    "path": "ai/blender/scripts/build_avatar.py",
+    "reason": "Blender 云朵小狗→avatar.blend + public/models/avatar-cloudpup.glb；产物于 4619fff 删除，角色现为双帧透明立绘 + 程序变形（PROJECT.md:57、TODO.md:62），R3F 已退役。",
+    "refs_checked": "同上全仓 grep：仅脚本自身；无文档引用。",
+    "recovery": "git checkout 3fd52a5 -- ai/blender/scripts/build_avatar.py",
+    "confidence": "medium"
+   },
+   {
+    "path": "ai/blender/scripts/preview_cameras.py",
+    "reason": "按 src/themes/cinnaglass/metaspace.tsx 的 ZONES 渲五机位预览到 ai/blender/renders/；同步对象 metaspace.tsx 已删（4619fff），输入 arts/meshes/metaspace.blend 亦无消费者，renders/ 从未入库。",
+    "refs_checked": "同上全仓 grep：仅脚本自身；git log 确认 metaspace.tsx 删除于 4619fff。",
+    "recovery": "git checkout 3fd52a5 -- ai/blender/scripts/preview_cameras.py",
+    "confidence": "medium"
+   }
+  ],
+  "stale_statements": [
+   {
+    "path": "ai/PROJECT.md",
+    "line": 96,
+    "statement": "Debug log 现有标签池：auth、chat",
+    "actual": "grep 全部 src：Logman 仅在 chat-data.ts 使用，TAG='[chat][web][chat-data]'；无任何 auth 标签调用；useAuth.ts/supabase.ts/pages 无日志调用"
+   },
+   {
+    "path": "ai/TODO.md",
+    "line": 113,
+    "statement": "已删（2026-08-10/11）：…public/models、public/draco、three 全家依赖",
+    "actual": "4619fff 只删 three/@react-three/fiber/@react-three/drei/@types/three；package.json:15 仍有 @react-three/rapier ^2.2.0（822fa92 加入），src 零引用"
+   },
+   {
+    "path": "ai/Features/timeline.md",
+    "line": 173,
+    "statement": "SQL 见 [sql/dev-create-couple.sql](../../sql/dev-create-couple.sql)",
+    "actual": "文件不存在；实际为 sql/dev-create-world.sql（couple→room ST-F 2026-06-30；room→world 7938619）"
+   },
+   {
+    "path": "ai/Features/chat.md",
+    "line": 18,
+    "statement": "关联文档：ai/Features/sidebar.md、ai/Features/channel.md",
+    "actual": "两文件随 7c93c3c 删除且不恢复（PROJECT.md:84）；chat.md:13 自认已知断链"
+   },
+   {
+    "path": "ai/Features/supabase.md",
+    "line": 20,
+    "statement": "关联文档：ai/Features/channel.md（世界结构）、ai/Features/room.md（世界入口）",
+    "actual": "两文件不存在（7c93c3c 删除，不恢复）"
+   },
+   {
+    "path": "ai/Features/timeline.md",
+    "line": 60,
+    "statement": "术语映射（2026-07-04，见 ai/Features/channel.md C-3）",
+    "actual": "channel.md 不存在；映射内容本行已自含"
+   },
+   {
+    "path": "ai/Features/chat.md",
+    "line": 5,
+    "statement": "源码里 5 处注释（chat-data.ts / channel-screen.tsx / friends-page.tsx / emotes.ts / types/chat.ts）指向本文",
+    "actual": "grep：6 个文件引用 ai/Features/chat.md，另有 src/pages/WorldPage.tsx:131"
+   },
+   {
+    "path": "ai/Features/timeline.md",
+    "line": 226,
+    "statement": "token 双真源属实：cinnaglass.css 根 --accent-deep: #268fbe…落地前必须二选一",
+    "actual": "cinnaglass.css:92 现为 #2f9ad3；TODO.md:21 与 audit.md:85 已记复核消失（该行为历史复核记录，未标已修）"
+   },
+   {
+    "path": "ai/PROJECT.md",
+    "line": 104,
+    "statement": "src/lib/*.ts 的 *_COLS 常量就是应用真正依赖的列",
+    "actual": "仅 worlds.ts(WORLD_COLS)、chat.ts(CHANNEL/MESSAGE/REACTION/READ_COLS)、friends.ts/emotes.ts(COLS) 有常量；profiles.ts:11 内联 select；posts 走 RPC 无列常量；allowed_emails/post_unlocks 无代码引用"
+   },
+   {
+    "path": "ai/reboot/README.md",
+    "line": 4,
+    "statement": "结论已吸收进新三件套（ai/PROJECT.md / ai/TODO.md / ai/STYLE.md），旧 Features/TODO/PRD 已清理",
+    "actual": "STYLE.md 已于 9645dbc（2026-09-13）缩为 5 行兼容 stub；Features 三份已于 2026-08-22 恢复（归档原件时点陈述，不改正文）"
+   },
+   {
+    "path": "ai/reboot/tech-plan.md",
+    "line": 33,
+    "statement": "Blender 大宅模型 + 六套灯光 + 五机位（ai/blender/）♻️ 转产原料——2.5D 预渲染背景层的渲染源",
+    "actual": "房间底图来自 codex 生成图（4619fff 引入 codex-visual/20260810-024945Z → public/rooms/study/*.png）；design_system 零提及 Blender；渲染器定 PixiJS v8（TODO.md:59）。已作废方案（归档）"
+   },
+   {
+    "path": "ai/reboot/tech-plan.md",
+    "line": 60,
+    "statement": "推荐组合（MVP）：场景 = Blender 预渲染分层 + R3F 全屏 quad shader 合成；角色 = Rive",
+    "actual": "2026-08-10 定 PixiJS v8 合成器（room/pixi-scene.ts）；角色为双帧立绘 + 程序变形（PROJECT.md:57）；R3F 依赖已删。已作废方案（归档）"
+   },
+   {
+    "path": "ai/reboot/product-vision.md",
+    "line": 34,
+    "statement": "天气与现实脱钩：晴/雨/雪自选，是氛围开关不是天气预报",
+    "actual": "src/pages/WorldPage.tsx 含 geolocation → Open-Meteo 实况档（audit.md:65、TODO.md:66「实况天气 auto 档」）。已作废方案（归档）"
+   },
+   {
+    "path": "ai/blender/scripts/build_metaspace.py",
+    "line": 3,
+    "statement": "Spec: ai/blender/metaspace.md（palette / naming / budgets live there）",
+    "actual": "git log --all -- ai/blender/metaspace.md 为空：该文件从未入库"
+   },
+   {
+    "path": "ai/blender/scripts/preview_cameras.py",
+    "line": 3,
+    "statement": "The zone table mirrors ZONES in src/themes/cinnaglass/metaspace.tsx; keep the two in sync",
+    "actual": "metaspace.tsx 已于 4619fff（2026-08-10）删除"
+   },
+   {
+    "path": "ai/blender/scripts/build_metaspace.py",
+    "line": 16,
+    "statement": "REPO = r\"D:\\Repo\\our-world\"；输出 public/models/metaspace.glb、ai/blender/renders/",
+    "actual": "Windows 绝对路径与本机不符；public/models 已删（4619fff）；renders/ 从未入库（build_avatar.py:12、preview_cameras.py:12 同）"
+   }
+  ],
+  "limitations": "1) 未安装 node_modules，未运行 tsc/eslint/vite；chat-card.tsx 的 Msg 导入错误仅由 model.ts 导出列表静态判定。2) ai/sessions/活物件-唱片机-生成优先分层管线.md 受保护未读，重复地图中对它的定位仅凭文件名。3) .claude/、.agents/、CLAUDE.md、AGENTS.md 仅 test -e 确认存在；PROJECT.md:158-161 引用的 .agents/skills/ui-tailor|monet/SKILL.md 存在但未核内容；grep 偶然带出的 AGENTS.md:11 ai/UNITY_PROJECT.md（不存在）与 CLAUDE.md:90 `Ai/Features` 大小写仅登记不评。4) Supabase 线上结构未复核（令牌失效，文档自述），PROJECT.md 数据库表列只对照 src/lib/*.ts 的 select 字串。5) ai/project-audit/scripts/measure-docs.py 与 ai/project-audit/{INDEX,STEPS,EXTRA-STEPS,FINDINGS}.md、.gitattributes 在磁盘但不在 baseline 清单，按规则未入 CSV，下一轮清单应包含。6) codex-visual/ 仅 ls 确认 reboot/concept-art.md 与 timeline.md 引用的三个目录及文件存在，未读其报告正文（batches 分区）。7) 未读 ai/design_system/** 正文（S04 分区），重复地图中对其内容的判断基于 grep 命中与标题行。8) 删除候选 ai/blender 缺两项证据：用户是否在另一台 Windows 机维护 Blender 源；arts/meshes/scene.blend 的来源。"
+ }
+]

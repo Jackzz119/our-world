@@ -82,9 +82,9 @@ All paths below are relative to D:\Repo\our-world\codex-visual\20260906-192932Z.
 
 | Mood | Clean plate, 1020×780 | Tonearm green plate, 1020×780 | Review, 4080×820 |
 |---|---|---|---|
-| golden | [plate-golden.png](plate-golden.png) | [part-tonearm-golden.png](part-tonearm-golden.png) | [review-golden.png](review-golden.png) |
-| twilight | [plate-twilight.png](plate-twilight.png) | [part-tonearm-twilight.png](part-tonearm-twilight.png) | [review-twilight.png](review-twilight.png) |
-| night | [plate-night.png](plate-night.png) | [part-tonearm-night.png](part-tonearm-night.png) | [review-night.png](review-night.png) |
+| golden | [plate-golden.png](plate-golden.png) | [part-tonearm-golden.png](part-tonearm-golden.png) | [review-golden.png](../../../../../codex-visual/20260906-192932Z/review-golden.png) |
+| twilight | [plate-twilight.png](plate-twilight.png) | [part-tonearm-twilight.png](part-tonearm-twilight.png) | [review-twilight.png](../../../../../codex-visual/20260906-192932Z/review-twilight.png) |
+| night | [plate-night.png](plate-night.png) | [part-tonearm-night.png](part-tonearm-night.png) | [review-night.png](../../../../../codex-visual/20260906-192932Z/review-night.png) |
 
 Evidence: metrics.csv; generation-manifest.json (attempt 1 tool output locations); attempt2-manifest.json; build-review.ps1 (reproducible size normalization, keying, review assembly and measurements).
 

@@ -1,0 +1,7 @@
+path,kind,revision,substep_id,status,method,evidence,reason
+ai/project-audit/.gitattributes,text,765834cd4d67a1e6e017cdc4f87937c8baea42abdf998f903364bc11349fd859,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载
+ai/project-audit/EXTRA-STEPS.md,text,51ae6f4b69121ac26d9a6dc8c35b8eab0c3ee12e47320104ecc63ea33a32703c,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载
+ai/project-audit/FINDINGS.md,text,ba5b766eb32975e5696ad2399b9bc2d14ff89bfe02a72c1a64c528b91a3673a7,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载
+ai/project-audit/INDEX.md,text,e8e9b33814779956526d048beb5ce1d2964225d3629936bda6410bb8e35044de,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载
+ai/project-audit/STEPS.md,text,dba23bc5c67da009a44d8157defa8bfb768cb1e61ba2b22031f07a11f0ab2067,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载
+ai/project-audit/scripts/measure-docs.py,text,85abada89766e8a5245ece35c683ba13015f85c6412a56131d93515e011c4a85,01-S12,已检查,本轮审核新建/改写，审核作者全文,01-documents.md,本轮审核支撑文件（入口/子步骤/发现/拓展/度量脚本），普通开发不加载

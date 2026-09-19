@@ -1,0 +1,65 @@
+path,kind,revision,substep_id,status,method,evidence,reason
+src/main.tsx,text,abd0dec1ab9ba37d6681de863c11f56c7696c4b455c1b0825dc8ff224810ece6,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#entry,React 入口，index.html 唯一脚本；引入全局 CSS 与 image-slot 自定义元素。
+src/App.tsx,text,7dd3ef5732cca087b0437756549581fc12ac6b75f8119dfc5a00a88792d47c90,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#entry,路由表，被 main.tsx 挂载。
+src/index.css,text,7bdfae229f3d04c6eb23ce62f889f4f09d660df3f3684a652f6b47c11ae410d4,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#entry,全局 reset，main.tsx 引入。
+src/pages/ProtectedRoute.tsx,text,cd09b80fb02dcdd7ce9c758ea5d9df2940c3a5659ff1b39da32084ddc0e54767,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#pages,路由守卫 + dev 自动登录，App.tsx 使用。
+src/pages/LoginPage.tsx,text,5126e95706ef2a8c506db8a2f36ea3648aeedd6d01ea57d410a670a0a8a21294,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#pages,登录页，App.tsx 路由 /login。
+src/pages/LoginPage.module.css,text,8363f0af524e3ac881bd06def8039ab5e909b453fcf2b40f5556f1f2e8855305,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#pages,两页共用的 CSS Module。
+src/pages/ResetPasswordPage.tsx,text,64e6f4224a4d44973c09f9427d21127089ef66de140087c534ba8552c9a43a85,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#pages,重置密码页，App.tsx 路由 /reset-password。
+src/pages/WorldPage.tsx,text,6eb53d060f465369e9f5634f17033c465f0c99dccbefcd6736f30378263cb204,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#pages,世界页根组件；注释中 ai/UX.md §/channel.md/S-4 引用已失效，见 F5。
+src/hooks/useAuth.ts,text,6979905a443a2e372c681012c904304860e354fd87437fb05a3835d087c45ec1,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#hooks,会话 hook，两处使用。
+src/hooks/useFeed.ts,text,63e33f66c4c608710c63a5523e429b852bc75e0447a6528866f0cf8a463f1282,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#hooks,feed hook，screens.tsx 调用；类型被两个书本组件引用。
+src/lib/supabase.ts,text,d43ba470aaff901e6be161951bd22f7ae8414e2632e67d909d617099b1458753,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,Supabase 客户端单例；未使用 types/database.ts 泛型。
+src/lib/logman.ts,text,019da75133754a2d9f5b031136dc8b64bc5b45e9b212288e6453a8418e8b3027,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,Logman 封装，仅 chat-data 使用；settings.tsx:191 绕过它直接 console.warn。
+src/lib/posts.ts,text,989b1fe612978c60f6d615801e288a043210192b17736fdfcb404ca79741b27c,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,feed 数据层。
+src/lib/profiles.ts,text,418574fd61db435799b3c378a0d15bf05005c6e8c69e8f5b9eb37ce129b6d97c,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,profiles 数据层。
+src/lib/worlds.ts,text,0093ce6ca78804506420d72ee226d698db82fafc97b6659f210080ec7f92eee6,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,worlds 数据层；头注引用缺失的 channel.md。
+src/lib/storage.ts,text,5a30dc3363ae4324bedcc543d0ebcf674a98dec244885ef92554992d74708155,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,Storage 数据层，7 处使用。
+src/lib/chat.ts,text,a056d959a77f79db54013ae3a6c91afaca1651eed769b9341f8b852cd63f8c83,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,聊天数据层；头注任务编号已无对应文档。
+src/lib/friends.ts,text,8d40f0ac42e976925973cbd8a696a44d40de9347db94ebf58b78ab464edbd64c,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,好友数据层；UI 计划收起但当前仍可达。
+src/lib/emotes.ts,text,026ef77f6262a164e94c578ea6351ce8995f39d81c76ce363c9efb0c820a3e4e,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#lib,贴纸库数据层；头注 EMO-3 编号无对应文档。
+src/types/chat.ts,text,6009078fc5b9269dba319ce4362a7e877300f31d34ba482adb9c380b345bd235,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#types,聊天类型；头注 channel.md 缺失；ReactionRow.channel_id 与 REACTION_COLS 不一致（第二步）。
+src/types/feed.ts,text,c3adbc6ba6e650cbc01cd553bfd493a2041cd2e5469cdc95bd52001b6c44c09d,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#types,feed/world 类型，11 处使用。
+src/types/database.ts,text,92e466e603331333b47f71eadfba6b52809126bf52db4c7d254a0a0075b51ac7,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#types,死文件：零引用，声明的 todos 表不在 PROJECT.md 数据库表中；TODO.md:115 已列为待删。；本轮已删除（PA-001），保留删除前记录
+src/types/index.ts,text,b6a3ba054d8a0ed067b8a42183f25a318b3bed37b84e02f1cb722e5e9a2b88d0,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#types,环境变量名类型，仅 utils 使用；与 database.ts 无关。
+src/types/page-flip.d.ts,text,2a1f4f0a02a89d6d440fca0399c91192635c6e6fd32fdc890c478de37ac2bf40,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#types,环境声明，只服务死文件 journal-book.tsx；与 page-flip 依赖及补丁同链。
+src/utils/index.ts,text,443b23221c3651959c558748bd31d84023676a42e65ef4047cbe212a30ff9802,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#utils,env 读取工具。
+src/themes/cinnaglass/cinnaglass.css,text,79daf7fe472eecc35efbcd38265fd2752c19eff1c9d2329da398c9f3b42a90a8,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-core,全局 token 与场景 CSS；含旧名 ow.css 头注与侧栏死选择器（第二步清理）。
+src/themes/cinnaglass/materials.css,text,46c56d5895656fd4704c339623ab740634d1e5103f79e7cfb7da999c520c3e70,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-core,材质 token，经 CSS @import 引入；ui-system 文档明确保留。
+src/themes/cinnaglass/model.ts,text,52fefec772cf9e798d237e44a264288dbad52c348ad1d4e179dc97df244f876a,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,主题类型；不导出 Msg（F1 根因）；Room/WidgetPos 近乎无人用。
+src/themes/cinnaglass/tweaks.ts,text,a8664fc2e483ce21f949d7f2393e1280129d953b5473db31ed842672a4385400,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,tweaks hook（hook 却不在 hooks/，目录组织见 F7）。
+src/themes/cinnaglass/profile.ts,text,627e42d7a81de1f6dd69b3afc118502272ceb80348813c01bc1135d498d2b701,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,profile 默认值与 loader；两个日期函数无人调用（第二步）。
+src/themes/cinnaglass/rooms.ts,text,ecb6a690b0e241fa47eab09ec1bcb734c40671640530b7227e16716523917a68,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,仅 owLoad 被用；房间/语音 mock 零消费者；头注引用退役侧栏与缺失 channel.md。
+src/themes/cinnaglass/icons.tsx,text,5e96c08e2e579fdc3278908f299be918c797989f6b2b0c9f8f86268f868dbea4,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,图标库，14 文件使用。
+src/themes/cinnaglass/scene.tsx,text,e9e69a72255acbcda2cfb3c9a9f813d65f04921e04e8a4c97a441c9c929d8d26,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,登录/重置页背景 SVG；头注 ow.css/minimap 陈旧。
+src/themes/cinnaglass/lobby.tsx,text,c41e9afb1e2dac4ceb621353efa5c3a9c4827849614b697848bfe19263596365,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,大厅场景；头注表名、channel.md、R3F 三处陈旧。
+src/themes/cinnaglass/screens.tsx,text,9bb5f19d106ee867ffaac9c814e0952379d085f4cc0ad6dad826476312c13616,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,三大物件表面；一条 image-slot 死样式（第二步）。
+src/themes/cinnaglass/calendar.tsx,text,d17f178179ceedb34bb21e38efb69172787d28b498caefd063555e01041ed933,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,日历/时钟弹窗；纪念日硬编码已被 audit.md 登记。
+src/themes/cinnaglass/settings.tsx,text,86ebc11af45226db3331fab1508f5fe4c6ca70af39aa4377a329624e2a6f298f,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,设置弹窗；world.md 引用缺失；日志绕过 Logman。
+src/themes/cinnaglass/world-settings.tsx,text,1e284b0da81c8627fcfca6df49105fc6afc07a2b3b6597d3bd9bd61fac9bceaa,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,有真实保存链但当前无 UI 入口；头注入口描述陈旧。
+src/themes/cinnaglass/music.tsx,text,729ad6defcea0cedecb56a73fa725b9455611dcd29ab49d7c10ae3bdd4103980,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,音乐播放器，floaters 使用。
+src/themes/cinnaglass/image-slot.js,text,87f6a960d73c2b2079579cf0713fe429d1ffc1da437919048c7d9e350980d56b,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-core,自定义元素；唯一 .js，处于 lint/类型检查盲区（F7）。
+src/themes/cinnaglass/types.d.ts,text,c8bdaa2d0697d163b5e37854af49bf7aefed7fd19688e674397a512a39e2ae88,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,image-slot 的 JSX 类型声明；环境 .d.ts 分居两目录。
+src/themes/cinnaglass/emoji-data.ts,text,4c8f73441f771a2ba8d89eb61ae5578476b374c81c1c0aa7275a4b62302599c3,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-core,emoji 数据表。
+src/themes/cinnaglass/emote-picker.tsx,text,e5e4cd83d6b7e68a99789ccdcc95f390f0dc58d038ad27e40ac597b83c22c270,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-chat,表情选择器；头注 EMO-4 编号无出处。
+src/themes/cinnaglass/friends-page.tsx,text,6752aee89e1d07bf913b079272958ebc6593918f8d18ace05455759dc32ed7b6,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-chat,好友页；可达但产品方向为收起。
+src/themes/cinnaglass/channel-screen.tsx,text,3e810758e23932f08657fddb611bbb0738fc6a0099a79695bcd0c70fc5b1541b,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-chat,聊天大窗；头注入口/ChatDock/决策编号陈旧。
+src/themes/cinnaglass/chat-data.ts,text,dd3240136b4cb9565b84aa5372ddc79da607a6793a5b3dfed5e00052cab6e62f,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-chat,聊天状态 hook；Msg 真正的导出处；头注 ChatDock 陈旧。
+src/themes/cinnaglass/diary.css,text,9e081fb84f963321bc8b0e1f035cc28baa96e184b3efd93acc9ceba65d9c183e,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-journal,日记基础样式；部分选择器只服务已作废的 journal-book.tsx。
+src/themes/cinnaglass/journal-layout.ts,text,7df2a3fc449c778b951be9d6d6dd9bc70335770e6bf27df2350ddd0cd8078413,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-journal,分页引擎；组件与人工验证脚本共用。
+src/themes/cinnaglass/journal-room-book.tsx,text,6d4faccfd8e3878d9cd90776c46e960165ef35bb19a6f1fe9da80d4bdf9425b2,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-journal,当前日记书本组件。
+src/themes/cinnaglass/journal-room.css,text,8a29248a56a81b89683c50992a5700e0c138f890c2d589b3c047438cb69b445d,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-journal,当前日记样式；4 个 public 资源全部存在。
+src/themes/cinnaglass/journal-turn.ts,text,853c72930007b1a0d613cec355e26ba2c1598fb194c08f8befabd3e381e8ef3c,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-journal,翻页渲染引擎。
+src/themes/cinnaglass/journal-turn-controller.ts,text,818125093dcad4ab7a437075f007fce43fa1f4063a20031e930072ab002135f8,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-journal,翻页控制器。
+src/themes/cinnaglass/journal-turn.css,text,81bddf659207994494a7e27c161122cd791a573d4cab756df63c43715d61ca99,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-journal,翻页样式。
+src/themes/cinnaglass/journal-book.tsx,text,b41b5254326841bbb03601b6f389e3b1fb7914c9427ea79eb4e1f4343daecd8e,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-journal,死文件：零引用；文档明确暂留作历史；是 page-flip 依赖链唯一消费者。
+src/themes/cinnaglass/room/pixi-scene.ts,text,1458a43643ec45094d70645336298884d94573313fbbfd0fa08908df06da14b9,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-room,Pixi 合成器；codex 审核编号有出处但未写路径。
+src/themes/cinnaglass/room/room-scene.tsx,text,0aaa9d8eca3b7cf6d8f327b7ea4fc18f011c648b2bffc04940f959ce21e12b52,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-room,房间场景 React 壳；资源与规格引用可追溯。
+src/themes/cinnaglass/room/room-types.ts,text,52481bfdf7fbead57b85fe7e99683ecb35c86434159bfd6be5ff7759dc6fb3d6,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-room,房间类型契约；两处 STYLE/UX § 引用失效。
+src/themes/cinnaglass/room/study-room.ts,text,0f76c68c442e35b8bbe319659fcb5b9c45364d65b98ae3ad5d3a84aeca343e73,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-room,书房模板；UX §2 引用失效；资源齐全。
+src/themes/cinnaglass/shell/rail.tsx,text,4f1d76e90ee4f555ac4982c5f77c47064065383fce6ca74ac5a5b0b01e71395e,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-shell,导航条；UX §2 引用失效。
+src/themes/cinnaglass/shell/rail-icons.tsx,text,0eab95a11ff088c4d711b819b0c6f7726ad77a7d8f6845327f816b3824df6a9b,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-shell,导航图标。
+src/themes/cinnaglass/shell/navigation-glass.css,text,2e19dce329f7fbb907d754c6f0c0d98b8627d40bb73e6a75955e1104ac1316a2,01-S04,已检查,全文阅读+grep 引用核验,evidence/src-review.md#cg-shell,导航材质样式。
+src/themes/cinnaglass/shell/ambience.tsx,text,4d641d558f5d66b44a62bf950519212a844658dfb170a7154bbebbf056925a66,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-shell,灯光天气面板。
+src/themes/cinnaglass/shell/floaters.tsx,text,2a766e61739dd8a0f061fc3896cde2fb0af6d3c7e16f5305f4d27cd94373de39,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-shell,浮窗组件。
+src/themes/cinnaglass/shell/chat-card.tsx,text,f1bce8c6c837281ae965325ce500e176f87a39a4bc6801e303e7093114a5fd16,01-S04,已检查,全文阅读+grep 引用核验+tsc 全量类型检查,evidence/src-review.md#cg-shell,聊天窄卡；Msg 导入错误导致 tsc -b 失败（已核实，未修）。

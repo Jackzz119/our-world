@@ -1,0 +1,14 @@
+
+/Users/chengzheng/Desktop/Files/our-world/src/themes/cinnaglass/music.tsx
+  9:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/chengzheng/Desktop/Files/our-world/src/themes/cinnaglass/room/pixi-scene.ts
+  16:1  warning  Imports "Application" are only used as type  @typescript-eslint/consistent-type-imports
+
+/Users/chengzheng/Desktop/Files/our-world/src/themes/cinnaglass/room/room-scene.tsx
+  121:9  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+
+✖ 3 problems (1 error, 2 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+
+exit=1

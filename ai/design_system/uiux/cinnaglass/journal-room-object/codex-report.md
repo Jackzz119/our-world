@@ -1,5 +1,7 @@
 # 桌上的同一本日记 · 新方向提案
 
+> 2026-09-18 归档说明：以下为 2026-09-06 提案原文与 09-07 状态。此后已实施：竖直翻页、连续翻阅与阅读时雨不停播（见 [turn-implementation.md](turn-implementation.md)；`WorldPage.tsx` 日记打开时场景保持运行）；旧 `journal-book.tsx` 翻页与 page-flip 已被 `journal-room-book` + `journal-turn` 取代，仅作历史保留；导航材质以 [navigation-implementation.md](navigation-implementation.md) 为准（§「rail 用 --cg-panel」为提案时状态）；§3 的 Pixi Mesh 翻页方向未采用，最终路线见 turn-implementation.md §2。仍待办：日记拿起/收回与羽毛笔交互（TODO）。
+
 2026-09-06 提案，2026-09-07 状态更新：**导航已实施且获用户认可；棕皮旧纸书本的静态美术已接入，实景审美待用户确认**。本轮羽毛笔仅静态图，新翻页、开合与场景不停播未实施。用户否决上一轮 B 实装；不再把其「功能通过」当作视觉通过。见 [书本静态实装与证据](book-implementation.md)。
 
 2026-09-07 用户特别认可悬停/按压光晕，覆盖下文原先「下调光晕」的建议。下文保留提案时的复核，导航当前事实以 [导航实现与验证](navigation-implementation.md) 为准。

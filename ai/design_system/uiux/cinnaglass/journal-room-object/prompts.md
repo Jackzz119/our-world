@@ -2,7 +2,7 @@
 
 本轮生成 1 张 UI 设计板，未调用外部 Codex CLI 或付费 API 后备流程。
 
-参考依次为：`public/rooms/study/night.png`（物件/夜景真源）、`public/rooms/study/golden.png`（同一物件暖光）、`journal-book-directions/direction-b-sage.png`（仅手作质感、头像/范围框与羽毛笔，不继承绿色）。
+参考依次为：`public/rooms/study/night.png`（物件/夜景真源）、`public/rooms/study/golden.png`（同一物件暖光）、`../../research/cinnaglass-history/journal-book-directions/direction-b-sage.png`（仅手作质感、头像/范围框与羽毛笔，不继承绿色）。
 
 ## 最终生成 Prompt
 

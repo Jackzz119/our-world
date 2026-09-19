@@ -1,0 +1,8 @@
+Files .claude/skills/codex-visual/README.md and .agents/skills/codex-visual/README.md differ
+Files .claude/skills/codex-visual/SKILL.md and .agents/skills/codex-visual/SKILL.md differ
+Files .claude/skills/monet/SKILL.md and .agents/skills/monet/SKILL.md differ
+Only in .agents/skills/monet: agents
+Only in .claude/skills/monet: design-system.md
+Only in .agents/skills/monet: references
+Files .claude/skills/monet/workflows.md and .agents/skills/monet/workflows.md differ
+Only in .agents/skills: ui-tailor

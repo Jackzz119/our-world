@@ -1,0 +1,17 @@
+# 第一步适用活文档清单（压缩目标 ≤ 原文 2/3）。例外文档不列在此，理由见 01-documents.md。
+ai/PROJECT.md
+ai/TODO.md
+ai/Features/timeline.md
+ai/Features/chat.md
+ai/Features/supabase.md
+ai/Features/ui-system/ui-system.md
+ai/Features/ui-system/audit.md
+ai/Features/navigation-glass.md
+ai/design_system/uiux/interaction.md
+ai/design_system/uiux/cinnaglass/ui-system.md
+ai/design_system/uiux/cinnaglass/journal-room-object/book-implementation.md
+ai/design_system/uiux/cinnaglass/journal-room-object/navigation-implementation.md
+ai/design_system/uiux/cinnaglass/journal-room-object/turn-implementation.md
+ai/design_system/research/art-relighting.md
+ai/design_system/research/living-props.md
+README.md

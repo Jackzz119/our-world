@@ -1,0 +1,2 @@
+src/themes/cinnaglass/shell/chat-card.tsx(10,15): error TS2305: Module '"../model"' has no exported member 'Msg'.
+exit=2

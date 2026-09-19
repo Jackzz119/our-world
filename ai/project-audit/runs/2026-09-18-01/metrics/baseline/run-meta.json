@@ -1,0 +1,37 @@
+{
+  "run_id": "2026-09-18-01",
+  "root": "/Users/chengzheng/Desktop/Files/our-world",
+  "branch": "dev",
+  "head": "3fd52a5cee21960c6722e658a70737e350cb9005",
+  "worktree_clean_at_start": true,
+  "stack": {
+    "node": "v22.23.1",
+    "pnpm": "10.22.0",
+    "python": "3.14.6",
+    "vite": "^7.3.1",
+    "react": "^19.2.0",
+    "typescript": "~5.9.3",
+    "pixi.js": "^8.19.0",
+    "@supabase/supabase-js": "^2.98.0"
+  },
+  "target": "Web (Vite SPA) — 双人放置陪伴小屋；Supabase 后端；无测试、无 CI、无 .github",
+  "started": "2026-09-18",
+  "authorization": "用户指令「切到dev…完成audit第一步」；按技能第一步定义执行：证据充分的冗余清理、活文档压缩、目录整理，受保护范围不改，不推送",
+  "protected": [
+    ".claude/",
+    "​.agents/",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "ai/sessions/",
+    ".env*（示例除外）"
+  ],
+  "excluded_from_inventory": [
+    ".git",
+    "node_modules(不存在)",
+    ".claude",
+    ".agents",
+    "ai/sessions",
+    "ai/project-audit/runs",
+    "codex-visual/20260811-055917Z/__pycache__"
+  ]
+}

@@ -1,86 +1,42 @@
-# Vite + React + Supabase
+# 我们的小世界 · Our World
 
-This project now includes a practical Supabase API layer:
+双人「放置陪伴小屋」网页：固定镜头的手绘书房里，两只长耳小狗代表一对情侣各自忙碌，窗外光照随真实时间流转，回忆（日记 / 照片墙 / 聊天）藏在房间的家具里。
 
-- `src/lib/supabase.ts`: Supabase client initialization and env validation
-- `src/services/todos.service.ts`: data access layer for `todos`
-- `src/hooks/useTodos.ts`: React hook for UI state + operations
-- `src/types/database.ts`: local table typing
+- 产品定位、技术事实与数据库结构：[ai/PROJECT.md](ai/PROJECT.md)
+- 任务唯一来源：[ai/TODO.md](ai/TODO.md)
+- 当前设计系统：[ai/design_system/design-system.md](ai/design_system/design-system.md)
+- AI 协作协议：[AGENTS.md](AGENTS.md)（Claude 专属见 [CLAUDE.md](CLAUDE.md)）
 
-## 1) Environment Variables
+## 技术栈
 
-Create `.env.local` from `.env.example`:
+React 19 + TypeScript + Vite 7 + React Router 7；场景层 PixiJS 8（`src/themes/cinnaglass/room/`）；后端 Supabase（auth / Postgres / Storage / Realtime）。包管理 pnpm，格式化 Prettier，ESLint 9 flat config。
 
-```bash
-cp .env.example .env.local
-```
-
-Fill in:
-
-```env
-VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-Important:
-
-- `VITE_*` variables are exposed to browser code.
-- Never put `service_role` key in Vite frontend env.
-
-## 2) Supabase SQL (Table + RLS)
-
-Run this in the Supabase SQL editor:
-
-```sql
-create extension if not exists "pgcrypto";
-
-create table if not exists public.todos (
-  id uuid primary key default gen_random_uuid(),
-  title text not null check (char_length(trim(title)) > 0),
-  is_completed boolean not null default false,
-  user_id uuid references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now()
-);
-
-alter table public.todos enable row level security;
-
-create policy "select own todos"
-on public.todos
-for select
-to authenticated
-using (auth.uid() = user_id);
-
-create policy "insert own todos"
-on public.todos
-for insert
-to authenticated
-with check (auth.uid() = user_id);
-
-create policy "update own todos"
-on public.todos
-for update
-to authenticated
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
-
-create policy "delete own todos"
-on public.todos
-for delete
-to authenticated
-using (auth.uid() = user_id);
-```
-
-If you want to test quickly without auth, add temporary anon policies, but remove them before production.
-
-## 3) Run
+## 本地运行
 
 ```bash
 pnpm install
-pnpm dev
+cp .env.example .env.local   # 填 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY；开发开关见文件内注释
+pnpm dev                     # http://localhost:5173
 ```
 
-## 4) Next Step (Recommended)
+| 命令 | 作用 |
+| --- | --- |
+| `pnpm dev` / `pnpm dev2` | 开发服务器（5173 / 5174，双实例双账号联调） |
+| `pnpm build` | `tsc -b && vite build`（当前受既有类型错误阻断，见 TODO Bugs） |
+| `pnpm lint` | ESLint |
+| `pnpm format` | Prettier 全仓格式化 |
+| `node scripts/check-design-system.mjs` | 校验设计系统 Markdown/HTML 的链接与图文（零依赖） |
 
-1. Add auth (`supabase.auth.signInWithPassword`, OAuth, etc.).
-2. When creating todo, pass current user id into `user_id`.
-3. Generate TS types from Supabase schema and replace local `src/types/database.ts`.
+`VITE_*` 变量会打进浏览器代码，不要放 `service_role` 密钥。`.env.local` 不入库。
+
+## 目录
+
+| 目录 | 内容 |
+| --- | --- |
+| `src/` | 应用源码：`pages/` 路由页、`lib/` Supabase 数据层、`themes/cinnaglass/` UI 主题与 Pixi 房间 |
+| `public/` | 运行时静态资源（房间底图与部件、角色、UI 贴图、字体） |
+| `arts/` | 原画真源、生成派生层与打包前素材 |
+| `scripts/` | 素材装配/打包与人工验证脚本（依赖与用法见各脚本头注释） |
+| `ai/` | 项目文档、设计系统、功能文档、审核记录 |
+| `codex-visual/` | Codex 视觉批次原始归档 |
+| `sql/` | 两份早期 Supabase 脚本；线上 schema 变更历史不在仓库 |

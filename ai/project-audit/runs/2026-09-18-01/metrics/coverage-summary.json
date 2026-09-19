@@ -1,0 +1,82 @@
+{
+  "baseline_files": 587,
+  "after_files": 539,
+  "union_files": 593,
+  "deleted": [
+    "ai/design_system/research/art-relighting-preview/golden-rain-glow.png",
+    "ai/design_system/research/art-relighting-preview/golden-rain-wash.png",
+    "ai/design_system/research/art-relighting-preview/golden-sun-glow.png",
+    "ai/design_system/research/art-relighting-preview/golden-sun-wash.png",
+    "ai/design_system/research/art-relighting-preview/night-rain-glow.png",
+    "ai/design_system/research/art-relighting-preview/night-rain-wash.png",
+    "ai/design_system/research/art-relighting-preview/night-sun-glow.png",
+    "ai/design_system/research/art-relighting-preview/night-sun-wash.png",
+    "ai/design_system/research/art-relighting-preview/rain-layer-strength.png",
+    "ai/design_system/research/art-relighting-preview/twilight-rain-glow.png",
+    "ai/design_system/research/art-relighting-preview/twilight-rain-wash.png",
+    "ai/design_system/research/art-relighting-preview/twilight-sun-glow.png",
+    "ai/design_system/research/art-relighting-preview/twilight-sun-wash.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/book-verification/failure.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/navigation-verification/failure.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/back-0.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/back-100.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/back-25.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/back-50.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/back-75.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/design-system-turn.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/frame-0.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/frame-100.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/frame-25.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/frame-50.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/frame-75.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-continuous-0.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-continuous-13.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-continuous-19.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-continuous-28.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-continuous-7.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-single-0.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-single-13.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-single-19.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-single-28.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/live-single-7.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/prototype-results.json",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/runtime-failure.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/seam-check.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/sequence-0.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/sequence-100.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/sequence-25.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/sequence-50.png",
+    "ai/design_system/uiux/cinnaglass/journal-room-object/turn-verification/sequence-75.png",
+    "ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/verification/failure.png",
+    "ai/design_system/uiux/research/cinnaglass-history/ui-concepts/codex-report.md",
+    "ai/design_system/uiux/research/cinnaglass-history/ui-concepts/concept-a-pocket-radial.png",
+    "ai/design_system/uiux/research/cinnaglass-history/ui-concepts/concept-b-floating-capsule.png",
+    "ai/design_system/uiux/research/cinnaglass-history/ui-concepts/concept-c-narrow-rail.png",
+    "arts/meshes/scene.blend1",
+    "codex-visual/20260906-192932Z/deps/.lock",
+    "public/mock/couple-feed.json",
+    "src/types/database.ts",
+    "timeline_3d_posts.html"
+  ],
+  "added": [
+    "ai/project-audit/.gitattributes",
+    "ai/project-audit/EXTRA-STEPS.md",
+    "ai/project-audit/FINDINGS.md",
+    "ai/project-audit/INDEX.md",
+    "ai/project-audit/STEPS.md",
+    "ai/project-audit/scripts/measure-docs.py"
+  ],
+  "statuses": {
+    "已检查": 593
+  },
+  "by_kind": {
+    "binary": {
+      "已检查": 347
+    },
+    "text": {
+      "已检查": 246
+    }
+  },
+  "source_aggregates": [],
+  "limits": "状态来自人工证据，不由扫描推断；目录级排除和未知数量见 inventory-summary.json。"
+}
