@@ -1,4 +1,4 @@
-// posts.ts — data access for the memory feed (回忆存储 ①).
+// posts.ts — data access for the memory feed (回忆存储 ①, ai/features/timeline.md).
 // Reads go through the get_feed_posts RPC, which applies privacy / unlock
 // rules server-side and returns the post rows for a world.
 // Writes insert into the posts table (author = current user).

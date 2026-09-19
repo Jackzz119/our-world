@@ -1,16 +1,21 @@
 // pixi-scene.ts — the WebGL room compositor (PixiJS v8). One render tree,
 // one lighting story: base art, rain (masked to the glass), clock hands,
-// characters and the weather light pass all live in the same pipeline, so
-// mood grading reaches every layer — the "pasted on" look of the CSS
-// prototype is gone by construction.
+// characters, living props and the weather light pass all live in the same
+// pipeline, so mood grading reaches every layer at once.
 //
 // Layer tree (all coordinates in base-image pixels, root scales to cover):
 //   root
 //   ├─ world                       ← AdjustmentFilter (weather desaturation)
 //   │   ├─ base sprites (per mood art, alpha cross-fade)
+//   │   ├─ turntable platter       ← the record's albedo, turning
+//   │   ├─ turntable light         ← the painted light on it, never turning
+//   │   ├─ turntable stills        ← spindle pin and other static cuts
+//   │   ├─ turntable armSwing      ← arm shadows + arms, hinged at the post
 //   │   ├─ rain container          ← masked by window-pane Graphics
 //   │   ├─ clock (shadow + hands)  ← mood tint
-//   │   └─ characters              ← mood tint + contact shadow
+//   │   ├─ characters              ← mood tint + contact shadow
+//   │   ├─ hotspot zones           ← hit areas only, nothing drawn
+//   │   └─ sparkles                ← additive affordance particles
 //   └─ light (wash/glow/breath, rebuilt per mood, alpha fade)
 
 import {
@@ -28,8 +33,10 @@ import { AdjustmentFilter } from 'pixi-filters';
 import type { HotspotOpenEvent, PxEllipse, PxPoint, PxRect, RoomMood, RoomTemplate, RoomWeather } from './room-types';
 import { resolveRoomArt } from './room-types';
 
+/** Per-seat character art: the open-eye frame and the blink frame. */
 export type CharacterAssets = Record<string, { open: string; closed: string }>;
 
+/** Imperative handle the React shell drives a running scene through. */
 export type SceneHandle = {
     setMood: (mood: RoomMood, animate: boolean) => void;
     setWeather: (weather: RoomWeather, animate: boolean) => void;
@@ -43,6 +50,7 @@ export type SceneHandle = {
 /* mood & weather recipes                                              */
 /* ------------------------------------------------------------------ */
 
+/** One mood x weather lighting setup: the actor tint plus the three light-pass sprites. */
 type LightRecipe = {
     /** character/clock multiply tint — how much of the room's light they eat */
     actorTint: number;
@@ -55,6 +63,11 @@ type LightRecipe = {
     breathAlpha: number; // cloud-cover light breathing (rain only)
 };
 
+/**
+ * The lighting recipe for every mood and weather; the only place light is
+ * tuned. Past tuning rounds are written up in
+ * ai/codex-visual/20260811-044310Z/codex-report.md.
+ */
 const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
     golden: {
         sun: {
@@ -78,8 +91,6 @@ const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
             breathAlpha: 0.30,
         }
     },
-    // codex audit M3: dim less globally, keep faces warm — washes dropped
-    // ~15%, actor tints lifted toward lamp-warm
     twilight: {
         sun: {
             actorTint: 0xf8ddd2,
@@ -136,6 +147,7 @@ const WEATHER_GRADE: Record<RoomWeather, { saturation: number; brightness: numbe
 /* gradient texture helpers (offscreen canvas — version-stable)        */
 /* ------------------------------------------------------------------ */
 
+/** A 64x64 two-stop linear gradient at the given angle, stretched into the light wash. */
 function linearGradientTexture(top: string, bottom: string, angleDeg = 115): Texture {
     const c = document.createElement('canvas');
     c.width = 64;
@@ -152,6 +164,10 @@ function linearGradientTexture(top: string, bottom: string, angleDeg = 115): Tex
     return Texture.from(c);
 }
 
+/**
+ * A 256x256 radial falloff in one color, used for the window glow, the
+ * cloud-cover breath and the characters' contact shadows.
+ */
 function radialGradientTexture(color: string, innerAlpha = 1): Texture {
     const c = document.createElement('canvas');
     c.width = 256;
@@ -171,6 +187,7 @@ function radialGradientTexture(color: string, innerAlpha = 1): Texture {
 /* living props: cuts taken from the base art itself                   */
 /* ------------------------------------------------------------------ */
 
+/** Any image source both Pixi and canvas2d accept to draw from. */
 type ArtImage = HTMLImageElement | ImageBitmap | HTMLCanvasElement;
 
 /** Texture over an offscreen canvas drawn at `res`× so rotation resampling stays crisp. */
@@ -179,14 +196,17 @@ function canvasTexture(c: HTMLCanvasElement, res: number): Texture {
 }
 
 /* --- tiny 3×3 homography kit (row-major) --- */
+/** Row-major 3x3 matrix. */
 type Mat3 = [number, number, number, number, number, number, number, number, number];
 
+/** Matrix product a*b. */
 function mul3(a: Mat3, b: Mat3): Mat3 {
     const r = new Array(9).fill(0) as Mat3;
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) r[i * 3 + j] = a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j];
     return r;
 }
 
+/** Matrix inverse by cofactors; the caller guarantees a non-degenerate matrix. */
 function inv3(m: Mat3): Mat3 {
     const [a, b, c, d, e, f, g, h, i] = m;
     const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g;
@@ -203,10 +223,10 @@ function apply3(m: Mat3, x: number, y: number): [number, number] {
 /**
  * Homography from disc-plane coordinates (unit circle = the vinyl rim,
  * origin = its true center) to base-image px. The painted rim ellipse fixes
- * the plane up to a circle-preserving projective map; the painted center
- * pins that down to a Klein-model translation, leaving exactly one freedom:
- * the spin angle — the thing we animate. Flat (affine) spinning cannot keep
- * both the rim AND the label still under real perspective, this can.
+ * the plane up to a circle-preserving projective map and the painted center
+ * pins that down, leaving the spin angle as the only freedom — the thing we
+ * animate. Affine spinning cannot hold both the rim and the label still under
+ * real perspective; this can.
  */
 function discHomography(e: PxEllipse, center: PxPoint): Mat3 {
     const cos = Math.cos(e.tilt);
@@ -225,6 +245,7 @@ function discHomography(e: PxEllipse, center: PxPoint): Mat3 {
     return mul3(A, mul3(R, mul3(B, Rt)));
 }
 
+/** PerspectiveMesh corner list: x/y for top-left, top-right, bottom-right, bottom-left. */
 type Corners = [number, number, number, number, number, number, number, number];
 
 /**
@@ -245,7 +266,7 @@ function discCorners(H: Mat3, spin: number): Corners {
  * Bake a soft cast-shadow texture from a part's alpha: its silhouette,
  * blurred, filled black. Position and opacity are driven at runtime (light
  * direction per mood, how far the part is lifted), so the shadow answers the
- * motion instead of riding along as a sticker.
+ * motion.
  */
 function shadowTexture(img: ArtImage, res: number, blurPx: number): Texture {
     const pad = Math.ceil(blurPx * 3);
@@ -304,7 +325,8 @@ function sparkleTexture(): Texture {
     const ctx = c.getContext('2d')!;
     const m = S / 2;
 
-    // color tiers per the sparkle spec: core #FFF8E8, rays #FFE6B5, halo #FFC978
+    // one soft cross ray: a stretched ellipse under a length-wise gradient,
+    // so it fades out at both tips instead of ending in a hard edge
     const ray = (len: number, w: number, angle: number) => {
         ctx.save();
         ctx.translate(m, m);
@@ -340,16 +362,26 @@ function sparkleTexture(): Texture {
 }
 
 /* ------------------------------------------------------------------ */
-/* rain particles (ported from the canvas prototype)                   */
+/* rain particles: falling streaks plus droplets that grow, then slide */
 /* ------------------------------------------------------------------ */
 
+/** A rain streak falling down one glass pane. */
 type Streak = { pane: number; x: number; y: number; len: number; speed: number; drift: number; alpha: number; width: number };
+/** One sampled position of a sliding droplet's trail, aged out after TRAIL_FADE_S. */
 type TrailPoint = { x: number; y: number; age: number };
+/** A droplet on the glass: it grows in place, then slides and leaves a trail. */
 type Drop = { pane: number; x: number; y: number; r: number; vy: number; sliding: boolean; wobble: number; trail: TrailPoint[] };
 
+/** Uniform random number in [min, max). */
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
+/** Seconds a droplet trail point stays visible. */
 const TRAIL_FADE_S = 1.4;
 
+/**
+ * A fresh streak inside pane #pane. With anywhere=false it starts just above
+ * the pane, so a recycled streak re-enters from the top instead of popping
+ * into view mid-glass.
+ */
 function makeStreak(room: RoomTemplate, pane: number, anywhere: boolean): Streak {
     const p = room.window.panes[pane];
     const speed = rand(300, 560);
@@ -365,6 +397,7 @@ function makeStreak(room: RoomTemplate, pane: number, anywhere: boolean): Streak
     };
 }
 
+/** A fresh droplet clinging to pane #pane, placed in the upper 70% so it has room to slide. */
 function makeDrop(room: RoomTemplate, pane: number): Drop {
     const p = room.window.panes[pane];
     return {
@@ -383,6 +416,13 @@ function makeDrop(room: RoomTemplate, pane: number): Drop {
 /* scene construction                                                  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Compose one room into a Pixi stage: base art per mood, rain masked to the
+ * glass, clock hands, characters, living props and the light pass, all under
+ * one root that cover-fits the canvas. Awaits every texture before returning.
+ * The returned handle is the only way to drive the scene afterwards; call its
+ * destroy() before tearing down the Application, which the caller still owns.
+ */
 export async function buildScene(
     app: Application,
     room: RoomTemplate,
@@ -419,13 +459,13 @@ export async function buildScene(
 
     /* ---------- living props: the turntable ----------
        Living-diorama direction (2026-08-22, ai/design_system/research/
-       living-props.md): furniture moves instead of glowing. The vinyl is
-       carved out of EVERY mood's base art (ellipse → un-squashed circle) and
-       spun inside a frame that re-applies the perspective squash + tilt; the
-       tonearm is re-cut as a soft-edged patch drawn above it, so the arm
-       holds still while the record turns. The per-mood cuts cross-fade with
-       the base sprites, so the disc never looks pasted on. Hover is a state
-       change on the prop: the platter leans faster, the arm gives a swing. */
+       living-props.md): furniture moves instead of glowing. The record turns
+       inside the disc plane itself — discHomography maps that plane to base
+       px, so a spin is a real perspective rotation and rim and label both
+       stay put. Its painted light and the tonearm are separate layers that
+       never turn. The per-mood layers cross-fade with the base sprites, so
+       the disc never looks pasted on. Hover is a state change on the prop:
+       the platter leans faster, the arm gives a swing. */
     const turntable = room.props?.turntable;
     const vinyls: PerspectiveMesh[] = []; // one per mood (tint differs), all sharing the spin
     let vinylH: Mat3 | null = null; // disc plane → base px
@@ -440,7 +480,8 @@ export async function buildScene(
     let armGroup: Container | null = null; // the arms of every mood; skewed about the post to cue up
     const armShadows: { sprite: Sprite; restX: number; restY: number; dx: number; dy: number }[] = [];
     const SHADOW_ALPHA = 0.42;
-    // refits the disc textures to the size they are drawn at (see below); wired into layout
+    // set by the turntable block: refits the disc masters to the size they are
+    // actually drawn at. Called from resize().
     let refitDiscs: ((devicePx: number) => void) | null = null;
     const retiredDiscTextures: Texture[] = [];
     const discTextureCleanup = {
@@ -483,6 +524,7 @@ export async function buildScene(
         const discMeshes: { mesh: PerspectiveMesh; src: string }[] = [];
         let fitted: Texture[] = [];
         let fitPx = 0;
+        // box-downscale an art image to exactly px wide, halving stepwise so no texel is skipped
         const fitDisc = (img: ArtImage, px: number): Texture => {
             let cur: ArtImage = img;
             let w = img.width;
@@ -626,12 +668,16 @@ export async function buildScene(
     clockC.addChild(handShadow, hands);
     world.addChild(clockC);
 
+    // Draw the three hands for the current wall-clock time into g. With
+    // shadow=true every hand is drawn in one dark color, for the offset copy
+    // sitting behind the real hands.
     const drawHands = (g: Graphics, shadow: boolean) => {
         const now = new Date();
         const s = now.getSeconds() + now.getMilliseconds() / 1000;
         const m = now.getMinutes() + s / 60;
         const h = (now.getHours() % 12) + m / 60;
         const col = shadow ? 0x2c2118 : undefined;
+        // one hand: a round-capped stroke out of the dial center (0° = 12 o'clock)
         const hand = (angleDeg: number, len: number, w: number, color: number) => {
             const a = ((angleDeg - 90) * Math.PI) / 180;
             g.moveTo(0, 0);
@@ -715,6 +761,8 @@ export async function buildScene(
          hover   — a greeting sparkle plus the prop's own state change (the
                    vinyl leans faster, the tonearm swings; see living props)
        Hotspots without a living prop yet only sparkle on hover. */
+    // Runtime state of one furniture hotspot: hover, the periodic hint slot
+    // and when its next sparkle is due.
     type Hot = {
         rect: (typeof room.hotspots)[number]['rect'];
         hovered: boolean;
@@ -759,30 +807,32 @@ export async function buildScene(
 
     // periodic hint scheduler: one furniture piece takes a turn to whisper
     // "I'm tappable" — a burst of big sparkles, nothing else.
-    // Research-tuned pacing (affordance survey 2026-08-15): first hint after
-    // 8–12s idle, then 22–45s between hints — companion products hint slower
-    // than puzzle games, and any tap resets the clock (hints must never nag).
+    // Pacing: first hint after 8–12s idle, then 22–45s between hints —
+    // companion products hint far slower than puzzle games, and any tap resets
+    // the clock (hints must never nag).
     let nextHintAt = rand(8, 12);
     const HINT_EVERY: [number, number] = [22, 45];
     const HINT_DUR = 2.6; // fade in 0.6 + hold/breathe 1.3 + fade out 0.7
 
     /* ---------- sparkle affordance (replaces the idle ring) ----------
-       Tuning follows the sparkle mockup brief: warm gold, 6–16px, sine
-       fade in/out, ≤8 visible at once across the room. */
+       Warm gold, 6–16px, sine fade in and out, at most 8 visible at once
+       across the whole room. */
+    /** One live sparkle particle and the curve parameters it lives out. */
     type Spark = { sprite: Sprite; born: number; life: number; size: number; spin: number; drift: number; peak: number };
     const sparks: Spark[] = [];
     const sparkTex = sparkleTexture();
     const sparkLayer = new Container();
     world.addChild(sparkLayer);
-    // rhythm per the sparkle spec: idle 0–1 per spot (3–6 visible room-wide),
-    // hover ≤2 per spot at a calm 0.9–1.4s pace — never a pulse train
+    // rhythm: idle 0–1 per spot (3–6 visible room-wide), hover ≤2 per spot at
+    // a calm 0.9–1.4s pace — never a pulse train
     const IDLE_GAP: [number, number] = [2.8, 6.5];
     const HOVER_GAP: [number, number] = [0.9, 1.4];
     const MAX_SPARKS = 8;
 
-    // `peak` caps a spark's brightness so the three states stay ranked:
-    // idle whisper < periodic hint < hover confirmation (v4 user direction)
-    const spawnSpark = (hot: Hot, t: number, sizeRange: [number, number] = [12, 22], peak = 0.78) => {
+    // Spawn one sparkle biased toward the center of `hot`'s rect. `peak` caps
+    // its brightness so the three states stay ranked: idle whisper < periodic
+    // hint < hover confirmation (v4 user direction).
+    const spawnSpark =(hot: Hot, t: number, sizeRange: [number, number] = [12, 22], peak = 0.78) => {
         if (sparks.length >= MAX_SPARKS + 6) return; // hard cap incl. bursts
         const s = new Sprite(sparkTex);
         s.anchor.set(0.5);
@@ -799,7 +849,7 @@ export async function buildScene(
         sparks.push({
             sprite: s,
             born: t,
-            life: rand(1.6, 2.4), // spec: 1.6–2.4s with natural jitter
+            life: rand(1.6, 2.4), // 1.6–2.4s, jittered so they never pulse together
             size,
             spin: rand(-0.5, 0.5),
             drift: rand(0.5, 3), // px/s upward — twinkle in place, no flight path
@@ -813,6 +863,9 @@ export async function buildScene(
 
     /* ---------- light pass (rebuilt per recipe, cross-faded) ---------- */
     const glowRect = room.window.glow;
+    // Build the light pass for one recipe: the gradient wash, the window glow
+    // and, in rain, the breathing cloud-cover sprite. Returns a fresh
+    // container for the caller to cross-fade in and eventually destroy.
     const buildLight = (rec: LightRecipe): Container => {
         const c = new Container();
 
@@ -844,9 +897,6 @@ export async function buildScene(
             c.addChild(breath);
         }
 
-        // vignette retired (2026-08-11 user call): the frame-rect version
-        // read as a black overlay hugging the edges — the design comps have
-        // no edge darkening at all, so the light pass ends here.
         return c;
     };
 
@@ -854,14 +904,20 @@ export async function buildScene(
     let mood: RoomMood = initialMood;
     let weather: RoomWeather = initialWeather;
     let currentLight: Container | null = null;
+    /** A queued alpha tween; kill=true destroys the object once it lands. */
     type Fade = { obj: Container | Sprite; from: number; to: number; start: number; dur: number; kill?: boolean };
     let fades: Fade[] = [];
 
+    // Queue an alpha tween on obj, replacing any tween already running on it.
     const startFade = (obj: Container | Sprite, to: number, dur: number, kill = false) => {
         fades = fades.filter((f) => f.obj !== obj);
         fades.push({ obj, from: obj.alpha, to, start: performance.now(), dur, kill });
     };
 
+    // Apply the current mood x weather: weather grade, actor tint, base-art
+    // cross-fade (prop cuts ride along with the art they were carved from) and
+    // a freshly built light pass. With animate=false everything snaps and the
+    // old light pass is destroyed at once instead of fading out.
     const applyRecipe = (animate: boolean) => {
         const rec = RECIPES[mood][weather];
         const grade = WEATHER_GRADE[weather];
@@ -897,6 +953,7 @@ export async function buildScene(
 
     /* ---------- ticker ---------- */
     let elapsed = 0;
+    // index of the turntable hotspot, so the living prop can read its hover state
     const musicHotIndex = room.hotspots.findIndex((h) => h.id === 'music');
     // tonearm nudge spring: stiff enough to answer within ~0.3s, damped just
     // under critical so it settles with one soft overshoot (dt is capped at
@@ -906,6 +963,9 @@ export async function buildScene(
     // vertical skew (radians) about the post when cued: the headshell, ~90px
     // from the post, rises ~4px while the post itself does not move
     const ARM_LIFT_SKEW = 0.045;
+    // One frame: advance the fade queue, then rain, characters, clock, light
+    // breathing, living props and the sparkle affordance, in that order. dt is
+    // capped at 100ms so a backgrounded tab cannot teleport any simulation.
     const tick = () => {
         const dtMs = app.ticker.deltaMS;
         const dt = Math.min(dtMs, 100) / 1000;
@@ -1044,7 +1104,7 @@ export async function buildScene(
             if (candidates.length) {
                 const pick = candidates[Math.floor(Math.random() * candidates.length)];
                 pick.hintPhase = elapsed;
-                // mockup: 4–5 visible stars sell the "look here" moment
+                // 4–5 visible stars sell the "look here" moment
                 for (let n = 0; n < 4; n++) spawnSpark(pick, elapsed + n * 0.12, [18, 30], 0.88);
             }
             nextHintAt = elapsed + rand(HINT_EVERY[0], HINT_EVERY[1]);
@@ -1062,7 +1122,7 @@ export async function buildScene(
                 if (h.hovered || idleBudget) {
                     spawnSpark(h, elapsed, h.hovered ? [16, 28] : [12, 22], h.hovered ? 1 : 0.78);
                     if (greeting) {
-                        // mockup hover state: a small ring of stars greets the pointer
+                        // hover state: a small ring of stars greets the pointer
                         spawnSpark(h, elapsed + 0.1, [14, 22], 1);
                         spawnSpark(h, elapsed + 0.22, [10, 18], 1);
                     }
@@ -1080,7 +1140,7 @@ export async function buildScene(
                 sparks.splice(i, 1);
                 continue;
             }
-            // spec scale curve 0.35→1.0→0.25: bloom in, peak, melt away
+            // scale curve 0.35→1.0→0.25: bloom in, peak, melt away
             const a = Math.sin(Math.PI * t);
             sp.sprite.alpha = a * sp.peak;
             const sc = (0.3 + 0.7 * a) * (sp.size / sparkTex.width);
@@ -1091,6 +1151,7 @@ export async function buildScene(
     };
 
     let rainFadeTarget = -1;
+    // Cross-fade the rain layer in or out; a no-op while the target has not changed.
     const startRainAlpha = (raining: boolean) => {
         const target = raining ? 1 : 0;
         if (rainFadeTarget !== target) {
@@ -1103,6 +1164,7 @@ export async function buildScene(
     app.ticker.add(tick);
 
     /* ---------- power discipline ---------- */
+    // stop the ticker while the tab is hidden, resume it on return
     const onVisibility = () => {
         if (document.hidden) app.stop();
         else app.start();
@@ -1121,6 +1183,8 @@ export async function buildScene(
     // until frameless art lands. All anchors share root's transform, so
     // hotspots/seats stay aligned.
     const EDGE_CROP = 1.035;
+    // Cover-fit the base art to the canvas, then refit the disc masters to the
+    // size they are now drawn at.
     const resize = () => {
         const w = app.renderer.width / app.renderer.resolution;
         const h = app.renderer.height / app.renderer.resolution;
@@ -1135,11 +1199,13 @@ export async function buildScene(
     applyRecipe(false);
 
     return {
+        // Switch the lighting hour; a repeat of the current mood is ignored.
         setMood(next, animate) {
             if (next === mood) return;
             mood = next;
             applyRecipe(animate && !reduced);
         },
+        // Switch between the sunny and the rainy pass; a repeat is ignored.
         setWeather(next, animate) {
             if (next === weather) return;
             weather = next;
@@ -1148,15 +1214,19 @@ export async function buildScene(
         getSeatScreenPos(seatId) {
             const seat = room.seats.find((s) => s.id === seatId);
             if (!seat) return null;
-            // ~22px of air above the hand-tuned visual head top (codex audit
-            // H1: the tag must read as "her status", not a wall toast);
-            // toGlobal already yields logical (CSS px) stage coordinates
+            // ~22px of air above the hand-tuned visual head top (see
+            // ai/codex-visual/20260811-044310Z/codex-report.md H1: the tag must
+            // read as "her status", not a wall toast); toGlobal already yields
+            // logical (CSS px) stage coordinates
             return root.toGlobal({
                 x: seat.foot.x,
                 y: seat.foot.y - seat.height * seat.headRatio - 22
             });
         },
         resize,
+        // Detach the ticker, the visibility listener and the postrender runner,
+        // then flush any disc textures still waiting to be retired. Does not
+        // destroy the Application — the caller owns it.
         destroy() {
             document.removeEventListener('visibilitychange', onVisibility);
             app.ticker.remove(tick);

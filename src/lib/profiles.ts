@@ -4,7 +4,9 @@
 import { supabase } from '@/lib/supabase.ts';
 import type { FeedProfile } from '@/types/feed.ts';
 
-// Fetch profiles by id, as an id -> profile map for author lookup.
+// Fetch profiles by id, as an id -> profile map for author lookup. Nulls and
+// duplicates are filtered out and an empty input short-circuits without a
+// request. Throws on a Supabase error — callers decide whether to fall back.
 export const getProfilesByIds = async (ids: (string | null)[]): Promise<Record<string, FeedProfile>> => {
     const unique = [...new Set(ids.filter((id): id is string => !!id))];
     if (!unique.length) return {};

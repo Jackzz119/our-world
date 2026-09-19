@@ -1,6 +1,9 @@
+// journal-turn.ts — a sheet is a pair of real DOM faces, bent around the
+// binding in 3D. Text and photographs are never painted independently of their
+// paper. This file owns geometry and painting only; when and how far to turn is
+// JournalTurnController's job.
+// Feature doc: ai/features/timeline.md
 import { applyThumbUrls } from './journal-layout';
-// A sheet is a pair of real DOM faces, bent around the binding in 3D.
-// Text and photographs are never painted independently of their paper.
 export type TurnDirection = 1 | -1;
 export type TurnGeometry = {
     width: number;
@@ -16,6 +19,7 @@ export type TurnGeometry = {
 export type TurnFrame = { id: number; from: number; to: number; progress: number; direction: TurnDirection };
 type Strip = { node: HTMLElement; frontShade: HTMLElement; backShade: HTMLElement };
 type Sheet = { node: HTMLElement; strips: Strip[]; frame: TurnFrame };
+// 24 strips is where the bend stops looking faceted without costing frames.
 const STRIPS = 24;
 const make = (name: string) => {
     const node = document.createElement('div');
@@ -41,6 +45,9 @@ export function sheetPose(progress: number, direction: TurnDirection, width: num
     });
 }
 
+// The turning stage: two static base leaves plus one clone-sheet per sheet in
+// flight. Every face is a deep clone of a real page, so mid-turn text is the
+// genuine content — never a placeholder.
 export class JournalTurnStage {
     readonly element = make('journal-turn-stage');
     private space = make('journal-turn-space');
@@ -61,6 +68,9 @@ export class JournalTurnStage {
         this.element.append(this.space);
     }
 
+    // Build one printable face for `page`. Clones the live leaf, strips its ids
+    // (a clone must not duplicate them), and re-prints the book art, heading and
+    // folio at the coordinates measured from the real book.
     private face(page: number, side: 'left' | 'right') {
         const g = this.geometry;
         const original = this.pages[page];
@@ -104,6 +114,8 @@ export class JournalTurnStage {
         return copy;
     }
 
+    // Slice one sheet into STRIPS vertical strips, each carrying a front and a
+    // back face offset so the strips together read as one continuous page.
     private createSheet(frame: TurnFrame): Sheet {
         const { width, height, single } = this.geometry;
         const node = make('journal-turn-sheet');
@@ -135,6 +147,8 @@ export class JournalTurnStage {
         return { node, strips, frame };
     }
 
+    // Paint one frame: refresh the base spread if it changed, drop sheets that
+    // finished, then pose every strip of every live sheet and size the spine shadow.
     render(current: number, frames: TurnFrame[]) {
         const { width, single } = this.geometry;
         const last = frames.at(-1);
@@ -180,10 +194,12 @@ export class JournalTurnStage {
         this.element.dataset.activeSheets = String(frames.length);
     }
 
+    // Late-arriving signed URLs must also reach the faces already in the air.
     updateImages(urlFor: (path: string) => string | undefined) {
         applyThumbUrls(this.element, urlFor);
     }
 
+    // Detach the stage. The cloned leaves die with it; the real ones are untouched.
     destroy() {
         this.element.remove();
         this.sheets.clear();

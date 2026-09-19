@@ -3,6 +3,8 @@
 
 export type Track = { title: string; artist: string; root: number; chord: number[]; dur: number; cover: string };
 
+// Built-in "tracks": each one is a chord recipe for the WebAudio pad, not an
+// audio file.
 export const TRACKS: Track[] = [
     { title: '云朵上的下午', artist: '小满 & 知夏', root: 261.63, chord: [0, 4, 7, 11], dur: 214, cover: 'linear-gradient(145deg,#FCE3B0,#F5B774)' },
     { title: '雨天的窗边', artist: 'Lo-fi 时光', root: 220.0, chord: [0, 3, 7, 10], dur: 198, cover: 'linear-gradient(145deg,#BFD0F2,#8C9DDB)' },

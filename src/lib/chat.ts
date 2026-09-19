@@ -1,4 +1,5 @@
-// chat.ts — data access for channel chat (chat.md CH-12 / CH-17).
+// chat.ts — data access for channel chat. Spec: ai/features/chat.md §三「lib/chat.ts」
+// (subtasks CH-12 / CH-17 were never backfilled into that doc — see ai/features/chat.md:13).
 // Delivery model is Broadcast from Database: clients only write rows
 // (messages / message_reactions / channel_reads); DB triggers fan every
 // change out to the private realtime topic `world:{world_id}` (subscription
@@ -9,12 +10,14 @@ import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
 
+// Select lists. These must stay in sync with src/types/chat.ts — the row types are hand-written,
+// nothing generates them.
 const CHANNEL_COLS = 'id, world_id, type, name, topic, scene_id, position, dm_user_a, dm_user_b';
 const MESSAGE_COLS = 'id, channel_id, world_id, author_id, content, created_at, edited_at, kind, emote_id';
 const REACTION_COLS = 'message_id, user_id, world_id, emoji, created_at';
 const READ_COLS = 'channel_id, user_id, world_id, last_read_at';
 
-// All channels of a world in sidebar order (RLS: members only).
+// All channels of a world in nav order (RLS: members only).
 export const getChannels = async (worldId: string): Promise<Channel[]> => {
     const { data, error } = await supabase.from('channels').select(CHANNEL_COLS).eq('world_id', worldId).order('position');
     if (error) throw error;
@@ -28,12 +31,14 @@ export const getDmChannels = async (): Promise<Channel[]> => {
     return (data ?? []) as Channel[];
 };
 
+// Cursor + size for one page of history.
 export type MessagePage = {
     // Exclusive cursor: only messages strictly older than this created_at.
     before?: string | null;
     limit?: number;
 };
 
+// Also the "is there more" probe: a short page means we reached the start of the conversation.
 export const MESSAGE_PAGE_SIZE = 50;
 
 // A channel's latest messages (or the page before the cursor), returned
@@ -61,7 +66,7 @@ export const sendMessage = async (channelId: string, content: string, id: string
 };
 
 // Send a sticker: same pipeline, kind='sticker' + the emote reference;
-// content carries the :name: fallback (dock line / tombstone).
+// content carries the :name: fallback (conversation hint line / tombstone).
 export const sendSticker = async (channelId: string, emoteId: string, emoteName: string, id: string): Promise<void> => {
     const authorId = await currentUserId();
     const { error } = await supabase
@@ -82,12 +87,14 @@ export const deleteMessage = async (id: string): Promise<void> => {
     if (error) throw error;
 };
 
+// React to a message as me; the PK (message, user, emoji) makes a repeat insert a conflict.
 export const addReaction = async (messageId: string, emoji: string): Promise<void> => {
     const userId = await currentUserId();
     const { error } = await supabase.from('message_reactions').insert({ message_id: messageId, user_id: userId, emoji });
     if (error) throw error;
 };
 
+// Take back one of my reactions.
 export const removeReaction = async (messageId: string, emoji: string): Promise<void> => {
     const userId = await currentUserId();
     const { error } = await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', userId).eq('emoji', emoji);

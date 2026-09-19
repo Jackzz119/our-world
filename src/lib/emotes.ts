@@ -1,10 +1,12 @@
-// emotes.ts — data access for the world emote (sticker) library
-// (ai/features/chat.md 表情系统 EMO-3). Images live in the private
+// emotes.ts — data access for the world emote (sticker) library. Spec:
+// ai/features/chat.md §三「lib/emotes.ts」(subtask EMO-3 was never backfilled — see
+// ai/features/chat.md:13). Images live in the private
 // `memories` bucket under <worldId>/emotes/, so the existing world-scoped
 // storage policies and signed-URL machinery apply unchanged.
 import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { EmoteRow, EmoteSearchResult } from '@/types/chat.ts';
 
+// Select list; keep in sync with EmoteRow in src/types/chat.ts.
 const COLS = 'id, world_id, name, storage_path, source_url, added_by, created_at';
 // stickers render at 110px; 512 covers hi-dpi with room to spare
 const STICKER_MAX = 512;
@@ -64,6 +66,8 @@ export const removeEmote = async (id: string): Promise<void> => {
     if (error) throw error;
 };
 
+// Re-encode an image file to webp within STICKER_MAX on the long edge. Throws on non-image input
+// (createImageBitmap) and always releases the bitmap.
 const downscaleToWebp = async (file: File): Promise<Blob> => {
     const bitmap = await createImageBitmap(file); // throws on non-image input
     try {

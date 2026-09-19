@@ -1,10 +1,15 @@
-// emoji-data.ts — curated emoji set for the EmotePicker (chat.md EMO-4).
+// emoji-data.ts — curated emoji set for the EmotePicker.
 // Self-maintained instead of pulling a full unicode dataset: ~230 entries
 // with Chinese search keywords is plenty for a two-person product, needs no
 // virtual scrolling, and keeps search Chinese-first. Grow freely.
+// Spec: ai/features/chat.md §三「emote-picker.tsx / emoji-data.ts」(subtask EMO-4 not yet
+// backfilled — see ai/features/chat.md:13).
+
+// e = the character, k = space-separated search keywords (Chinese first, then English).
 export type EmojiEntry = { e: string; k: string };
 export type EmojiCategory = { name: string; items: EmojiEntry[] };
 
+// Display order in the emoji tab; also the source of the flat search index below.
 export const EMOJI_CATEGORIES: EmojiCategory[] = [
     {
         name: '笑脸与情感',

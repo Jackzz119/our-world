@@ -1,10 +1,8 @@
-// screens.tsx — room-object surfaces: diary / photo wall / wishlist.
-// The three features stay mounted independently; the room object decides which
-// one opens, so they never read as tabs inside one app window.
-// The journal reads chronologically across measured pages. Its date directory
-// loads older records through the unchanged useFeed cursor. The writing label
-// opens the draft-preserving composer; the quill is static art. The photo wall opens originals in a
-// lightbox. Modal shell styles live in cinnaglass.css.
+// screens.tsx — the three room-object surfaces: journal, photo wall, wishlist.
+// All three stay mounted so scroll, lightbox and composer drafts survive
+// closing one object and opening another. The journal's own paging lives in
+// journal-room-book.tsx; this file owns the modal shell, focus trap and the
+// photo-wall + wishlist bodies.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed.ts';
 import { createPost } from '@/lib/posts.ts';
@@ -15,6 +13,9 @@ import { IClose, IHeart, IPhoto, IPlus, ISparkle } from './icons';
 import './diary.css';
 import { JournalRoomBook as JournalBook } from './journal-room-book';
 
+// Styles for the collection surfaces (photo wall, wishlist) and the shared
+// modal shell. Rendered as a <style> element, so it wins ties against every
+// bundled stylesheet — keep that in mind before moving it into a .css file.
 const ScreenStyles = () => (
     <style>{`
   /* ── room-object surfaces ──
@@ -51,9 +52,10 @@ const ScreenStyles = () => (
     .object-surface{transition-duration:1ms;}
   }
 
-  /* ── composer — its own row below the scrollport, never overlapping ──
-     Bright white writing surface (design ref: composer-redesign.html): words
-     should sit on paper, not on hazy glass. */
+  /* ── composer — inside the journal it is absolutely positioned on the paper
+     (journal-room.css). Bright white writing surface: words sit on paper,
+     not on hazy glass. Design ref:
+     ai/design_system/uiux/research/cinnaglass-history/composer-redesign.html */
   .compose{border-radius:18px;padding:10px;margin-top:10px;flex:0 0 auto;
     background:var(--glass-paper);}
   /* collapsed = an input-field look: the whole pill reads as "type here".
@@ -63,7 +65,6 @@ const ScreenStyles = () => (
     background:rgba(255,255,255,.6);transition:border-color .2s,background .2s,box-shadow .2s;}
   .compose-collapsed:hover{border-color:var(--accent);background:#fff;
     box-shadow:0 4px 14px -6px rgba(47,154,211,.45);}
-  .compose-collapsed .pchip{width:28px;height:28px;flex:0 0 auto;}
   .compose-collapsed .ph{color:var(--glass-sub);font-size:13.5px;flex:1;min-width:0;}
   .compose-collapsed .go{color:var(--accent-deep);font-size:11.5px;letter-spacing:.05em;
     opacity:0;transition:opacity .2s;white-space:nowrap;}
@@ -116,77 +117,24 @@ const ScreenStyles = () => (
     box-shadow:0 8px 22px -8px rgba(47,154,211,.65);}
   .btn-pub:hover:not(:disabled){box-shadow:0 12px 26px -8px rgba(47,154,211,.75);}
 
-  /* ── timeline: a co-written diary flow — one centered column, oldest →
-     newest (design ref: ai/design_system/uiux/research/cinnaglass-history/timeline-redesign.html). The spine
-     is a barely-there dotted trail, avatars hang on the cards like stickers,
-     day chips are washi-style date stickers. Identity rides COLOR (--au-*),
-     position only carries top-to-bottom rhythm. The tab hosts its own
-     scrollport (.tl-scroll); the composer lives BELOW it as a sibling, so
-     list content never slides under it. Gradient masks fade the list out at
-     both edges of the visible window. */
+  /* ── journal host: the body of the diary surface. The scrolling timeline
+     that used to live here is gone — the chestnut book owns its own paging
+     (journal-room-book.tsx), so only the host box is left. ── */
   .tl-host{display:flex;flex:1 1 0;min-width:0;flex-direction:column;overflow:hidden;padding:0 16px 16px;}
-  .tl-scroll{flex:1 1 0;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px;
-    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);
-    mask-image:linear-gradient(to bottom,transparent 0,#000 32px,#000 calc(100% - 28px),transparent 100%);}
-  .tl-scroll::-webkit-scrollbar{width:0;}
-  .tl-scroll[data-dragging]{cursor:grabbing;}
-  .tl-scroll[data-dragging] *{user-select:none;}
-  .tl-pull{will-change:transform;}
-  .tl-more{text-align:center;font-size:11.5px;color:var(--glass-sub);letter-spacing:.06em;padding:8px 0 16px;}
-  .tl-end{text-align:center;font-size:11px;color:var(--glass-sub);letter-spacing:.08em;padding:14px 0 2px;
-    transition:color .2s;}
-  .tl-end.armed{color:var(--accent-deep);font-weight:600;}
+  /* Kept on purpose: .tl also matches the journal's top-left photo corner
+     (<i class="journal-photo-corner tl">, journal-layout.ts). Removing these
+     two rules would change how that ornament paints, so they stay until the
+     collision is untangled. */
   .tl{position:relative;width:100%;margin:0 auto;padding-left:48px;}
-  /* dotted trail: a soft hint that time flows, not a technical spine */
   .tl::before{content:"";position:absolute;left:15px;top:10px;bottom:12px;width:0;
     border-left:2px dotted rgba(124,198,236,.35);}
-  /* day chips = washi date stickers, tint and tilt alternate per day */
-  .tl-day{position:relative;text-align:center;margin:20px 0 16px;}
-  .tl-day span{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:#8a6d3a;
-    background:linear-gradient(135deg,#fff8ec,var(--butter));border:1px solid rgba(255,255,255,.9);
-    padding:5px 16px;border-radius:999px;transform:rotate(-1.2deg);
-    box-shadow:0 4px 14px -6px rgba(140,110,60,.35);}
-  .tl-day.alt span{background:linear-gradient(135deg,#eef8ff,var(--sky-3));color:#3d6f92;
-    transform:rotate(.9deg);box-shadow:0 4px 14px -6px rgba(61,111,146,.3);}
-  .tl-item{position:relative;margin-bottom:16px;}
-  @keyframes tlIn{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
-  @media (prefers-reduced-motion: no-preference){
-    .tl-item{animation:tlIn .42s cubic-bezier(.3,.9,.4,1) both;}
-  }
   .ava{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;
     font-size:13px;font-weight:700;overflow:hidden;flex:0 0 auto;border:2px solid var(--cream);}
   .ava img{width:100%;height:100%;object-fit:cover;}
-  /* avatar hangs on the card like a sticker (slightly bigger than the base) */
-  .tl .ava{position:absolute;left:-48px;top:4px;width:34px;height:34px;font-size:14px;}
-  /* bright paper surface — hazy glass blue washes out the words (mockup A) */
-  .tl-card{border:1px solid var(--paper-line);border-left:3px solid var(--au-deep,var(--accent-deep));
-    border-radius:14px;padding:13px 14px;cursor:pointer;transition:transform .16s,box-shadow .16s;
-    background:#fff;box-shadow:0 5px 14px -10px rgba(20,29,51,.32);}
-  .tl-card:hover{transform:translateY(-2px);}
-  .tl-who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
-  /* identity rides COLOR (set per item via --au-* custom props), not position */
-  .tl-au{font-weight:700;font-size:12px;color:var(--au-deep,var(--glass-sub));}
-  .tl-time{font-size:11px;color:var(--glass-sub);letter-spacing:.04em;}
-  /* clamp long entries (full text lives in the detail view); overflow-wrap
-     keeps unbroken runs (urls, keyboard mash) inside the card */
-  .tl-card .tt{font-size:14.5px;font-weight:500;line-height:1.6;color:var(--glass-text);
-    text-wrap:pretty;white-space:pre-wrap;overflow-wrap:anywhere;
-    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden;}
-  /* photo memory: the picture IS the hero — full-bleed on top, words below */
-  .tl-card.has-media{padding:0;overflow:hidden;}
-  .tl-card.has-media .tl-media{position:relative;}
-  .tl-card.has-media image-slot{display:block;width:100%;height:auto;aspect-ratio:16/10;
-    pointer-events:none;}
-  .tl-imgn{position:absolute;right:10px;bottom:10px;background:rgba(20,29,51,.55);color:#fff;
-    font-size:11px;padding:3px 10px;border-radius:999px;letter-spacing:.04em;
-    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
-  .tl-card.has-media .tbody{padding:11px 16px 13px;}
 
   /* ── widescreen: the page widens at fixed, tested breakpoints ── */
   @media(min-width:1000px){
     .tl-host{padding:0 18px 18px;}
-    .tl-item{margin-bottom:18px;}
-    .tl-day{margin:24px 0 18px;}
     /* wishlist keeps a readable centered column in the big modal */
     .wl-bar,.wish,.wl-add{max-width:820px;margin-left:auto;margin-right:auto;}
     .pw{columns:4;}
@@ -195,9 +143,6 @@ const ScreenStyles = () => (
     .tl-host{padding:0 10px 11px;}
     .tl{padding-left:40px;}
     .tl::before{left:12px;}
-    .tl .ava{left:-40px;width:28px;height:28px;font-size:12px;box-shadow:none!important;}
-    .tl-card{padding:11px 10px;border-radius:12px;}
-    .tl-card .tt{font-size:13px;line-height:1.55;}
     .compose{padding:7px;margin-top:7px;border-radius:14px;}
     .compose-collapsed{padding-right:9px;}
     .compose-collapsed .go{display:none;}
@@ -281,16 +226,21 @@ const ScreenStyles = () => (
   `}</style>
 );
 
+// Which room object is open. 'timeline' is the journal.
 type TabKey = 'timeline' | 'photos' | 'wishlist';
+// Where the open gesture came from, so the sheet can fly out of the clicked
+// furniture instead of the screen centre.
 export type SurfaceOrigin = { x: number; y: number; source: 'object' | 'rail' | 'keyboard' };
 type Wish = { id: string; text: string; done: boolean };
 
+// The three surfaces, in mount order. All stay mounted; screen picks one.
 const SURFACES: { k: TabKey; title: string; kicker: string }[] = [
     { k: 'timeline', title: '我们的日记', kicker: 'MEMORY DIARY' },
     { k: 'photos', title: '照片墙', kicker: 'PHOTO WALL' },
     { k: 'wishlist', title: '心愿单', kicker: 'OUR WISHES' }
 ];
 
+// Seed list for a first-time visitor. The wishlist is still local-only.
 const SEED_WISHES: Wish[] = [
     { id: 'w1', text: '一起去看一次海上日出', done: true },
     { id: 'w2', text: '学会做对方家乡的一道菜', done: true },
@@ -309,12 +259,14 @@ const fmtDay = (iso: string): string => {
     if (d.toDateString() === yst.toDateString()) return '昨天';
     return `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
 };
+// Wall-clock time, 24h. Paired with fmtDay wherever a full stamp is needed.
 const fmtMeta = (iso: string): string => {
     const d = new Date(iso);
     const hh = String(d.getHours()).padStart(2, '0');
     const mm = String(d.getMinutes()).padStart(2, '0');
     return `${hh}:${mm}`;
 };
+// Absolute stamp for the detail view, where a relative "今天" would be ambiguous.
 const fmtFullDate = (iso: string): string => {
     const d = new Date(iso);
     return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 · ${fmtMeta(iso)}`;
@@ -328,11 +280,14 @@ const AVA_GRADS = [
     'linear-gradient(135deg,#C9E8C2,#86C99A)',
     'linear-gradient(135deg,#D9CBF2,#B39DE0)'
 ];
+// Stable 32-bit string hash. Used for anything that must look random but stay
+// identical across sessions: avatar tint, guest tone, photo tilt.
 const hashOf = (id: string): number => {
     let h = 0;
     for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
     return h;
 };
+// Pick this author's avatar gradient. Same id, same gradient, forever.
 const avaGrad = (id: string): string => AVA_GRADS[hashOf(id) % AVA_GRADS.length];
 
 // Identity color system: position carries time, color carries authorship.
@@ -348,12 +303,16 @@ const GUEST_TONES: AuthorTone[] = [
     { ring: 'rgba(179,157,224,.85)', deep: '#8E76C8' },
     { ring: 'rgba(111,188,232,.85)', deep: '#2F9AD3' }
 ];
+// Me → accent, the world's other member → the pink pairing, anyone else →
+// a stable hash pick. Never falls back to position.
 const toneOf = (authorId: string, currentUserId: string | null, world: World | null): AuthorTone => {
     if (currentUserId && authorId === currentUserId) return MINE_TONE;
     if (world && (authorId === world.owner_id || authorId === world.member_id)) return PARTNER_TONE;
     return GUEST_TONES[hashOf(authorId) % GUEST_TONES.length];
 };
 
+// Circular author avatar: uploaded image, else the first letter of the name,
+// else a dot. The ring colour carries identity (see toneOf).
 function Avatar({
     authorId,
     profile,
@@ -480,12 +439,16 @@ function PostDetail({
     );
 }
 
-// Controlled multi-image pick: what the thumbnail row shows is exactly what
-// uploads (the old single <image-slot> square was a tiny drop target — a
-// second drag could miss it entirely and the stale first pick got published).
+// Controlled multi-image pick: the thumbnail row IS the upload list — what
+// you see is exactly what gets published. Object URLs are revoked on remove
+// and on cancel, never on collapse (a collapsed composer still holds a draft).
 type Picked = { file: File; url: string };
 const MAX_IMGS = 9;
 
+// The write path. Collapsed it is a one-line doorway; open it is a textarea +
+// image row. Publishing uploads every picked file to Storage first, then
+// inserts one post, then calls onPublished (the caller reloads the feed).
+// Clicking outside or Esc only collapses — the draft survives; only 取消 clears.
 function Composer({ worldId, onPublished }: { worldId: string | null; onPublished: () => void }) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState('');
@@ -531,6 +494,7 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
         if (open) autogrow();
     }, [open]);
 
+    // Accept only images, cap at MAX_IMGS, mint one object URL per pick.
     const addFiles = (files: Iterable<File>) => {
         if (busy) return;
         const imgs = [...files].filter((f) => f.type.startsWith('image/'));
@@ -540,11 +504,13 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
             ...imgs.slice(0, Math.max(0, MAX_IMGS - prev.length)).map((f) => ({ file: f, url: URL.createObjectURL(f) }))
         ]);
     };
+    // Revoke before dropping, or the blob leaks for the page's lifetime.
     const removeAt = (i: number) =>
         setPicked((prev) => {
             URL.revokeObjectURL(prev[i].url);
             return prev.filter((_, j) => j !== i);
         });
+    // Explicit discard: revoke every object URL and empty the row.
     const clearPicked = () =>
         setPicked((prev) => {
             prev.forEach((p) => URL.revokeObjectURL(p.url));
@@ -565,6 +531,9 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
         }
     };
 
+    // Uploads run sequentially so a mid-way failure leaves a known prefix in the
+    // bucket rather than an unknown scatter; the post row is written only after
+    // every image lands. On failure nothing is cleared — the draft stays.
     const publish = async () => {
         const v = text.trim();
         if ((!v && picked.length === 0) || !worldId || busy) return;
@@ -711,6 +680,8 @@ function Composer({ worldId, onPublished }: { worldId: string | null; onPublishe
 // (storage.ts SIGNED_URL_TTL), so an idle page would silently lose its images —
 // re-sign on an interval safely inside the TTL, and again when the tab regains
 // visibility (a backgrounded tab may have throttled timers).
+// Only this list re-signs. PostDetail and the lightbox sign originals once —
+// they never live long enough to outlast the TTL.
 function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
     const [urls, setUrls] = useState<Record<string, string>>({});
     useEffect(() => {
@@ -741,6 +712,7 @@ function useSignedThumbs(posts: FeedPost[]): Record<string, string> {
     return urls;
 }
 
+// Journal + its detail overlay. Nothing else: the book owns its own paging.
 function TimelineBody({
     feed,
     thumbUrls,
@@ -777,6 +749,9 @@ function TimelineBody({
 
 type LightboxPhoto = { path: string; thumb?: string; date: string };
 
+// Photo wall: every image from every post, newest first, grouped by month and
+// laid out as tilted polaroids. Clicking one opens a progressive lightbox —
+// the signed thumbnail shows at once, the signed original swaps in when ready.
 function PhotosBody({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: Record<string, string> }) {
     const [view, setView] = useState<LightboxPhoto | null>(null);
     const [fullUrl, setFullUrl] = useState<string | null>(null);
@@ -886,6 +861,8 @@ function PhotosBody({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: Record
     );
 }
 
+// Wishlist — still a local-only mock (localStorage 'ow-wishes-v1'); it has no
+// backend table yet, so nothing here is shared between the two members.
 function WishlistBody({
     wishes,
     setWishes
@@ -935,6 +912,10 @@ function WishlistBody({
     );
 }
 
+// The room-object modal shell. All three surfaces stay mounted and are shown
+// one at a time, so state survives closing one object and opening another.
+// Owns: the open-from-furniture transform, the layered Escape order
+// (detail/lightbox → composer → surface) and the Tab trap.
 export function SubScreen({
     screen,
     origin,
@@ -1012,6 +993,8 @@ export function SubScreen({
         return () => window.removeEventListener('keydown', onKey);
     }, [screen]);
 
+    // Clamp the open-from origin to ±46% of the viewport so a click near an edge
+    // still flies from a visible point. The journal opts out: its art is centred.
     const originStyle = (key: TabKey): React.CSSProperties => {
         if (screen !== key || !origin) return {};
         // Static book art is centered; the new take-from-desk motion is deferred.

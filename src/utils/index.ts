@@ -1,5 +1,7 @@
 import type { EnvName } from '@/types';
 
+// Required env var: throws at module-eval time when missing, so a misconfigured
+// build fails loudly instead of silently talking to nothing.
 export function getEnv(name: EnvName): string {
     const value = import.meta.env[name];
     if (!value) {

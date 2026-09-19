@@ -3,6 +3,7 @@
 import type { Profile } from './model';
 import { loadMerged } from '@/lib/local-store.ts';
 
+// Seed profile for a first run, and the fallback the stored blob merges over.
 export const PROFILE_DEFAULT: Profile = {
     world: '我们的小世界',
     her: '小满',
@@ -13,6 +14,8 @@ export const PROFILE_DEFAULT: Profile = {
     status: '在你身边'
 };
 
+// Read the stored profile merged over `fb`; a missing key or a parse failure
+// falls back to `fb` whole.
 export const gload = (k: string, fb: Profile): Profile => loadMerged(k, fb);
 
 // ── relationship date math (world.anniversary / profile.anniv, 'YYYY-MM-DD') ──

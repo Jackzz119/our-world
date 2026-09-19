@@ -1,4 +1,8 @@
-// Real paginated content is also the source of each turning paper face.
+// journal-room-book.tsx — React host for the chestnut journal.
+// It measures the paper, asks journal-layout to build real DOM leaves from the
+// feed, and hands those same leaves to JournalTurnController — the turning
+// faces are clones of the real pages, never re-rendered stand-ins.
+// Feature doc: ai/features/timeline.md
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
 import type { UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
@@ -8,8 +12,12 @@ import { JournalTurnController } from './journal-turn-controller';
 import './journal-room.css';
 import './journal-turn.css';
 
+// Non-reactive book state: mutating it must not re-render (the leaves are
+// plain DOM, owned by this file, not by React).
 type BookState = { pages: JournalPage[]; page: number; step: number };
 
+// active = this surface is the visible one; an inactive book cancels any turn
+// in flight and stops handling arrow keys.
 export function JournalRoomBook({
     feed,
     thumbUrls,
@@ -36,6 +44,9 @@ export function JournalRoomBook({
     const [indexOpen, setIndexOpen] = useState(false);
     const [dates, setDates] = useState<{ label: string; page: number }[]>([]);
 
+    // Show the spread that contains `target`, snapped to the step (1 leaf on
+    // phones, 2 otherwise). Hides every other leaf and records a reading anchor
+    // so a resize or a reload can land the reader back on the same sentence.
     const showPage = useCallback((target: number) => {
         const state = book.current;
         if (!state.pages.length || !slot.current) return;
@@ -57,6 +68,8 @@ export function JournalRoomBook({
         setReading({ page, total: state.pages.length });
     }, []);
 
+    // Signed URLs arrive after the leaves are built: patch the <img> elements in
+    // place (both the static leaves and any face currently mid-turn).
     useEffect(() => {
         urls.current = thumbUrls;
         const urlFor = (path: string) => thumbUrls[thumbPathOf(path)];
@@ -85,6 +98,12 @@ export function JournalRoomBook({
         return () => observer.disconnect();
     }, []);
 
+    // Rebuild the whole book whenever the feed or the measured box changes.
+    // Waits for the journal font first — paginating with a fallback face would
+    // measure the wrong line count and reflow on swap. Restores the reading
+    // anchor if that post is still on a page, else opens at the newest entry.
+    // The folio/heading rectangles are read from the live DOM so the turning
+    // clones print their page numbers in exactly the same spot.
     useEffect(() => {
         const host = slot.current;
         if (!host || layout.width < 100 || layout.height < 180) return;
@@ -119,6 +138,10 @@ export function JournalRoomBook({
                 const latest = pages.findIndex((p) => p.parts.some((part) => part.post.post_id === newest));
                 book.current = { pages, step, page: 0 };
                 host.replaceChildren(...pages.map((p) => p.element));
+                // Date directory, deduped by the same localised label the button
+                // shows. This label doubles as the dedupe key — it must stay
+                // derived from post.created_at, like the running title in
+                // journal-layout.
                 const seen = new Set<string>();
                 const list: { label: string; page: number }[] = [];
                 pages.forEach((p, page) =>
@@ -200,6 +223,8 @@ export function JournalRoomBook({
         []
     );
 
+    // A new entry invalidates the anchor: drop it so the rebuild opens at the
+    // newest page instead of where the reader was.
     const published = useCallback(() => {
         anchor.current = null;
         feed.reload();
@@ -213,6 +238,9 @@ export function JournalRoomBook({
             data-page={reading.page}
             data-target={target}
             onClickCapture={(event) => {
+                // Reaching for the composer or the bookmark means the reader
+                // stopped turning: settle the sheet on the nearest spread
+                // rather than letting it fly on.
                 if ((event.target as HTMLElement).closest('.compose,.journal-bookmark')) turner.current?.cancel();
             }}
             onKeyDown={(event) => {

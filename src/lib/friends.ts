@@ -1,12 +1,15 @@
-// friends.ts — data access for the account-level friend system (chat.md DM
-// 阶段). Friendships are canonical pairs (user_a < user_b); accepting a
-// request triggers the DM channel creation server-side. Changes reach both
-// accounts through their `user:{uid}` broadcast topics.
+// friends.ts — data access for the account-level friend system. Friendships are canonical pairs
+// (user_a < user_b); accepting a request triggers the DM channel creation server-side. Changes
+// reach both accounts through their `user:{uid}` broadcast topics.
+// Spec: ai/features/chat.md §三「lib/friends.ts」(状态：UI 收起);
+// status (UI frozen, table must not be dropped): ai/features/chat.md §五.3.
 import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { FriendshipRow } from '@/types/chat.ts';
 
+// Select list; keep in sync with FriendshipRow in src/types/chat.ts.
 const COLS = 'user_a, user_b, requested_by, status, created_at, responded_at';
 
+// Canonical order for a friendship pair — both rows and queries must use it.
 const pairOf = (a: string, b: string): [string, string] => (a < b ? [a, b] : [b, a]);
 
 // All my friendships, both pending and accepted (RLS scopes to mine).

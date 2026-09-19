@@ -1,10 +1,12 @@
-// music.tsx — 一起听歌: floating music widget (addon). One taps play, everyone in
-// the current room "hears" it. Real sound via a soft generative WebAudio pad
-// (no audio files needed). Playback state persists to ow-music-v1.
+// music.tsx — 一起听歌: the floating music widget (addon). Sound is a soft
+// generative WebAudio pad, not an audio file. Shared playback is NOT
+// implemented: each client plays locally. State persists to ow-music-v1.
 import { useEffect, useRef, useState } from 'react';
 import { IHeadset, IMusic, IMute, IPause, IPlay, ISkipB, ISkipF, IVolume } from './icons';
 
 import { TRACKS } from './music-tracks';
+// Read the persisted {i, pos, muted}; a blocked or corrupt store degrades to
+// defaults.
 const muLoad = (): { i?: number; pos?: number; muted?: boolean } => {
     try {
         return JSON.parse(localStorage.getItem('ow-music-v1') || 'null') || {};
@@ -17,6 +19,7 @@ const fmt = (s: number) => {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
 
+// The live WebAudio graph: four detuned voices → master gain → lowpass → output.
 type AudioPad = {
     ctx: AudioContext;
     master: GainNode;
@@ -25,6 +28,7 @@ type AudioPad = {
     started: boolean;
 };
 
+// Scoped styles for the expanded player.
 const MusicStyles = () => (
     <style>{`
   .mp{width:252px;border-radius:var(--r-md);padding:13px 14px;}
@@ -68,6 +72,8 @@ const MusicStyles = () => (
   `}</style>
 );
 
+// Generative player. The audio graph is built lazily on the first play so no
+// AudioContext is created without a user gesture, and it is closed on unmount.
 export function MusicPlayer({ spaceName }: { spaceName?: string }) {
     const init = muLoad();
     const [i, setI] = useState(typeof init.i === 'number' ? init.i % TRACKS.length : 0);
@@ -99,6 +105,8 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
     }, [pos, playing]);
 
     // ── WebAudio soft pad ──
+    // Build the audio graph once and cache it on the ref. Returns null where
+    // WebAudio is unavailable — every caller must tolerate that.
     const ensure = (): AudioPad | null => {
         if (audio.current) return audio.current;
         const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -133,6 +141,8 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
         audio.current = { ctx, master, lp, voices, started: true };
         return audio.current;
     };
+    // Retune the four voices to the current track's chord; voice 0 drops an octave
+    // for the bass.
     const applyChord = (a: AudioPad | null) => {
         if (!a) return;
         t.chord.forEach((semi, k) => {
@@ -140,6 +150,7 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
             if (v) v.o.frequency.setValueAtTime((t.root * Math.pow(2, semi / 12)) / (k === 0 ? 2 : 1), a.ctx.currentTime);
         });
     };
+    // Fade the master gain in/out instead of hard-starting — a hard start clicks.
     const ramp = (a: AudioPad | null, on: boolean) => {
         if (!a) return;
         const target = on && !muted ? 0.14 : 0;
@@ -187,6 +198,8 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
         setI((x) => (x + 1) % TRACKS.length);
         setPos(0);
     };
+    // Standard transport behaviour: restart the track if we are past 3s, otherwise
+    // step back one.
     const prev = () => {
         if (pos > 3) {
             setPos(0);
@@ -200,6 +213,7 @@ export function MusicPlayer({ spaceName }: { spaceName?: string }) {
         const f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
         setPos(Math.round(f * t.dur));
     };
+    // Wrap a handler so a control click never reaches the card behind it.
     const stop = (fn: () => void) => (e: React.MouseEvent) => {
         e.stopPropagation();
         fn();

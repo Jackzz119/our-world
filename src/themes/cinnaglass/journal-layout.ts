@@ -1,8 +1,16 @@
+// journal-layout.ts — the book's typesetter. Turns feed posts into real DOM
+// leaves by measuring them off-screen, so what is paginated is exactly what is
+// painted. No React here: these nodes are owned by journal-room-book and are
+// also the source for the turning faces.
+// Feature doc: ai/features/timeline.md
 import type { FeedPost, FeedProfile } from '@/types/feed';
 import { thumbPathOf } from '@/lib/storage';
 
+// One post, or the slice of one post that fits on a page. start is the
+// character offset of this slice; continued marks a slice that is not the first.
 export type JournalPart = { post: FeedPost; text: string; start: number; images: string[]; continued: boolean };
 export type JournalPage = { element: HTMLElement; parts: JournalPart[] };
+// roomArt = the approved chestnut treatment. Off = the plain paper fallback.
 type Context = {
     profiles: Record<string, FeedProfile>;
     userId: string | null;
@@ -10,6 +18,7 @@ type Context = {
     roomArt?: boolean;
 };
 
+// createElement + className + optional textContent, in one line.
 const element = (tag: string, className: string, text?: string) => {
     const node = document.createElement(tag);
     node.className = className;
@@ -89,6 +98,9 @@ function journalEntry(part: JournalPart, context: Context): HTMLElement {
 
 // Real DOM measurements drive pagination. Long text is split only when the
 // complete record cannot fit on an empty page; no lost characters or photos.
+// Reserved vertical space comes from CSS custom properties on the measure
+// node, so the layout follows the stylesheet instead of hard-coded numbers.
+// Pads to an even page count: a spread always has two leaves.
 export function buildJournalPages(posts: FeedPost[], width: number, height: number, context: Context): JournalPage[] {
     const measure = element('div', 'journal-measure');
     if (context.roomArt) measure.classList.add('journal-room-measure');
@@ -127,6 +139,7 @@ export function buildJournalPages(posts: FeedPost[], width: number, height: numb
         pages.push(current);
         used = 0;
     };
+    // Measured height of one entry, plus the 22px gap that follows it.
     const size = (part: JournalPart) => {
         const node = journalEntry(part, context);
         measure.replaceChildren(node);

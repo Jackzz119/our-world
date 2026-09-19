@@ -1,10 +1,13 @@
-// chat-data.ts — shared conversation state for the two chat surfaces:
-// the in-scene ChatDock (WoW-style ambient box) and the covering
-// ChannelScreen. Same threads, two experiences — see ai/features/chat.md.
-// Everything is real now: world text channels ride the world topic, DMs and
-// friendships ride the account topic `user:{uid}` (DM 是账号级). The message
-// pipeline (rows / reactions / read cursors / optimistic states) is shared by
-// both kinds of conversation — a DM is just a channel without a world.
+// chat-data.ts — the chat view-model layer: turns the rows fetched by lib/chat|friends|emotes into
+// everything the two chat surfaces render — the stage-side ChatCard (shell/chat-card.tsx) and the
+// covering chat hub (channel-screen.tsx). World text channels ride the world topic, DMs and
+// friendships ride the account topic `user:{uid}`; one pipeline serves both, since a DM is just a
+// channel without a world. Feature doc: ai/features/chat.md.
+// Decisions cited below live in the historical register
+// ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-2 draft rules :11,
+// D-7 message states :53); the current register is ai/design_system/uiux/cinnaglass/decisions.md.
+// B-3 (sticker send) is a mockup clause in
+// ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     MESSAGE_PAGE_SIZE,
@@ -33,6 +36,7 @@ import type { EmoteView } from './emote-picker';
 import type { Channel, ChannelReadRow, ChatMessageRow, EmoteRow, FriendshipRow, ReactionRow, WorldEvent } from '@/types/chat.ts';
 import type { FeedProfile } from '@/types/feed.ts';
 
+// Logman tag for this module (ai/PROJECT.md §已有功能资产 keeps the domain tag pool).
 const TAG = '[chat][web][chat-data]';
 // how long a deleted message keeps rendering so the particle effect can play
 const VANISH_MS = 900;
@@ -41,8 +45,11 @@ const VANISH_MS = 900;
 // style — the pinned entry above the DM list; not a real channel)
 export const FRIENDS_VIEW = 'friends';
 
+// One emoji chip under a message: the tally, whether I'm in it, and who to name in the tooltip.
 export type MsgReaction = { emoji: string; count: number; mine: boolean; users: string[] };
 
+// A message as the UI renders it: the DB row plus a formatted time, a side relative to the reader,
+// the optimistic/failed/vanishing flags and the sticker's signed url.
 export type Msg = {
     id: string;
     from: 'me' | 'them';
@@ -69,11 +76,7 @@ export const colorFor = (id: string): string => {
     return `linear-gradient(135deg, hsl(${hue},72%,82%), hsl(${hue},58%,64%))`;
 };
 
-// One switchable conversation entry. convsFor is the single source for every
-// conversation switcher (dock tabs + chat hub list + future unread badges):
-// text channels belong to the world, DMs are account-level and persistent —
-// so the set is "current world's text channels + my DMs" in-world, DMs only
-// in the lobby.
+// One entry in a conversation switcher — a world text channel or a DM.
 export type Conv = {
     id: string; // channel uuid (world text channel OR dm channel)
     kind: 'channel' | 'dm';
@@ -84,6 +87,9 @@ export type Conv = {
     color?: string; // dm: avatar gradient
 };
 
+// The conversation set every switcher shows (card, hub nav, unread badges): the current world's
+// text channels first (in-world only — channels are a world concept), then my DMs, which are
+// account-level and therefore present in the lobby too.
 export const convsFor = (inWorld: boolean, channels: Channel[], dmConvs: Conv[]): Conv[] => [
     ...(inWorld
         ? channels.filter((ch) => ch.type === 'text').map((ch): Conv => ({ id: ch.id, kind: 'channel', name: ch.name, hint: ch.topic ?? '' }))
@@ -91,10 +97,11 @@ export const convsFor = (inWorld: boolean, channels: Channel[], dmConvs: Conv[])
     ...dmConvs
 ];
 
-// sidebar home-panel view models (好友区)
+// View models for the friends page (好友区).
 export type FriendEntry = { otherId: string; name: string; color: string; dmChannelId: string | null };
 export type FriendRequest = { otherId: string; name: string; color: string };
 
+// Zero-pad to two digits.
 const pad = (n: number) => String(n).padStart(2, '0');
 // today → HH:mm, older → M/D HH:mm
 const fmtTime = (iso: string) => {
@@ -103,6 +110,7 @@ const fmtTime = (iso: string) => {
     return d.toDateString() === new Date().toDateString() ? hm : `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
 };
 
+// Any thrown value → a string safe to show or log (Supabase throws both Errors and plain objects).
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 // union by id, ordered by created_at — used wherever pages and broadcast
@@ -113,13 +121,15 @@ const mergeRows = (a: ChatMessageRow[], b: ChatMessageRow[]): ChatMessageRow[] =
     return [...byId.values()].sort((x, y) => Date.parse(x.created_at) - Date.parse(y.created_at));
 };
 
+// A reaction's identity inside one message: one row per user per emoji.
 const rxKey = (r: ReactionRow) => `${r.user_id}:${r.emoji}`;
+// The other participant of a DM channel.
 const otherOf = (c: Channel, uid: string | null) => (c.dm_user_a === uid ? c.dm_user_b! : c.dm_user_a!);
 
-// Single source of truth for all conversations, shared by both surfaces.
-// Threads are fetched per channel on load, then kept live by the broadcast
-// subscriptions (sender included — writes only touch the DB, the echo
-// renders them).
+// Single source of truth for every conversation, shared by both chat surfaces. Loads each channel's
+// latest page once, then keeps the stores live from the two broadcast topics — our own writes
+// included, since the DB echo is the only render path. Returns the conversation lists, the rendered
+// threads, the read cursors and every mutation the surfaces can trigger.
 export function useChatThreads(worldId: string | null, uid: string | null, profiles: Record<string, FeedProfile>) {
     const [channels, setChannels] = useState<Channel[]>([]); // world channels
     const [dmChannels, setDmChannels] = useState<Channel[]>([]);
@@ -162,8 +172,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
     const worldIdRef = useRef(worldId);
     worldIdRef.current = worldId;
 
+    // Display names; world-member profiles win over friend profiles when both know an id.
     const nameMap = useMemo(() => ({ ...friendProfiles, ...profiles }), [friendProfiles, profiles]);
 
+    // Sticker lookup for the row → Msg projection below.
     const emotesById = useMemo(() => {
         const m = new Map<string, EmoteRow>();
         for (const e of emotes) m.set(e.id, e);
@@ -216,9 +228,8 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         return out;
     }, [chanRows, uid, nameMap, reactions, pendingIds, failedIds, vanishingIds, emotesById, emoteUrls]);
 
-    // DM conversations, ready for every switcher (dock tabs / hub nav / home
-    // panel 私信区); hint = the latest message, so DM rows read like a
-    // conversation list (mockup friends-page.html)
+    // DM conversations for every switcher; hint = the latest message, so a DM row reads like a
+    // conversation list entry.
     const dmConvs = useMemo(
         () =>
             dmChannels.map((c): Conv => {
@@ -230,7 +241,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         [dmChannels, uid, nameMap, chanRows]
     );
 
-    // home-panel friend view models
+    // Accepted friendships as rows for the friends page, each carrying its DM channel if one exists.
     const friends = useMemo(
         () =>
             friendships
@@ -242,6 +253,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 }),
         [friendships, dmChannels, uid, nameMap]
     );
+    // Friend requests waiting for my answer.
     const requestsIn = useMemo(
         () =>
             friendships
@@ -252,6 +264,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
                 }),
         [friendships, uid, nameMap]
     );
+    // Friend requests waiting for theirs.
     const requestsOut = useMemo(
         () =>
             friendships
@@ -382,8 +395,8 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
             });
         };
         reloadEmotesRef.current();
-        // signed urls expire after an hour — re-sign well before that so
-        // stickers survive long idle sessions (same bug class as ST-O)
+        // signed urls expire after an hour — re-sign well before that so stickers survive long
+        // idle sessions (same bug class as ST-O in ai/features/timeline.md:201)
         const resign = setInterval(() => reloadEmotesRef.current?.(), 40 * 60 * 1000);
 
         const load = async (merge: boolean) => {
@@ -510,11 +523,10 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         }
     }, []);
 
-    // optimistic send: the bubble appears instantly as pending and is
-    // confirmed by the echo (same client-generated id); failure flips it to
-    // the failed state — content is never dropped implicitly (D-2/D-7).
-    // `exec` is the actual write (text or sticker) so both kinds share the
-    // pending/failed bookkeeping.
+    // Run one write under the optimistic bookkeeping: mark the id pending, clear any earlier
+    // failure, and flip it to failed if the write throws. `exec` is the real write (text or
+    // sticker) so both kinds share one ledger. Content is never dropped implicitly (D-2 / D-7) —
+    // a failed bubble waits for an explicit retry or discard.
     const deliver = useCallback((id: string, label: string, exec: () => Promise<void>) => {
         setPendingIds((s) => new Set(s).add(id));
         setFailedIds((s) => {
@@ -534,10 +546,12 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         });
     }, []);
 
+    // Put an optimistic row at the tail of a conversation before its write starts.
     const appendLocal = useCallback((convId: string, row: ChatMessageRow) => {
         setChanRows((prev) => ({ ...prev, [convId]: [...(prev[convId] ?? []), row] }));
     }, []);
 
+    // Send text: the optimistic bubble appears now, the client-side id makes the echo land on it.
     const send = useCallback(
         (convId: string, text: string) => {
             const v = text.trim();
@@ -559,7 +573,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         [deliver, appendLocal]
     );
 
-    // sticker send rides the exact same optimistic pipeline (B-3)
+    // Sticker send rides the exact same optimistic pipeline as text (B-3).
     const sendStickerTo = useCallback(
         (convId: string, emote: EmoteRow) => {
             if (!allChanRef.current.some((c) => c.id === convId)) return;
@@ -580,6 +594,8 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         [deliver, appendLocal]
     );
 
+    // Re-run the write for a failed message — text or sticker — keeping its id so the echo still
+    // matches.
     const retrySend = useCallback(
         (msgId: string) => {
             for (const rows of Object.values(chanRowsRef.current)) {
@@ -685,7 +701,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         removeEmote(id).catch((e: unknown) => Logman.error(TAG, `移出表情失败：${errMsg(e)}`));
     }, []);
 
-    // friend actions (home panel) — lists refresh via the friendships event
+    // friend actions — lists refresh via the friendships event
     const addFriend = useCallback(async (email: string) => {
         const name = await sendFriendRequest(email);
         return name;

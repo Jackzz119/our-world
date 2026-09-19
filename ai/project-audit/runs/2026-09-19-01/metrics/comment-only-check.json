@@ -1,0 +1,198 @@
+[
+ {
+  "file": "src/hooks/useAuth.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/chat.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/emotes.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/friends.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/logman.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/posts.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/profiles.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/storage.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/supabase.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/lib/worlds.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/main.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/pages/LoginPage.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/pages/ProtectedRoute.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/pages/ResetPasswordPage.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/pages/WorldPage.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/calendar.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/channel-screen.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/chat-data.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/emoji-data.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/emote-picker.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/friends-page.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/icons.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/image-slot.js",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/journal-layout.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/journal-room-book.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/journal-turn-controller.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/journal-turn.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/lobby.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/model.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/music-tracks.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/music.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/profile.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/room/pixi-scene.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/room/room-scene.tsx",
+  "status": "code-changed"
+ },
+ {
+  "file": "src/themes/cinnaglass/room/room-types.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/room/study-room.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/rooms.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/scene.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/screens.tsx",
+  "status": "code-changed"
+ },
+ {
+  "file": "src/themes/cinnaglass/settings.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/shell/ambience.tsx",
+  "status": "code-changed"
+ },
+ {
+  "file": "src/themes/cinnaglass/shell/chat-card.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/shell/floaters.tsx",
+  "status": "code-changed"
+ },
+ {
+  "file": "src/themes/cinnaglass/shell/rail.tsx",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/tweaks.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/themes/cinnaglass/world-settings.tsx",
+  "status": "code-changed"
+ },
+ {
+  "file": "src/types/chat.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/types/index.ts",
+  "status": "comment-only"
+ },
+ {
+  "file": "src/utils/index.ts",
+  "status": "comment-only"
+ }
+]

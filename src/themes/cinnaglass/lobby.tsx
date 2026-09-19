@@ -1,8 +1,7 @@
-// lobby.tsx — the pre-world "lobby" scene: a floating island with a glowing
-// portal, shown before entering the world (the couple's shared space, DB
-// `rooms` row — see channel.md for terminology). Static 2D placeholder for
-// now; swapped for an R3F top-down island later.
-// NOT related to the in-world scene rooms mock (living/bedroom).
+// lobby.tsx — the pre-world lobby: a floating island with a glowing portal,
+// shown before entering the world (the couple's shared space, DB `worlds` row —
+// schema in ai/PROJECT.md, 数据库 section). Static 2D art.
+// Not related to the in-world room scene.
 
 export type LobbyStatus = 'loading' | 'ready' | 'error';
 
@@ -15,6 +14,8 @@ type LobbySceneProps = {
     onCreate: () => void; // card CTA → createWorld, then enter
 };
 
+// Island palette, kept in one place so the art stays tonally consistent with the
+// room diorama.
 const P = {
     grassT: '#86C99A',
     grassHi: '#9AD3A7',
@@ -121,6 +122,8 @@ function IslandArt({ onEnter, canEnter }: { onEnter: () => void; canEnter: boole
     );
 }
 
+// Lobby: the island art plus a status card whose four states are loading /
+// fetch-error / has-world / no-world.
 export function LobbyScene({ status, hasWorld, error, busy, onEnter, onCreate }: LobbySceneProps) {
     const canEnter = status === 'ready' && !busy;
     return (

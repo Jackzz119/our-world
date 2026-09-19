@@ -2,12 +2,14 @@
 // Originals + client-made webp thumbnails live in the private 'memories'
 // bucket, path-scoped by world id:
 //   <worldId>/<uuid>.<ext>        original (archival quality)
-//   <worldId>/<uuid>.thumb.webp   thumbnail (from the image-slot preview)
+//   <worldId>/<uuid>.thumb.webp   display thumbnail (made here, from the original)
 // posts.images stores the ORIGINAL path; display uses short-lived signed URLs
 // because the bucket is private.
 import { supabase } from '@/lib/supabase.ts';
 
 const BUCKET = 'memories';
+// Signed URLs expire after this. Any long-lived view must re-sign before then
+// — see SIGNED_URL_REFRESH_MS.
 const SIGNED_URL_TTL = 60 * 60; // 1 hour
 // Re-sign well inside the TTL (2/3 of it) so an idle page never shows expired URLs.
 export const SIGNED_URL_REFRESH_MS = (SIGNED_URL_TTL * 1000 * 2) / 3;
@@ -22,6 +24,7 @@ const EXT_BY_TYPE: Record<string, string> = {
 // Derive the thumbnail path from an original: foo/bar.jpg -> foo/bar.thumb.webp
 export const thumbPathOf = (originalPath: string): string => originalPath.replace(/\.[^./]+$/, '.thumb.webp');
 
+// Canvas gives us a data: URL; Storage wants bytes.
 const dataUrlToBlob = (dataUrl: string): Blob => {
     const [head, body] = dataUrl.split(',');
     const mime = /data:([^;]+)/.exec(head)?.[1] ?? 'image/webp';
@@ -31,13 +34,13 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
     return new Blob([bytes], { type: mime });
 };
 
+// crypto.randomUUID where available, timestamp+random elsewhere.
 const newId = (): string =>
     typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 
-// Display-quality thumbnail regenerated from the original (the composer
-// slot's preview is sized to its tiny frame — too small for the photo wall).
-// 1024 covers hi-dpi photo-wall columns and the lightbox's progressive
-// preview; 480 was visibly soft on both.
+// Display-quality thumbnail regenerated from the original. 1024 covers hi-dpi
+// photo-wall columns and the lightbox's progressive preview; 480 was visibly
+// soft on both.
 const THUMB_MAX = 1024;
 const makeThumbDataUrl = async (file: File): Promise<string> => {
     const bitmap = await createImageBitmap(file);
@@ -55,10 +58,9 @@ const makeThumbDataUrl = async (file: File): Promise<string> => {
     }
 };
 
-// Upload the original image (+ webp thumbnail) for a world. The thumbnail is
-// regenerated from the original at display size; if the browser cannot decode
-// the format, only the original is stored. Returns the original's storage path
-// to persist in posts.images.
+// Upload the original image plus a display-sized webp thumbnail for a world.
+// If the browser cannot decode the format, only the original is stored.
+// Returns the original's storage path to persist in posts.images.
 export const uploadMemoryImage = async (worldId: string, file: File): Promise<{ originalPath: string }> => {
     const ext = EXT_BY_TYPE[file.type] ?? 'bin';
     const base = `${worldId}/${newId()}`;

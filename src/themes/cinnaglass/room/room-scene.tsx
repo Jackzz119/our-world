@@ -1,7 +1,7 @@
 // room-scene.tsx — React shell for the PixiJS room compositor. Mounts one
 // Application per component life, feeds mood/weather prop changes to the
 // scene handle, and resizes with its host. This is the world scene of the
-// product (replaces the retired 3D metaspace).
+// product.
 
 import { useEffect, useRef, useState } from 'react';
 import { Application } from 'pixi.js';
@@ -9,6 +9,8 @@ import type { HotspotOpenEvent, RoomMood, RoomWeather } from './room-types';
 import { buildScene, type CharacterAssets, type SceneHandle } from './pixi-scene';
 import { STUDY_ROOM } from './study-room';
 
+// Seat id to character art. The room template names the seats; who sits in
+// them lives here.
 const CHARACTERS: CharacterAssets = {
     blue: {
         open: '/characters/blue-reading-open.png',
@@ -20,27 +22,45 @@ const CHARACTERS: CharacterAssets = {
     }
 };
 
+/** Who occupies a seat, as the overhead tag shows them. */
 export type SeatPresence = {
     name: string;
     status: string;
     online: boolean;
 };
 
+/**
+ * The app's weather vocabulary as WorldPage reports it — 'sun' | 'cloud' |
+ * 'rain' | 'snow'. Still a string alias because the upstream `Weather.kind`
+ * is one; naming it keeps the intended domain in one place.
+ */
+export type WeatherKind = string;
+
+/** Props the React shell forwards to the running scene and its DOM overlays. */
 type RoomSceneProps = {
     mood: RoomMood;
-    /** WorldPage weather kind (sun/cloud/rain/snow) — collapsed to the scene's sun/rain. */
-    weatherKind: string;
+    /** WorldPage weather kind — collapsed to the scene's sun/rain by toRoomWeather. */
+    weatherKind: WeatherKind;
     /** furniture hotspot taps (feature keys from the room template) */
     onHotspot?: (event: HotspotOpenEvent) => void;
     /** overhead presence tags keyed by seat id (the partner's, usually) */
     presence?: Record<string, SeatPresence>;
     /** transient overhead speech bubble (new incoming message preview) */
     bubble?: { seatId: string; text: string; key: number } | null;
+    /** false freezes the ticker while a full-screen surface covers the room */
+    active?: boolean;
 };
 
-const toRoomWeather = (kind: string): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
+/** Collapse the app's weather vocabulary down to what the compositor can render. */
+const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
 
-export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps & { active?: boolean }) {
+/**
+ * Mounts one Pixi Application for the component's whole life and hands prop
+ * changes to the scene handle; the scene itself is never rebuilt. The overhead
+ * presence tags and message bubbles are DOM, positioned from a 600ms poll of
+ * the seat anchors.
+ */
+export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
     const holderRef = useRef<HTMLDivElement | null>(null);
     const sceneRef = useRef<SceneHandle | null>(null);
     const appRef = useRef<Application | null>(null);
@@ -157,8 +177,9 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     key={bubble.key}
                     className="room-bubble"
                     style={{
-                        // codex spec §5.9: in-scene bubbles are dark glass with a
-                        // warm-white keyline, not white paper
+                        // ai/codex-visual/20260811-055917Z/codex-report.md §5.9:
+                        // in-scene bubbles are dark glass with a warm-white
+                        // keyline, not white paper
                         position: 'absolute',
                         left: tagPos[bubble.seatId].x,
                         top: tagPos[bubble.seatId].y - 52,
@@ -198,8 +219,9 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                             key={seatId}
                             className="presence-tag"
                             style={{
-                                // codex spec §5.5: 50px pill r25, 17px green dot,
-                                // pink heart at the right end
+                                // ai/codex-visual/20260811-055917Z/codex-report.md §5.5:
+                                // 50px pill r25, 17px green dot, pink heart at
+                                // the right end
                                 position: 'absolute',
                                 left: pos.x,
                                 top: pos.y,

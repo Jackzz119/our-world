@@ -1,12 +1,9 @@
 /* B · 苔绿手札. Material values live in cinnaglass.css/materials.css. */
 :root {
-    --diary-text: var(--craft-ink);
-    --diary-sub: var(--craft-muted);
+    /* Read from screens.tsx (PostDetail author name). The other --diary-*
+       aliases had no reader left and were removed. */
     --diary-blue: var(--craft-blue);
     --diary-pink: var(--craft-pink);
-    --diary-line: var(--craft-line);
-    --diary-bg: var(--craft-cover);
-    --diary-card: var(--craft-paper);
 }
 .stage .room-scene {
     transform: none;
@@ -112,10 +109,6 @@
         0 2px 0 #b0a38b,
         0 4px 0 #d2c7b2,
         0 6px 0 #9b907b;
-}
-.journal-engine {
-    width: 100%;
-    height: 100%;
 }
 .journal-page {
     box-sizing: border-box;
@@ -320,33 +313,6 @@
 .journal-photos.multiple img {
     height: var(--journal-grid-height, 70px);
 }
-.journal-binding {
-    pointer-events: none;
-    position: absolute;
-    left: 50%;
-    top: 1px;
-    bottom: 1px;
-    width: 18px;
-    transform: translateX(-50%);
-    z-index: 8;
-    background: linear-gradient(90deg, transparent, #65594425 42%, #584f395e 50%, #eee3c946 57%, transparent);
-}
-.journal-binding::after {
-    content: '';
-    position: absolute;
-    inset: 20px 7px;
-    background: repeating-linear-gradient(
-        180deg,
-        transparent 0 38px,
-        #b3a083 39px,
-        #5a503b8c 41px,
-        transparent 43px 54px
-    );
-    border-radius: 40%;
-}
-.journal-book[data-single='true'] .journal-binding {
-    display: none;
-}
 .journal-bookmark {
     position: absolute;
     z-index: 14;
@@ -429,41 +395,6 @@
     text-decoration: underline;
     text-underline-offset: 4px;
 }
-.journal-pager {
-    position: absolute;
-    z-index: 12;
-    bottom: 8px;
-    left: calc(50% - 77px);
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    color: var(--craft-muted);
-}
-.journal-pager button {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    color: var(--craft-ink);
-    font:
-        25px/1 Georgia,
-        serif;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-}
-.journal-pager button:disabled {
-    opacity: 0.3;
-    cursor: default;
-}
-.journal-pager span {
-    font:
-        12px/1.4 Georgia,
-        serif;
-    white-space: nowrap;
-}
-.journal-pager small {
-    font-size: 10px;
-}
 .diary-surface .compose {
     position: absolute;
     right: 35px;
@@ -526,11 +457,6 @@
     text-overflow: ellipsis;
     font-size: 12px;
     max-width: 110px;
-}
-.diary-surface .compose-collapsed.draft .journal-quill {
-    width: 32px;
-    right: -25px;
-    height: 65px;
 }
 .diary-surface .draft-chip,
 .diary-surface .draft-imgs {
@@ -678,9 +604,6 @@
     }
     .journal-page-content {
         top: 74px;
-    }
-    .journal-pager {
-        left: 10px;
     }
     .diary-surface .compose {
         right: 17px;

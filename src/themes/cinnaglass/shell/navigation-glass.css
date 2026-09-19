@@ -1,4 +1,5 @@
-/* Scope the new material to navigation. Existing modals/HUD keep their values. */
+/* Navigation-scoped material. Modals keep the cinnaglass.css --glass-* tokens;
+   nothing here leaks out of .rail-wrap. */
 .rail-wrap {
     --nav-tint: 76 69 58;
     --nav-alpha: 0.17;
@@ -36,7 +37,8 @@
     --nav-ink: #eee0c6;
     --nav-solid: #42434b;
 }
-/* Future daytime rooms can inherit this without adopting a green surface. */
+/* Reserved for future daytime rooms — [data-mood] never takes these values
+   today (Mood is golden | twilight | night), so this block is inert. */
 :is([data-mood='day'], [data-mood='morning']) .rail-wrap {
     --nav-tint: 87 85 78;
     --nav-alpha: 0.3;

@@ -9,6 +9,8 @@ import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from './rail-i
 import './navigation-glass.css';
 import type { Widgets } from '../model';
 
+// Rail actions. 'rooms' and 'modules' toggle a popover in place; every other
+// key is forwarded to onAction.
 export type RailKey = 'rooms' | 'chat' | 'photos' | 'calendar' | 'music' | 'modules' | 'shop' | 'settings';
 
 type RoomDef = {
@@ -18,13 +20,15 @@ type RoomDef = {
     locked?: boolean;
 };
 
+// The three planned rooms. Only 'study' has a scene today; the others render locked.
 const ROOM_DEFS: RoomDef[] = [
     { id: 'study', name: '书房', thumb: '/rooms/study/thumb.png' },
     { id: 'gameroom', name: '棋牌室', thumb: '/rooms/gameroom/thumb.png', locked: true },
     { id: 'garden', name: '植物园', thumb: '/rooms/garden/thumb.png', locked: true }
 ];
 
-// fixed-layout module toggles (drag editing retired — ai/UX.md §2)
+// Fixed-layout widget toggles (drag editing retired — ai/design_system/props.md,
+// ai/design_system/uiux/uiux.md). NOTE: 'presence' has no consumer in WorldPage yet.
 const MODULE_DEFS: { key: string; label: string }[] = [
     { key: 'anniv', label: '纪念日卡' },
     { key: 'music', label: '音乐迷你条' },
@@ -41,6 +45,9 @@ type RailProps = {
     onLeaveWorld: () => void;
 };
 
+// Left navigation rail. Owns one popover at a time (rooms or modules) and closes
+// it on Escape or an outside pointer-down, both captured at window level so a
+// popover inside a modal still wins.
 export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget, onLeaveWorld }: RailProps) {
     const [pop, setPop] = useState<'rooms' | 'modules' | null>(null);
     const [pressed, setPressed] = useState<RailKey | null>(null);
@@ -63,6 +70,8 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
         };
     }, [pop]);
 
+    // One rail button. Pointer down/up/cancel/leave/blur all clear the pressed
+    // flag, because a pointer that leaves the button never fires pointerup on it.
     const btn = (
         key: RailKey,
         Icon: (p: IcoProps) => ReactNode,
@@ -170,9 +179,10 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
 }
 
 /**
- * Right-edge room handle (spec §5.8): 55px visible, clipped by the viewport
- * edge, left corners r24. Real switching arrives with the second room —
- * today it reads as the affordance the comp promises.
+ * Right-edge room handle: 65px wide with 10px clipped by the viewport edge,
+ * left corners r24 (ai/codex-visual/20260811-055917Z/codex-report.md). Real
+ * switching arrives with the second room — today it reads as the affordance
+ * the comp promises.
  */
 export function RoomHandle({ onTap }: { onTap: () => void }) {
     return (
@@ -183,6 +193,7 @@ export function RoomHandle({ onTap }: { onTap: () => void }) {
     );
 }
 
+// Scoped styles for RoomHandle; mounted inside the button so they arrive with it.
 const RoomHandleStyles = () => (
     <style>{`
     .room-handle{

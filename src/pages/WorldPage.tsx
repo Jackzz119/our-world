@@ -1,7 +1,6 @@
-// WorldPage.tsx — root orchestration for the cinnaglass "Our World" UI.
-// Ported from the design prototype's app.jsx: live clock, real weather,
-// tweaks, navigation, and all shared state (profile, rooms, current room,
-// events, alarms, widgets) + localStorage persistence.
+// WorldPage.tsx — root orchestration for the cinnaglass shell: owns every
+// piece of shared world state (world row, profile, events, alarms, widgets,
+// weather, clock) and mounts every surface above the scene.
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 // the pixi room compositor loads its own chunk on demand (pixi.js is chunky)
@@ -41,9 +40,13 @@ const AUTO_ENTER =
     // touching .env (dev verification only)
     new URLSearchParams(window.location.search).has('enter');
 
-// addon widgets are removable; required stay on always
+// Widget registry. REQUIRED entries can never be switched off, ADDON entries
+// can. NOTE: only 'anniv' and 'music' are read by the render today — see
+// MODULE_DEFS in shell/rail.tsx.
 const REQUIRED = ['days', 'minimap'];
 const ADDON = ['memory', 'anniv', 'ambient', 'music', 'lighting'];
+// Merge the persisted widget map over the all-on defaults, so a key added in a
+// later version defaults to on instead of undefined.
 const loadWidgets = (): Widgets => {
     const base: Widgets = {};
     REQUIRED.forEach((k) => (base[k] = true));
@@ -66,6 +69,7 @@ const mapWmo = (code: number): { kind: string; label: string } => {
     if (code <= 86) return { kind: 'snow', label: '阵雪' };
     return { kind: 'rain', label: '雷雨' };
 };
+// Fixed readings for the manual weather tweak — no network, no geolocation.
 const MANUAL_WX: Record<string, { kind: string; label: string; temp: number }> = {
     sun: { kind: 'sun', label: '晴', temp: 26 },
     cloud: { kind: 'cloud', label: '多云', temp: 22 },
@@ -73,11 +77,14 @@ const MANUAL_WX: Record<string, { kind: string; label: string; temp: number }> =
     snow: { kind: 'snow', label: '雪', temp: 1 }
 };
 
+// yyyy-mm-dd N days from today, for the seeded demo events.
 const futureDate = (addDays: number) => {
     const d = new Date();
     d.setDate(d.getDate() + addDays);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
+// First-run demo content; replaced as soon as the user edits and localStorage
+// takes over.
 const SEED_EVENTS: CalEvent[] = [
     { id: 'ev-seed1', date: futureDate(3), title: '看那部期待很久的电影 🎬' },
     { id: 'ev-seed2', date: futureDate(9), title: '去新开的那家面包店 🥐' }
@@ -87,7 +94,10 @@ const SEED_ALARMS: Alarm[] = [
     { id: 'al2', time: '22:30', label: '晚安，说句悄悄话', on: true }
 ];
 
+// The three surfaces SubScreen owns; every other screen key maps to its own modal.
 const MODAL_TABS: TabKey[] = ['timeline', 'photos', 'wishlist'];
+// ?surface=<tab> opens one SubScreen tab straight from the URL (dev/headless
+// screenshots only — gated on import.meta.env.DEV).
 const DEV_SURFACE = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('surface') : null;
 
 const WorldPage = () => {
@@ -109,9 +119,9 @@ const WorldPage = () => {
     const [events, setEvents] = useState<CalEvent[]>(() => owLoad('ow-dates-v1', SEED_EVENTS));
     const [alarms, setAlarms] = useState<Alarm[]>(() => owLoad('ow-alarms-v1', SEED_ALARMS));
 
-    // World state (DB `worlds` row — the couple's shared space, see
-    // channel.md). NOT the in-world scene rooms mock above (living/bedroom
-    // lighting + navigation, local).
+    // World state (DB `worlds` row — the couple's shared space; schema in
+    // ai/PROJECT.md, 数据库 section). Not to be confused with the in-scene
+    // room, which is local-only.
     const [world, setWorld] = useState<World | null>(null);
     // signed display URL for world.icon_path (private bucket) — see effect below
     const [worldIconUrl, setWorldIconUrl] = useState<string | null>(null);
@@ -129,8 +139,8 @@ const WorldPage = () => {
     const [lobbyTick, setLobbyTick] = useState(0);
 
     // chat (see ai/features/chat.md): one thread store, two surfaces, two
-    // owners — the sidebar only opens the covering conversation window
-    // (channels + DMs); the dock is stage-owned (chat button / Enter only).
+    // owners — the covering conversation window holds channels + DMs; the chat
+    // card is stage-owned (chat button / Enter only).
     // Channel messages are real (DB + world broadcast topic); DMs stay mock.
     const {
         channels,
@@ -238,8 +248,9 @@ const WorldPage = () => {
         if (lastMsg.from !== 'me') setUnread(true);
     }, [lastMsg, chatOpen, convOpen]);
 
-    // her message surfaces in the world first: a short-lived speech bubble
-    // over her character (codex audit M2 / ai/UX.md §4 — world-first chat)
+    // her message surfaces in the world first: a short-lived speech bubble over
+    // her character (ai/codex-visual/20260811-044310Z/codex-report.md M2;
+    // world-first chat in ai/design_system/uiux/interaction.md)
     const [bubble, setBubble] = useState<{ seatId: string; text: string; key: number } | null>(null);
     const lastBubbledId = useRef<string | null>(null);
     useEffect(() => {
@@ -252,6 +263,8 @@ const WorldPage = () => {
         const id = setTimeout(() => setBubble(null), 4500);
         return () => clearTimeout(id);
     }, [lastMsg]);
+    // Mirror these slices to localStorage on every change; a blocked or full
+    // store is non-fatal, the session just loses its persistence.
     useEffect(() => {
         try {
             localStorage.setItem('ow-dates-v1', JSON.stringify(events));
@@ -316,6 +329,8 @@ const WorldPage = () => {
         };
     }, [t.weather]);
 
+    // Toggle an addon widget and persist the map. Required widgets are silently
+    // ignored.
     const setWidget = (k: string, v: boolean) => {
         if (REQUIRED.includes(k)) return; // required widgets can't be removed
         setWidgets((w) => {
@@ -328,6 +343,8 @@ const WorldPage = () => {
             return next;
         });
     };
+    // Open a surface. SubScreen tabs additionally record where the click came
+    // from, so the modal can grow out of that point; other screens ignore origin.
     const navigate = (k: string, origin?: SurfaceOrigin) => {
         if (MODAL_TABS.includes(k as TabKey))
             setSurfaceOrigin(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2, source: 'keyboard' });
@@ -342,7 +359,8 @@ const WorldPage = () => {
         else if (k === 'music') setMusicOpen(true);
         else if (k === 'settings') navigate('settings');
     };
-    // furniture hotspots → the very same surfaces (ai/UX.md §2)
+    // furniture hotspots → the very same surfaces (ai/design_system/props.md,
+    // ai/design_system/uiux/uiux.md)
     const onHotspot = ({ id, clientX, clientY }: HotspotOpenEvent) => {
         if (id === 'timeline' || id === 'photos' || id === 'wishlist')
             navigate(id, { x: clientX, y: clientY, source: 'object' });
@@ -357,10 +375,14 @@ const WorldPage = () => {
         setLobbyError(null);
         setLobbyTick((t) => t + 1);
     };
+    // Explicit entry. With no known world we re-fetch instead of failing — the
+    // partner may have created one since the last check.
     const enterWorld = () => {
         if (world) setEntered(true);
         else retryLobby(); // a world may have appeared elsewhere — re-check
     };
+    // Create the world and walk straight in. Errors surface on the lobby card;
+    // lobbyBusy blocks a double-create (the DB also rejects a second world per user).
     const createAndEnter = async () => {
         setLobbyBusy(true);
         setLobbyError(null);
@@ -376,7 +398,7 @@ const WorldPage = () => {
     };
     const inWorld = entered && world !== null;
 
-    // S-4 step 2: identity now lives in the DB. Fetch the two members'
+    // Identity lives in the DB (ai/features/supabase.md). Fetch the two members'
     // display names once the world is known; render keeps working off the
     // localStorage fallback if this fails.
     useEffect(() => {
@@ -400,9 +422,9 @@ const WorldPage = () => {
         };
     }, [world, uid]);
 
-    // What the chrome (sidebar/HUD/space) displays: DB world identity first,
-    // localStorage as fallback. Settings still edits the raw local profile —
-    // the write-back to worlds/profiles is S-4 step 3.
+    // What the chrome displays: DB world identity first, localStorage as
+    // fallback. Settings still edits the raw local profile — the write-back to
+    // worlds/profiles is still open (ai/features/supabase.md).
     const liveProfile: Profile = {
         ...profile,
         world: world?.name ?? profile.world,
@@ -413,7 +435,7 @@ const WorldPage = () => {
 
     // World-settings save: swap in the fresh DB row (chrome updates at once)
     // and sync the localStorage profile buffer so offline fallbacks agree
-    // (S-4 step 3 — the DB is now the source of truth for these fields).
+    // (the DB is the source of truth for these fields — ai/features/supabase.md).
     const onWorldSaved = (w: World) => {
         setWorld(w);
         setProfile((o) => ({ ...o, world: w.name, anniv: w.anniversary ?? o.anniv }));
@@ -431,7 +453,8 @@ const WorldPage = () => {
         <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0 }}>
             {/* v2 shell (concept-c): the scene owns the full viewport; every
                 chrome piece floats above it. The Discord-era sidebar/HUD
-                retired with the idle-companion pivot (ai/UX.md). */}
+                retired with the idle-companion pivot
+                (ai/design_system/uiux/uiux.md). */}
             <div className="stage" data-reading={screen === 'timeline' || undefined} style={{ position: 'absolute', inset: 0 }}>
                 {inWorld ? (
                     <Suspense fallback={null}>

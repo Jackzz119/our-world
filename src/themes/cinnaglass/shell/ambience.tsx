@@ -1,7 +1,7 @@
-// ambience.tsx — top-center mood/weather control, rebuilt 1:1 against the
-// codex pixel spec (§5.3): a 206×112 glass panel with two 3-column icon
-// rows and a center drop tab carrying the collapse chevron. Active items
-// have no button plate — warm gold fill + local glow only.
+// ambience.tsx — top-center mood/weather control, rebuilt 1:1 against
+// ai/codex-visual/20260811-055917Z/codex-report.md: a 206×112 glass panel with
+// two 3-column icon rows and a center drop tab carrying the collapse chevron.
+// Active items have no button plate — warm gold fill + local glow only.
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -16,6 +16,7 @@ type AmbienceProps = {
     setWx: (k: WeatherTweak) => void;
 };
 
+// Mood row / weather row of the panel, in comp order.
 const MOODS: { k: Mood; label: string; Icon: (p: IcoProps) => ReactNode }[] = [
     { k: 'golden', label: '黄昏', Icon: ISun },
     { k: 'twilight', label: '暮色', Icon: IDusk },
@@ -27,6 +28,8 @@ const WXS: { k: WeatherTweak; label: string; Icon: (p: IcoProps) => ReactNode }[
     { k: 'rain', label: '雨', Icon: IRain }
 ];
 
+// Top-center ambience control. Collapsed by default; the open panel is dismissed
+// by its drop tab or by the full-screen scrim behind it.
 export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
     // the comp draws the OPEN state; collapsed keeps a small same-material pill
     const [open, setOpen] = useState(false);
@@ -77,7 +80,7 @@ export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
                                 </button>
                             ))}
                         </div>
-                        {/* spec: center drop tab (82×45, bottom r26) with chevron */}
+                        {/* comp: center drop tab (82×45, bottom r26) with chevron */}
                         <button className="amb-tab" title="收起" onClick={() => setOpen(false)}>
                             <IChevron size={14} sw={3.5} />
                         </button>
@@ -89,6 +92,7 @@ export function Ambience({ mood, setMood, wx, setWx }: AmbienceProps) {
     );
 }
 
+// Scoped styles; every colour comes from the --cg-* shell tokens in cinnaglass.css.
 const AmbienceStyles = () => (
     <style>{`
     .amb-wrap{position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:40;}
@@ -107,7 +111,7 @@ const AmbienceStyles = () => (
     .amb-div{width:1px;height:14px;background:var(--cg-stroke);}
     .amb-cur{display:inline-flex;color:var(--cg-gold-core);filter:drop-shadow(0 0 5px rgba(255,176,88,0.55));}
     .amb-chev{display:inline-flex;transform:rotate(90deg);opacity:0.6;}
-    /* spec 5.3: body 206×112 r19, rows of 3 (cell 40×36, column pitch 58),
+    /* comp: body 206×112 r19, rows of 3 (cell 40×36, column pitch 58),
        divider 161×2, drop tab 82×45 hanging below the body */
     .amb-panel{
         position:relative;
@@ -125,7 +129,7 @@ const AmbienceStyles = () => (
     .amb-row{display:flex;gap:18px;}
     .amb-hr{width:161px;height:2px;border-radius:1px;margin:2px 0;
         background:rgba(221,217,227,0.36);box-shadow:0 1px 0 rgba(30,30,45,0.4);}
-    /* spec: no plate on options; active = warm gold core + local glow */
+    /* comp: no plate on options; active = warm gold core + local glow */
     .amb-opt{
         appearance:none;border:0;cursor:pointer;
         width:40px;height:36px;border-radius:10px;

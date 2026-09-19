@@ -1,23 +1,29 @@
-// chat-card.tsx — bottom-left chat card, rebuilt 1:1 against the codex
-// pixel spec (§5.6): 277-wide dense-glass card, 61px ringed avatars
-// (real avatar art), 17px-radius bubbles, a floating reaction pill and a
-// 56px input group. Materials come from --cg-* tokens.
+// chat-card.tsx — the stage-side chat card (bottom left): the ambient surface you talk through
+// without leaving the scene. It shows the FIRST conversation convsFor() yields and has no tabs —
+// the covering hub (channel-screen.tsx) is one expand away. Tail 40 messages, vanishing ones
+// filtered out, opening it reports the read cursor.
+// Built 1:1 against the codex pixel spec §5.6 (277-wide dense-glass card, 61px ringed avatars,
+// 17px bubbles, floating reaction pill, 56px input group):
+// ai/codex-visual/20260811-055917Z/codex-report.md:171. Materials come from --cg-* tokens.
 
 import { useEffect, useRef, useState } from 'react';
 import type { Channel } from '@/types/chat.ts';
 import { convsFor, type Conv, type Msg } from '../chat-data';
 import { IClose, IExpand, ISend } from '../icons';
 
+// One-tap reactions; they send as ordinary messages, not as reaction rows.
 const QUICK = [
     { emoji: '❤️', cls: 'q-heart' },
     { emoji: '🌟', cls: 'q-star' }
 ];
 
+// Fixed two-person avatar art (public/avatars); real per-account avatars are not wired yet.
 const AVATARS: Record<'me' | 'her', string> = {
     me: '/avatars/blue.png',
     her: '/avatars/pink.png'
 };
 
+// The card owns no server state — everything comes from useChatThreads through WorldPage.
 type ChatCardProps = {
     open: boolean;
     onClose: () => void;
@@ -30,11 +36,15 @@ type ChatCardProps = {
     onSeen: (convId: string) => void;
 };
 
+// Renders the first conversation only (no switcher, by design) and keeps the list pinned to the
+// bottom. Opening the card, or a new message arriving while it is open, moves our read cursor.
 export function ChatCard({ open, onClose, onExpand, inWorld, channels, dmConvs, threads, onSend, onSeen }: ChatCardProps) {
     const [text, setText] = useState('');
     const listRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // The tail the card shows: 40 messages, already-deleted ones filtered out so no particle plays
+    // here.
     const convs = convsFor(inWorld, channels, dmConvs);
     const cur = convs[0]?.id ?? '';
     const msgs = (threads[cur] || []).filter((m) => !m.vanishing).slice(-40);
@@ -44,17 +54,20 @@ export function ChatCard({ open, onClose, onExpand, inWorld, channels, dmConvs, 
         if (open && cur) onSeen(cur);
     }, [open, cur, msgs.length, onSeen]);
 
+    // Stick to the newest message.
     useEffect(() => {
         const el = listRef.current;
         if (el) el.scrollTop = el.scrollHeight;
     }, [msgs.length, open]);
 
+    // Opening the card puts the caret in the composer — Enter opens it, so typing should just work.
     useEffect(() => {
         if (open) inputRef.current?.focus();
     }, [open]);
 
     if (!open || !cur) return null;
 
+    // Send the trimmed draft and clear the box; empty input is a no-op.
     const submit = () => {
         const t = text.trim();
         if (!t) return;
@@ -117,6 +130,8 @@ export function ChatCard({ open, onClose, onExpand, inWorld, channels, dmConvs, 
     );
 }
 
+// Card CSS; the /* spec: */ comments below quote the pixel values from the codex report named in
+// the file header.
 const ChatCardStyles = () => (
     <style>{`
     /* spec 5.6: 277 wide, r22, dense glass for readability */

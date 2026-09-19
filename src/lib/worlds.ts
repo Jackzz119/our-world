@@ -1,11 +1,13 @@
 // worlds.ts — data access for worlds (the couple's shared space; DB `worlds`,
-// formerly "rooms"/"couples" — terminology in ai/features/channel.md).
+// formerly "rooms"/"couples" — schema in ai/PROJECT.md, 数据库 section).
 // A world is owned by one person (owner) and may later gain one invited
 // member. A solo owner still gets a world, so the feed always has somewhere
 // to post.
 import { supabase, currentUserId } from '@/lib/supabase.ts';
 import type { World } from '@/types/feed.ts';
 
+// The column set every worlds read/write returns, so callers always get the
+// same shape.
 const WORLD_COLS = 'id, owner_id, member_id, name, anniversary, icon_emoji, icon_path, intimacy_points, created_at';
 
 // Fetch the current user's world (as owner or member), or null if they have

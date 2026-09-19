@@ -1,6 +1,14 @@
-// icons.tsx — soft rounded line icons. Stroke inherits currentColor.
+// icons.tsx — the project's only general-purpose icon set: soft rounded line
+// icons on a 24 grid. Stroke inherits currentColor; size and stroke-width are
+// props. Navigation-only silhouettes live in shell/rail-icons.tsx, and no other
+// component may define an icon inline.
+// Zero-consumer exports kept on purpose (a redundant icon library is cheaper
+// than redrawing one): INote, IMapPin, IThermo, IChat, IShrink, ISmile, IGrid,
+// IWand, IBell, IDate, IMove, IUsers, IPencil, IMic, IMicOff.
 import type { ReactNode, SVGProps } from 'react';
 
+// Any <svg> prop, plus size (both dimensions), sw (stroke-width) and an optional
+// single-path shorthand d.
 export type IcoProps = Omit<SVGProps<SVGSVGElement>, 'd'> & {
     d?: string;
     size?: number;
@@ -9,6 +17,8 @@ export type IcoProps = Omit<SVGProps<SVGSVGElement>, 'd'> & {
     children?: ReactNode;
 };
 
+// Base icon: a 24-grid svg with round caps/joins. Pass d for a one-path icon, or
+// children for a composite.
 export const Ico = ({ d, size = 20, sw = 1.8, fill = 'none', children, ...p }: IcoProps) => (
     <svg
         width={size}

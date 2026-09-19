@@ -4,6 +4,7 @@
 
 import type { RoomTemplate } from './room-types';
 
+// The study: every anchor below is measured against the 1586x992 base art.
 export const STUDY_ROOM: RoomTemplate = {
     id: 'study',
     base: { w: 1586, h: 992 },
@@ -49,8 +50,9 @@ export const STUDY_ROOM: RoomTemplate = {
             headRatio: 0.86 // leaning over the desk — visual head sits lower
         }
     ],
-    // furniture → feature entries (ai/UX.md §2); regions eyeballed on the
-    // clean twilight art, refined in-browser like everything else here.
+    // furniture → feature entries (see ai/design_system/props.md); regions
+    // eyeballed on the clean twilight art, refined in-browser like everything
+    // else here.
     hotspots: [
         { id: 'timeline', rect: { x: 790, y: 480, w: 260, h: 130 } }, // open diary on the desk
         { id: 'photos', rect: { x: 930, y: 35, w: 250, h: 165 } }, // photo frames on the shelf

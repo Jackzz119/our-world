@@ -1,13 +1,13 @@
-// friends-page.tsx — the FRIENDS PAGE inside the chat hub (Discord-style,
-// mockup ai/design_system/uiux/research/cinnaglass-history/friends-page.html 方案 A): the hub's
-// left nav pins a 好友 entry above the DM list; selecting it swaps the right
-// pane to this page. Top tabs filter views — 全部 / 待处理 / ＋添加好友;
-// an 在线 tab is reserved until presence lands (no fake online states).
-// Friend management lives ONLY here; the sidebar home panel just links in.
-// See ai/features/chat.md DM 阶段.
+// friends-page.tsx — the FRIENDS PAGE inside the chat hub (Discord-style): the hub's left nav pins
+// a 好友 entry above the DM list and selecting it swaps the right pane to this page. Top tabs filter
+// the views (全部 / 待处理 / ＋添加好友); an 在线 tab is reserved until presence lands — no fake
+// online states. Friend management lives only here.
+// Mockup 方案 A: ai/design_system/uiux/research/cinnaglass-history/friends-page.html
+// Status (UI frozen, data layer kept): ai/features/chat.md §五.3「好友 / DM 定位待定」.
 import { useState } from 'react';
 import type { FriendEntry, FriendRequest } from './chat-data';
 
+// Friends-page CSS, injected alongside the hub's own <style>.
 const FriendsStyles = () => (
     <style>{`
   .fpg{flex:1;min-width:0;display:flex;flex-direction:column;}
@@ -59,8 +59,10 @@ const FriendsStyles = () => (
   `}</style>
 );
 
+// 全部 / 待处理 / ＋添加好友 — the 在线 tab is rendered but disabled.
 type Tab = 'all' | 'pending' | 'add';
 
+// All data and actions come from useChatThreads via the hub; this page holds no server state.
 type FriendsPageProps = {
     friends: FriendEntry[];
     requestsIn: FriendRequest[]; // waiting for MY answer
@@ -72,6 +74,8 @@ type FriendsPageProps = {
     onClose: () => void;
 };
 
+// Renders one of the three tabs over the same friend lists. Removing a friend and declining or
+// cancelling a request are the same call (onRemove) — the row just reads differently.
 export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onAccept, onRemove, onOpenDm, onClose }: FriendsPageProps) {
     const [tab, setTab] = useState<Tab>('all');
     const [email, setEmail] = useState('');
@@ -79,6 +83,8 @@ export function FriendsPage({ friends, requestsIn, requestsOut, onAddFriend, onA
     const [msg, setMsg] = useState<{ text: string; err: boolean } | null>(null);
     const pendingCount = requestsIn.length;
 
+    // Send a friend request by email, then report the resolved display name or the server's reason
+    // inline. Guards against double submits while the request is in flight.
     const submitAdd = async () => {
         const v = email.trim();
         if (!v || busy) return;

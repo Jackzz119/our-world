@@ -15,8 +15,6 @@
     --craft-paper: #e2c99f;
     --craft-cover: #70441f;
     --craft-line: #87633833;
-    --diary-text: var(--craft-ink);
-    --diary-sub: var(--craft-muted);
     width: var(--book-width);
     height: calc(var(--book-width) * 0.64423);
     top: 50%;

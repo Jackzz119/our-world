@@ -1,18 +1,25 @@
-// emote-picker.tsx — the full emoji/sticker picker (chat.md EMO-4, mockup
-// emoji-picker.html 方案 B): search + tabs 🕐recent / 😊emoji / 💗world
-// stickers / 🎞️gif(placeholder). One component, reused by the composer 😊
-// (mode 'composer': emoji inserts, stickers send) and the reaction bar ➕
-// (mode 'reaction': emoji only — stickers aren't reactions, D-7/B-1).
-// The world tab hosts the import flow: web search (Tenor via edge function)
-// + local upload + paste-URL fallback. Panel is paper-solid (D-9).
+// emote-picker.tsx — the full emoji/sticker picker: search + tabs 🕐recent / 😊emoji / 💗world
+// stickers / 🎞️gif(placeholder). One component, two modes — the composer's 😊 (emoji inserts,
+// stickers send) and the reaction bar's ➕ (emoji only; stickers are not reactions, D-7 / B-1).
+// The world tab hosts the import flow: Tenor search via the emotes edge function, local upload,
+// paste-URL. The panel is paper-solid (D-9).
+// Specs: ai/features/chat.md §三「emote-picker.tsx / emoji-data.ts」(subtask EMO-4 not yet
+// backfilled — see ai/features/chat.md:13);
+// mockup 方案 B: ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html (B-1 / B-3);
+// D-7 / D-9 live in the historical register
+// ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-7 :53, D-9 :80); the current
+// register is ai/design_system/uiux/cinnaglass/decisions.md.
 import { useRef, useState } from 'react';
 import { ALL_EMOJI, EMOJI_CATEGORIES } from './emoji-data';
 import type { EmoteRow, EmoteSearchResult } from '@/types/chat.ts';
 
+// A library emote plus its signed display url (null while the url is still being signed).
 export type EmoteView = EmoteRow & { url: string | null };
 
+// Recently picked emoji, per browser (localStorage — never synced, never server state).
 const RECENT_KEY = 'ow-emoji-recent-v1';
 const RECENT_MAX = 16;
+// Read the recent list, tolerating absent or corrupted storage.
 const loadRecent = (): string[] => {
     try {
         const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
@@ -22,6 +29,7 @@ const loadRecent = (): string[] => {
     }
 };
 
+// Picker panel CSS; the hub only positions the panel (.chsc-pop), it does not style it.
 const PickerStyles = () => (
     <style>{`
   .epk{width:318px;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;
@@ -80,8 +88,10 @@ const PickerStyles = () => (
   `}</style>
 );
 
+// The world tab exists in composer mode only.
 type Tab = 'recent' | 'emoji' | 'world';
 
+// Emoji picking is always available; sticker picking and importing are composer-only.
 type EmotePickerProps = {
     mode: 'composer' | 'reaction';
     emotes: EmoteView[];
@@ -94,6 +104,9 @@ type EmotePickerProps = {
     onRemoveEmote: (id: string) => void;
 };
 
+// The picker. Two screens in one component: the browse screen (search + tabs) and the import screen
+// reached from the world tab's ＋ tile. A non-empty search box overrides the emoji tabs but not the
+// world tab, which filters its own tiles by sticker name.
 export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticker, onSearchWeb, onImportUrl, onImportFile, onRemoveEmote }: EmotePickerProps) {
     const [tab, setTab] = useState<Tab>('emoji');
     const [q, setQ] = useState('');
@@ -107,6 +120,7 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
     const [recent, setRecent] = useState<string[]>(loadRecent);
     const fileRef = useRef<HTMLInputElement>(null);
 
+    // Emit the pick and move it to the front of the per-browser recent list.
     const pickEmoji = (ch: string) => {
         const next = [ch, ...recent.filter((x) => x !== ch)].slice(0, RECENT_MAX);
         setRecent(next);
@@ -118,10 +132,13 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
         onPickEmoji(ch);
     };
 
+    // Search is case-insensitive over the Chinese-first keyword strings; null hits = not searching.
     const query = q.trim().toLowerCase();
     const emojiHits = query ? ALL_EMOJI.filter((x) => x.k.toLowerCase().includes(query)) : null;
     const worldHits = query ? emotes.filter((e) => e.name.toLowerCase().includes(query)) : emotes;
 
+    // Search Tenor through the edge function; an unconfigured API key surfaces as an inline message,
+    // not a throw. Seeds the sticker name from the query when the user hasn't typed one.
     const runWebSearch = async () => {
         const v = impQ.trim();
         if (!v || impBusy) return;
@@ -139,6 +156,9 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
         }
     };
 
+    // Shared wrapper for every import path (search result / pasted url / local file): one in-flight
+    // guard, one success message, one error surface. The library itself refreshes via the
+    // world_emotes broadcast, not from here.
     const doImport = async (fn: () => Promise<void>) => {
         if (impBusy) return;
         setImpBusy(true);
@@ -154,6 +174,7 @@ export function EmotePicker({ mode, emotes, canImport, onPickEmoji, onPickSticke
             setImpBusy(false);
         }
     };
+    // The typed alias, or a fallback, clamped to the 24-char column limit.
     const nameOr = (fallback: string) => (impName.trim() || fallback).slice(0, 24);
 
     return (

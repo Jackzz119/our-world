@@ -18,6 +18,8 @@ const DEV_PASSWORD = getEnvOptional('VITE_DEV_PASSWORD');
 // otherwise the flag is inert and the normal login flow applies
 const DEV_AUTO_LOGIN = getEnvFlag('VITE_DEV') && !!DEV_EMAIL && !!DEV_PASSWORD;
 
+// Full-screen placeholder shown while the session check (and the optional dev
+// auto-login) is still pending.
 const Splash = () => (
     <div
         style={{

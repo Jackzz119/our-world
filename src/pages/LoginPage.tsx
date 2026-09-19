@@ -9,6 +9,9 @@ import { RoomScene } from '@/themes/cinnaglass/scene.tsx';
 import { Ico, IEye, IEyeOff, IHeart } from '@/themes/cinnaglass/icons.tsx';
 import styles from './LoginPage.module.css';
 
+// Local field icons. icons.tsx carries an IMail and an ILock too, but their
+// paths are drawn on a different grid; these two are kept so the login page's
+// shapes stay exactly as approved. Nothing else may define icons inline.
 const IMail = (p: Parameters<typeof Ico>[0]) => (
     <Ico {...p}>
         <rect x="3" y="5" width="18" height="14" rx="2.5" />
@@ -22,6 +25,7 @@ const ILock = (p: Parameters<typeof Ico>[0]) => (
     </Ico>
 );
 
+// Google's official four-colour "G" mark — fixed brand colours, not themed.
 const GoogleMark = () => (
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true">
         <path
@@ -57,6 +61,8 @@ const LoginPage = () => {
 
     const signUpMode = mode === 'signup';
 
+    // OAuth redirect: Supabase bounces the browser to Google and back to the site
+    // root, where ProtectedRoute picks up the new session.
     const handleGoogle = async () => {
         setMsg(null);
         const { error } = await supabase.auth.signInWithOAuth({
@@ -66,7 +72,8 @@ const LoginPage = () => {
         if (error) setMsg({ type: 'error', text: error.message });
     };
 
-    // forgot password: send a recovery email that lands on /reset-password
+    // Forgot password: sends a recovery email whose link lands on /reset-password.
+    // Requires the email field — it is the only input this path reads.
     const handleForgot = async () => {
         if (!email) {
             setMsg({ type: 'error', text: '先填上你的邮箱，再点忘记密码。' });
@@ -87,6 +94,8 @@ const LoginPage = () => {
         }
     };
 
+    // Sign-up stays on this page (the account may still need email confirmation);
+    // sign-in navigates to the world.
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setBusy(true);

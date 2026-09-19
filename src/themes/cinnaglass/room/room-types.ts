@@ -3,7 +3,9 @@
 // (window/clock/seats/hotspots) that runtime layers attach to. Characters
 // live in their own layer and are decoupled from rooms (see ai/PROJECT.md).
 
+/** The room's lighting hour. Base art, light recipes and actor tints are all keyed by it. */
 export type RoomMood = 'golden' | 'twilight' | 'night';
+/** What the compositor can actually render; the app's wider weather vocabulary narrows to this. */
 export type RoomWeather = 'sun' | 'rain';
 
 /** Axis-aligned rect in base-image pixel coordinates. */
@@ -36,7 +38,20 @@ export type PxEllipse = {
     tilt: number;
 };
 
-/** Turntable prop: a painted platter that really spins (living props, see ai/design_system/research/living-props.md). */
+/**
+ * Turntable prop: a painted platter that really spins (living props, see
+ * ai/design_system/research/living-props.md).
+ *
+ * Separated layers (scripts/build-turntable-parts.py): the base art ships
+ * as the machine with an EMPTY well (no record, no arm). The record is the
+ * painting itself split by SYMMETRY (v5, 2026-09-07): a record's look is
+ * light on grooves, so there is no "albedo without light" to generate —
+ * instead the rotationally symmetric part of the painted disc turns, and
+ * everything that would not survive a turn (sheen, groove sparkle, rim
+ * highlight, shadow side) stays put as static light. At rest the two
+ * multiply back to the painting. The arm is generated flat albedo lit by
+ * tint; the pin is a still cut from the painting.
+ */
 export type TurntableSpec = {
     /** Outer rim of the vinyl. Fit with scripts/fit-disc-ellipse.py — never eyeballed. */
     platter: PxEllipse;
@@ -49,17 +64,6 @@ export type TurntableSpec = {
     center: PxPoint;
     /** Tonearm post center; the arm part swings around it on hover. */
     armPivot: PxPoint;
-    /**
-     * Separated layers (scripts/build-turntable-parts.py): the base art ships
-     * as the machine with an EMPTY well (no record, no arm). The record is the
-     * painting itself split by SYMMETRY (v5, 2026-09-07): a record's look is
-     * light on grooves, so there is no "albedo without light" to generate —
-     * instead the rotationally symmetric part of the painted disc turns, and
-     * everything that would not survive a turn (sheen, groove sparkle, rim
-     * highlight, shadow side) stays put as static light. At rest the two
-     * multiply back to the painting. The arm is generated flat albedo lit by
-     * tint; the pin is a still cut from the painting.
-     */
     /** Record albedo per mood, disc space (unit circle inscribed in the texture). Turns. */
     platterArt: Record<RoomMood, string>;
     /**
@@ -121,7 +125,7 @@ export type SeatAnchor = {
     height: number;
     /**
      * Breathing phase offset in seconds so multiple characters never move
-     * in sync (sync reads as mechanical, see ai/STYLE.md §6).
+     * in sync (sync reads as mechanical, see ai/design_system/character.md).
      */
     phase: number;
     /**
@@ -133,7 +137,8 @@ export type SeatAnchor = {
 };
 
 /**
- * A clickable furniture region that opens a feature (ai/UX.md §2/§5).
+ * A clickable furniture region that opens a feature (see
+ * ai/design_system/props.md and ai/design_system/uiux/uiux.md).
  * Affordance is sparkles plus the furniture's own living-prop motion — no
  * outlines, no glow art, no image swaps (user direction 2026-08-22).
  */

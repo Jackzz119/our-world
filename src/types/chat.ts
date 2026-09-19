@@ -1,6 +1,7 @@
-// chat.ts — chat backend types (DB `channels` + `messages` +
-// `message_reactions` + `channel_reads`, see ai/features/chat.md +
-// ai/features/channel.md).
+// chat.ts — chat backend types, one per DB table (channels / messages / message_reactions /
+// channel_reads / friendships / world_emotes). Hand-written and hand-maintained: the authoritative
+// column list is ai/PROJECT.md §数据库, and every change here must also update the *_COLS select
+// lists in src/lib/chat.ts. Feature doc: ai/features/chat.md.
 
 // Single-table variant model: a room is a voice channel bound to a scene
 // (scene_id non-null), a plain voice channel has none, text is text; a DM

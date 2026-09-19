@@ -1,8 +1,9 @@
 // floaters.tsx — fixed-layout floating widgets of the v2 shell, rebuilt 1:1
-// against the codex pixel spec: the anniversary moment card (§5.4, 233×105)
-// and the music player bar (§5.7, 437×88 — one title line, one progress
-// track, a big pause button; the comp has NO second info line and NO volume
-// rail, so neither exists here). Materials come from the --cg-* tokens.
+// against ai/codex-visual/20260811-055917Z/codex-report.md:
+// the anniversary moment card (233×105) and the music player bar (437×88 —
+// one title line, one progress track, a big pause button; the comp has NO
+// second info line and NO volume rail, so neither exists here). Materials
+// come from the --cg-* tokens.
 
 import { useMemo } from 'react';
 import { IChevron, IEye, IHeart, IPause, IPlay } from '../icons';
@@ -10,7 +11,7 @@ import { MusicPlayer } from '../music';
 import { TRACKS } from '../music-tracks';
 
 /* ------------------------------------------------------------------ */
-/* moment card (spec §5.4)                                             */
+/* moment card                                                         */
 /* ------------------------------------------------------------------ */
 
 type MomentCardProps = {
@@ -19,6 +20,8 @@ type MomentCardProps = {
     onHide: () => void;
 };
 
+// Anniversary card: days together and days to the next recurrence. Renders
+// nothing when anniv is unparseable.
 export function MomentCard({ anniv, onHide }: MomentCardProps) {
     const { days, toNext } = useMemo(() => {
         const a = new Date(`${anniv}T00:00:00`);
@@ -36,7 +39,7 @@ export function MomentCard({ anniv, onHide }: MomentCardProps) {
     return (
         <div className="moment-card">
             <FloaterStyles />
-            {/* spec: 67×62 raster cake illustration zone, no plate */}
+            {/* comp: 67×62 raster cake illustration zone, no plate */}
             <span className="mc-icon" aria-hidden>
                 🎂
             </span>
@@ -61,9 +64,11 @@ export function MomentCard({ anniv, onHide }: MomentCardProps) {
 }
 
 /* ------------------------------------------------------------------ */
-/* music player bar (spec §5.7)                                        */
+/* music player bar                                                    */
 /* ------------------------------------------------------------------ */
 
+// Collapsed music bar. Shows the current track and expands the full player;
+// the audio engine stays mounted inside it either way.
 export function MusicMini({
     spaceName,
     open,
@@ -118,9 +123,11 @@ export function MusicMini({
     );
 }
 
+// Scoped styles for both floaters. Each one mounts its own copy, so either can
+// appear alone.
 const FloaterStyles = () => (
     <style>{`
-    /* ══ moment card — spec §5.4: 233×105 r19 ══ */
+    /* ══ moment card — 233×105 r19 ══ */
     .moment-card{
         position:absolute;top:41px;right:27px;z-index:35;
         width:233px;height:105px;border-radius:19px;
@@ -148,7 +155,7 @@ const FloaterStyles = () => (
     .mc-side-btn:hover{transform:translateY(-1px);}
     .mc-side-heart{display:flex;color:#AC9AA3;}
 
-    /* ══ music bar — spec §5.7: 437×88 r22 ══ */
+    /* ══ music bar — 437×88 r22 ══ */
     .music-wrap{position:absolute;right:27px;bottom:39px;z-index:35;
         display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
     .music-full{filter:drop-shadow(0 16px 40px rgba(8,12,30,0.4));}
@@ -171,7 +178,7 @@ const FloaterStyles = () => (
         padding:0 14px 0 12px;}
     .mb-title{font-size:14px;font-weight:600;color:var(--cg-icon);
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    /* spec: one 193×8 r4 track, fill #F5F4F7, 18px knob — nothing else */
+    /* comp: one 193×8 r4 track, fill #F5F4F7, 18px knob — nothing else */
     .mb-track{position:relative;width:193px;height:8px;border-radius:4px;background:#555772;}
     .mb-fill{position:absolute;left:0;top:0;bottom:0;width:34%;border-radius:4px;background:#F5F4F7;}
     .mb-knob{position:absolute;left:calc(34% - 9px);top:50%;transform:translateY(-50%);

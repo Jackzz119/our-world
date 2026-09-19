@@ -1,7 +1,8 @@
 @import './materials.css';
 
-/* ow.css — Our World global design tokens + scene / mood / weather layers.
-   Ported verbatim from the design prototype's `Our World.html` <style> block. */
+/* cinnaglass.css — global design tokens plus the scene / mood / weather layers.
+   Component-scoped styles live with their components; only cross-surface
+   tokens and primitives belong here. */
 
 :root {
   /* ── Cinnamoroll palette ── */
@@ -15,7 +16,7 @@
   --navy-2: #1e2a47;
   --navy-deep: #141d33;
 
-  /* ══ concept-c shell tokens (codex pixel spec 20260811-055917Z) ══
+  /* ══ concept-c shell tokens (ai/codex-visual/20260811-055917Z/codex-report.md) ══
      Three material tiers measured off the approved design comp:
      graphite panel → misty control/blank → blue or gold highlight.
      Every v2 shell component (rail/popovers/cards/player) draws ONLY
@@ -55,7 +56,7 @@
      Scene lights may be brighter; legibility comes from stable dark ink.
 
      TWO COLOR DOMAINS — mind which one a surface belongs to:
-       SHELL = .glass surfaces: sidebar, modals, HUD, dock
+       SHELL = .glass surfaces: modals, the rail and the floating cards
        PAPER = .paper surfaces + anything painted --glass-paper
      --shell-* holds the canonical shell values. --glass-* aliases them, and
      PAPER surfaces re-map --glass-* to their paper counterparts (see the
@@ -105,10 +106,10 @@
   --stage-content-filter: blur(5px) brightness(0.82);
   --object-open-duration: 220ms;
   --object-open-ease: cubic-bezier(0.22, 0.9, 0.3, 1);
-  /* The sidebar is IN-FLOW, so what sits behind its glass is the app ground,
-     not the scene. The ground travels with the hour AND stays a gradient:
-     a flat fill gives backdrop-filter nothing to work with and the shell
-     collapses into a plain panel (codex audit 2026-08-08, High #3). */
+  /* The ground the floating chrome composites against. It travels with the
+     hour AND must stay a gradient: a flat fill gives backdrop-filter nothing
+     to work with and the shell collapses into a plain panel
+     (ai/codex-visual/20260811-044310Z/codex-report.md, High #3). */
   --app-ground: linear-gradient(168deg, #73798d 0%, #5f657c 58%, #42485c 100%);
 
   /* --glass-* aliases: what component CSS actually writes */
@@ -152,7 +153,7 @@ body {
   position: fixed;
   inset: 0;
 }
-/* the ground the in-flow chrome composites against (see --app-ground) */
+/* the ground the floating chrome composites against (see --app-ground) */
 .app {
   background: var(--app-ground);
   transition: background 0.9s ease;
@@ -162,7 +163,7 @@ body {
   font-feature-settings: 'tnum';
 }
 
-/* stage: everything scene-related lives here; the in-flow sidebar squeezes it */
+/* stage: everything scene-related lives here; the chrome floats above it. */
 .stage {
   position: relative;
   flex: 1;
@@ -170,15 +171,9 @@ body {
   height: 100%;
   overflow: hidden;
 }
-/* scene switches (a) + (b), applied at stage level so EVERY scene type gets
-   them — the 2D diorama, the lobby island and the 3D metaspace alike.
-   Both sit at z-3: above the scene, below the HUD (z-5).
-   (b) a soft dim behind the chrome column, so the glass shell never floats
-       over a blown-out highlight — it always has something to sit on */
-/* v1 scene switches (chrome dim strip + museum vignette) retired with the
-   concept-c shell (2026-08-11 user call): the graphite glass no longer needs
-   a dim backing, and edge darkening read as "black overlay on the room".
-   The pixi light pass owns all scene grading now. */
+/* v1 scene switches (chrome dim strip + museum vignette) were retired with
+   the concept-c shell (2026-08-11 user call): the pixi light pass owns all
+   scene grading now. */
 
 /* ════ LUMINANCE TIERS — driven by [data-mood], the in-world hour ════
    One continuous ladder: 黄昏 near-white → 暮色 misty slate → 夜晚 graphite.
@@ -209,7 +204,8 @@ body {
      is legible next to its siblings. */
   /* alphas lowered from the first pass: at .78/.74/.72 this tier read as a
      LIGHT theme and the step down to night became a cliff. It has to sit
-     between its neighbours, not next to golden (codex audit, High #1). */
+     between its neighbours, not next to golden
+     (ai/codex-visual/20260811-044310Z/codex-report.md, High #1). */
   --shell-bg: linear-gradient(168deg, rgba(226, 229, 238, 0.66) 0%, rgba(201, 205, 219, 0.6) 55%, rgba(184, 189, 207, 0.58) 100%);
   --shell-border: rgba(255, 255, 255, 0.48);
   --shell-line: rgba(46, 58, 89, 0.16);
@@ -245,8 +241,8 @@ body {
   --shell-accent: #83d8f5;
   --accent-glow: rgba(89, 197, 237, 0.5);
   --app-ground: linear-gradient(168deg, #14171f 0%, #11151e 58%, #0c1018 100%);
-  /* raised focus shells (open modal / HUD) get a cool rim so they separate
-     from ordinary dark chrome — never applied to the whole sidebar */
+  /* raised focus shells (an open modal) get a cool rim so they separate
+     from ordinary dark chrome — never applied to the rail */
   --shell-focus-border: rgba(131, 216, 245, 0.34);
   --glass-blur: 22px;
   --glass-sat: 125%;
@@ -292,9 +288,6 @@ body {
    every --glass-* a component already uses resolves to its paper value.
    Add any new white-backed surface to this list. ── */
 .paper,
-.sb-rcard,
-.sb-pcard,
-.tl-card,
 .compose,
 .pd-card,
 .wish,
@@ -304,7 +297,6 @@ body {
 .alarm,
 .chsc-m .bub,
 .chsc-rx .rx,
-.chsc-pick,
 .abar,
 .epk,
 .field,
@@ -324,19 +316,7 @@ select {
   --glass-text: #0d2336;
   --glass-sub: rgba(13, 35, 54, 0.62);
 }
-/* the sidebar's account bar is CHROME, not content — it stays in the shell
-   domain (a full-width white strip would out-shout the memories). Its inline
-   status input must opt back out of the generic input remap above, which is
-   what the canonical --shell-* names exist for. */
-.sb-user .u-st {
-  --glass-text: var(--shell-text);
-  --glass-sub: var(--shell-sub);
-  --glass-hi: var(--shell-hi);
-  --glass-hover: var(--shell-hover);
-  --glass-line: var(--shell-line);
-}
-
-/* frosted glass surface mixin — SHELLS ONLY (sidebar, modals, HUD, dock).
+/* frosted glass surface mixin — SHELLS ONLY (modals, rail, floating cards).
    Content inside a glass shell sits on .paper; never nest glass in glass. */
 .glass {
   background: var(--glass-shell, linear-gradient(160deg, var(--glass-bg), var(--glass-bg-2)));
@@ -472,7 +452,7 @@ select {
 }
 
 /* ════ MODAL SHELL ════
-   居中弹窗外壳，被 SubScreen / 日历 / 时钟 / 设置 / 空间切换器 共用。
+   居中弹窗外壳，被 SubScreen / 日历 / 时钟 / 设置 / 世界设置 共用。
    （原先散落在 screens.tsx + calendar.tsx，靠组件挂载才生效，现提为全局。） */
 /* scene switch (c): opening a memory dims the whole world — the "stepping
    into a recollection" beat. Deeper + blurrier than a plain modal scrim. */
@@ -514,21 +494,14 @@ select {
   pointer-events: auto;
 }
 /* a raised focus shell separates from ordinary chrome by its rim, not by
-   going brighter — at night that rim turns cool blue (codex audit, Med #2) */
+   going brighter — at night that rim turns cool blue
+   (ai/codex-visual/20260811-044310Z/codex-report.md, Med #2) */
 .modal.glass {
   border-color: var(--shell-focus-border);
 }
 .modal.mini {
   width: min(520px, calc(100vw - 32px));
   height: min(660px, calc(100vh - 56px));
-}
-/* tall variant: long-scroll surfaces (SubScreen timeline) go near-fullscreen
-   on desktop — same scale as the channel screen's 3%/4% inset. Sized against
-   the stage (its positioning container), not the viewport, so the in-flow
-   sidebar never covers it. */
-.modal.tall {
-  width: min(1280px, calc(100% - 56px));
-  height: min(1000px, calc(100% - 44px));
 }
 .modal-hd {
   display: flex;
@@ -841,65 +814,15 @@ select {
   background: linear-gradient(to top, rgba(20, 29, 51, 0.3), transparent);
 }
 
-/* float keyframes for weightless HUD */
-@keyframes floatA {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-7px);
-  }
-}
-@keyframes floatB {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-@keyframes floatC {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .mood-stars {
     animation: none;
-  }
-  [style*='floatA'],
-  [style*='floatB'],
-  [style*='floatC'] {
-    animation: none !important;
-  }
-}
-
-/* heartbeat */
-@keyframes beat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  14% {
-    transform: scale(1.18);
-  }
-  28% {
-    transform: scale(1);
-  }
-  42% {
-    transform: scale(1.12);
   }
 }
 
 /* ════ LOBBY (pre-room floating island + portal) ════
    Shown instead of the room diorama when the user has no shared space yet.
-   Static 2D placeholder; replaced by an R3F island later. */
+   Static 2D art. */
 .lobby-stage {
   position: absolute;
   inset: 0;

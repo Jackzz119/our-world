@@ -1,9 +1,10 @@
 // world-settings.tsx — 世界设置 modal (Discord server-settings style).
 // Owns the world's shared identity: icon (emoji or uploaded image), name and
 // anniversary. Unlike the personal settings modal these fields write straight
-// to DB `worlds` on save (S-4 step 3 — both members see the change), with the
-// caller syncing the localStorage fallback buffer via onSaved.
-// Entry: clicking the sidebar world-panel header (icon + name strip).
+// to DB `worlds` on save (both members see the change — ai/features/supabase.md),
+// with the caller syncing the localStorage fallback buffer via onSaved.
+// NOTE: no UI entry point today — the sidebar header that opened this retired
+// with the v2 shell. Reachable only by setting screen='world-settings'.
 // Icon display priority everywhere: image > emoji > first letter of the name.
 import { useRef, useState } from 'react';
 import { updateWorld } from '@/lib/worlds.ts';
@@ -11,6 +12,7 @@ import { uploadWorldIcon } from '@/lib/storage.ts';
 import type { World } from '@/types/feed.ts';
 import { ICheck, IClose, IHeart, IPhoto, ISparkle } from './icons';
 
+// Scoped styles; mirrors the personal settings' field feel.
 const WorldSettingsStyles = () => (
     <style>{`
   .ws-label{font-size:11px;letter-spacing:.16em;color:var(--glass-sub);font-weight:600;
@@ -20,7 +22,7 @@ const WorldSettingsStyles = () => (
   .ws-group{border-radius:18px;overflow:hidden;padding:15px;display:flex;flex-direction:column;gap:13px;}
   .ws-row{display:flex;align-items:center;gap:13px;}
 
-  /* current icon preview — the same three-way fallback the sidebar renders */
+  /* current icon preview — the same three-way fallback the world icon uses everywhere */
   .ws-ico{width:64px;height:64px;border-radius:20px;flex:0 0 auto;display:grid;place-items:center;
     color:#fff;font-size:30px;font-weight:800;overflow:hidden;background:var(--accent-grad);
     border:2px solid rgba(255,255,255,.72);box-shadow:0 8px 20px -8px rgba(20,29,51,.55);}
@@ -83,6 +85,7 @@ type Draft = {
     keepImage: boolean; // existing icon_path still wanted
 };
 
+// Snapshot the row into an editable draft; '' stands for "unset" in every field.
 const draftOf = (w: World | null): Draft => ({
     name: w?.name ?? '',
     anniv: w?.anniversary ?? '',
@@ -90,6 +93,9 @@ const draftOf = (w: World | null): Draft => ({
     keepImage: !!w?.icon_path
 });
 
+// World settings modal. Writes name/anniversary/icon straight to the worlds row,
+// so both members see the change; the caller syncs its localStorage fallback via
+// onSaved.
 export function WorldSettingsScreen({
     open,
     onClose,
@@ -126,6 +132,8 @@ export function WorldSettingsScreen({
 
     if (!world) return null;
 
+    // Object URLs are revoked as they are replaced, so an open modal never leaks
+    // more than one.
     const pickFile = (f: File | null) => {
         if (!f) return;
         setFile(f);
@@ -157,6 +165,8 @@ export function WorldSettingsScreen({
     const showImage = filePreview ?? (draft.keepImage && world.icon_path ? iconUrl : null);
     const fallbackGlyph = draft.emoji || (draft.name || world.name).slice(0, 1);
 
+    // Upload first (if a file is pending), then patch the row. A failed upload
+    // aborts before any DB write, so the row never points at a missing object.
     const save = async () => {
         if (saving) return;
         setSaving(true);

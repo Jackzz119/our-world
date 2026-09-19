@@ -1,14 +1,21 @@
 // calendar.tsx — real Calendar (约会 / 纪念日) + Clock·Alarm screens.
 // Reuse the .modal shell from screens.tsx (ScreenStyles is always mounted).
+// Both screens live in one file because they share CalClockStyles and the
+// .modal.mini shell.
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { ICalendar, IChevron, IClock, IClose, ICloud, IHeart, IPlus, IRain, ISnow, ISun } from './icons';
 import type { Alarm, CalEvent, Weather } from './model';
 
-const ANNIV = { m: 5, d: 4, year: 2025 }; // 在一起：2025.6.4
+// DUPLICATE SOURCE — the authoritative anniversary is worlds.anniversary; this
+// constant is not wired to it, so the card below never follows world settings.
+const ANNIV = { m: 5, d: 4, year: 2025 };
 const WK = ['日', '一', '二', '三', '四', '五', '六'];
+// Local-calendar date key, 'yyyy-mm-dd' — the shape CalEvent.date and
+// worlds.anniversary both use.
 const pad = (n: number) => String(n).padStart(2, '0');
 const ymd = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+// Styles shared by both screens in this file; each mounts its own copy.
 const CalClockStyles = () => (
     <style>{`
   /* shared modal sizing for calendar/clock (a touch narrower than the book) */
@@ -99,6 +106,8 @@ const CalClockStyles = () => (
 );
 
 /* ════════ CALENDAR ════════ */
+// Calendar modal: month grid, add-a-date row, and the next six upcoming events.
+// Events live in the caller's state and are persisted there, not here.
 export function CalendarScreen({
     open,
     onClose,
@@ -127,6 +136,8 @@ export function CalendarScreen({
         (evByDate[e.date] = evByDate[e.date] || []).push(e);
     });
 
+    // Days to the next recurrence of ANNIV, and the year it falls in. Reads the
+    // hardcoded constant above, not the world row.
     const nextAnniv = () => {
         let y = tY;
         let dn = new Date(y, ANNIV.m, ANNIV.d);
@@ -137,6 +148,7 @@ export function CalendarScreen({
     const { diff: annivDiff, y: annivYear } = nextAnniv();
     const yearsTogether = annivYear - ANNIV.year;
 
+    // Step one month, rolling the year.
     const move = (d: number) =>
         setCur((c) => {
             let m = c.m + d,
@@ -280,6 +292,8 @@ export function CalendarScreen({
 }
 
 /* ════════ CLOCK · ALARM ════════ */
+// Clock and alarm modal. nowTs is ticked by the caller so this stays a pure
+// render; alarms are display-only today — nothing fires them yet.
 export function ClockScreen({
     open,
     onClose,

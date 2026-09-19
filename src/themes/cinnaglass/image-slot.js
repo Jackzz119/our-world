@@ -390,6 +390,7 @@
         // Notify React of the current selection: the original File (for Storage
         // upload) + the webp thumbnail dataURL (for preview). Fires (null, null)
         // on clear. The localStorage behavior above is untouched.
+        // No listener today: the composer uploads through its own file input.
         _emitChange(dataUrl, file) {
             this.dispatchEvent(
                 new CustomEvent('slot-change', {

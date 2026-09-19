@@ -1,8 +1,11 @@
-// scene.tsx — generated isometric room "diorama" (replaces the upload slot).
-// A small iso-projection helper builds a cozy bedroom-study. The mood overlays
-// in ow.css still tint this for twilight / golden / night lighting.
-// RoomArt is exported so the minimap can reuse it.
+// scene.tsx — the isometric SVG room "diorama" drawn behind the sign-in and
+// reset-password pages. A small iso-projection helper builds a cozy
+// bedroom-study out of pure markup: no assets, so it paints before any texture
+// could load. The mood and weather overlays in cinnaglass.css (.scene-base /
+// .mood-* / .wx-*) tint it for twilight / golden / night lighting.
 
+// The diorama's pastel palette; the T/R/L suffixes are the top, right and left
+// face of an isometric box.
 const ROOM = {
     floorTop: '#ECDCC4',
     floorBase: '#C9B193',
@@ -23,6 +26,7 @@ const ROOM = {
     rug: '#AEDFF2'
 };
 
+// An axis-aligned box in iso grid units: u/v run across the floor, w upward.
 type BoxProps = {
     u0: number;
     u1: number;
@@ -34,6 +38,7 @@ type BoxProps = {
     r: string;
     l: string;
 };
+// An elliptical ground shadow at grid point (u, v); rx/ry are screen px.
 type ShadowProps = { u: number; v: number; rx?: number; ry?: number; o?: number };
 
 // iso-projection constants + helpers (fixed; module-scoped so Box/Shadow are
@@ -59,10 +64,14 @@ const Box = ({ u0, u1, v0, v1, w0, w1, t, r, l }: BoxProps) => (
         <polygon points={f([[u0, v0, w1], [u1, v0, w1], [u1, v1, w1], [u0, v1, w1]])} fill={t} />
     </g>
 );
+// Soft ground shadow under a prop, so it reads as standing on the floor.
 const Shadow = ({ u, v, rx = 34, ry = 17, o = 0.16 }: ShadowProps) => (
     <ellipse cx={X(u, v)} cy={Y(u, v)} rx={rx} ry={ry} fill={`rgba(40,42,60,${o})`} />
 );
 
+// The whole diorama as one SVG — floor, two walls, desk, bed, rug and two
+// chibi avatars, all projected by X/Y above. shadow=false drops the outer drop
+// shadow, for embedding on a light panel.
 export function RoomArt({ shadow = true }: { shadow?: boolean }) {
     return (
         <svg
@@ -214,6 +223,8 @@ export function RoomArt({ shadow = true }: { shadow?: boolean }) {
     );
 }
 
+// The sign-in backdrop: the diorama under the CSS mood and weather overlays.
+// Unrelated to room/room-scene.tsx, which mounts the live Pixi world scene.
 export function RoomScene({ weather = 'cloud' }: { weather?: string }) {
     return (
         <div className="scene-base" data-wx={weather}>

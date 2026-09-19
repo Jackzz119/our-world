@@ -7,6 +7,7 @@ import { ICheck, IChevron, IClose, ICog, IDusk, IHeart, IKey, ILock, ILogout, IM
 import type { Profile } from './model';
 import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from './tweaks';
 
+// Scoped styles for the settings rows, inline edits and segmented controls.
 const SettingsStyles = () => (
     <style>{`
   .set-label{font-size:11px;letter-spacing:.16em;color:var(--glass-sub);font-weight:600;
@@ -80,6 +81,7 @@ const SettingsStyles = () => (
 );
 
 type SegOpt = { k: string; label: string; Icon?: (p: IcoProps) => ReactNode };
+// Option sets for the three segmented controls in 主题外观.
 const GLASS_OPTS: SegOpt[] = [
     { k: 'cloud', label: '云朵' },
     { k: 'sky', label: '天空' },
@@ -95,6 +97,7 @@ const MOOD_OPTS: SegOpt[] = [
     { k: 'night', label: '夜晚', Icon: IMoon }
 ];
 
+// Segmented control: one option is always on; the caller owns the value.
 function Segmented({ opts, value, onChange, withIcon }: { opts: SegOpt[]; value: string; onChange: (k: string) => void; withIcon?: boolean }) {
     return (
         <div className="seg">
@@ -112,6 +115,8 @@ function Segmented({ opts, value, onChange, withIcon }: { opts: SegOpt[]; value:
     );
 }
 
+// One person row: avatar slot plus an inline-editable nickname. Names are still
+// local-only — the DB write-back is not wired here.
 function PersonRow({
     slotId,
     color,
@@ -141,6 +146,8 @@ function PersonRow({
     );
 }
 
+// Personal settings modal. Profile and theme edits apply immediately to local
+// state; only sign-out touches the backend.
 export function SettingsScreen({
     open,
     onClose,
@@ -162,6 +169,9 @@ export function SettingsScreen({
     const [pw, setPw] = useState({ cur: '', a: '', b: '' });
     const [saved, setSaved] = useState(false);
 
+    // UI-only placeholder: shows the success state without calling Supabase.
+    // Wiring updateUser here is still open — do not read the check mark as a real
+    // password change.
     const pwValid = pw.cur && pw.a.length >= 4 && pw.a === pw.b;
     const savePw = () => {
         if (!pwValid) return;
@@ -210,7 +220,7 @@ export function SettingsScreen({
                 <div className="modal-body">
                     {/* ── 个人资料 ── (world name + anniversary moved to the
                         world settings modal, which writes to DB — see
-                        world-settings.tsx / world.md W-3) */}
+                        world-settings.tsx and ai/features/supabase.md) */}
                     <div className="set-label">
                         <span className="ic">
                             <IUser size={14} />

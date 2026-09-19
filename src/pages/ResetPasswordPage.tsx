@@ -22,6 +22,8 @@ const ResetPasswordPage = () => {
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState<Msg>(null);
 
+    // Validates locally (6+ chars, both fields equal) before calling updateUser —
+    // some Supabase projects accept a short password silently.
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (password.length < 6) {

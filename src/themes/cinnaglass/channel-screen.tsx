@@ -1,12 +1,11 @@
-// channel-screen.tsx — the covering CHAT HUB: opened from the sidebar (text
-// channels AND DMs — the sidebar's only chat trigger), it floats over the
-// stage so you can chat with the scene tucked away. The sidebar entries are
-// summon buttons; once open, the hub's own left column switches between all
-// open conversations (current world's text channels + my DMs — same set as
-// the dock tabs via convsFor). Threads are shared with the in-scene ChatDock.
-// Message states / hover actions / reactions / delete particles follow
-// ux decisions.md D-7; the read cursor avatar renders in DMs ONLY
-// (D-7-3 修订: 频道不显示已读). See ai/features/chat.md.
+// channel-screen.tsx — the covering CHAT HUB: it floats over the stage so you can talk with the
+// scene tucked away. Opened from the ChatCard's expand button (WorldPage.tsx); once open, its own
+// left column switches between every conversation convsFor() yields, plus a pinned friends entry.
+// Threads are shared with the stage-side ChatCard — same store, two experiences.
+// Specs: ai/features/chat.md §三; message states / hover bar / reactions / delete particles follow
+// D-7 in ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53 (historical register;
+// the current one is ai/design_system/uiux/cinnaglass/decisions.md). The read cursor avatar renders
+// in DMs ONLY (D-7-3 修订: 频道不显示已读 — ai/features/chat.md:61).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IClose, IHash, ISend } from './icons';
 import { FriendsPage } from './friends-page';
@@ -18,8 +17,11 @@ import type { ChatAlign } from './tweaks';
 // quick reactions on the hover bar; the ➕ opens the full EmotePicker.
 const QUICK_EMOJI = ['💗', '😆', '🥺'];
 
+// Glass-dust palette for the delete effect.
 const VANISH_COLORS = ['#9fd6f4', '#5fb0e2', '#f8c8d6', '#ef9db4', '#ffffff', '#fce7b0'];
 
+// All hub CSS, injected as one <style> so the hub stays a single file to read. Block comments below
+// cite D-7 clause numbers from the historical register named in the file header.
 const ChannelStyles = () => (
     <style>{`
   .chsc-scrim{position:absolute;inset:0;z-index:22;background:rgba(14,20,38,.45);
@@ -169,13 +171,15 @@ const ChannelStyles = () => (
   `}</style>
 );
 
+// Everything the hub renders and every mutation it can trigger; all state is lifted to WorldPage so
+// the ChatCard and the hub read the same store.
 type ChannelScreenProps = {
     convId: string | null; // active conv: channel id, dm channel id, or FRIENDS_VIEW
     onSelect: (convId: string) => void; // hub-internal switching (same lifted state)
     inWorld: boolean; // channels are a world concept — lobby shows DMs only
     channels: Channel[]; // the world's channels (DB-driven)
     dmConvs: Conv[]; // my DM conversations (account-level, DB-driven)
-    friends: FriendEntry[]; // friends page data + actions (chat.md DM 阶段)
+    friends: FriendEntry[]; // friends page data + actions (ai/features/chat.md §五.3)
     requestsIn: FriendRequest[];
     requestsOut: FriendRequest[];
     onAddFriend: (email: string) => Promise<string>;
@@ -192,7 +196,7 @@ type ChannelScreenProps = {
     onEdit: (msgId: string, content: string) => void;
     onDelete: (msgId: string) => void;
     onReact: (msgId: string, emoji: string) => void;
-    // emote system (chat.md 表情系统): shared world sticker library
+    // emote system (ai/features/chat.md §三「lib/emotes.ts」): shared world sticker library
     emotes: EmoteView[];
     hasWorld: boolean; // the library is world-scoped — no world, no importing
     onSendSticker: (convId: string, emote: EmoteView) => void;
@@ -206,7 +210,9 @@ type ChannelScreenProps = {
     chatAlign: ChatAlign; // 'left' = everyone left (default) | 'sides'
 };
 
-// dissolve a bubble into glass-star dust (telegram-style, D-7 ⑦)
+// Dissolve one bubble into glass-star dust (telegram-style, D-7 ⑦): samples the element's box into
+// a 7px particle grid on the hub-wide canvas and animates it left→right until every particle fades.
+// Runs one rAF loop per call and clears the canvas when done.
 function explodeBubble(canvas: HTMLCanvasElement, host: HTMLElement, el: HTMLElement) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -261,6 +267,9 @@ function explodeBubble(canvas: HTMLCanvasElement, host: HTMLElement, el: HTMLEle
     tick();
 }
 
+// The hub. Resolves convId into a text channel, a DM or the friends page, then renders the switcher
+// plus that conversation. Viewing a conversation reports the read cursor (onSeen); scrolling to the
+// top pulls the previous page and keeps the viewport pinned while it prepends.
 export function ChannelScreen({
     convId,
     onSelect,
@@ -346,6 +355,8 @@ export function ChannelScreen({
         anchorRef.current = null;
     }, [convId]);
 
+    // Keep the view at the bottom on new messages, or restore the reading position after an older
+    // page was prepended.
     useEffect(() => {
         const el = msgsRef.current;
         if (!el) return;
@@ -391,6 +402,8 @@ export function ChannelScreen({
 
     if (!convId || (!isFriends && !ch && !dm)) return null;
 
+    // Send the composer's text and close the emoji palette; the draft clears even if the write
+    // fails, because the failed bubble keeps the content.
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         onSend(convId, text);
@@ -410,11 +423,13 @@ export function ChannelScreen({
         });
     };
 
+    // Enter inline edit for one of my own messages (closes any open reaction picker first).
     const beginEdit = (m: Msg) => {
         setPickerFor(null);
         setEditingId(m.id);
         setEditText(m.text);
     };
+    // Commit the inline edit and leave edit mode; an empty value is dropped by the hook.
     const commitEdit = () => {
         if (editingId) onEdit(editingId, editText);
         setEditingId(null);
@@ -425,7 +440,7 @@ export function ChannelScreen({
             <ChannelStyles />
             <div className="chsc-scrim" onClick={onClose} />
             <div className="chsc glass">
-                {/* conversation switcher — same set as the dock tabs (convsFor),
+                {/* conversation switcher — the same set convsFor() gives the ChatCard,
                     plus the pinned friends entry (Discord-style, above DMs) */}
                 <div className="chsc-nav">
                     <div className={`chsc-nav-item friends ${isFriends ? 'on' : ''}`} onClick={() => onSelect(FRIENDS_VIEW)} title="好友">
