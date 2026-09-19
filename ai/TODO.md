@@ -22,7 +22,7 @@
 - [ ] **[BUG] UI 任务弹窗层级与焦点**：设置打开后导航/浮窗仍盖在遮罩上，隐藏弹窗仍可获焦；随 E1-U M2 处理。证据 `ai/features/ui-system/audit.md`
 - [ ] **[BUG] UI 控件状态与真实行为不符**：迷你音乐播放/进度、设置密码/邮箱/应用锁存在占位或假成功语义；随 M3/M4 修正，超出 UI 的功能接通另拆任务
 - [ ] **[BUG] 窄屏浮窗越界和重叠**：390px 下音乐条越界并被底导航遮挡，天气与纪念卡重叠；随 M3 停靠规则处理
-- [ ] **[BUG] 聊天窄卡类型检查阻塞**：`shell/chat-card.tsx:10` 从 `../model` 导入未导出的 `Msg`（实际在 `chat-data.ts`），阻断 `tsc -b`；A 迁移开工时修复
+- [x] **[BUG] 聊天窄卡类型检查阻塞**（2026-09-19 修）：`chat-card.tsx` 改从 `chat-data` 导入 `Msg` 并读 `emoteUrl`；副作用：窄卡此前渲染不出贴纸（字段名错，运行时恒 undefined），现在会显示贴纸图片
 
 ---
 
@@ -103,8 +103,8 @@
 ### 退役清理
 
 - [x] 已删（2026-08-10/11）：metaspace.tsx（3D）、sidebar.tsx、hud.tsx、space.tsx、chat-dock.tsx、public/models、public/draco、`three` 主依赖
-- [ ] `@react-three/rapier` 仍在 `package.json` dependencies（src 零引用，three 时代残留）→ 随 M5 移除
-- [ ] 仍待清（并入 M4/M5）：channel-screen 服务器式布局、lobby 入口风格、rooms.ts mock、死样式；`scene.tsx` **仍被登录/重置页使用**，`rooms.ts` 的 `owLoad` 仍被 WorldPage 使用，迁出消费者后才能删
+- [x] `@react-three/rapier` 依赖与 `vite.config.ts` optimizeDeps 残留已删（2026-09-19）
+- [ ] 仍待清（并入 M4/M5）：channel-screen 服务器式布局、lobby 入口风格；`scene.tsx` **仍被登录/重置页使用**。已清（2026-09-19）：`rooms.ts` mock（loader 迁入 `lib/local-store.ts`）、零消费者死样式约 190 行
 - [x] 死文件清理（2026-09-18/19 审核第一步）：`src/types/database.ts`、`timeline_3d_posts.html`、`public/mock/couple-feed.json`、旧 page-flip 翻页链（`journal-book.tsx`/补丁/依赖/`check-journal.mjs`）、退役 3D 源（`ai/blender/`、`arts/meshes/`）；清单见 `ai/project-audit/runs/2026-09-18-01/01-documents.md`
 - [ ] 好友/DM UI 收起（数据层冻结保留）
 

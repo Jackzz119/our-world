@@ -1,0 +1,1549 @@
+[
+ {
+  "from": "eslint.config.js",
+  "spec": "@eslint/js",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "@eslint/js"
+ },
+ {
+  "from": "eslint.config.js",
+  "spec": "globals",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "globals"
+ },
+ {
+  "from": "eslint.config.js",
+  "spec": "eslint-plugin-react-hooks",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "eslint-plugin-react-hooks"
+ },
+ {
+  "from": "eslint.config.js",
+  "spec": "eslint-plugin-react-refresh",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "eslint-plugin-react-refresh"
+ },
+ {
+  "from": "eslint.config.js",
+  "spec": "typescript-eslint",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "typescript-eslint"
+ },
+ {
+  "from": "eslint.config.js",
+  "spec": "eslint/config",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "eslint/config"
+ },
+ {
+  "from": "scripts/check-design-system.mjs",
+  "spec": "node:fs",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs"
+ },
+ {
+  "from": "scripts/check-design-system.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/check-design-system.mjs",
+  "spec": "node:url",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:url"
+ },
+ {
+  "from": "scripts/check-diary.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/check-diary.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/check-diary.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/check-diary.mjs",
+  "spec": "node:assert/strict",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:assert/strict"
+ },
+ {
+  "from": "scripts/check-journal-art.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/check-journal-art.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/check-journal-art.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/check-journal-art.mjs",
+  "spec": "node:assert/strict",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:assert/strict"
+ },
+ {
+  "from": "scripts/check-journal-art.mjs",
+  "spec": "/src/themes/cinnaglass/journal-layout.ts",
+  "typeOnly": false,
+  "dynamic": true,
+  "internal": "src/themes/cinnaglass/journal-layout.ts"
+ },
+ {
+  "from": "scripts/check-journal-turn.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/check-journal-turn.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/check-journal-turn.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/check-journal-turn.mjs",
+  "spec": "node:assert/strict",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:assert/strict"
+ },
+ {
+  "from": "scripts/check-journal-turn.mjs",
+  "spec": "/src/themes/cinnaglass/journal-turn.ts",
+  "typeOnly": false,
+  "dynamic": true,
+  "internal": "src/themes/cinnaglass/journal-turn.ts"
+ },
+ {
+  "from": "scripts/check-navigation.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/check-navigation.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/check-navigation.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/check-navigation.mjs",
+  "spec": "node:assert/strict",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:assert/strict"
+ },
+ {
+  "from": "scripts/compare-journal-art.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/compare-journal-art.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/compare-journal-art.mjs",
+  "spec": "node:assert/strict",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:assert/strict"
+ },
+ {
+  "from": "scripts/lib/deps.mjs",
+  "spec": "node:module",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:module"
+ },
+ {
+  "from": "scripts/lib/deps.mjs",
+  "spec": "node:path",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:path"
+ },
+ {
+  "from": "scripts/pack-journal-art.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/pack-journal-art.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "scripts/pack-navigation-texture.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/render-journal-turn.mjs",
+  "spec": "./lib/deps.mjs",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "scripts/lib/deps.mjs"
+ },
+ {
+  "from": "scripts/render-journal-turn.mjs",
+  "spec": "node:fs/promises",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "node:fs/promises"
+ },
+ {
+  "from": "src/App.tsx",
+  "spec": "react-router-dom",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react-router-dom"
+ },
+ {
+  "from": "src/App.tsx",
+  "spec": "@/pages/WorldPage.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/pages/WorldPage.tsx"
+ },
+ {
+  "from": "src/App.tsx",
+  "spec": "@/pages/LoginPage.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/pages/LoginPage.tsx"
+ },
+ {
+  "from": "src/App.tsx",
+  "spec": "@/pages/ResetPasswordPage.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/pages/ResetPasswordPage.tsx"
+ },
+ {
+  "from": "src/App.tsx",
+  "spec": "@/pages/ProtectedRoute.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/pages/ProtectedRoute.tsx"
+ },
+ {
+  "from": "src/hooks/useAuth.ts",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/hooks/useAuth.ts",
+  "spec": "@supabase/supabase-js",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "@supabase/supabase-js"
+ },
+ {
+  "from": "src/hooks/useAuth.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/hooks/useFeed.ts",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/hooks/useFeed.ts",
+  "spec": "@/lib/posts.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/posts.ts"
+ },
+ {
+  "from": "src/hooks/useFeed.ts",
+  "spec": "@/lib/profiles.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/profiles.ts"
+ },
+ {
+  "from": "src/hooks/useFeed.ts",
+  "spec": "@/lib/worlds.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/worlds.ts"
+ },
+ {
+  "from": "src/hooks/useFeed.ts",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/lib/chat.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/chat.ts",
+  "spec": "@supabase/supabase-js",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "@supabase/supabase-js"
+ },
+ {
+  "from": "src/lib/chat.ts",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/lib/emotes.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/emotes.ts",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/lib/friends.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/friends.ts",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/lib/posts.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/posts.ts",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/lib/profiles.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/profiles.ts",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/lib/storage.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/supabase.ts",
+  "spec": "@supabase/supabase-js",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "@supabase/supabase-js"
+ },
+ {
+  "from": "src/lib/supabase.ts",
+  "spec": "@/utils",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/utils/index.ts"
+ },
+ {
+  "from": "src/lib/worlds.ts",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/lib/worlds.ts",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "react-dom/client",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react-dom/client"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "./index.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/index.css"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "./themes/cinnaglass/cinnaglass.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/themes/cinnaglass/cinnaglass.css"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "./themes/cinnaglass/image-slot.js",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/image-slot.js"
+ },
+ {
+  "from": "src/main.tsx",
+  "spec": "./App.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/App.tsx"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "react-router-dom",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react-router-dom"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "@/themes/cinnaglass/scene.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/scene.tsx"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "@/themes/cinnaglass/icons.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/pages/LoginPage.tsx",
+  "spec": "./LoginPage.module.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/pages/LoginPage.module.css"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "react-router-dom",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react-router-dom"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "react",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "@/hooks/useAuth.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/hooks/useAuth.ts"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/pages/ProtectedRoute.tsx",
+  "spec": "@/utils",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/utils/index.ts"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "react-router-dom",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react-router-dom"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "@/hooks/useAuth.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/hooks/useAuth.ts"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "@/themes/cinnaglass/scene.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/scene.tsx"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "@/themes/cinnaglass/icons.tsx",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "./LoginPage.module.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/pages/LoginPage.module.css"
+ },
+ {
+  "from": "src/pages/ResetPasswordPage.tsx",
+  "spec": "./LoginPage",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/pages/LoginPage.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/room/room-scene",
+  "typeOnly": false,
+  "dynamic": true,
+  "internal": "src/themes/cinnaglass/room/room-scene.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/lobby",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/lobby.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/screens",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/screens.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/calendar",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/calendar.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/settings",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/settings.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/world-settings",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/world-settings.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/profile",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/profile.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/shell/rail",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/shell/rail.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/room/room-types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/shell/ambience",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/shell/ambience.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/shell/floaters",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/shell/floaters.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/shell/chat-card",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/shell/chat-card.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/channel-screen",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/channel-screen.tsx"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/chat-data",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/chat-data.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/lib/local-store.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/local-store.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/tweaks",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/tweaks.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/themes/cinnaglass/model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/lib/worlds.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/worlds.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/lib/storage.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/lib/profiles.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/profiles.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/pages/WorldPage.tsx",
+  "spec": "@/utils",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/utils/index.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/calendar.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/calendar.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/calendar.tsx",
+  "spec": "./model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "./friends-page",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/friends-page.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "./emote-picker",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/emote-picker.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "./chat-data",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/chat-data.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/channel-screen.tsx",
+  "spec": "./tweaks",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/tweaks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/chat.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/friends.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/friends.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/emotes.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/emotes.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/chat.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/profiles.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/profiles.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/storage.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/lib/logman.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/logman.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "./emote-picker",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/emote-picker.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/chat-data.ts",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/emote-picker.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/emote-picker.tsx",
+  "spec": "./emoji-data",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/emoji-data.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/emote-picker.tsx",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/friends-page.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/friends-page.tsx",
+  "spec": "./chat-data",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/chat-data.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/icons.tsx",
+  "spec": "react",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-layout.ts",
+  "spec": "@/types/feed",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-layout.ts",
+  "spec": "@/lib/storage",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "@/hooks/useFeed",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/hooks/useFeed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "@/types/feed",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "@/lib/storage",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "./journal-layout",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/journal-layout.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "./journal-turn-controller",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/journal-turn-controller.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "./journal-room.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/themes/cinnaglass/journal-room.css"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-room-book.tsx",
+  "spec": "./journal-turn.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/themes/cinnaglass/journal-turn.css"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-turn-controller.ts",
+  "spec": "./journal-turn",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/journal-turn.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/journal-turn.ts",
+  "spec": "./journal-layout",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/journal-layout.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/model.ts",
+  "spec": "./tweaks",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/tweaks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/music.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/music.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/music.tsx",
+  "spec": "./music-tracks",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/music-tracks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/profile.ts",
+  "spec": "./model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/profile.ts",
+  "spec": "@/lib/local-store.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/local-store.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/pixi-scene.ts",
+  "spec": "pixi.js",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "pixi.js"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/pixi-scene.ts",
+  "spec": "pixi-filters",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "pixi-filters"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/pixi-scene.ts",
+  "spec": "./room-types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/pixi-scene.ts",
+  "spec": "./room-types",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/room-scene.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/room-scene.tsx",
+  "spec": "pixi.js",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "pixi.js"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/room-scene.tsx",
+  "spec": "./room-types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/room-scene.tsx",
+  "spec": "./pixi-scene",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/pixi-scene.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/room-scene.tsx",
+  "spec": "./study-room",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/study-room.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/room/study-room.ts",
+  "spec": "./room-types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/rooms.ts",
+  "spec": "react",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/rooms.ts",
+  "spec": "./icons",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/rooms.ts",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/rooms.ts",
+  "spec": "./model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "@/hooks/useFeed.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/hooks/useFeed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "@/lib/posts.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/posts.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "@/lib/storage.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "@/lib/local-store.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/local-store.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "./diary.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/themes/cinnaglass/diary.css"
+ },
+ {
+  "from": "src/themes/cinnaglass/screens.tsx",
+  "spec": "./journal-room-book",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/journal-room-book.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "@/lib/supabase.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/supabase.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "./icons",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "./model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/settings.tsx",
+  "spec": "./tweaks",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/tweaks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/ambience.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/ambience.tsx",
+  "spec": "react",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/ambience.tsx",
+  "spec": "../icons",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/ambience.tsx",
+  "spec": "../icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/ambience.tsx",
+  "spec": "../tweaks",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/tweaks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/chat-card.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/chat-card.tsx",
+  "spec": "@/types/chat.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/chat.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/chat-card.tsx",
+  "spec": "../chat-data",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/chat-data.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/chat-card.tsx",
+  "spec": "../icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/floaters.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/floaters.tsx",
+  "spec": "../icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/floaters.tsx",
+  "spec": "../music",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/music.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/floaters.tsx",
+  "spec": "../music-tracks",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/music-tracks.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail-icons.tsx",
+  "spec": "../icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "react",
+  "typeOnly": true,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "../icons",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "../icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "./rail-icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/shell/rail-icons.tsx"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "./navigation-glass.css",
+  "typeOnly": false,
+  "dynamic": false,
+  "asset": "src/themes/cinnaglass/shell/navigation-glass.css"
+ },
+ {
+  "from": "src/themes/cinnaglass/shell/rail.tsx",
+  "spec": "../model",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/model.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/tweaks.ts",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/tweaks.ts",
+  "spec": "./room/room-types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/room/room-types.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/tweaks.ts",
+  "spec": "@/lib/local-store.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/local-store.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/world-settings.tsx",
+  "spec": "react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "react"
+ },
+ {
+  "from": "src/themes/cinnaglass/world-settings.tsx",
+  "spec": "@/lib/worlds.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/worlds.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/world-settings.tsx",
+  "spec": "@/lib/storage.ts",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/lib/storage.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/world-settings.tsx",
+  "spec": "@/types/feed.ts",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/feed.ts"
+ },
+ {
+  "from": "src/themes/cinnaglass/world-settings.tsx",
+  "spec": "./icons",
+  "typeOnly": false,
+  "dynamic": false,
+  "internal": "src/themes/cinnaglass/icons.tsx"
+ },
+ {
+  "from": "src/utils/index.ts",
+  "spec": "@/types",
+  "typeOnly": true,
+  "dynamic": false,
+  "internal": "src/types/index.ts"
+ },
+ {
+  "from": "vite.config.ts",
+  "spec": "vite",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "vite"
+ },
+ {
+  "from": "vite.config.ts",
+  "spec": "@vitejs/plugin-react",
+  "typeOnly": false,
+  "dynamic": false,
+  "external": "@vitejs/plugin-react"
+ }
+]

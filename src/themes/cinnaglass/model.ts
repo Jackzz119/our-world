@@ -1,6 +1,4 @@
 // model.ts — shared runtime-free types for the cinnaglass theme.
-import type { Mood } from './tweaks';
-
 // Current weather as the shell shows it; `kind` drives both the header icon
 // and, narrowed by the room scene, whether it rains inside the painting.
 export type Weather = { kind: string; label: string; temp: number; place: string };
@@ -16,10 +14,6 @@ export type Profile = {
     lock: boolean;
     status: string;
 };
-
-// A sidebar entry for an in-world voice room. Not the scene: the compositor's
-// art contract is RoomTemplate in room/room-types.ts.
-export type Room = { id: string; name: string; icon: string; mood: Mood; note: string };
 
 // One dated entry on the shared calendar.
 export type CalEvent = { id: string; date: string; title: string };

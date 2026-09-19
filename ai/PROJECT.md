@@ -66,18 +66,17 @@ src/
 ├── App.tsx / main.tsx   # 路由 /login、/reset-password、/（ProtectedRoute → WorldPage）
 ├── pages/               # LoginPage · ResetPasswordPage · ProtectedRoute（VITE_DEV 自动真登录）· WorldPage（场景满屏 + 悬浮壳 + 弹窗编排）
 ├── hooks/ · utils/      # useAuth、useFeed · getEnv/getEnvFlag
-├── lib/                 # supabase / worlds / posts / storage / profiles / chat / emotes / friends / logman
-├── types/               # feed.ts、chat.ts 在用；database.ts 死文件
+├── lib/                 # supabase（含 currentUserId）/ worlds / posts / storage / profiles / chat / emotes / friends / logman / local-store
+├── types/               # feed.ts、chat.ts（一个类型对一张表）
 └── themes/cinnaglass/
     ├── cinnaglass.css · materials.css · diary.css   # token、mood 氛围层、暖纸覆盖
     ├── room/            # pixi-scene（合成器）· room-scene（React 壳）· room-types · study-room
     ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card
     ├── journal-*        # 日记本实体与翻页（C 类物件 UI，冻结）
     ├── screens.tsx      # 时间线/照片墙/心愿单弹窗 + lightbox
-    ├── calendar · settings · world-settings · music · emote-picker + emoji-data · chat-data
+    ├── calendar · settings · world-settings · music + music-tracks · emote-picker + emoji-data · chat-data
     ├── channel-screen · friends-page · lobby        # 完整聊天大窗、旧社交入口、大厅（待 M4/M5 收敛）
     ├── scene.tsx        # 旧 SVG 背景，仍被登录/重置页使用
-    ├── rooms.ts         # 旧 mock，`owLoad` 仍被 WorldPage 使用
     └── image-slot.js    # 图片选择器 web component，仍在用
 ```
 
@@ -125,7 +124,7 @@ src/
 
 ### 代码侧不一致（清理项）
 
-- `package.json` 残留 `@react-three/rapier`（src 零引用）→ 删，在 TODO「退役清理」；`database.ts`、page-flip 链、3D 源文件已于 2026-09-19 清理
+- 2026-09-19 审核第二步已清理：`@react-three/rapier` 与 `optimizeDeps` 残留、`rooms.ts` mock、`database.ts`、page-flip 链、3D 源文件；`tsc -b` 首次零错误。结构规范见 `ai/project-audit/CONVENTIONS.md`
 
 ### 待执行的审计遗留（2026-07-04 顾问扫描）
 
