@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="dark" />
+        <title>Cinnaglass · 两种弹窗材质并排比较</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: #191a1d;
+                color: #f7f0e4;
+                font-family: system-ui, 'Microsoft YaHei', sans-serif;
+            }
+            main {
+                max-width: 1080px;
+                margin: auto;
+                padding: 28px 28px 36px;
+            }
+            .eyebrow {
+                color: #e5c38e;
+                font-size: 12px;
+                letter-spacing: 0.08em;
+            }
+            h1 {
+                font-size: 28px;
+                margin: 10px 0;
+            }
+            .intro {
+                color: #d0ccc6;
+                line-height: 1.7;
+                margin: 0;
+            }
+            nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin: 18px 0;
+                align-items: center;
+            }
+            button,
+            a {
+                min-height: 44px;
+                padding: 10px 15px;
+                border-radius: 10px;
+                font: inherit;
+            }
+            button {
+                background: #26282c;
+                color: #ece7de;
+                border: 1px solid #55565a;
+                cursor: pointer;
+            }
+            button[aria-pressed='true'] {
+                background: #e9c88e;
+                color: #27221c;
+                border-color: #e9c88e;
+            }
+            button:focus-visible,
+            a:focus-visible {
+                outline: 3px solid #ffe1a8;
+                outline-offset: 3px;
+            }
+            a {
+                color: #e9c88e;
+            }
+            .context {
+                margin: 0 0 20px;
+                font-size: 13px;
+                color: #c5c1bb;
+            }
+            .pair {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            figure {
+                min-width: 0;
+                margin: 0;
+            }
+            h2 {
+                margin: 0 0 8px;
+                font-size: 21px;
+            }
+            figcaption p {
+                margin: 0 0 14px;
+                color: #d4d0c9;
+                line-height: 1.5;
+                font-size: 14px;
+            }
+            .capture {
+                position: relative;
+            }
+            .capture img {
+                display: block;
+                width: 100%;
+                border-radius: 25px;
+            }
+            .takeaway {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                margin-top: 14px;
+                line-height: 1.7;
+                font-size: 14px;
+            }
+            .takeaway p {
+                margin: 0;
+            }
+            footer {
+                margin-top: 22px;
+                color: #bdb8b1;
+                font-size: 12px;
+                line-height: 1.7;
+            }
+            @media (max-width: 700px) {
+                main {
+                    padding: 20px 16px;
+                }
+                .pair,
+                .takeaway {
+                    grid-template-columns: 1fr;
+                    gap: 26px;
+                }
+                h1 {
+                    font-size: 24px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="eyebrow">CINNAGLASS / M1 材质提案 · 待确认</div>
+            <h1>保留阅读底，让玻璃外壳连成一体</h1>
+            <p class="intro">同一场景、同一内容。左边是原三段式，右边是连续玻璃边包住圆角阅读内衬。</p>
+            <nav aria-label="对照场景">
+                <button type="button" data-scene="twilight" aria-pressed="true">暮色 · 正常居中</button>
+                <button type="button" data-scene="golden" aria-pressed="false">黄昏 · 明窗压力测试</button>
+                <a href="standard-board.html">打开可操作标准板 ↗</a>
+            </nav>
+            <p class="context" id="context" aria-live="polite">正常居中位置的真实截图，没有人为增强材质。</p>
+            <div class="pair">
+                <figure>
+                    <figcaption>
+                        <h2>调整前 · 三段式</h2>
+                        <p>正文横向接满窗口，标题与页脚被切成两段。</p>
+                    </figcaption>
+                    <div class="capture">
+                        <img
+                            id="previous"
+                            src="material-comparison/twilight-previous.png"
+                            width="488"
+                            height="656"
+                            alt="调整前：深灰正文横向接满整窗"
+                        />
+                    </div>
+                </figure>
+                <figure>
+                    <figcaption>
+                        <h2>调整后 · 连续玻璃壳</h2>
+                        <p>左右留出玻璃边，圆角内衬仍提供稳定阅读底。</p>
+                    </figcaption>
+                    <div class="capture">
+                        <img
+                            id="inset"
+                            src="material-comparison/twilight-inset.png"
+                            width="488"
+                            height="656"
+                            alt="调整后：连续玻璃边包住圆角阅读内衬"
+                        />
+                    </div>
+                </figure>
+            </div>
+            <div class="takeaway">
+                <p><strong>原版：</strong>稳定正文与外壳之间存在贯穿全宽的硬分界。</p>
+                <p><strong>新版：</strong>保留阅读稳定性，用连续边框与圆角减轻分段感。</p>
+            </div>
+            <footer>
+                稳定阅读底的方向已获认可；本页展示圆角内衬与连续玻璃边的细节候选，正式产品尚未迁移。<br />素材与实现登记：<a
+                    href="../../uiux/cinnaglass/ui-system.md"
+                    >当前主题规范</a
+                >。
+            </footer>
+        </main>
+        <script>
+            // Compare captures from the same frozen scene; annotations never alter the material.
+            const buttons = document.querySelectorAll('[data-scene]');
+            for (const button of buttons) {
+                button.addEventListener('click', () => {
+                    const scene = button.dataset.scene;
+                    for (const other of buttons) other.setAttribute('aria-pressed', String(other === button));
+                    for (const surface of ['previous', 'inset']) {
+                        document.getElementById(surface).src = `material-comparison/${scene}-${surface}.png`;
+                    }
+                    document.getElementById('context').textContent =
+                        scene === 'golden'
+                            ? '同一弹窗临时移到明亮窗边，检查亮背景下的差别；这是压力测试，不是建议摆位。两版测试位置相同。'
+                            : '正常居中位置的真实截图，没有人为增强材质。';
+                });
+            }
+        </script>
+    </body>
+</html>
