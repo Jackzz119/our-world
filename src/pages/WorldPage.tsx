@@ -176,7 +176,8 @@ const WorldPage = () => {
     // and her in-world speech bubble.
     const worldConvId = convsFor(entered && world !== null, channels, dmConvs)[0]?.id ?? '';
     const lastMsg = (threads[worldConvId] || []).at(-1);
-    const { unread, bubble } = useWorldChatBubble(lastMsg, { chatOpen, convOpen });
+    const myReadAt = uid ? reads[worldConvId]?.[uid] : undefined;
+    const { unread, bubble } = useWorldChatBubble(lastMsg, { chatOpen, convOpen, myReadAt });
 
     // Toggle an addon widget; the write-back rides on usePersistedState.
     // Required widgets are silently ignored.

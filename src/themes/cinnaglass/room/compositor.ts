@@ -36,6 +36,7 @@ import { createFadeQueue } from '@/themes/cinnaglass/room/fade-queue';
 import { createLightPass, type LightRecipe, RECIPES, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
 import { createTurntable, type TurntableProp } from '@/themes/cinnaglass/room/turntable-prop';
+import { Logman } from '@/lib/logman';
 
 // the character art contract lives with the layer that consumes it; the
 // compositor keeps re-exporting it so the React shell has one import
@@ -52,6 +53,8 @@ export type SceneHandle = {
 };
 
 /* ------------------------------------------------------------------ */
+const TAG = '[room][web][compositor]';
+
 /* scene construction                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -102,10 +105,17 @@ export async function buildScene(
     /* ---------- living props ---------- */
     // the prop builds its own layers and hands them back in draw order; the
     // compositor only decides where they sit in the world and when they tick
+    // A missing part texture degrades to a still turntable (the painting's
+    // well stays empty) instead of taking the whole room down with it.
     const turntableSpec = room.props?.turntable;
-    const turntable: TurntableProp | null = turntableSpec
-        ? await createTurntable(app, turntableSpec, room.art, artUrls, textures)
-        : null;
+    let turntable: TurntableProp | null = null;
+    if (turntableSpec) {
+        try {
+            turntable = await createTurntable(app, turntableSpec, room.art, artUrls, textures);
+        } catch (e) {
+            Logman.warn(TAG, `唱片机零件没能加载，房间照常、唱片机静止：${e instanceof Error ? e.message : String(e)}`);
+        }
+    }
     if (turntable) world.addChild(...turntable.layers);
 
     /* ---------- rain (masked to glass panes) ---------- */
@@ -223,8 +233,10 @@ export async function buildScene(
     // Cover-fit the base art to the canvas, then refit the disc masters to the
     // size they are now drawn at.
     const resize = () => {
-        const w = app.renderer.width / app.renderer.resolution;
-        const h = app.renderer.height / app.renderer.resolution;
+        // renderer.screen is the canvas in logical (CSS) px; in v8
+        // renderer.width already is too, so dividing by resolution again
+        // shrank the room to a corner on HiDPI screens
+        const { width: w, height: h } = app.renderer.screen;
         const s = Math.max(w / baseW, h / baseH) * EDGE_CROP; // cover + crop
         root.scale.set(s);
         root.position.set((w - baseW * s) / 2, (h - baseH * s) / 2);

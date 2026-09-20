@@ -9,6 +9,9 @@ import type { HotspotOpenEvent, RoomMood, RoomWeather } from '@/themes/cinnaglas
 import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/compositor';
 import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
+import { Logman } from '@/lib/logman';
+
+const TAG = '[room][web][room-scene]';
 
 // Seat id to character art. The room template names the seats; who sits in
 // them lives here.
@@ -65,6 +68,8 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
     const sceneRef = useRef<SceneHandle | null>(null);
     const appRef = useRef<Application | null>(null);
     const [tagPos, setTagPos] = useState<Record<string, { x: number; y: number }>>({});
+    // a texture that failed to load used to leave a silent transparent canvas
+    const [failed, setFailed] = useState(false);
     const onHotspotRef = useRef(onHotspot);
     onHotspotRef.current = onHotspot;
 
@@ -75,57 +80,87 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
         // v8: Application.start/stop/destroy only exist after init() resolves,
         // so the instance is published to appRef strictly post-init
         let app: Application | null = null;
+        // while buildScene is still awaiting textures the async block below
+        // owns the Application; the cleanup only tears it down once `built`
+        let built = false;
         let ro: ResizeObserver | null = null;
         let tagTimer = 0;
+        const teardown = (a: Application) => {
+            a.destroy(true, { children: true, texture: false });
+            if (appRef.current === a) appRef.current = null;
+            app = null;
+        };
 
         (async () => {
-            const a = new Application();
-            await a.init({
-                resizeTo: holder,
-                backgroundAlpha: 0,
-                antialias: true,
-                resolution: Math.min(window.devicePixelRatio || 1, 2),
-                autoDensity: true
-            });
-            if (disposed) {
-                a.destroy(true);
-                return;
-            }
-            app = a;
-            appRef.current = a;
-            // dev-only handle for headless visual checks (pixi extract)
-            if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__owApp = a;
-            holder.appendChild(a.canvas);
-            const scene = await buildScene(
-                a,
-                STUDY_ROOM,
-                CHARACTERS,
-                moodRef.current,
-                toRoomWeather(weatherRef.current),
-                (event) => onHotspotRef.current?.(event)
-            );
-            if (disposed) return; // unmount cleanup below owns app teardown
-            sceneRef.current = scene;
-            // pixi's resizeTo only reacts to window resizes; layout-driven
-            // size changes (sidebar collapse squeezing the stage) must be
-            // pushed through manually: renderer first, then cover-fit.
-            ro = new ResizeObserver(() => {
-                a.resize();
-                scene.resize();
-            });
-            ro.observe(holder);
-            // overhead tags track seat anchors (sway amplitude is tiny, a
-            // slow poll is cheaper and calmer than per-frame tracking)
-            const syncTags = () => {
-                const next: Record<string, { x: number; y: number }> = {};
-                for (const seat of STUDY_ROOM.seats) {
-                    const p = scene.getSeatScreenPos(seat.id);
-                    if (p) next[seat.id] = p;
+            let a: Application | null = null;
+            let inited = false;
+            try {
+                a = new Application();
+                await a.init({
+                    resizeTo: holder,
+                    backgroundAlpha: 0,
+                    antialias: true,
+                    resolution: Math.min(window.devicePixelRatio || 1, 2),
+                    autoDensity: true
+                });
+                inited = true;
+                if (disposed) {
+                    a.destroy(true);
+                    return;
                 }
-                setTagPos(next);
-            };
-            syncTags();
-            tagTimer = window.setInterval(syncTags, 600);
+                app = a;
+                appRef.current = a;
+                const live = a; // non-null binding for the closures below
+                // dev-only handle for headless visual checks (pixi extract)
+                if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__owApp = a;
+                holder.appendChild(a.canvas);
+                const scene = await buildScene(
+                    a,
+                    STUDY_ROOM,
+                    CHARACTERS,
+                    moodRef.current,
+                    toRoomWeather(weatherRef.current),
+                    (event) => onHotspotRef.current?.(event)
+                );
+                if (disposed) {
+                    // unmounted mid-load: the cleanup skipped the app, so free it here
+                    scene.destroy();
+                    teardown(a);
+                    return;
+                }
+                built = true;
+                // props that changed while the textures were loading would be
+                // lost: the prop effects below skip while sceneRef is null
+                scene.setMood(moodRef.current, false);
+                scene.setWeather(toRoomWeather(weatherRef.current), false);
+                sceneRef.current = scene;
+                // pixi's resizeTo only reacts to window resizes; layout-driven
+                // size changes (sidebar collapse squeezing the stage) must be
+                // pushed through manually: renderer first, then cover-fit.
+                ro = new ResizeObserver(() => {
+                    live.resize();
+                    scene.resize();
+                });
+                ro.observe(holder);
+                // overhead tags track seat anchors (sway amplitude is tiny, a
+                // slow poll is cheaper and calmer than per-frame tracking)
+                const syncTags = () => {
+                    const next: Record<string, { x: number; y: number }> = {};
+                    for (const seat of STUDY_ROOM.seats) {
+                        const p = scene.getSeatScreenPos(seat.id);
+                        if (p) next[seat.id] = p;
+                    }
+                    setTagPos(next);
+                };
+                syncTags();
+                tagTimer = window.setInterval(syncTags, 600);
+            } catch (e) {
+                // a 404 on any base/character texture rejects buildScene; say so
+                // instead of leaving an empty canvas behind the floaters
+                Logman.error(TAG, `房间没能加载：${e instanceof Error ? e.message : String(e)}`);
+                if (a && inited) teardown(a);
+                if (!disposed) setFailed(true);
+            }
         })();
 
         return () => {
@@ -134,8 +169,8 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
             ro?.disconnect();
             sceneRef.current?.destroy();
             sceneRef.current = null;
-            if (app) app.destroy(true, { children: true, texture: false });
-            appRef.current = null;
+            // still loading → the async block tears the app down when it settles
+            if (app && built) teardown(app);
         };
         // mount once — prop changes go through the handle below
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,6 +203,23 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
 
     return (
         <div ref={holderRef} className="room-scene" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+            {failed && (
+                <div
+                    className="room-scene-error"
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'grid',
+                        placeItems: 'center',
+                        color: '#EEEAF0',
+                        font: '600 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif',
+                        textShadow: '0 1px 6px rgba(15,8,15,0.5)',
+                        pointerEvents: 'none'
+                    }}
+                >
+                    房间没能加载出来，刷新页面再试一次。
+                </div>
+            )}
             {bubble && tagPos[bubble.seatId] && (
                 <div
                     key={bubble.key}
