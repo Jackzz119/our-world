@@ -11,6 +11,8 @@ import type { ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getEnvFlag, getEnvOptional } from '@/utils';
+import '@/themes/cinnaglass/ui/ui-system.css';
+import '@/themes/cinnaglass/entry.css';
 
 const DEV_EMAIL = getEnvOptional('VITE_DEV_EMAIL');
 const DEV_PASSWORD = getEnvOptional('VITE_DEV_PASSWORD');
@@ -21,19 +23,14 @@ const DEV_AUTO_LOGIN = getEnvFlag('VITE_DEV') && !!DEV_EMAIL && !!DEV_PASSWORD;
 // Full-screen placeholder shown while the session check (and the optional dev
 // auto-login) is still pending.
 const Splash = () => (
-    <div
-        style={{
-            minHeight: '100vh',
-            display: 'grid',
-            placeItems: 'center',
-            background: 'linear-gradient(180deg,#BFE6FA 0%,#DFF1FB 55%,#F3FAFE 100%)',
-            color: '#5A6B7D',
-            font: '600 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif',
-            letterSpacing: '.04em'
-        }}
-    >
-        正在回到我们的小世界…
-    </div>
+    <main className="ui-entry ui-environment" data-mood="twilight" aria-busy="true">
+        <section className="ui-entry-card ui-surface">
+            <h1>Our World</h1>
+            <div className="ui-entry-content ui-liner" role="status">
+                正在回到我们的小世界…
+            </div>
+        </section>
+    </main>
 );
 
 // An explicit sign-out (settings → 退出账号) must stick: without this flag a

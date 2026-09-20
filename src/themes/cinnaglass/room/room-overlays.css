@@ -1,0 +1,71 @@
+/* Scene-attached A overlays consume the shared palette without changing Pixi or diary behavior. */
+.room-bubble.ui-surface,
+.presence-tag.ui-surface {
+    --ui-alpha: 0.82;
+    position: absolute;
+    transform: translate(-50%, -100%);
+    max-width: min(240px, calc(100vw - 24px));
+    pointer-events: none;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.room-bubble.ui-surface {
+    padding: 10px 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-radius: 18px;
+}
+.presence-tag.ui-surface {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+.presence-tag b {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.presence-tag > span:not(.presence-indicator) {
+    color: var(--ui-muted);
+}
+.presence-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #aaaaaa;
+    flex-shrink: 0;
+}
+.presence-indicator[data-online='true'] {
+    background: var(--ui-success);
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .app.ui-environment:is([data-chat-open='true'], [data-music-open='true']) .presence-tag {
+        visibility: hidden;
+    }
+}
+
+.room-scene-feedback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+.room-scene-feedback > .ui-surface {
+    max-width: 360px;
+    padding: 24px;
+    border-radius: 22px;
+}
+.room-scene-feedback h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+.room-scene-feedback p {
+    color: var(--ui-muted);
+    line-height: 1.6;
+}

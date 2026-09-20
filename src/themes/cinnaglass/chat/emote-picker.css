@@ -1,0 +1,209 @@
+/* Solid inset picker shares the current environment, with no nested glass. */
+.epk {
+    display: flex;
+    flex-direction: column;
+    width: min(350px, calc(100vw - 80px));
+    max-width: 100%;
+    max-height: min(460px, calc(100dvh - 180px));
+    overflow: hidden;
+    border: 1px solid var(--ui-line);
+    border-radius: 18px;
+    color: var(--ui-text);
+    box-shadow: 0 18px 44px -14px #0009;
+}
+.epk button,
+.epk input {
+    box-sizing: border-box;
+    min-height: 44px;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 14px;
+}
+.epk button {
+    padding: 8px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+}
+.epk button:hover:not(:disabled) {
+    background: var(--ui-hover);
+}
+.epk button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.epk :is(button, input):focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: -2px;
+}
+.epk input {
+    font-size: 16px;
+    min-width: 0;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 10px;
+    background: #00000016;
+    outline: none;
+}
+.epk input::placeholder {
+    color: var(--ui-muted);
+    opacity: 1;
+}
+.epk-search {
+    flex-shrink: 0;
+    padding: 10px 10px 8px;
+}
+.epk-tabs {
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    padding: 0 10px 8px;
+    border-bottom: 1px solid var(--ui-line);
+}
+.epk .epk-tab {
+    flex: 1;
+    min-width: 44px;
+    font-size: 19px;
+}
+.epk .epk-tab.on {
+    background: #f1d19a16;
+    border-color: var(--ui-accent);
+}
+.epk-bd,
+.epk-imp {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #aaa39866 transparent;
+}
+.epk-bd {
+    padding: 8px 0;
+}
+.epk-sec {
+    padding: 8px 12px 6px;
+    font-size: 12px;
+    color: var(--ui-muted);
+}
+.epk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+    gap: 2px;
+    padding: 2px 10px 8px;
+}
+.epk-grid button {
+    min-width: 44px;
+    font-size: 22px;
+    padding: 6px;
+}
+.epk-empty {
+    padding: 16px 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ui-muted);
+    overflow-wrap: anywhere;
+}
+.epk-stk,
+.epk-imp .res {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+    gap: 8px;
+    padding: 4px 10px 8px;
+}
+.epk-sticker {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #ffffff05;
+}
+.epk .tile,
+.epk-imp .res button {
+    width: 100%;
+    min-height: 64px;
+    aspect-ratio: 1;
+    padding: 5px;
+    overflow: hidden;
+}
+.epk-stk img,
+.epk-imp .res img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.epk .epk-remove {
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    color: var(--ui-muted);
+}
+.epk .tile.add {
+    color: var(--ui-accent);
+    border: 1px dashed var(--ui-line);
+}
+.epk-imp {
+    padding: 10px 12px 14px;
+}
+.epk-imp .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.epk-imp .row input {
+    flex: 1 1 145px;
+}
+.epk-imp .row button {
+    background: var(--ui-accent);
+    color: #352b1e;
+}
+.epk-imp .alt {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    color: var(--ui-muted);
+    font-size: 13px;
+}
+.epk-imp .lnk {
+    color: var(--ui-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.epk-imp .msg {
+    margin-top: 8px;
+    color: var(--ui-success);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.epk-imp .msg.err {
+    color: var(--ui-error);
+}
+.epk .epk-back {
+    flex-shrink: 0;
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--ui-accent);
+}
+.epk-confirm {
+    padding: 12px;
+    border-bottom: 1px solid var(--ui-line);
+    font-size: 14px;
+    line-height: 1.6;
+}
+.epk-confirm p {
+    margin: 0 0 8px;
+}
+.epk-confirm > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.epk-confirm .ui-button {
+    border-color: var(--ui-line);
+}

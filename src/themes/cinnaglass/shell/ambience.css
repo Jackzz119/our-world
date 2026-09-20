@@ -1,0 +1,86 @@
+/* One persistent trigger and an attached panel; opening it never dims the scene. */
+.amb-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 99px;
+    cursor: pointer;
+    color: var(--ui-accent);
+}
+.amb-pill > svg:last-child {
+    transform: rotate(90deg);
+}
+.amb-pill[aria-expanded='true'] > svg:last-child {
+    transform: rotate(-90deg);
+}
+.amb-div {
+    height: 16px;
+    width: 1px;
+    background: var(--ui-line);
+}
+.amb-panel {
+    position: absolute;
+    top: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 256px;
+    max-width: calc(100vw - 24px);
+    padding: 8px;
+}
+.amb-options {
+    padding: 12px;
+}
+.amb-options p {
+    font-size: 12px;
+    margin: 0 0 8px;
+    color: var(--ui-muted);
+}
+.amb-options p:not(:first-child) {
+    margin-top: 16px;
+}
+.amb-row {
+    display: flex;
+    gap: 4px;
+}
+.amb-row button {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    min-height: 58px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+.amb-row button[aria-pressed='true'] {
+    color: var(--ui-accent);
+    border-color: #f1d19a80;
+    background: #ffffff0a;
+}
+.amb-row button:hover {
+    background: var(--ui-hover);
+}
+.amb-options .amb-status {
+    font-size: 11px;
+    line-height: 1.5;
+    min-height: 33px;
+    margin-bottom: 0;
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .amb-panel {
+        left: 0;
+        transform: none;
+        max-height: calc(100dvh - 152px);
+        overflow: auto;
+    }
+}

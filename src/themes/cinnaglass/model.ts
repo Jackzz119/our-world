@@ -8,7 +8,13 @@ export type WeatherKind = 'sun' | 'cloud' | 'rain' | 'snow';
 
 // Current weather as the shell shows it; `kind` drives both the header icon
 // and, narrowed by the room scene, whether it rains inside the painting.
-export type Weather = { kind: WeatherKind; label: string; temp: number; place: string };
+export type Weather = {
+    kind: WeatherKind;
+    label: string;
+    temp: number | null;
+    place: string;
+    status?: 'loading' | 'live' | 'unavailable' | 'manual';
+};
 
 // The couple's locally stored profile: the offline fallback for what the
 // Supabase world row and the two profiles rows say. (The account email lives

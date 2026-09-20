@@ -1,20 +1,9 @@
 // calendar.tsx — real Calendar (约会 / 纪念日) + Clock·Alarm screens.
-// Reuse the .modal shell from screens.tsx (ScreenStyles is always mounted).
-// Both screens live in one file because they share CalClockStyles and the
-// .modal.mini shell.
+// Both screens use the shared task dialog and keep their existing local data.
+import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
+import '@/themes/cinnaglass/task-surfaces.css';
 import { useState, type Dispatch, type SetStateAction } from 'react';
-import {
-    ICalendar,
-    IChevron,
-    IClock,
-    IClose,
-    ICloud,
-    IHeart,
-    IPlus,
-    IRain,
-    ISnow,
-    ISun
-} from '@/themes/cinnaglass/icons';
+import { IChevron, IClose, ICloud, IHeart, IPlus, IRain, ISnow, ISun } from '@/themes/cinnaglass/icons';
 import type { Alarm, CalEvent, Weather } from '@/themes/cinnaglass/model';
 import { daysUntilAnniversary, parseAnniv } from '@/themes/cinnaglass/profile';
 
@@ -23,96 +12,6 @@ const WK = ['日', '一', '二', '三', '四', '五', '六'];
 // worlds.anniversary both use.
 const pad = (n: number) => String(n).padStart(2, '0');
 const ymd = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
-
-// Styles shared by both screens in this file; each mounts its own copy.
-const CalClockStyles = () => (
-    <style>{`
-  /* shared modal sizing for calendar/clock (a touch narrower than the book) */
-  .modal.mini{width:min(520px,calc(100vw - 32px));height:min(660px,calc(100vh - 56px));}
-
-  /* ── calendar ── */
-  .cal-anniv{display:flex;align-items:center;gap:14px;border-radius:18px;padding:15px 17px;margin-bottom:16px;}
-  .cal-anniv .ring{width:54px;height:54px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
-    color:#fff;background:radial-gradient(120% 120% at 30% 25%,#F8C8D6,#EF9DB4);box-shadow:0 6px 14px -5px rgba(239,157,180,.7);}
-  .cal-anniv .ct{flex:1;}
-  .cal-anniv .ct .l{font-size:11px;letter-spacing:.14em;color:var(--glass-sub);font-weight:600;}
-  .cal-anniv .ct .n{font-size:15px;font-weight:700;margin-top:3px;}
-  .cal-anniv .big{font-family:"Baloo 2",sans-serif;font-size:34px;font-weight:700;line-height:1;color:var(--accent-deep);}
-  .cal-anniv .big small{font-size:13px;color:var(--glass-sub);font-weight:600;margin-left:3px;}
-
-  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .cal-nav .mlabel{font-size:16px;font-weight:700;}
-  .cal-nav button{appearance:none;border:1px solid var(--glass-line);background:var(--glass-bg-2);color:var(--glass-text);
-    width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .15s;}
-  .cal-nav button:hover{background:var(--glass-hover);}
-  .cal-nav button:active{transform:scale(.9);}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-  .cal-wk{text-align:center;font-size:11px;color:var(--glass-sub);font-weight:600;padding:4px 0 6px;}
-  .cal-cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-size:13.5px;font-weight:500;color:var(--glass-text);position:relative;cursor:pointer;border:1.5px solid transparent;
-    transition:background .16s,border-color .16s,transform .14s;}
-  .cal-cell.blank{cursor:default;}
-  .cal-cell:not(.blank):hover{background:var(--glass-hover);}
-  .cal-cell.today{background:var(--accent-grad);color:#0d2336;font-weight:700;}
-  .cal-cell.sel{border-color:var(--accent-deep);}
-  .cal-cell.anniv{color:#E76A8A;font-weight:700;}
-  .cal-cell .dots{display:flex;gap:3px;margin-top:3px;height:5px;}
-  .cal-cell .dots i{width:5px;height:5px;border-radius:50%;}
-  .cal-cell .dots .ev{background:var(--accent);}
-  .cal-cell .dots .an{background:#EF9DB4;}
-  .cal-cell.today .dots i{background:#0d2336;}
-
-  .cal-add{display:flex;gap:9px;margin:16px 0 6px;}
-  .cal-add input{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
-    background:var(--glass-paper);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
-  .cal-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
-  .cal-add input::placeholder{color:var(--glass-sub);}
-  .cal-add .day{display:flex;align-items:center;padding:0 14px;height:44px;border-radius:var(--r-pill);
-    background:var(--glass-hi);font-size:13px;font-weight:600;color:var(--accent-deep);white-space:nowrap;flex:0 0 auto;}
-  .cal-add button{width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;
-    background:var(--accent-orb);flex:0 0 auto;
-    box-shadow:0 5px 14px -5px rgba(47,154,211,.6);transition:transform .18s;}
-  .cal-add button:hover{transform:scale(1.06);}
-  .cal-add button:disabled{opacity:.45;}
-
-  .cal-sec{font-size:11px;letter-spacing:.12em;color:var(--glass-sub);font-weight:600;margin:18px 0 9px;}
-  .ev-row{display:flex;align-items:center;gap:12px;border-radius:14px;padding:11px 14px;margin-bottom:9px;}
-  .ev-row .dt{width:46px;flex:0 0 auto;text-align:center;}
-  .ev-row .dt .d{font-family:"Baloo 2",sans-serif;font-size:20px;font-weight:700;line-height:1;color:var(--accent-deep);}
-  .ev-row .dt .mo{font-size:10px;color:var(--glass-sub);font-weight:600;margin-top:2px;}
-  .ev-row .et{flex:1;font-size:14px;font-weight:600;}
-  .ev-row .cd{font-size:11px;color:var(--glass-sub);font-weight:600;white-space:nowrap;}
-  .ev-row .del{appearance:none;border:0;background:transparent;color:var(--glass-sub);cursor:pointer;padding:4px;border-radius:8px;opacity:.6;}
-  .ev-row .del:hover{opacity:1;color:#E76A8A;}
-
-  /* ── clock ── */
-  .clock-face{text-align:center;padding:14px 0 22px;}
-  .clock-face .big{font-family:"Baloo 2",sans-serif;font-size:74px;font-weight:700;line-height:1;letter-spacing:.01em;
-    color:var(--glass-text);}
-  .clock-face .big .s{font-size:32px;color:var(--glass-sub);margin-left:4px;}
-  .clock-face .sub{font-size:13.5px;color:var(--glass-sub);font-weight:600;margin-top:10px;display:flex;
-    align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
-  .clock-face .wx{display:inline-flex;align-items:center;gap:6px;color:var(--accent-deep);}
-  .alarm-sec{font-size:11px;letter-spacing:.12em;color:var(--glass-sub);font-weight:600;margin:6px 0 10px;}
-  .alarm{display:flex;align-items:center;gap:13px;border-radius:15px;padding:13px 15px;margin-bottom:10px;}
-  .alarm .at{font-family:"Baloo 2",sans-serif;font-size:26px;font-weight:700;line-height:1;color:var(--glass-text);}
-  .alarm.off .at{opacity:.4;}
-  .alarm .body{flex:1;}
-  .alarm .lab{font-size:13px;font-weight:600;margin-top:3px;color:var(--glass-sub);}
-  .alarm .del{appearance:none;border:0;background:transparent;color:var(--glass-sub);cursor:pointer;padding:4px;border-radius:8px;opacity:.55;}
-  .alarm .del:hover{opacity:1;color:#E76A8A;}
-  .alarm-add{display:flex;gap:9px;margin-top:6px;align-items:center;}
-  .alarm-add input[type=time]{height:44px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass-paper);
-    color:var(--glass-text);padding:0 12px;font:inherit;font-size:15px;font-family:"Baloo 2",sans-serif;outline:none;}
-  .alarm-add input[type=text]{flex:1;height:44px;border-radius:var(--r-pill);border:1px solid var(--glass-line);
-    background:var(--glass-paper);color:var(--glass-text);padding:0 16px;font:inherit;font-size:14px;outline:none;}
-  .alarm-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
-  .alarm-add button{width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;
-    background:var(--accent-orb);flex:0 0 auto;
-    box-shadow:0 5px 14px -5px rgba(47,154,211,.6);transition:transform .18s;}
-  .alarm-add button:hover{transform:scale(1.06);}
-  `}</style>
-);
 
 /* ════════ CALENDAR ════════ */
 // Calendar modal: month grid, add-a-date row, and the next six upcoming events.
@@ -200,7 +99,11 @@ export function CalendarScreen({
         const isAnniv = !!annivDate && cur.m === annivDate.getMonth() && d === annivDate.getDate();
         const evs = evByDate[ds];
         cells.push(
-            <div
+            <button
+                type="button"
+                aria-label={`${ds}${isAnniv ? '，纪念日' : ''}${evs ? `，${evs.length} 个约会` : ''}`}
+                aria-pressed={sel === ds}
+                aria-current={isToday ? 'date' : undefined}
                 key={ds}
                 className={`cal-cell ${isToday ? 'today' : ''} ${isAnniv ? 'anniv' : ''} ${sel === ds ? 'sel' : ''}`}
                 onClick={() => setSel(ds)}
@@ -210,114 +113,108 @@ export function CalendarScreen({
                     {isAnniv && <i className="an" />}
                     {evs && <i className="ev" />}
                 </div>
-            </div>
+            </button>
         );
     }
 
     return (
-        <>
-            <CalClockStyles />
-            <div className={`modal-scrim ${open ? 'show' : ''}`} onClick={onClose} />
-            <div className={`modal mini glass ${open ? 'show' : ''}`} aria-hidden={!open}>
-                <div className="modal-hd">
-                    <span className="si" style={{ background: 'linear-gradient(135deg,#D8C2F0,#A98FD6)' }}>
-                        <ICalendar size={19} />
+        <TaskDialog
+            open={open}
+            onClose={onClose}
+            title="日历 · 约会"
+            className="calendar-task"
+            description="选择日期，留下一起期待的事。约会仅保存在当前浏览器。"
+        >
+            <div className="task-content">
+                <div className="cal-anniv">
+                    <span className="ring">
+                        <IHeart size={24} fill="#fff" sw={0} />
                     </span>
-                    <h2>日历 · 约会</h2>
-                    <button className="modal-x" onClick={onClose} aria-label="关闭">
-                        <IClose size={17} />
-                    </button>
-                </div>
-                <div className="modal-body">
-                    <div className="cal-anniv paper">
-                        <span className="ring">
-                            <IHeart size={24} fill="#fff" sw={0} />
-                        </span>
-                        {annivDate ? (
-                            <>
-                                <div className="ct">
-                                    <div className="l">距下一个纪念日</div>
-                                    <div className="n">
-                                        在一起满 {yearsTogether} 周年 · {annivYear}.{annivDate.getMonth() + 1}.
-                                        {annivDate.getDate()}
-                                    </div>
-                                </div>
-                                <div className="big">
-                                    {annivDiff}
-                                    <small>天</small>
-                                </div>
-                            </>
-                        ) : (
+                    {annivDate ? (
+                        <>
                             <div className="ct">
-                                <div className="l">纪念日</div>
-                                <div className="n">还没有设置 · 去世界设置里填一个吧</div>
+                                <div className="l">距下一个纪念日</div>
+                                <div className="n">
+                                    在一起满 {yearsTogether} 周年 · {annivYear}.{annivDate.getMonth() + 1}.
+                                    {annivDate.getDate()}
+                                </div>
                             </div>
-                        )}
-                    </div>
-
-                    <div className="cal-nav">
-                        <button onClick={() => move(-1)} aria-label="上个月">
-                            <IChevron size={18} style={{ transform: 'rotate(180deg)' }} />
-                        </button>
-                        <span className="mlabel">{monthLabel}</span>
-                        <button onClick={() => move(1)} aria-label="下个月">
-                            <IChevron size={18} />
-                        </button>
-                    </div>
-                    <div className="cal-grid">
-                        {WK.map((w) => (
-                            <div key={w} className="cal-wk">
-                                {w}
+                            <div className="big">
+                                {annivDiff}
+                                <small>天</small>
                             </div>
-                        ))}
-                        {cells}
-                    </div>
-
-                    <div className="cal-add">
-                        <span className="day">{sel ? sel.slice(5).replace('-', '/') : '选日期'}</span>
-                        <input
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && addEvent()}
-                            placeholder="添加一个约会…"
-                        />
-                        <button onClick={addEvent} disabled={!sel || !title.trim()} aria-label="添加">
-                            <IPlus size={20} />
-                        </button>
-                    </div>
-
-                    <div className="cal-sec">即将到来的约会</div>
-                    {upcoming.length === 0 && (
-                        <div
-                            style={{
-                                color: 'var(--glass-sub)',
-                                fontSize: 12.5,
-                                textAlign: 'center',
-                                padding: '10px 0'
-                            }}
-                        >
-                            还没有计划，点日期添加一个吧 ·
+                        </>
+                    ) : (
+                        <div className="ct">
+                            <div className="l">纪念日</div>
+                            <div className="n">还没有设置纪念日</div>
                         </div>
                     )}
-                    {upcoming.map((e) => {
-                        const [, m, d] = e.date.split('-');
-                        return (
-                            <div className="ev-row paper" key={e.id}>
-                                <div className="dt">
-                                    <div className="d">{Number(d)}</div>
-                                    <div className="mo">{Number(m)} 月</div>
-                                </div>
-                                <div className="et">{e.title}</div>
-                                <div className="cd">{cntdown(e.date)}</div>
-                                <button className="del" onClick={() => delEvent(e.id)} aria-label="删除">
-                                    <IClose size={15} />
-                                </button>
-                            </div>
-                        );
-                    })}
                 </div>
+
+                <div className="cal-nav">
+                    <button onClick={() => move(-1)} aria-label="上个月">
+                        <IChevron size={18} style={{ transform: 'rotate(180deg)' }} />
+                    </button>
+                    <span className="mlabel">{monthLabel}</span>
+                    <button onClick={() => move(1)} aria-label="下个月">
+                        <IChevron size={18} />
+                    </button>
+                </div>
+                <div className="cal-grid">
+                    {WK.map((w) => (
+                        <div key={w} className="cal-wk">
+                            {w}
+                        </div>
+                    ))}
+                    {cells}
+                </div>
+
+                <div className="cal-add">
+                    <span className="day">{sel ? sel.slice(5).replace('-', '/') : '选日期'}</span>
+                    <input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && addEvent()}
+                        aria-label="约会内容"
+                        placeholder="添加一个约会…"
+                    />
+                    <button onClick={addEvent} disabled={!sel || !title.trim()} aria-label="添加">
+                        <IPlus size={20} />
+                    </button>
+                </div>
+
+                <div className="cal-sec">即将到来的约会</div>
+                {upcoming.length === 0 && (
+                    <div
+                        style={{
+                            color: 'var(--ui-muted)',
+                            fontSize: 12.5,
+                            textAlign: 'center',
+                            padding: '10px 0'
+                        }}
+                    >
+                        还没有计划，点日期添加一个吧 ·
+                    </div>
+                )}
+                {upcoming.map((e) => {
+                    const [, m, d] = e.date.split('-');
+                    return (
+                        <div className="ev-row" key={e.id}>
+                            <div className="dt">
+                                <div className="d">{Number(d)}</div>
+                                <div className="mo">{Number(m)} 月</div>
+                            </div>
+                            <div className="et">{e.title}</div>
+                            <div className="cd">{cntdown(e.date)}</div>
+                            <button className="del" onClick={() => delEvent(e.id)} aria-label="删除">
+                                <IClose size={15} />
+                            </button>
+                        </div>
+                    );
+                })}
             </div>
-        </>
+        </TaskDialog>
     );
 }
 
@@ -364,64 +261,65 @@ export function ClockScreen({
     };
 
     return (
-        <>
-            <CalClockStyles />
-            <div className={`modal-scrim ${open ? 'show' : ''}`} onClick={onClose} />
-            <div className={`modal mini glass ${open ? 'show' : ''}`} aria-hidden={!open}>
-                <div className="modal-hd">
-                    <span className="si" style={{ background: 'linear-gradient(135deg,#BFE6FA,#6FBCE8)' }}>
-                        <IClock size={19} />
-                    </span>
-                    <h2>时间 · 闹钟</h2>
-                    <button className="modal-x" onClick={onClose} aria-label="关闭">
-                        <IClose size={17} />
-                    </button>
-                </div>
-                <div className="modal-body">
-                    <div className="clock-face">
-                        <div className="big num">
-                            {hh}:{mm}
-                            <span className="s">{ss}</span>
-                        </div>
-                        <div className="sub">
-                            <span>{dateStr}</span>
-                            <span className="wx">
-                                <WIcon size={16} />
-                                {weather.label} {weather.temp}°{weather.place ? ` · ${weather.place}` : ''}
-                            </span>
-                        </div>
+        <TaskDialog
+            open={open}
+            onClose={onClose}
+            title="时间 · 提醒"
+            className="clock-task"
+            description="提醒仅保存为本机列表，目前不会响铃或发送通知。"
+        >
+            <div className="task-content">
+                <div className="clock-face">
+                    <div className="big num">
+                        {hh}:{mm}
+                        <span className="s">{ss}</span>
                     </div>
+                    <div className="sub">
+                        <span>{dateStr}</span>
+                        <span className="wx">
+                            <WIcon size={16} />
+                            {weather.label} {weather.temp == null ? '—' : `${weather.temp}°`}
+                            {weather.place ? ` · ${weather.place}` : ''}
+                        </span>
+                    </div>
+                </div>
 
-                    <div className="alarm-sec">闹钟与提醒</div>
-                    {alarms.map((a) => (
-                        <div className={`alarm paper ${a.on ? '' : 'off'}`} key={a.id}>
-                            <span className="at num">{a.time}</span>
-                            <div className="body">
-                                <div className="lab">{a.label}</div>
-                            </div>
-                            <span className={`sw ${a.on ? 'on' : ''}`} onClick={() => toggle(a.id)}>
-                                <i />
-                            </span>
-                            <button className="del" onClick={() => del(a.id)} aria-label="删除">
-                                <IClose size={16} />
-                            </button>
+                <div className="alarm-sec">提醒列表 · 不会通知</div>
+                {alarms.map((a) => (
+                    <div className={`alarm ${a.on ? '' : 'off'}`} key={a.id}>
+                        <span className="at num">{a.time}</span>
+                        <div className="body">
+                            <div className="lab">{a.label}</div>
                         </div>
-                    ))}
-                    <div className="alarm-add">
-                        <input type="time" value={atime} onChange={(e) => setAtime(e.target.value)} />
-                        <input
-                            type="text"
-                            value={alabel}
-                            onChange={(e) => setAlabel(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && add()}
-                            placeholder="提醒内容…"
-                        />
-                        <button onClick={add} aria-label="添加闹钟">
-                            <IPlus size={20} />
+                        <button
+                            type="button"
+                            className="alarm-toggle"
+                            aria-pressed={a.on}
+                            aria-label={`${a.label}：${a.on ? '已标记' : '未标记'}`}
+                            onClick={() => toggle(a.id)}
+                        >
+                            {a.on ? '已标记' : '未标记'}
+                        </button>
+                        <button className="del" onClick={() => del(a.id)} aria-label="删除">
+                            <IClose size={16} />
                         </button>
                     </div>
+                ))}
+                <div className="alarm-add">
+                    <input aria-label="提醒时间" type="time" value={atime} onChange={(e) => setAtime(e.target.value)} />
+                    <input
+                        type="text"
+                        value={alabel}
+                        onChange={(e) => setAlabel(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && add()}
+                        aria-label="提醒内容"
+                        placeholder="提醒内容…"
+                    />
+                    <button onClick={add} aria-label="添加提醒">
+                        <IPlus size={20} />
+                    </button>
                 </div>
             </div>
-        </>
+        </TaskDialog>
     );
 }

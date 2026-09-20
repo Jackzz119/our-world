@@ -4,9 +4,9 @@
 
 **[打开整体风格预览](preview.html#world) · [打开 UI/UX 全局预览](preview.html#ui)**：优先看真实原画、角色/物件素材、实景界面与已有动图，文字保留为描述、状态和来源链接。预览直接读取本页及领域 Markdown 的图片登记，刷新即可同步；候选留在视觉工作台。
 
-![当前小屋实景：双角色、书房、导航与场景悬浮控件](uiux/cinnaglass/ui-unification/audit-2026-09-11/twilight-scene.png)
+![当前小屋实景：双角色、书房、导航与场景悬浮控件](uiux/cinnaglass/unification-verification/widgets-twilight.png)
 
-上图为 2026-09-11 产品实景。导航已认可；2026-09-20 设置已在本地产品采用新 B 材质，最新设置实景见 [主题规范](uiux/cinnaglass/ui-system.md#b-任务与功能弹窗)，其余 UI 尚待统一。
+上图为 2026-09-20 本地实际房间与统一后的 A 浮窗；聊天、姓名使用隔离演示数据。A/B 与账户、大厅已沿批准材质迁移，完整图文见 [主题规范](uiux/cinnaglass/ui-system.md)。
 
 ## 整体风格
 
@@ -45,13 +45,13 @@ Monet 的职责是整体艺术与体验判断；光照只是其中一项。当�
 | 双角色                | [原始生产批次](../../arts/characters/)                                    | [public/characters](../../public/characters/)；没有另建角色源素材目录                                                 |
 | 导航细纹              | [arts/ui/navigation](../../arts/ui/navigation/)                           | [public/ui/nav](../../public/ui/nav/)、[navigation-glass.css](../../src/themes/cinnaglass/shell/navigation-glass.css) |
 | 日记本/羽毛笔         | [arts/ui/journal](../../arts/ui/journal/)                                 | [public/ui/journal](../../public/ui/journal/)；设计与交互见主题文档                                                   |
-| UI 主题、字体、图标等 | [主题源码](../../src/themes/cinnaglass/)、[字体资源](../../public/fonts/) | [实际样式变量](../../src/themes/cinnaglass/cinnaglass.css)、[UI 资源](../../public/ui/)                               |
+| UI 主题、字体、图标等 | [主题源码](../../src/themes/cinnaglass/)、[字体资源](../../public/fonts/) | [A/B 样式真源](../../src/themes/cinnaglass/ui/ui-system.css)、[UI 资源](../../public/ui/)                             |
 | 其他房间缩略图        | [原始制作批次](../../arts/rooms/thumbs/)                                  | [棋牌室](../../public/rooms/gameroom/)、[植物园](../../public/rooms/garden/)                                          |
 
 ## 当前边界与后续设计
 
-- A 场景浮窗以当前导航为母材质；天气、聊天、音乐等尚未迁移。
-- B 设置已采用连续磨砂外壳 + 随时辰受色的不透明内衬，并接入原生弹层行为；其余 B 仍是旧壳，待逐项迁移。
+- A 场景浮窗以当前导航为母材质；天气、聊天、音乐、纪念卡与头顶反馈已共用材质和停靠规则。
+- B 设置已采用连续磨砂外壳 + 随时辰受色的不透明内衬，并接入原生弹层行为；日历、时间提醒、完整聊天、照片和心愿已共用此壳；世界设置组件已迁移，入口仍暂缓。
 - C 日记本保持当前棕皮旧纸及翻页；本 session 冻结，不重做它。
 - 场景/UI 共用光环境待讨论；UI 交互动画在静态规范、状态和焦点之后处理。
 - [UI 当前决定](uiux/cinnaglass/decisions.md)、[统一计划](../features/ui-system/ui-system.md)、[任务列表](../TODO.md) 管理决定与实施状态。

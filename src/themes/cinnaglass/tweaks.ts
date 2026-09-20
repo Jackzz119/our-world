@@ -8,7 +8,7 @@ import { loadMerged, saveJson } from '@/lib/local-store';
 // Alias of the scene's RoomMood: the panel only overrides an hour the room
 // already understands, so the two never drift apart.
 export type Mood = RoomMood;
-// Which glass tint the shell wears; read back as the data-glass attribute.
+// Legacy glass choice is retained for frozen consumers and stored-value compatibility.
 export type GlassStyle = 'cloud' | 'sky' | 'twilight';
 // The weather setting, including 'auto' — which is a mode (follow the real
 // forecast), not a weather.
@@ -23,6 +23,7 @@ export type Tweaks = {
     glassStyle: GlassStyle;
     weather: WeatherTweak;
     chatAlign: ChatAlign;
+    reduceTransparency: boolean;
 };
 
 // localStorage key; bump the suffix when the stored shape changes incompatibly.
@@ -33,7 +34,8 @@ export const TWEAK_DEFAULTS: Tweaks = {
     mood: 'twilight',
     glassStyle: 'sky',
     weather: 'auto',
-    chatAlign: 'left'
+    chatAlign: 'left',
+    reduceTransparency: false
 };
 
 // Stored tweaks merged over the defaults; a missing or unparsable blob falls

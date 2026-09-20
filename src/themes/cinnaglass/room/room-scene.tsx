@@ -10,6 +10,7 @@ import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/compositor';
 import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
 import { Logman } from '@/lib/logman';
+import '@/themes/cinnaglass/room/room-overlays.css';
 
 const TAG = '[room][web][room-scene]';
 
@@ -30,7 +31,7 @@ const CHARACTERS: CharacterAssets = {
 export type SeatPresence = {
     name: string;
     status: string;
-    online: boolean;
+    online?: boolean;
 };
 
 /**
@@ -204,57 +205,22 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
     return (
         <div ref={holderRef} className="room-scene" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
             {failed && (
-                <div
-                    className="room-scene-error"
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        display: 'grid',
-                        placeItems: 'center',
-                        color: '#EEEAF0',
-                        font: '600 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif',
-                        textShadow: '0 1px 6px rgba(15,8,15,0.5)',
-                        pointerEvents: 'none'
-                    }}
-                >
-                    房间没能加载出来，刷新页面再试一次。
+                <div className="room-scene-feedback" role="alert">
+                    <div className="ui-surface">
+                        <h2>房间暂时没能加载</h2>
+                        <p>检查网络后刷新页面，已保存的内容仍会保留。</p>
+                        <button className="ui-button" type="button" onClick={() => window.location.reload()}>
+                            重新加载
+                        </button>
+                    </div>
                 </div>
             )}
             {bubble && tagPos[bubble.seatId] && (
                 <div
                     key={bubble.key}
-                    className="room-bubble"
-                    style={{
-                        // ai/codex-visual/20260811-055917Z/codex-report.md §5.9:
-                        // in-scene bubbles are dark glass with a warm-white
-                        // keyline, not white paper
-                        position: 'absolute',
-                        left: tagPos[bubble.seatId].x,
-                        top: tagPos[bubble.seatId].y - 52,
-                        transform: 'translate(-50%, -100%)',
-                        maxWidth: 240,
-                        padding: '10px 14px',
-                        borderRadius: 18,
-                        fontSize: 13,
-                        lineHeight: 1.4,
-                        color: '#EEEAF0',
-                        background: 'rgba(82,76,91,0.83)',
-                        border: '1px solid rgba(242,220,224,0.66)',
-                        boxShadow: '0 6px 12px rgba(15,8,15,0.28)',
-                        backdropFilter: 'blur(10px)',
-                        pointerEvents: 'none',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        animation: 'bubble-in 320ms cubic-bezier(0.34,1.4,0.5,1)'
-                    }}
+                    className="room-bubble ui-surface"
+                    style={{ left: tagPos[bubble.seatId].x, top: tagPos[bubble.seatId].y - 52 }}
                 >
-                    <style>{`
-                    @keyframes bubble-in {
-                        0%{opacity:0;transform:translate(-50%,-92%) scale(0.85);}
-                        60%{transform:translate(-50%,-102%) scale(1.03) rotate(1deg);}
-                        100%{opacity:1;transform:translate(-50%,-100%) scale(1);}
-                    }`}</style>
                     {bubble.text}
                 </div>
             )}
@@ -263,57 +229,16 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     const pos = tagPos[seatId];
                     if (!pos) return null;
                     return (
-                        <div
-                            key={seatId}
-                            className="presence-tag"
-                            style={{
-                                // ai/codex-visual/20260811-055917Z/codex-report.md §5.5:
-                                // 50px pill r25, 17px green dot, pink heart at
-                                // the right end
-                                position: 'absolute',
-                                left: pos.x,
-                                top: pos.y,
-                                transform: 'translate(-50%, -100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 12,
-                                height: 50,
-                                padding: '0 16px',
-                                borderRadius: 25,
-                                fontSize: 14,
-                                color: 'var(--cg-icon, #F8F8F9)',
-                                background: 'rgba(55,56,84,0.8)',
-                                border: '1px solid var(--cg-stroke, rgba(233,231,242,0.54))',
-                                backdropFilter: 'blur(12px) saturate(112%)',
-                                boxShadow: '0 10px 24px rgba(3,3,12,0.32), inset 0 1px 0 rgba(255,255,255,0.23)',
-                                pointerEvents: 'none',
-                                whiteSpace: 'nowrap',
-                                transition: 'left 600ms linear, top 600ms linear, opacity 300ms ease'
-                            }}
-                        >
-                            <span
-                                style={{
-                                    width: 17,
-                                    height: 17,
-                                    borderRadius: '50%',
-                                    background: p.online ? '#73EF82' : 'rgba(200,205,220,0.4)',
-                                    border: p.online ? '2px solid #A6E7B5' : '2px solid transparent',
-                                    boxShadow: p.online ? '0 0 6px rgba(115,239,130,0.8)' : 'none'
-                                }}
-                            />
-                            {p.name && <b style={{ fontWeight: 600 }}>{p.name}</b>}
-                            <span style={{ opacity: 0.78 }}>{p.status}</span>
-                            <span
-                                style={{
-                                    color: '#F9ABBD',
-                                    filter: 'drop-shadow(0 0 5px rgba(249,171,189,0.7))',
-                                    display: 'flex'
-                                }}
-                            >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#F9ABBD">
-                                    <path d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z" />
-                                </svg>
-                            </span>
+                        <div key={seatId} className="presence-tag ui-surface" style={{ left: pos.x, top: pos.y }}>
+                            {p.online !== undefined && (
+                                <span
+                                    className="presence-indicator"
+                                    data-online={p.online}
+                                    aria-label={p.online ? '在线' : '离线'}
+                                />
+                            )}
+                            {p.name && <b>{p.name}</b>}
+                            {p.status && <span>{p.status}</span>}
                         </div>
                     );
                 })}

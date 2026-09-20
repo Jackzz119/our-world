@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」，2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-20（设置已在本地采用 B 类新材质与原生弹层；详细规范见设计系统，日记本冻结）
+> 最后更新：2026-09-20（本地 A/B 与边缘页面统一完成；设备/性能专项与动画后续，日记本冻结）
 
 ## 产品定位（PRD）
 
@@ -64,20 +64,21 @@ R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dum
 ```
 src/
 ├── App.tsx / main.tsx   # 路由 /login、/reset-password、/（ProtectedRoute → WorldPage）
-├── pages/               # LoginPage · ResetPasswordPage · ProtectedRoute（VITE_DEV 自动真登录）· WorldPage（编排，361 行）
+├── pages/               # LoginPage · ResetPasswordPage · ProtectedRoute（VITE_DEV 自动真登录）· WorldPage（场景、浮窗与任务窗编排）
 │   └── world/           # WorldPage 的 hooks：useWorldSession · useSurfaceRouter · useWeather · useLiveClock · usePersistedState
 ├── hooks/ · utils/      # useAuth、useFeed · getEnv/getEnvFlag
 ├── lib/                 # supabase（含 currentUserId）/ worlds / posts / storage / profiles / chat / emotes / friends / logman / local-store
 ├── types/               # feed.ts、chat.ts（一个类型对一张表）、image-slot.d.ts
 └── themes/cinnaglass/
-    ├── cinnaglass.css · materials.css       # token、mood 氛围层、.cg-panel 玻璃原子类；reset 在 src/index.css
+    ├── cinnaglass.css · materials.css       # C/兼容材质与基础主题；reset 在 src/index.css
+    ├── ui/              # ui-system.css（A/B 材质与控件）· task-dialog · use-ui-environment
     ├── room/            # compositor（Pixi 合成器入口）+ textures · homography · lighting · fade-queue · rain-layer · clock-layer · character-layer · affordance · turntable-prop · room-scene（React 壳）· room-types · study-room
     ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card · world-surfaces · use-world-chat-bubble
     ├── journal/         # 日记本实体与翻页（C 类物件 UI，冻结）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
     ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· composer · photo-wall · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
     ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
-    ├── calendar · settings · world-settings · music + music-tracks · lobby · icons · model · profile · tweaks
-    ├── login-backdrop.tsx   # 登录/重置页 SVG 背景
+    ├── calendar · settings · world-settings · music + music-tracks + use-music-playback · lobby · entry.css
+    ├── icons · model · profile · tweaks    # 共享图标/类型/偏好；旧登录 SVG 已移除
     └── image-slot.js    # 图片选择器 web component，仅设置页头像在用
 ```
 
@@ -89,10 +90,10 @@ src/
 - **timeline / 我们的日记**（2026-09-07）：棕皮旧纸双页、真实图文随纸竖直翻页、连续翻阅、阅读时雨不停播；羽毛笔仍为静态图。细节 `ai/features/timeline.md`，设计 `ai/design_system/uiux/cinnaglass/ui-system.md`
 - **照片墙**：自然纵横比 polaroid 拼贴（纸框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载（细节 timeline.md）
 - **随光磨砂导航**（2026-09-07）：固定细纹图 + backdrop 模糊 + 按 mood 的 CSS 边光，无运行时随机/物理反射；A 类悬浮 UI 基准，见 `ai/features/navigation-glass.md`
-- **聊天全链路**：Broadcast from Database（客户端只写库，trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除/reaction/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function `emotes` 代理 Tenor 搜图转存 + EmotePicker 自维护 emoji 中文索引）；DM = `channels.type='dm'`（账号级 topic `user:{uid}`）。**DM/好友 UI 在新方向收起，数据层冻结保留**。细节 `ai/features/chat.md`（ChatDock 已被聊天窄卡 `shell/chat-card.tsx` + 头顶气泡取代）
+- **聊天全链路**：Broadcast from Database（客户端只写库，trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除/reaction/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function `emotes` 代理 Tenor 搜图转存 + EmotePicker 自维护 emoji 中文索引）；DM = `channels.type='dm'`（账号级 topic `user:{uid}`）。**DM/好友在完整聊天中折叠为次级入口，真实数据链保留**。细节 `ai/features/chat.md`（ChatDock 已被聊天窄卡 `shell/chat-card.tsx` + 头顶气泡取代）
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 存 memories 桶 256px webp）；纪念日/在一起天数由 DB 实时计算；昵称已写回 `profiles.display_name`（2026-09-19）
 - **双实例调试**：`pnpm dev2`（5174 端口）双账号互发验收
-- **UI 基建现状**：2026-09-20 设置已在本地产品采用连续磨砂壳、随时辰内衬与原生 modal；其余弹层/材质尚未统一；消费者表与迁移计划见 `ai/features/ui-system/audit.md`、`ui-system.md`
+- **UI 基建现状**：2026-09-20 本地 A/B 与边缘页面已统一为导航同源材料和原生 TaskDialog，音乐接真实本机 WebAudio、天气与未实现能力状态如实呈现；实现/兼容/验收边界见 `ai/features/ui-system/ui-system.md`，消费者与历史证据见同目录 `audit.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
@@ -113,7 +114,7 @@ src/
 | `message_reactions` | message_id / user_id / world_id / emoji / created_at                                                                   | PK(message, user, emoji)                                                                                                                 |
 | `channel_reads`     | channel_id / user_id / world_id / last_read_at                                                                         | 已读游标，只进不退 guard                                                                                                                 |
 | `world_emotes`      | id / world_id / name / storage_path / source_url / added_by / created_at                                               | 世界共享贴纸库；name 每世界唯一                                                                                                          |
-| `friendships`       | user_a / user_b / requested_by / status(pending\|accepted) / created_at / responded_at                                 | 账号级规范序对（user_a < user_b）；accepted → 自动建 DM。**UI 冻结，数据层保留不删**                                                     |
+| `friendships`       | user_a / user_b / requested_by / status(pending\|accepted) / created_at / responded_at                                 | 账号级规范序对（user_a < user_b）；accepted → 自动建 DM。**UI 作为折叠次级入口保留，数据链不删**                                         |
 
 ### RPC / Edge Function / Storage / Realtime
 
@@ -165,8 +166,8 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `ui-system/ui-system.md` + `audit.md` UI 统一计划与现状证据
-- `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`research/`、`uiux/research/` 调研与比稿
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`codex-visual/` 新调研与比稿；`research/`、`uiux/research/` 历史来源
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
 - `ai/project-audit/` — 项目审核记录（`INDEX.md` 入口）与 `CONVENTIONS.md`，普通开发不需加载审核证据

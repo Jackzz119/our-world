@@ -1,0 +1,82 @@
+/* Entry screens share the approved room art and task material. */
+.ui-entry {
+    position: fixed;
+    inset: 0;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px;
+    color: var(--ui-text);
+    background: #34343f;
+}
+.ui-entry::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(#17191f33, #17191f66),
+        url('/rooms/study/twilight.png') center / cover;
+}
+[data-mood='golden'] .ui-entry::before {
+    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/golden.png');
+}
+[data-mood='night'] .ui-entry::before {
+    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/night.png');
+}
+.ui-entry-card {
+    flex: 0 0 auto;
+    width: min(440px, 100%);
+    margin-block: auto;
+    padding: 24px 12px 12px;
+    border-radius: 26px;
+    text-align: center;
+}
+.ui-entry-card h1 {
+    margin: 0 12px 20px;
+    color: var(--ui-text);
+    font-size: 26px;
+}
+.ui-entry-content {
+    padding: 24px 20px;
+    border-radius: 18px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+.ui-entry-content h2 {
+    margin: 0 0 12px;
+    color: var(--ui-text);
+    font-size: 21px;
+}
+.ui-entry-content p {
+    margin: 0 0 18px;
+    color: var(--ui-muted);
+    font-size: 14px;
+}
+.ui-entry-content .ui-entry-error {
+    color: var(--ui-error);
+}
+.ui-entry-content .ui-entry-secondary {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+}
+.ui-entry-content > .ui-button-primary {
+    width: 100%;
+}
+@media (max-width: 480px) {
+    .ui-entry {
+        padding: 16px 12px;
+    }
+    .ui-entry-card {
+        border-radius: 22px;
+    }
+    .ui-entry-content {
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+}

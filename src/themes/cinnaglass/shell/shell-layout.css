@@ -1,0 +1,66 @@
+/* Fixed companion zones share the navigation breakpoint and leave its controls reachable. */
+.app.ui-environment .amb-wrap {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 41;
+}
+.app.ui-environment .moment-card {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 35;
+}
+.app.ui-environment .music-wrap {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    z-index: 35;
+    max-width: calc(100vw - 140px);
+}
+.app.ui-environment .chat-card {
+    position: absolute;
+    left: 124px;
+    bottom: 24px;
+    z-index: 38;
+}
+@media (min-width: 768px) and (max-width: 1100px) and (min-height: 600px) {
+    .app.ui-environment .moment-card {
+        top: 88px;
+    }
+    .app.ui-environment .chat-card {
+        width: min(330px, calc((100vw - 156px) / 2));
+    }
+    .app.ui-environment .music-wrap {
+        max-width: calc((100vw - 156px) / 2);
+    }
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .app.ui-environment .amb-wrap {
+        top: 12px;
+        left: 12px;
+        transform: none;
+    }
+    .app.ui-environment .moment-card {
+        top: 12px;
+        right: 12px;
+        width: min(178px, calc(100vw - 170px));
+    }
+    .app.ui-environment .chat-card,
+    .app.ui-environment .music-wrap {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        width: auto;
+        max-width: none;
+        max-height: calc(100dvh - 164px - env(safe-area-inset-bottom, 0px));
+    }
+    .app.ui-environment[data-chat-open='true'] .music-wrap {
+        display: none;
+    }
+    .app.ui-environment:is([data-chat-open='true'], [data-music-open='true']) .moment-card {
+        display: none;
+    }
+}

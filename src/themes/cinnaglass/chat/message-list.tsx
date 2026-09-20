@@ -67,6 +67,7 @@ export function MessageList({
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editText, setEditText] = useState('');
     const [pickerFor, setPickerFor] = useState<string | null>(null);
+    const reactionTriggerRef = useRef<HTMLButtonElement | null>(null);
     const msgsRef = useRef<HTMLDivElement>(null);
     const dustRef = useRef<HTMLCanvasElement>(null);
     const bubbleEls = useRef(new Map<string, HTMLElement>());
@@ -172,6 +173,8 @@ export function MessageList({
                                             e.preventDefault();
                                             commitEdit();
                                         } else if (e.key === 'Escape') {
+                                            e.preventDefault();
+                                            e.stopPropagation();
                                             setEditingId(null);
                                         }
                                     }}
@@ -183,6 +186,15 @@ export function MessageList({
                     return (
                         <div
                             key={m.id}
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Escape' && pickerFor === m.id) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    setPickerFor(null);
+                                    event.currentTarget.focus();
+                                }
+                            }}
                             className={`chsc-m ${own ? 'me' : ''} ${m.pending ? 'sending' : ''} ${m.failed ? 'failed' : ''} ${m.vanishing ? 'vanish' : ''}`}
                         >
                             <span className="meta">
@@ -228,66 +240,76 @@ export function MessageList({
                                     <button
                                         type="button"
                                         title="更多表情"
-                                        onClick={() => setPickerFor(pickerFor === m.id ? null : m.id)}
+                                        aria-label="更多表情"
+                                        onClick={(event) => {
+                                            reactionTriggerRef.current = event.currentTarget;
+                                            setPickerFor(pickerFor === m.id ? null : m.id);
+                                            requestAnimationFrame(() =>
+                                                hostRef.current
+                                                    ?.querySelector<HTMLInputElement>('.for-reaction input')
+                                                    ?.focus()
+                                            );
+                                        }}
                                     >
                                         ➕
                                     </button>
                                     {own && (
                                         <>
                                             {m.kind !== 'sticker' && (
-                                                <button type="button" title="编辑" onClick={() => beginEdit(m)}>
+                                                <button
+                                                    type="button"
+                                                    title="编辑"
+                                                    aria-label="编辑"
+                                                    onClick={() => beginEdit(m)}
+                                                >
                                                     ✏️
                                                 </button>
                                             )}
-                                            <button type="button" title="删除" onClick={() => actions.onDelete(m.id)}>
+                                            <button
+                                                type="button"
+                                                title="删除"
+                                                aria-label="删除消息"
+                                                onClick={() => actions.onDelete(m.id)}
+                                            >
                                                 🗑️
                                             </button>
                                         </>
                                     )}
-                                    <button type="button" title="回复（即将上线）" disabled>
+                                    <button
+                                        type="button"
+                                        title="回复（即将上线）"
+                                        aria-label="回复（即将上线）"
+                                        disabled
+                                    >
                                         ↩︎
                                     </button>
-                                </div>
-                            )}
-                            {pickerFor === m.id && (
-                                <div className="chsc-pop" onClick={(e) => e.stopPropagation()}>
-                                    <EmotePicker
-                                        mode="reaction"
-                                        emotes={emotePicker.emotes}
-                                        canImport={false}
-                                        onPickEmoji={(em) => {
-                                            actions.onReact(m.id, em);
-                                            setPickerFor(null);
-                                        }}
-                                        onSearchWeb={emotePicker.onSearchWeb}
-                                        onImportUrl={emotePicker.onImportUrl}
-                                        onImportFile={emotePicker.onImportFile}
-                                        onRemoveEmote={emotePicker.onRemoveEmote}
-                                    />
                                 </div>
                             )}
                             {m.failed && (
                                 <div className="chsc-fail">
                                     🌧️ 没送出去
-                                    <span className="lnk" onClick={() => actions.onRetry(m.id)}>
+                                    <button type="button" className="lnk" onClick={() => actions.onRetry(m.id)}>
                                         重试
-                                    </span>
-                                    <span className="lnk mute" onClick={() => actions.onDiscard(m.id)}>
+                                    </button>
+                                    <button type="button" className="lnk mute" onClick={() => actions.onDiscard(m.id)}>
                                         删除
-                                    </span>
+                                    </button>
                                 </div>
                             )}
                             {!!m.reactions?.length && (
                                 <div className="chsc-rx">
                                     {m.reactions.map((rx) => (
-                                        <span
+                                        <button
+                                            type="button"
+                                            aria-pressed={rx.mine}
+                                            disabled={!canOp}
                                             key={rx.emoji}
                                             className={`rx ${rx.mine ? 'on' : ''}`}
                                             title={rx.users.join('、')}
                                             onClick={() => canOp && actions.onReact(m.id, rx.emoji)}
                                         >
                                             {rx.emoji} {rx.count}
-                                        </span>
+                                        </button>
                                     ))}
                                 </div>
                             )}
@@ -312,6 +334,35 @@ export function MessageList({
                     );
                 })}
             </div>
+            {pickerFor && (
+                <div
+                    className="chsc-pop for-reaction"
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            setPickerFor(null);
+                            reactionTriggerRef.current?.focus();
+                        }
+                    }}
+                >
+                    <EmotePicker
+                        mode="reaction"
+                        emotes={emotePicker.emotes}
+                        canImport={false}
+                        onPickEmoji={(emoji) => {
+                            actions.onReact(pickerFor, emoji);
+                            setPickerFor(null);
+                            reactionTriggerRef.current?.focus();
+                        }}
+                        onSearchWeb={emotePicker.onSearchWeb}
+                        onImportUrl={emotePicker.onImportUrl}
+                        onImportFile={emotePicker.onImportFile}
+                        onRemoveEmote={emotePicker.onRemoveEmote}
+                    />
+                </div>
+            )}
             <canvas className="chsc-dust" ref={dustRef} />
         </>
     );

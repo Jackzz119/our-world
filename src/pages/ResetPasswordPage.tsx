@@ -7,8 +7,9 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop';
 import { IEye, IEyeOff, IHeart, ILock } from '@/themes/cinnaglass/icons';
+import '@/themes/cinnaglass/ui/ui-system.css';
+import '@/themes/cinnaglass/entry.css';
 import styles from '@/pages/LoginPage.module.css';
 
 import type { Msg } from '@/pages/LoginPage';
@@ -20,12 +21,14 @@ const ResetPasswordPage = () => {
     const [confirm, setConfirm] = useState('');
     const [showPw, setShowPw] = useState(false); // one toggle drives both fields
     const [busy, setBusy] = useState(false);
+    const [complete, setComplete] = useState(false);
     const [msg, setMsg] = useState<Msg>(null);
 
     // Validates locally (6+ chars, both fields equal) before calling updateUser —
     // some Supabase projects accept a short password silently.
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (busy || complete) return;
         if (password.length < 6) {
             setMsg({ type: 'error', text: '密码至少 6 位。' });
             return;
@@ -39,6 +42,7 @@ const ResetPasswordPage = () => {
         try {
             const { error } = await supabase.auth.updateUser({ password });
             if (error) throw error;
+            setComplete(true);
             setMsg({ type: 'info', text: '密码已更新 ✿ 正在回到你们的小世界…' });
             setTimeout(() => navigate('/'), 900);
         } catch (err) {
@@ -49,13 +53,8 @@ const ResetPasswordPage = () => {
     };
 
     return (
-        <div className={styles.wrap}>
-            <div className={styles.bg}>
-                <LoginBackdrop />
-            </div>
-            <div className={styles.veil} />
-
-            <div className={`${styles.card} glass`}>
+        <main className="ui-entry ui-environment" data-mood="twilight">
+            <section className={`${styles.card} ui-surface`} aria-label="重置密码" aria-busy={loading || busy}>
                 <div className={styles.brand}>
                     <span className={styles.mark}>
                         <IHeart size={22} fill="currentColor" sw={0} />
@@ -64,65 +63,80 @@ const ResetPasswordPage = () => {
                     <p>设置一个新密码</p>
                 </div>
 
-                {loading ? (
-                    <div className={`${styles.msg} ${styles.info}`}>正在确认链接…</div>
-                ) : user ? (
-                    <form className={styles.form} onSubmit={handleSubmit}>
-                        <label className="field">
-                            <ILock size={17} />
-                            <input
-                                type={showPw ? 'text' : 'password'}
-                                autoComplete="new-password"
-                                placeholder="新密码（至少 6 位）"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                <div className={`${styles.content} ui-liner`}>
+                    {loading ? (
+                        <div className={`${styles.msg} ${styles.info}`} role="status">
+                            正在确认链接…
+                        </div>
+                    ) : user ? (
+                        <form className={styles.form} onSubmit={handleSubmit}>
+                            <label className={styles.field}>
+                                <ILock size={17} />
+                                <input
+                                    type={showPw ? 'text' : 'password'}
+                                    autoComplete="new-password"
+                                    placeholder="新密码（至少 6 位）"
+                                    aria-label="新密码（至少 6 位）"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.eye}
+                                    onClick={() => setShowPw((v) => !v)}
+                                    title={showPw ? '隐藏密码' : '显示密码'}
+                                    aria-label={showPw ? '隐藏密码' : '显示密码'}
+                                    aria-pressed={showPw}
+                                >
+                                    {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
+                                </button>
+                            </label>
+                            <label className={styles.field}>
+                                <ILock size={17} />
+                                <input
+                                    type={showPw ? 'text' : 'password'}
+                                    autoComplete="new-password"
+                                    placeholder="再输一遍新密码"
+                                    aria-label="确认新密码"
+                                    value={confirm}
+                                    onChange={(e) => setConfirm(e.target.value)}
+                                    required
+                                />
+                            </label>
+
+                            {msg && (
+                                <div
+                                    className={`${styles.msg} ${styles[msg.type]}`}
+                                    role={msg.type === 'error' ? 'alert' : 'status'}
+                                >
+                                    {msg.text}
+                                </div>
+                            )}
+
                             <button
-                                type="button"
-                                className={styles.eye}
-                                onClick={() => setShowPw((v) => !v)}
-                                title={showPw ? '隐藏密码' : '显示密码'}
+                                type="submit"
+                                className={`ui-button ui-button-primary ${styles.submit}`}
+                                disabled={busy || complete || !password || !confirm}
                             >
-                                {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
+                                {complete ? '密码已更新' : busy ? '稍等…' : '更新密码'}
                             </button>
-                        </label>
-                        <label className="field">
-                            <ILock size={17} />
-                            <input
-                                type={showPw ? 'text' : 'password'}
-                                autoComplete="new-password"
-                                placeholder="再输一遍新密码"
-                                value={confirm}
-                                onChange={(e) => setConfirm(e.target.value)}
-                                required
-                            />
-                        </label>
-
-                        {msg && <div className={`${styles.msg} ${styles[msg.type]}`}>{msg.text}</div>}
-
-                        <button
-                            type="submit"
-                            className={`btn-primary ${styles.submit}`}
-                            disabled={busy || !password || !confirm}
-                        >
-                            {busy ? '稍等…' : '更新密码'}
-                        </button>
-                    </form>
-                ) : (
-                    <>
-                        <div className={`${styles.msg} ${styles.error}`}>
-                            链接无效或已过期，请回到登录页重新发送重置邮件。
-                        </div>
-                        <div className={styles.switchRow}>
-                            <button type="button" onClick={() => navigate('/login')}>
-                                回到登录
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
+                        </form>
+                    ) : (
+                        <>
+                            <div className={`${styles.msg} ${styles.error}`} role="alert">
+                                链接无效或已过期，请回到登录页重新发送重置邮件。
+                            </div>
+                            <div className={styles.switchRow}>
+                                <button type="button" onClick={() => navigate('/login')}>
+                                    回到登录
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </section>
+        </main>
     );
 };
 

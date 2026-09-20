@@ -19,49 +19,59 @@ type ConvNavProps = {
 // world, DMs are account-level and therefore show up in the lobby too.
 export function ConvNav({ convId, isFriends, chConvs, dmConvs, pendingCount, onSelect }: ConvNavProps) {
     return (
-        <div className="chsc-nav">
-            <div
-                className={`chsc-nav-item friends ${isFriends ? 'on' : ''}`}
-                onClick={() => onSelect(FRIENDS_VIEW)}
-                title="好友"
-            >
-                <span className="ic">💗</span>
-                <span className="nm">好友</span>
-                {pendingCount > 0 && <span className="chsc-nav-bdg">{pendingCount}</span>}
-            </div>
+        <nav className="chsc-nav" aria-label="聊天目的地">
             {chConvs.length > 0 && (
                 <>
-                    <div className="chsc-cat">文字频道</div>
+                    <div className="chsc-cat">房间聊天</div>
                     {chConvs.map((c) => (
-                        <div
+                        <button
+                            type="button"
                             key={c.id}
                             className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`}
                             onClick={() => onSelect(c.id)}
+                            aria-current={convId === c.id ? 'page' : undefined}
                             title={c.hint}
                         >
                             <span className="ic">
                                 <IHash size={15} />
                             </span>
                             <span className="nm">{c.name}</span>
-                        </div>
+                        </button>
                     ))}
                 </>
             )}
-            <div className="chsc-cat">私信</div>
-            {dmConvs.length === 0 && <div className="chsc-empty">添加好友后这里会出现私信</div>}
-            {dmConvs.map((c) => (
-                <div
-                    key={c.id}
-                    className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`}
-                    onClick={() => onSelect(c.id)}
-                    title={`私信 ${c.name}`}
+            <details
+                className="chsc-social"
+                key={isFriends || dmConvs.some((c) => c.id === convId) ? 'social' : 'room'}
+                open={isFriends || dmConvs.some((c) => c.id === convId) || undefined}
+            >
+                <summary>好友与私信{pendingCount > 0 && <span className="chsc-nav-bdg">{pendingCount}</span>}</summary>
+                <button
+                    type="button"
+                    className={`chsc-nav-item friends ${isFriends ? 'on' : ''}`}
+                    onClick={() => onSelect(FRIENDS_VIEW)}
+                    aria-current={isFriends ? 'page' : undefined}
                 >
-                    <span className="ava-s" style={{ background: c.color }}>
-                        {c.ini}
-                    </span>
-                    <span className="nm">{c.name}</span>
-                </div>
-            ))}
-        </div>
+                    <span className="nm">好友</span>
+                    {pendingCount > 0 && <span className="chsc-nav-bdg">{pendingCount}</span>}
+                </button>
+                {dmConvs.length === 0 && <div className="chsc-empty">添加好友后这里会出现私信</div>}
+                {dmConvs.map((c) => (
+                    <button
+                        type="button"
+                        key={c.id}
+                        className={`chsc-nav-item ${convId === c.id ? 'on' : ''}`}
+                        onClick={() => onSelect(c.id)}
+                        aria-current={convId === c.id ? 'page' : undefined}
+                        title={`私信 ${c.name}`}
+                    >
+                        <span className="ava-s" style={{ background: c.color }}>
+                            {c.ini}
+                        </span>
+                        <span className="nm">{c.name}</span>
+                    </button>
+                ))}
+            </details>
+        </nav>
     );
 }

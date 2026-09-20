@@ -1,0 +1,241 @@
+/* Adopted A/B materials and controls. Legacy diary tokens are deliberately untouched. */
+.ui-environment {
+    --ui-tint: 63 64 72;
+    --ui-top: 192 187 185;
+    --ui-cold: 161 185 209;
+    --ui-rim: 213 204 192;
+    --ui-text: #fff8eb;
+    --ui-muted: #dedbd4;
+    --ui-accent: #f1d19a;
+    --ui-error: #ffc2c8;
+    --ui-success: #c4e5bb;
+    --ui-line: #ffffff26;
+    --ui-hover: #ffffff0e;
+    --ui-liner-top: #43434f;
+    --ui-liner-base: #34343f;
+}
+.ui-environment[data-mood='golden'] {
+    --ui-liner-top: #494235;
+    --ui-liner-base: #39342c;
+}
+.ui-environment[data-mood='night'] {
+    --ui-liner-top: #3b342c;
+    --ui-liner-base: #2d2924;
+}
+.ui-surface {
+    color-scheme: dark;
+    --ui-alpha: 0.65;
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    color: var(--ui-text);
+    border: 1px solid rgb(var(--ui-rim) / 0.27);
+    border-radius: 22px;
+    background:
+        radial-gradient(ellipse at 0 0, rgb(var(--ui-cold) / 0.12), transparent 58%),
+        linear-gradient(115deg, rgb(var(--ui-top) / 0.1), transparent 40%), rgb(var(--ui-tint) / var(--ui-alpha));
+    box-shadow:
+        0 14px 36px -15px #000a,
+        inset 0 1px 0 rgb(var(--ui-rim) / 0.15);
+    backdrop-filter: blur(12px) saturate(0.7);
+    -webkit-backdrop-filter: blur(12px) saturate(0.7);
+}
+.ui-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: url('/ui/nav/frost.webp') 42% 50% / 256px 512px;
+    opacity: 0.18;
+    pointer-events: none;
+}
+.ui-surface::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+        from 190deg,
+        rgb(var(--ui-rim) / 0.04),
+        rgb(var(--ui-cold) / 0.5) 63deg,
+        rgb(var(--ui-rim) / 0.7) 135deg,
+        transparent 178deg,
+        rgb(var(--ui-rim) / 0.4) 229deg,
+        transparent 285deg,
+        rgb(var(--ui-rim) / 0.3)
+    );
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+.ui-liner {
+    box-sizing: border-box;
+    color: var(--ui-text);
+    border-radius: 18px;
+    background: linear-gradient(145deg, var(--ui-liner-top), var(--ui-liner-base) 58%);
+    box-shadow:
+        inset 0 1px 0 #ffffff0c,
+        0 1px 4px #00000012;
+}
+.ui-button,
+.ui-icon-button,
+.ui-field {
+    box-sizing: border-box;
+    min-height: 44px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #00000016;
+    color: var(--ui-text);
+    font: inherit;
+}
+.ui-button,
+.ui-icon-button {
+    cursor: pointer;
+}
+.ui-button {
+    padding: 10px 16px;
+}
+.ui-icon-button {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    flex-shrink: 0;
+}
+.ui-button-primary {
+    background: var(--ui-accent);
+    color: #352b1e;
+    border-color: transparent;
+    font-weight: 600;
+}
+.ui-field {
+    padding: 10px 12px;
+    min-width: 0;
+}
+.ui-field::placeholder {
+    color: var(--ui-muted);
+    opacity: 1;
+}
+.ui-surface :is(button, input, select, textarea, a, [tabindex]):focus-visible,
+.ui-liner :is(button, input, select, textarea, a, [tabindex]):focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
+.ui-button:not(:disabled):hover,
+.ui-icon-button:not(:disabled):hover {
+    filter: brightness(1.12);
+}
+.ui-button:disabled,
+.ui-icon-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.ui-dialog {
+    --ui-alpha: 0.72;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: 488px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    padding: 0;
+    overflow: hidden;
+    border-radius: 26px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.ui-dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+.ui-dialog-wide {
+    width: 920px;
+}
+.ui-dialog::backdrop {
+    background: #11131666;
+}
+.ui-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 24px 14px;
+    flex-shrink: 0;
+}
+.ui-dialog-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ui-text);
+}
+.ui-dialog .ui-dialog-header h2:focus-visible {
+    outline: none;
+}
+.ui-dialog-header p {
+    margin: 0 0 4px;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+.ui-dialog-header .ui-icon-button {
+    background: transparent;
+    border-color: transparent;
+}
+.ui-dialog-content {
+    min-height: 0;
+    margin: 0 12px 12px;
+    padding: 22px 12px 12px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #aaa39866 transparent;
+}
+.ui-dialog:has(.ui-dialog-footer) .ui-dialog-content {
+    margin-bottom: 0;
+}
+.ui-environment[data-reduced-transparency='true'] .ui-surface {
+    background: rgb(var(--ui-tint));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+.ui-environment[data-reduced-transparency='true'] :is(.rail, .rail-pop, .rail-label) {
+    background: var(--nav-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+.ui-dialog-footer {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .ui-dialog {
+        border-radius: 22px;
+    }
+    .ui-dialog-header {
+        padding: 18px 18px 12px;
+    }
+    .ui-dialog-content {
+        margin-inline: 10px;
+        padding: 18px 8px;
+        border-radius: 14px;
+    }
+    .ui-dialog-footer {
+        padding: 14px 18px;
+    }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .ui-surface {
+        background: rgb(var(--ui-tint));
+    }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .ui-surface {
+        background: rgb(var(--ui-tint));
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}

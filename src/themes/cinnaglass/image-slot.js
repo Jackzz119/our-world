@@ -122,7 +122,23 @@
         '  backdrop-filter:blur(6px)}' +
         '.ctl button:hover{background:rgba(0,0,0,.8)}' +
         '.err{position:absolute;left:8px;bottom:8px;right:8px;color:#b3261e;font-size:11px;' +
-        '  background:rgba(255,255,255,.85);padding:4px 6px;border-radius:5px;pointer-events:none}';
+        '  background:rgba(255,255,255,.85);padding:4px 6px;border-radius:5px;pointer-events:none}' +
+        '.avatar-trigger{display:none}.ctl [data-act=reframe]{display:none}' +
+        ':host([data-ui=avatar]){--slot-accent:var(--ui-accent);color:var(--ui-text)}' +
+        ':host([data-ui=avatar]) .avatar-trigger{display:block;position:absolute;inset:0;min-width:44px;min-height:44px;' +
+        '  border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer}' +
+        ':host([data-ui=avatar]) .ctl{display:none;left:0;transform:none;padding:6px;gap:4px;' +
+        '  border:1px solid var(--ui-line);border-radius:12px;background:var(--ui-liner-base);box-shadow:0 8px 24px #0006}' +
+        ':host([data-ui=avatar][data-menu]) .ctl,:host([data-ui=avatar][data-reframe]) .ctl{display:flex;opacity:1;pointer-events:auto}' +
+        ':host([data-ui=avatar]) .ctl button{min-height:44px;min-width:44px;padding:8px 10px;font:inherit;font-size:13px;line-height:1.4;' +
+        '  color:var(--ui-text);background:transparent;backdrop-filter:none}' +
+        ':host([data-ui=avatar]) .ctl [data-act=reframe]{display:block}' +
+        ':host([data-ui=avatar]) .ctl button:hover{background:var(--ui-hover,#ffffff0e)}' +
+        ':host([data-ui=avatar]) button:focus-visible{outline:2px solid var(--ui-accent);outline-offset:2px}' +
+        ':host([data-ui=avatar]) .err{left:0;right:auto;bottom:auto;top:calc(100% + 8px);width:min(240px,65vw);' +
+        '  box-sizing:border-box;padding:10px 12px;color:var(--ui-error);background:var(--ui-liner-base);' +
+        '  border:1px solid var(--ui-line);font-size:13px;line-height:1.5;z-index:4}' +
+        ':host([data-ui=avatar][data-menu]) .err,:host([data-ui=avatar][data-reframe]) .err{top:calc(100% + 68px)}';
 
     const icon =
         '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
@@ -132,7 +148,7 @@
 
     class ImageSlot extends HTMLElement {
         static get observedAttributes() {
-            return ['shape', 'radius', 'mask', 'fit', 'position', 'placeholder', 'src', 'id'];
+            return ['shape', 'radius', 'mask', 'fit', 'position', 'placeholder', 'src', 'id', 'data-ui', 'aria-label'];
         }
 
         constructor() {
@@ -155,11 +171,45 @@
                 '  <div class="handle" data-c="nw"></div><div class="handle" data-c="ne"></div>' +
                 '  <div class="handle" data-c="sw"></div><div class="handle" data-c="se"></div>' +
                 '</div>' +
-                '<div class="ctl"><button data-act="replace" title="替换图片">替换</button>' +
-                '  <button data-act="clear" title="移除图片">移除</button></div>' +
+                '<button type="button" class="avatar-trigger"></button>' +
+                '<div class="ctl"><button type="button" data-act="replace" title="替换图片">替换</button>' +
+                '  <button type="button" data-act="reframe" title="方向键移动，+ / - 缩放，Esc 完成">调整</button>' +
+                '  <button type="button" data-act="clear" title="移除图片">移除</button></div>' +
                 '<input type="file" accept="' +
                 ACCEPT.join(',') +
                 '" hidden>';
+            this._trigger = root.querySelector('.avatar-trigger');
+            this._trigger.addEventListener('click', () => {
+                if (!this.hasAttribute('data-filled')) this._input.click();
+                else {
+                    const expanded = !this.hasAttribute('data-menu');
+                    this.toggleAttribute('data-menu', expanded);
+                    this._trigger.setAttribute('aria-expanded', String(expanded));
+                    if (expanded) root.querySelector('.ctl button').focus();
+                }
+            });
+            // Avatar mode exposes the existing crop operations without pointer-only controls.
+            root.addEventListener('keydown', (event) => {
+                if (this.getAttribute('data-ui') !== 'avatar') return;
+                if (event.key === 'Escape' && this.hasAttribute('data-menu')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this._closeAvatarMenu();
+                    this._trigger.focus();
+                }
+                if (!this.hasAttribute('data-reframe')) return;
+                const movement = { ArrowLeft: [-2, 0], ArrowRight: [2, 0], ArrowUp: [0, -2], ArrowDown: [0, 2] };
+                if (movement[event.key]) {
+                    event.preventDefault();
+                    this._view.x += movement[event.key][0];
+                    this._view.y += movement[event.key][1];
+                } else if (['+', '=', '-'].includes(event.key)) {
+                    event.preventDefault();
+                    this._view.s = clampS(this._view.s + (event.key === '-' ? -0.1 : 0.1));
+                } else return;
+                this._clampView();
+                this._applyView();
+            });
             this._frame = root.querySelector('.frame');
             this._ring = root.querySelector('.ring');
             this._img = root.querySelector('.frame img');
@@ -177,16 +227,25 @@
             this._empty.addEventListener('click', () => this._input.click());
             root.addEventListener('click', (e) => {
                 const act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
+                if (act === 'reframe') {
+                    if (this.hasAttribute('data-reframe')) this._exitReframe(true);
+                    else this._enterReframe();
+                }
                 if (act === 'replace') {
+                    this._closeAvatarMenu();
+                    this._setError(null);
                     this._exitReframe(true);
                     this._input.click();
                 }
                 if (act === 'clear') {
+                    this._closeAvatarMenu();
+                    this._setError(null);
                     this._exitReframe(false);
                     this._gen++;
                     this._local = null;
                     if (this.id) setSlot(this.id, null);
                     else this._render();
+                    if (this.getAttribute('data-ui') === 'avatar') this._trigger.focus();
                 }
             });
             this._input.addEventListener('change', () => {
@@ -289,6 +348,11 @@
             this.addEventListener('dragover', this);
             this.addEventListener('dragleave', this);
             this.addEventListener('drop', this);
+            this._avatarOutside = (event) => {
+                if (this.getAttribute('data-ui') === 'avatar' && !event.composedPath().includes(this))
+                    this._closeAvatarMenu();
+            };
+            document.addEventListener('pointerdown', this._avatarOutside, true);
             subs.add(this._subFn);
             this._ro = new ResizeObserver(() => this._render());
             this._ro.observe(this);
@@ -296,6 +360,7 @@
         }
 
         disconnectedCallback() {
+            document.removeEventListener('pointerdown', this._avatarOutside, true);
             subs.delete(this._subFn);
             this.removeEventListener('dragenter', this);
             this.removeEventListener('dragover', this);
@@ -308,16 +373,31 @@
             this._exitReframe(false);
         }
 
+        // Close only avatar chrome; generic image-slot consumers retain their original behavior.
+        _closeAvatarMenu() {
+            this.removeAttribute('data-menu');
+            this._trigger.setAttribute('aria-expanded', 'false');
+        }
+
         _enterReframe() {
             if (this.hasAttribute('data-reframe')) return;
             this.setAttribute('data-reframe', '');
+            this.shadowRoot.querySelector('[data-act=reframe]').textContent = '完成';
             this._applyView();
             this._outside = (e) => {
                 if (e.composedPath && e.composedPath().includes(this)) return;
                 this._exitReframe(true);
             };
             this._esc = (e) => {
-                if (e.key === 'Escape') this._exitReframe(true);
+                if (e.key === 'Escape') {
+                    if (this.getAttribute('data-ui') === 'avatar') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this._closeAvatarMenu();
+                        this._trigger.focus();
+                    }
+                    this._exitReframe(true);
+                }
             };
             document.addEventListener('pointerdown', this._outside, true);
             document.addEventListener('keydown', this._esc, true);
@@ -327,6 +407,7 @@
             if (!this.hasAttribute('data-reframe')) return;
             if (this._dragUp) this._dragUp();
             this.removeAttribute('data-reframe');
+            this.shadowRoot.querySelector('[data-act=reframe]').textContent = '调整';
             this.removeAttribute('data-panning');
             if (this._outside) document.removeEventListener('pointerdown', this._outside, true);
             if (this._esc) document.removeEventListener('keydown', this._esc, true);
@@ -393,9 +474,11 @@
             if (!msg) return;
             const d = document.createElement('div');
             d.className = 'err';
+            d.setAttribute('role', 'alert');
             d.textContent = msg;
             this.shadowRoot.appendChild(d);
             this._err = d;
+            if (this.getAttribute('data-ui') === 'avatar') return;
             setTimeout(() => {
                 if (this._err === d) {
                     d.remove();
@@ -486,6 +569,13 @@
             const srcAttr = this.getAttribute('src') || '';
             this._userUrl = (stored && stored.u) || null;
             const url = this._userUrl || srcAttr;
+            if (this.getAttribute('data-ui') === 'avatar') {
+                this._trigger.setAttribute(
+                    'aria-label',
+                    `${url ? '编辑' : '选择'}${this.getAttribute('aria-label') || '本机头像'}`
+                );
+                this._trigger.setAttribute('aria-expanded', String(this.hasAttribute('data-menu')));
+            }
             if (!this.hasAttribute('data-reframe')) {
                 this._view = {
                     s: stored && Number.isFinite(stored.s) ? clampS(stored.s) : 1,
