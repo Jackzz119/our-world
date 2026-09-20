@@ -18,6 +18,8 @@
 
 ## Bugs
 
+- [x] **[BUG] 导航聊天/音乐只能打开不能收起**（2026-09-20）：改为 toggle，导航选中与展开状态同步，音乐隐藏后可恢复；桌面/390/320 三尺寸反复点击回归通过。
+
 - [x] `--accent-deep` 双真源复核已消失（2026-09-11，`cinnaglass.css` 均为 `#2f9ad3`）
 - [x] **[BUG] UI 任务弹窗层级与焦点**（2026-09-20）：B 统一 TaskDialog，关闭/卸载返回焦点、隐藏内容隔离，子选择器 Esc 分层；浏览器基线见 `ai/features/ui-system/ui-system.md`，辅助技术真机另验
 - [x] **[BUG] UI 控件状态与真实行为不符**（2026-09-20）：音乐由真实 WebAudio 驱动，播放与展开/隐藏独立；天气未知值不造温度，通知/Presence/共享播放未实现能力明确显示；账号假反馈已于 2026-09-19 修复
@@ -46,6 +48,9 @@
 ## 🔨 Phase R1 — 网页 MVP（当前重点）
 
 ### UI / UX 体系定稿（本 session 优先）
+
+- [ ] **环境入口辨识与 hover**：双入口「时辰 / 天气」及合并入口已制作可操作 mock，待用户选定后接入；`ai/design_system/codex-visual/ui-unification/climate-controls.md`
+- [ ] **光影信息语言**：按 design-system 的「暗处的一束阳光」理念细化金亮信纸新信息提示；当前仅视觉示意，触发/已读状态与动画另定。
 
 > 阶段与边界见 `ai/features/ui-system/ui-system.md` §6–7，消费者收口见同目录 `audit.md`。A/B 与边缘页面已本地实现；设备/性能专项单列，C 冻结，动画后置。
 
