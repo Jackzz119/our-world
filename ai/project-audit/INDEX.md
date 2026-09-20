@@ -10,7 +10,7 @@
 
 ## 技能与运行方式
 
-技能正文在 `/Users/chengzheng/Desktop/Files/hyber_platform/hyber-operator-portal/ai/jaSkill/project-audit/`（`SKILL.md`、`reference.md`、`references/{context,performance}.md`），本项目未安装、不复制进仓；每一步按技能「共用流程」：刷新基线 → 上网核对官方原文（写调研表）→ 全域诊断并给具体方案 → 授权内落实 → 验证 → 独立 commit 交付。每步全项目范围重新成立，不继承上一步问题列表。
+技能本体已随仓库提供：`.claude/skills/project-audit/`（Claude）与 `.agents/skills/project-audit/`（Codex，内容相同）——`SKILL.md`、`reference.md`、`references/{context,performance}.md`；来源为 hyber-operator-portal 的 `ai/jaSkill/project-audit/`（2026-09-19 复制，此后以本仓副本为准，改技能须用户同意）；每一步按技能「共用流程」：刷新基线 → 上网核对官方原文（写调研表）→ 全域诊断并给具体方案 → 授权内落实 → 验证 → 独立 commit 交付。每步全项目范围重新成立，不继承上一步问题列表。
 
 运行目录约定：新一步新建 `runs/<日期-序号>/`，报告命名 `0N-<主题>.md`；`STEPS.md` 先拆子步骤再执行；发现进 `FINDINGS.md`（稳定 ID，已到 PA-033）；可复用脚本在 `scripts/`（见 STEPS「可复用工具」：`inventory.py`、`merge-coverage.py`、`measure-docs.py`、`scan-structure.mjs`、`verify-comment-only.mjs`）。
 
