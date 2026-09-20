@@ -1,0 +1,35 @@
+{
+  "run": "2026-09-19-02",
+  "step": "03",
+  "inventory_files": 500,
+  "applicable_files": 119,
+  "covered_applicable": 119,
+  "statuses_applicable": {
+    "已检查": 105,
+    "受限": 10,
+    "待验证": 4
+  },
+  "aggregate_rows": [
+    "arts/rooms/study/generated/README.md",
+    "public/rooms/gameroom",
+    "public/rooms/garden",
+    "public/rooms/study",
+    "public/rooms/study/parts"
+  ],
+  "non_applicable_by_top": {
+    "(root)": 12,
+    "ai": 272,
+    "arts": 35,
+    "codex-visual": 26,
+    "public": 36
+  },
+  "dedup": [
+    "src/lib/supabase.ts",
+    "src/pages/WorldPage.tsx",
+    "src/pages/world/useSurfaceRouter.ts",
+    "sql/storage-memories-bucket.sql",
+    "sql/dev-create-world.sql",
+    "src/lib/storage.ts"
+  ],
+  "note": "revision = 文件 sha256（inventory 基线）；本步未改源码，无 after 快照；状态来自人工证据"
+}

@@ -120,7 +120,7 @@ src/
 - **RPC** `get_feed_posts(p_world_id, p_before, p_limit)` — 时间线读链路唯一入口；服务端解析隐私/解锁 + 游标分页（`p_before` 独占游标，null 取最新页）
 - **RPC** `find_profile_by_email(p_email)` — 好友流程按邮箱找人
 - **Edge Function** `emotes` — `action:'search'`（Tenor 搜图）/ `'import'`（≤2MB 图片服务端转存 + 入库）；**待配 TENOR_API_KEY**
-- **Storage** 私有桶 `memories`（25MB/文件，png/jpeg/webp/avif；RLS 按首段路径 = world_id 判成员）：`<world_id>/<uuid>.<ext>` 原图 + `<uuid>.thumb.webp`（长边 1024）· `<world_id>/emotes/<uuid>.webp` 贴纸（长边 512）· `<world_id>/icon-<uuid>.webp` 世界 icon；展示走 signed URL（TTL 1h），前端 40 分钟自动续签 + tab 重可见重签
+- **Storage** 私有桶 `memories`（25MB/文件，png/jpeg/webp/avif；RLS 按首段路径 = world_id 判成员）：`<world_id>/<uuid>.<ext>` 原图 + `<uuid>.thumb.webp`（长边 1024）· `<world_id>/emotes/<uuid>.webp` 贴纸（长边 512）· `<world_id>/icon-<uuid>.webp` 世界 icon；展示走 signed URL（TTL 1h）；缩略图 40 分钟自动续签 + tab 重可见重签，世界 icon 与贴纸目前只有 40 分钟定时、无重可见重签（PA-044）
 - **Realtime = Broadcast from Database**：客户端从不主动广播，DB trigger 把 I/U/D 推到 private topic `world:{id}`（消息/回应/已读/贴纸库）与 `user:{uid}`（DM/好友）；**Presence 尚未接**（`WorldPage` 头顶胶囊为占位文案，R1 待办）
 
 ### 代码侧不一致（清理项）
@@ -153,7 +153,7 @@ src/
 3. **日记本（C 类物件 UI）冻结**：阅读/写作/详情/书本资产/翻页/遮罩/布局及其共享规则本 session 不动；改 `surfaces/`、`journal/`、公共 `.modal` / `.paper` 前必须证明范围只覆盖 A/B 类（`ai/features/ui-system/ui-system.md`）。当前导航是 A 类悬浮 UI 基准。
 4. **代码与结构规范**：`ai/project-audit/CONVENTIONS.md`（分层依赖方向、命名、复用/拆分、注释、格式化、脚本依赖）；写代码前看 `.prettierrc` 与 `eslint.config.js`，配置优先于现状；`pnpm exec tsc -b` 必须保持零错误。
 5. **数据与后端**：`ai/PROJECT.md` 数据库节是临时真源（前端 select 反查，未核线上），改表结构先看 `ai/features/supabase.md` 的审计遗留；`VITE_*` 变量进浏览器，不放 `service_role`。
-6. **审核中**：`project-audit` 五步全项目自审进行到第二步结束，入口 `ai/project-audit/INDEX.md`；审核发现的待办写回 `ai/TODO.md`，证据只放审核目录。
+6. **审核中**：`project-audit` 五步全项目自审进行到第三步结束（诊断已交付、P1 待用户裁决实施），入口 `ai/project-audit/INDEX.md`；审核发现的待办写回 `ai/TODO.md`，证据只放审核目录。
 7. **功能文档**：一个功能一份 `ai/features/<名>.md`；超过一个 md（子功能、调研、mockup、图片）就建 `ai/features/<名>/` 文件夹，主文档与附属材料互链（2026-07-13 用户定规）。
 
 ## 技能与协议在哪

@@ -1,0 +1,25 @@
+path,kind,module,revision,step,substep_id,status,method,evidence,reason
+src/lib/chat.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-05;C-06;C-07;C-17;契约表 §2,
+src/lib/emotes.ts,source,emotes,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,受限,全文阅读+链路追踪,C-15;契约表 §2,Edge Function emotes 源码不在仓库；search/import 服务端限制不可核
+src/lib/friends.ts,source,friends,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,待验证,全文阅读+链路追踪,C-15;C-16(冻结),RPC find_profile_by_email 返回形状与 SECURITY DEFINER 待核线上；UI 冻结
+src/types/chat.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-14;契约表 §2（channel_id 幻列确认已删）,
+src/lib/supabase.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-15（断网时 currentUserId 误报未登录）,
+src/themes/cinnaglass/chat/chat-data.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-18;§6 PA-030 返回面 24 字段一致,
+src/themes/cinnaglass/chat/store.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-03(mergeRows/upsertReactions 并集语义);C-09;C-17;C-18,
+src/themes/cinnaglass/chat/use-message-store.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-03;C-10;C-14;C-19,
+src/themes/cinnaglass/chat/use-world-stream.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-03;C-07;§4 适配器,
+src/themes/cinnaglass/chat/use-account-stream.ts,source,friends,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-03;§4 适配器（冻结区数据层，仍在役）,
+src/themes/cinnaglass/chat/use-emote-library.ts,source,emotes,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-10;C-11,
+src/themes/cinnaglass/chat/use-optimistic-send.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-04;C-05;C-06;C-12;C-17,
+src/themes/cinnaglass/chat/chat-hub.tsx,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-12;C-18;§6 convsFor 单点成立,
+src/themes/cinnaglass/chat/chat-hub.styles.tsx,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,"no finding, checked sending/failed/vanish 状态类与 message-list 类名一一对应；C-18 文件头旧名",
+src/themes/cinnaglass/chat/conv-nav.tsx,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,"no finding, checked key 全为 c.id、冻结区分组仍渲染符合 chat.md §五.3；C-18 文件头旧名",
+src/themes/cinnaglass/chat/message-list.tsx,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-05;C-08;C-18,
+src/themes/cinnaglass/chat/chat-composer.tsx,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-05(maxLength 500);C-18,
+src/themes/cinnaglass/chat/bubble-dust.ts,source,chat,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,"no finding, checked rAF 循环自终止、canvas 结束清空、无 React；C-18 文件头旧名",
+src/themes/cinnaglass/chat/friends-page.tsx,source,friends,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-15(冻结);§6 §五.3 成立,
+src/themes/cinnaglass/chat/emote-picker.tsx,source,emotes,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,受限,全文阅读+链路追踪,C-15;§3 复核项（accept image/* + createImageBitmap 客户端护栏成立）,Tenor 搜图与 URL 导入的服务端行为不可核；TENOR_API_KEY 未配无法验
+src/themes/cinnaglass/chat/emoji-data.ts,source,emotes,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,"no finding, checked 230 条 e/k 结构一致、ALL_EMOJI 一次性 flatMap、key 用 x.e 无重复字符",
+src/themes/cinnaglass/shell/chat-card.tsx,source,shell,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,待验证,全文阅读+链路追踪,C-05(无 maxLength);C-09;C-13;C-18;§6 PA-016 静态成立,第二步修复后从未在浏览器渲染（无 .env.local）
+src/themes/cinnaglass/shell/use-world-chat-bubble.ts,source,shell,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪,C-01;C-02,
+src/pages/WorldPage.tsx,source,shell,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S05,已检查,全文阅读+链路追踪（仅聊天接线部分 :87-102;:129-179;:286-299;:323-355）,C-02;C-09;C-13;C-18,

@@ -1,0 +1,34 @@
+path,kind,module,revision,step,substep_id,status,method,evidence,reason
+src/hooks/useFeed.ts,source,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-06;B-07;B-12;B-13;B-14;B-19,
+src/lib/posts.ts,source,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-01;B-13,
+src/lib/storage.ts,source,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-02;B-03;B-04;B-20,
+src/types/feed.ts,source,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-12,
+src/types/image-slot.d.ts,source,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"no finding, checked attribute list vs image-slot.js observedAttributes",
+src/themes/cinnaglass/surfaces/object-surfaces.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-08;B-18,
+src/themes/cinnaglass/surfaces/composer.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-02;B-03;B-05;B-18,
+src/themes/cinnaglass/surfaces/photo-wall.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-04;B-09;B-18,
+src/themes/cinnaglass/surfaces/post-detail.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-11;B-18,
+src/themes/cinnaglass/surfaces/wishlist.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-10;B-18,
+src/themes/cinnaglass/surfaces/use-signed-thumbs.ts,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-04;B-18; checked 40min timer + visibilitychange vs timeline.md",
+src/themes/cinnaglass/surfaces/date-format.ts,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-18; no logic finding, checked local-day comparison",
+src/themes/cinnaglass/surfaces/author-tone.ts,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-11;B-18,
+src/themes/cinnaglass/surfaces/object-surfaces.css,style,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-09;B-15;B-18; class contract cross-check passed",
+src/themes/cinnaglass/journal/room-book.tsx,source,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-06;B-07;B-18; turn engine cleanup/re-entrancy checked, no finding",
+src/themes/cinnaglass/journal/layout.ts,source,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,B-04;B-11;B-12;B-15;B-18,
+src/themes/cinnaglass/journal/turn.ts,source,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-18; no finding, checked clone/destroy and updateImages contract vs check-journal-turn.mjs",
+src/themes/cinnaglass/journal/turn-controller.ts,source,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-18; no finding, checked RAF cancel, max 3 in flight, listener removal in destroy",
+src/themes/cinnaglass/journal/room.css,style,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-15; class contract cross-check passed; frozen area",
+src/themes/cinnaglass/journal/turn.css,style,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"no finding, checked z-index 25/26 vs .pd 40 and preserve-3d ancestors; frozen area",
+src/themes/cinnaglass/journal/diary.css,style,journal,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"B-16; frozen area",
+src/themes/cinnaglass/image-slot.js,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"§2 contract row: no custom event, localStorage ow-image-slots-v1, sole consumer settings.tsx",
+src/themes/cinnaglass/shell/world-surfaces.tsx,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"no finding, checked mounting point always mounted and tab/origin pass-through",
+src/pages/world/useSurfaceRouter.ts,source,surfaces,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"no finding, checked MODAL_TABS vs SURFACES keys and hotspot ids",
+sql/storage-memories-bucket.sql,sql,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,待验证,全文阅读+链路追踪,"B-02; bucket/mime/RLS assumptions match code; live state unverifiable",线上 DDL 不可核（MCP 401）
+sql/dev-create-world.sql,sql,memories,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,待验证,全文阅读+链路追踪,"B-18 (broken world.md R-6 link); status column not read by code",线上结构不可核（早期脚本）
+scripts/check-diary.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"B-17; DOM hooks .tl-card/.tt/.tl-time no longer exist",未运行（需 dev 服务器与 .env.local）
+scripts/check-journal-art.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"B-17; stylesheet-name assertion stale, module URL/DOM/mock contracts match",未运行（需 dev 服务器与 .env.local）
+scripts/check-journal-turn.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"B-17; stylesheet-name assertion stale, module URL/DOM/mock contracts match",未运行（需 dev 服务器与 .env.local）
+scripts/render-journal-turn.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"no finding, prototype html/ts and turnDemo exist",未运行（需 dev 服务器）
+scripts/compare-journal-art.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"no finding, all four input images exist",未运行（依赖 sharp 外部依赖）
+scripts/pack-journal-art.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,受限,全文阅读+链路追踪,"no finding, inputs/outputs exist and outputs are the six files code references",未运行（依赖 sharp 外部依赖）
+scripts/lib/deps.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S04,已检查,全文阅读+链路追踪,"no finding, DIARY_NODE_MODULES / JOURNAL_URL contract recorded",

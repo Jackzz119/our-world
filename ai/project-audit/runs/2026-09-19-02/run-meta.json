@@ -1,0 +1,13 @@
+{
+  "run_id": "2026-09-19-02",
+  "step": "03",
+  "title": "协议、后端与前端深度 review",
+  "started": "2026-09-19",
+  "root": "D:/Repo/our-world",
+  "branch": "dev",
+  "head": "f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d",
+  "worktree_clean": true,
+  "stack": { "react": "19.2", "typescript": "5.9.3", "vite": "7.3.1", "react-router-dom": "7.13.1", "pixi.js": "8.19", "@supabase/supabase-js": "2.98", "pnpm": "10.21.0" },
+  "authorization": "诊断、重构建议与验收待办；不改业务行为（技能 §第三步 + INDEX「第三步开工时要知道的」）",
+  "limits": ["无 .env.local，应用进不了世界，运行时只到 /login", "Supabase MCP 401，线上 DDL/RLS/触发器不可核", "Edge Function emotes 源码不在仓库"]
+}

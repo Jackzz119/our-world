@@ -1,0 +1,9 @@
+path,kind,module,revision,step,substep_id,status,method,evidence,reason
+eslint.config.js,config,root,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S01,已检查,全文阅读,"no finding, checked: react-hooks flat recommended（含 v7 refs/set-state-in-effect）+ react-refresh vite；三条 TS 规则降为 warn；与 03-research R10 对照",
+tsconfig.json,config,root,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S01,已检查,全文阅读,"no finding, checked: 仅 references 两个子项目",
+tsconfig.node.json,config,root,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S01,已检查,全文阅读,"no finding, checked: include 仅 vite.config.ts；scripts/*.mjs 不在 tsc 内（CONVENTIONS 已采纳）",
+package.json,config,root,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S01,已检查,全文阅读,"no finding, checked: 6 个运行时依赖 / scripts dev·dev2·build·lint·preview·format；无 test/CI 入口（第一步 PA-017 已登记脚本未登记）",
+src/pages/LoginPage.module.css,style,auth,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S07,已检查,类名契约交叉比对（LoginPage.tsx 引用 ↔ 定义）,"no finding：LoginPage.tsx 与 ResetPasswordPage.tsx 引用的 CSS Module 类全部有定义，定义的类全部有消费者（两页共用）",
+scripts/check-design-system.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S07,已检查,契约抽取（未运行）,"no finding：零外部依赖；断言 ai/design_system/design-system.md 可达性与 md 内链接/图片；不依赖 dev server",
+scripts/check-navigation.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S07,已检查,契约抽取（未运行）,"契约：baseUrl()/?enter=1、.amb-panel/.amb-tab/.rail/.modules-pop/.rooms-pop 选择器、docs 页 ui-system.html#navigation-glass 与 navigation-verification/comparison.png；选择器在 src 中仍存在（grep），脚本未运行",
+scripts/pack-navigation-texture.mjs,script,scripts,f96fc63bb21725ab0f48d0ecb661f9e0fe4eac6d,03,03-S07,已检查,契约抽取（未运行）,"契约：读 arts/ui/navigation/frost-source.png → 写 public/ui/nav/frost.webp；两路径均存在（ls）",
