@@ -1,86 +1,120 @@
-/* One persistent trigger and an attached panel; opening it never dims the scene. */
+/* Approved split controls use the navigation's hover, focus and pressed feedback. */
+.amb-wrap {
+    --nav-ink: var(--ui-text);
+    --nav-glow: 255 209 137;
+}
+.amb-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 .amb-pill {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 44px;
-    padding: 10px 16px;
-    border-radius: 99px;
-    cursor: pointer;
-    color: var(--ui-accent);
+    gap: 6px;
+    padding: 4px;
+    border-radius: 24px;
 }
-.amb-pill > svg:last-child {
+.amb-trigger.rail-btn {
+    width: auto;
+    height: 56px;
+    min-width: 126px;
+    border-radius: 18px;
+    padding: 8px 12px;
+    gap: 10px;
+}
+.amb-trigger.rail-btn::before {
+    border-radius: 18px;
+}
+.amb-trigger.rail-btn > svg {
+    width: 22px;
+    height: 22px;
+}
+.amb-trigger.rail-btn > svg:last-child {
+    width: 12px;
+    height: 12px;
     transform: rotate(90deg);
 }
-.amb-pill[aria-expanded='true'] > svg:last-child {
-    transform: rotate(-90deg);
+.amb-trigger span {
+    display: grid;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+}
+.amb-trigger b {
+    font-size: 14px;
+    font-weight: 550;
+}
+.amb-trigger small {
+    font-size: 12px;
+    color: var(--ui-muted);
 }
 .amb-div {
-    height: 16px;
     width: 1px;
+    height: 28px;
     background: var(--ui-line);
 }
 .amb-panel {
     position: absolute;
-    top: 54px;
+    width: 300px;
+    max-width: calc(100vw - 24px);
+    top: 74px;
     left: 50%;
     transform: translateX(-50%);
-    width: 256px;
-    max-width: calc(100vw - 24px);
     padding: 8px;
+    border-radius: 22px;
 }
-.amb-options {
-    padding: 12px;
+.amb-panel .ui-liner {
+    padding: 16px;
 }
-.amb-options p {
+.amb-panel h2 {
+    font-size: 16px;
+    margin: 0;
+}
+.amb-panel p {
     font-size: 12px;
-    margin: 0 0 8px;
     color: var(--ui-muted);
-}
-.amb-options p:not(:first-child) {
-    margin-top: 16px;
+    margin: 4px 0 14px;
 }
 .amb-row {
     display: flex;
-    gap: 4px;
+    gap: 8px;
+    margin-bottom: 14px;
 }
 .amb-row button {
-    display: flex;
     flex: 1;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-    min-height: 58px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--ui-text);
-    font: inherit;
-    font-size: 12px;
-    cursor: pointer;
+    display: grid;
+    justify-items: center;
+    gap: 7px;
+    padding: 10px 4px;
+    font-size: 13px;
 }
 .amb-row button[aria-pressed='true'] {
-    color: var(--ui-accent);
-    border-color: #f1d19a80;
-    background: #ffffff0a;
+    background: var(--ui-accent);
+    color: #302719;
+    border-color: transparent;
 }
-.amb-row button:hover {
-    background: var(--ui-hover);
+.amb-panel small {
+    font-size: 11px;
+    color: var(--ui-muted);
 }
+
 .amb-options .amb-status {
     font-size: 11px;
     line-height: 1.5;
-    min-height: 33px;
     margin-bottom: 0;
+}
+.amb-panel {
+    max-height: calc(100dvh - 124px);
+    overflow: auto;
 }
 @media (max-width: 767px), (max-height: 599px) {
     .amb-panel {
         left: 0;
         transform: none;
-        max-height: calc(100dvh - 152px);
-        overflow: auto;
+        max-height: calc(100dvh - 184px - env(safe-area-inset-bottom, 0px));
+    }
+    .amb-trigger.rail-btn {
+        min-width: 120px;
     }
 }

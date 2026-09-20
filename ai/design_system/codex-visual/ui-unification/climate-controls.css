@@ -173,53 +173,6 @@ body {
     font-size: 12px;
     pointer-events: none;
 }
-.sunlit-letter {
-    position: absolute;
-    right: 28px;
-    top: 32px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    max-width: 270px;
-    padding: 20px;
-    border: 1px solid #ffedb6;
-    border-radius: 5px 13px 6px 12px;
-    color: #553b1c;
-    background: linear-gradient(135deg, #fff0b9, #eacb83);
-    box-shadow:
-        0 0 24px #ffd68244,
-        0 0 70px #ffd68222,
-        0 8px 26px #0005;
-    cursor: pointer;
-    text-align: left;
-}
-.sunlit-letter span:last-child {
-    display: grid;
-    gap: 6px;
-}
-.sunlit-letter b {
-    font-size: 15px;
-}
-.sunlit-letter small {
-    font-size: 12px;
-}
-.letter-fold {
-    width: 32px;
-    height: 23px;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    position: relative;
-    flex: none;
-}
-.letter-fold::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-right: 1px solid currentColor;
-    border-bottom: 1px solid currentColor;
-    transform: translate(5px, -11px) rotate(45deg);
-}
 .climate-review .ui-dialog-content p {
     color: var(--ui-muted);
     line-height: 1.8;
@@ -241,9 +194,6 @@ body {
     .app.climate-review {
         top: 146px;
     }
-    .sunlit-letter {
-        top: 110px;
-    }
 }
 @media (max-width: 767px), (max-height: 599px) {
     .climate-control {
@@ -261,11 +211,7 @@ body {
     .climate-trigger.rail-btn {
         min-width: 120px;
     }
-    .sunlit-letter {
-        top: 106px;
-        right: 12px;
-        padding: 14px;
-    }
+
     .app.climate-review .chat-card,
     .app.climate-review .music-wrap {
         max-height: calc(100dvh - 332px);

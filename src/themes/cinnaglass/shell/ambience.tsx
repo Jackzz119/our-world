@@ -1,8 +1,9 @@
 // Compact scene controls share navigation glass, with explicit weather source/status.
 import { useEffect, useId, useRef, useState } from 'react';
-import { IChevron, ICloud, IDusk, IMoon, IRain, ISun } from '@/themes/cinnaglass/icons';
+import { IChevron, IClock, ICloud, IDusk, IMoon, IRain, ISun } from '@/themes/cinnaglass/icons';
 import type { Mood, WeatherTweak } from '@/themes/cinnaglass/tweaks';
 import type { Weather } from '@/themes/cinnaglass/model';
+import '@/themes/cinnaglass/shell/navigation-glass.css';
 import '@/themes/cinnaglass/shell/ambience.css';
 
 type AmbienceProps = {
@@ -26,22 +27,22 @@ const WXS = [
 
 // The trigger stays mounted so keyboard dismissal can restore focus without remounting it.
 export function Ambience({ mood, setMood, wx, setWx, weather }: AmbienceProps) {
-    const [open, setOpen] = useState(false);
+    const [panel, setPanel] = useState<'time' | 'weather' | null>(null);
     const host = useRef<HTMLDivElement>(null);
     const trigger = useRef<HTMLButtonElement>(null);
     const panelId = useId();
-    const MoodIcon = MOODS.find((item) => item.k === mood)?.Icon ?? IDusk;
-    const WxIcon = WXS.find((item) => item.k === wx)?.Icon ?? ICloud;
+    const timeLabel = MOODS.find((item) => item.k === mood)?.label;
+    const weatherLabel = WXS.find((item) => item.k === wx)?.label ?? weather?.label ?? '实况';
     useEffect(() => {
-        if (!open) return;
+        if (!panel) return;
         const pointer = (event: PointerEvent) => {
-            if (event.target instanceof Node && !host.current?.contains(event.target)) setOpen(false);
+            if (event.target instanceof Node && !host.current?.contains(event.target)) setPanel(null);
         };
         const key = (event: KeyboardEvent) => {
             if (event.key !== 'Escape' || document.querySelector('dialog:modal')) return;
             event.preventDefault();
             event.stopPropagation();
-            setOpen(false);
+            setPanel(null);
             trigger.current?.focus();
         };
         window.addEventListener('pointerdown', pointer);
@@ -50,7 +51,7 @@ export function Ambience({ mood, setMood, wx, setWx, weather }: AmbienceProps) {
             window.removeEventListener('pointerdown', pointer);
             window.removeEventListener('keydown', key);
         };
-    }, [open]);
+    }, [panel]);
     const status =
         wx !== 'auto'
             ? '手动天气 · 不使用当前位置'
@@ -61,44 +62,74 @@ export function Ambience({ mood, setMood, wx, setWx, weather }: AmbienceProps) {
                 : '正在获取当前位置的天气…';
     return (
         <div className="amb-wrap" ref={host}>
-            <button
-                ref={trigger}
-                type="button"
-                className="amb-pill ui-surface"
-                aria-label="灯光与天气"
-                aria-expanded={open}
-                aria-controls={panelId}
-                onClick={() => setOpen((value) => !value)}
-            >
-                <MoodIcon size={18} />
-                <span className="amb-div" />
-                <WxIcon size={18} />
-                <IChevron size={12} />
-            </button>
-            {open && (
-                <section id={panelId} className="amb-panel ui-surface" aria-label="灯光与天气选项">
+            <div className="amb-pill ui-surface">
+                {(['time', 'weather'] as const).map((category, index) => {
+                    const Icon = category === 'time' ? IClock : ICloud;
+                    return (
+                        <div className="amb-entry" key={category}>
+                            {index > 0 && <span className="amb-div" aria-hidden="true" />}
+                            <button
+                                type="button"
+                                className={`amb-trigger rail-btn ${panel === category ? 'on' : ''}`}
+                                aria-expanded={panel === category}
+                                aria-controls={panelId}
+                                onClick={(event) => {
+                                    trigger.current = event.currentTarget;
+                                    setPanel((current) => (current === category ? null : category));
+                                }}
+                            >
+                                <Icon size={22} />
+                                <span>
+                                    <b>{category === 'time' ? '时辰' : '天气'}</b>
+                                    <small>{category === 'time' ? timeLabel : weatherLabel}</small>
+                                </span>
+                                <IChevron size={12} />
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+            {panel && (
+                <section
+                    id={panelId}
+                    className="amb-panel ui-surface"
+                    aria-label={panel === 'time' ? '时辰选项' : '天气选项'}
+                >
                     <div className="amb-options ui-liner">
-                        <p>光线时段</p>
+                        <h2>{panel === 'time' ? '时辰' : '天气'}</h2>
+                        <p>{panel === 'time' ? '改变画面的光线与色温' : '选择窗外的天气'}</p>
                         <div className="amb-row">
-                            {MOODS.map(({ k, label, Icon }) => (
-                                <button type="button" key={k} aria-pressed={mood === k} onClick={() => setMood(k)}>
-                                    <Icon size={20} />
-                                    <span>{label}</span>
-                                </button>
-                            ))}
+                            {panel === 'time'
+                                ? MOODS.map(({ k, label, Icon }) => (
+                                      <button
+                                          type="button"
+                                          className="ui-button"
+                                          key={k}
+                                          aria-pressed={mood === k}
+                                          onClick={() => setMood(k)}
+                                      >
+                                          <Icon size={22} />
+                                          {label}
+                                      </button>
+                                  ))
+                                : WXS.map(({ k, label, Icon }) => (
+                                      <button
+                                          type="button"
+                                          className="ui-button"
+                                          key={k}
+                                          aria-pressed={wx === k}
+                                          onClick={() => setWx(k)}
+                                      >
+                                          <Icon size={22} />
+                                          {label}
+                                      </button>
+                                  ))}
                         </div>
-                        <p>窗外天气</p>
-                        <div className="amb-row">
-                            {WXS.map(({ k, label, Icon }) => (
-                                <button type="button" key={k} aria-pressed={wx === k} onClick={() => setWx(k)}>
-                                    <Icon size={20} />
-                                    <span>{label}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <p className="amb-status" role="status">
-                            {status}
-                        </p>
+                        {panel === 'weather' && (
+                            <p className="amb-status" role="status">
+                                {status}
+                            </p>
+                        )}
                     </div>
                 </section>
             )}

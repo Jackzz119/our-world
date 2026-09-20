@@ -2,7 +2,7 @@
 
 调研、候选、比稿和待确认原型放在这里；`uiux/` 只保留定稿规范与选定展示。原始工具批次默认本地忽略，明确保留的比稿目录单独入库，普通回归报告仍写在会话中。
 
-当前待确认：[植物园配色与环境入口 mock](ui-unification/climate-controls.html) · [方案说明与图例](ui-unification/climate-controls.md)。双入口、合并入口与当前图标版可切换；沿用现有 UI 材质和植物园原图，金亮信纸仅为理念示意。正式产品本轮只修复聊天/音乐 toggle 与导航选中状态。
+当前看样：[植物园兼容与暮色信纸](ui-unification/climate-controls.html) · [方案说明与图例](ui-unification/climate-controls.md)。双入口与夜晚金亮信纸已批准并接入正式组件；暮色玫瑰金/灰紫适配待用户反馈。页面双入口复用产品 Ambience，信纸复用 SunlitLetter；合并入口与下方旧截图只作研究历史。
 
 已选定材质的原始比稿（这里的浮窗是历史候选，不代表当前产品）：[连续玻璃壳](ui-unification/standard-board.html) · [新旧并排比较](ui-unification/material-comparison.html)。通过项目开发服务打开 HTML，不使用 `file://` 打开 React 样板。
 

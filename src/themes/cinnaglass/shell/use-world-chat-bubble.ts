@@ -11,19 +11,19 @@ export type WorldBubble = { seatId: string; text: string; key: number };
 
 /** Which chat surfaces are on screen — either one counts as "she is being read" —
  *  plus my read cursor for the world conversation (ISO, undefined = never read). */
-type ChatSurfaces = { chatOpen: boolean; convOpen: string | null; myReadAt?: string };
+type ChatSurfaces = { chatOpen: boolean; convOpen: string | null; myReadAt?: string; latestIncoming: Msg | undefined };
 
 // How long her bubble stays over the seat.
 const BUBBLE_MS = 4500;
 
-// Derives the rail's unread pip and the in-world bubble from the newest message
-// of the world conversation. `unread` needs no state: a pip is exactly "her
-// message is the latest one, it is newer than my read cursor, and no chat
-// surface is open" — opening a surface marks the conversation read, so
-// closing it again no longer re-lights the pip.
-export function useWorldChatBubble(lastMsg: Msg | undefined, { chatOpen, convOpen, myReadAt }: ChatSurfaces) {
-    const unseen = !!lastMsg && (!myReadAt || Date.parse(lastMsg.ts) > Date.parse(myReadAt));
-    const unread = !!lastMsg && lastMsg.from !== 'me' && unseen && !chatOpen && !convOpen;
+// Unread follows the latest valid incoming message, even when my own reply is newer.
+// Only a surface reading this world conversation suppresses its pip and letter.
+export function useWorldChatBubble(
+    lastMsg: Msg | undefined,
+    { chatOpen, convOpen, myReadAt, latestIncoming }: ChatSurfaces
+) {
+    const unseen = !!latestIncoming && (!myReadAt || Date.parse(latestIncoming.ts) > Date.parse(myReadAt));
+    const unread = unseen && !chatOpen && !convOpen;
 
     const [bubble, setBubble] = useState<WorldBubble | null>(null);
     // one bubble per message id, so a re-render never replays the same line
