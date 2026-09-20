@@ -1,11 +1,13 @@
 # Our World · 当前 UI/UX
 
-> UI Tailor 主维护，Monet 负责全局统一与视觉审核 · 2026-09-13。
+> UI Tailor 主维护，Monet 负责全局统一与视觉审核 · 2026-09-20。
 > [整体设计系统](../design-system.md) / [Cinnaglass 主题](cinnaglass/ui-system.md) / [交互规则](interaction.md)
 
 ![当前实景中的导航、天气、聊天和音乐控件；聊天内容已遮去](cinnaglass/ui-unification/audit-2026-09-11/widgets-twilight.png)
 
 这是现状示例，不是统一完成稿。界面围绕安静陪伴、真实状态和需要时可读展开；不把所有功能都做成同一种浮窗。
+
+**M1 提案已可查看**：[实景操作](cinnaglass/standard-board.html) / [两种弹窗材质并排比较](cinnaglass/material-comparison.html) / [图文与边界](cinnaglass/ui-system.md#m1-可操作标准板提案未定稿)。B1 的正文仍有磨砂纹理，B2 的正文铺稳定实底；待用户选定，产品尚未迁移。
 
 ## 所有在用 UI 的登记
 

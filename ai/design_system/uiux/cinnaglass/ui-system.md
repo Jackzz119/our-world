@@ -1,8 +1,25 @@
 # Cinnaglass · 当前主题规范
 
-> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) · 2026-09-13。
+> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) · 2026-09-20。
 
 导航是已认可的统一起点；A/B 其余界面只记录真实现状，C 日记本 session 冻结。本页是主题常驻规范，[HTML 组件/参数预览](ui-system.html) 看真实 CSS 与交互样板，历史内容必须有标识。
+
+## M1 可操作标准板（提案，未定稿）
+
+[实景标准板](standard-board.html) · [B1/B2 并排材质比较](material-comparison.html)。先看左右正文区的区别，再回到实景中操作；不依赖用户记住切换前的画面。
+
+![B1 全磨砂与 B2 磨砂外壳加稳定正文：同一实景截图，虚线只标示区别区域](ui-unification/material-comparison/overview.png)
+
+- **B1**：纹理与透景延伸到正文，整体玻璃感连续；明暗与云纹也会出现在文字背后。
+- **B2**：标题/页脚沿用同一磨砂壳，正文使用均匀 `#292a2c` 实底；阅读更稳定，但三段衔接仍需打磨。UI Tailor 建议 B2；Monet 同一 agent 复核与独立视觉第二意见均支持该方向，**用户尚未选择**。
+- 比较页保存暮色正常居中、黄昏明窗压力测试两组。明窗组只是临时摆位，不能据此把正式设置改成偏窗布局；同一组先冻结场景再截图，不人为加强材质差异。原截图在 [material-comparison](ui-unification/material-comparison/)，页面中的虚线不属于 UI。
+- 标准板复用真实房间、导航与天气组件；聊天、音乐、设置为独立本地交互样板。支持三时辰/晴雨、聊天草稿与本页发送、音乐收起/恢复、设置关闭回焦点、模拟失败保留输入、减少透明效果与宽松文字；不连接账号保存或音频播放，不宣称这些产品功能已迁移。
+- 壳沿用导航的 `frost.webp`，按 256×512 固定尺度取样；聊天/音乐使用固定偏移，不随打开或时辰重新随机。暖冷与边缘读取导航三档调色值，没有逐帧采样、真实环境反射或新增共享光照引擎。
+- 窄屏（宽 ≤767 或高 ≤599）用底导航，聊天/音乐展开互斥；设置居中并限制在可视区域，内容可滚动。触控软键盘、系统缩放和产品数据链验收留在迁移阶段；标准板通过不代表全站通过。
+
+实现来源：[页面入口](standard-board.html)、[交互组件](standard-board.tsx)、[隔离样式](standard-board.css)、[比较页](material-comparison.html)。正式路由未引入这些文件，日记与公共生产材质未修改。
+
+设计参考：[Apple 材质指南](https://developer.apple.com/design/human-interface-guidelines/materials) 用于区分承载导航与内容的材质职责；[W3C 原生 dialog 技术](https://www.w3.org/WAI/WCAG22/Techniques/html/H102) 用于模态焦点与背景不可操作的验证，不复制其他平台的外观。
 
 ## A 场景悬浮 UI
 
