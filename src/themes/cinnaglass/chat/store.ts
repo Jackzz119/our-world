@@ -109,6 +109,49 @@ export const upsertReactions = (
     return next;
 };
 
+// Reconcile a conversation with a freshly fetched latest page. The page is the server's truth for
+// the span it covers, so a local row inside that span that is not in the page was deleted on the
+// server (or never got there: an optimistic local, kept via `keep`). Rows newer than the page —
+// echoes that landed while the fetch was in flight — and rows older than it — paginated history the
+// page does not cover — stay; when the page is short the server has nothing older, so older locals
+// go too. A plain union (mergeRows) can never take a row away, which is why a reconnect used to
+// keep whatever the other side deleted while we were offline.
+export const reconcileRows = (
+    local: ChatMessageRow[],
+    page: ChatMessageRow[],
+    keep: Set<string>,
+    pageIsComplete: boolean
+): ChatMessageRow[] => {
+    if (!page.length) return pageIsComplete ? local.filter((r) => keep.has(r.id)) : local;
+    const min = Date.parse(page[0].created_at);
+    const max = Date.parse(page[page.length - 1].created_at);
+    const pageIds = new Set(page.map((r) => r.id));
+    const kept = local.filter((r) => {
+        if (pageIds.has(r.id)) return false; // the page's copy wins
+        if (keep.has(r.id)) return true; // pending / failed locals were never on the server
+        const t = Date.parse(r.created_at);
+        if (t > max) return true; // newer than the page: an echo that landed mid-fetch
+        if (t < min) return !pageIsComplete; // older history, unless the server has none
+        if (t === min) return !pageIsComplete; // a tie at the page's cut may just be over the limit
+        return false; // inside the span but absent from it: deleted on the server
+    });
+    return mergeRows(kept, page);
+};
+
+// Replace the reaction buckets of the given messages with a fresh fetch. The fetch is the truth for
+// exactly those messages, so a reaction withdrawn while we were offline disappears — which the
+// add-only upsertReactions could never do. Buckets of other messages are untouched.
+export const replaceReactions = (
+    prev: Record<string, ReactionRow[]>,
+    messageIds: Iterable<string>,
+    rows: ReactionRow[]
+): Record<string, ReactionRow[]> => {
+    const next = { ...prev };
+    for (const id of messageIds) delete next[id];
+    for (const r of rows) next[r.message_id] = [...(next[r.message_id] ?? []), r];
+    return next;
+};
+
 // Drop one id from an id set, returning the very same set when it was not there — the identity is
 // what stops a no-op state update from re-rendering every thread.
 export const without = (s: Set<string>, id: string): Set<string> => {

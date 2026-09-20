@@ -71,8 +71,17 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
     allChanRef.current = [...channels, ...dmChannels];
 
     // the write side: the optimistic ledger plus every mutation the surfaces can trigger
-    const { send, sendStickerTo, retrySend, discardFailed, editMessage, deleteMsg, toggleReaction, markRead } =
-        useOptimisticSend(store, allChanRef, uidRef);
+    const {
+        send,
+        sendStickerTo,
+        retrySend,
+        discardFailed,
+        editMessage,
+        deleteMsg,
+        toggleReaction,
+        markRead,
+        writeError
+    } = useOptimisticSend(store, allChanRef, uidRef);
 
     // Display names; world-member profiles win over friend profiles when both know an id.
     const nameMap = useMemo(() => ({ ...friendProfiles, ...profiles }), [friendProfiles, profiles]);
@@ -176,6 +185,7 @@ export function useChatThreads(worldId: string | null, uid: string | null, profi
         deleteMsg,
         toggleReaction,
         markRead,
+        writeError,
         loadOlder,
         reachedStart,
         addFriend,

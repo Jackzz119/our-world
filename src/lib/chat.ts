@@ -127,15 +127,14 @@ export const getReactions = async (messageIds: string[]): Promise<ReactionRow[]>
     return (data ?? []) as ReactionRow[];
 };
 
-// Move own read cursor of a channel to now (guard keeps it monotonic).
-export const markChannelRead = async (channelId: string): Promise<void> => {
+// Move own read cursor of a channel to `at` — the created_at of the newest message read, i.e. a
+// server timestamp, so a skewed device clock can neither leave that message "unread" nor mark
+// later ones read ahead of time (guard keeps the cursor monotonic).
+export const markChannelRead = async (channelId: string, at: string): Promise<void> => {
     const userId = await currentUserId();
     const { error } = await supabase
         .from('channel_reads')
-        .upsert(
-            { channel_id: channelId, user_id: userId, last_read_at: new Date().toISOString() },
-            { onConflict: 'channel_id,user_id' }
-        );
+        .upsert({ channel_id: channelId, user_id: userId, last_read_at: at }, { onConflict: 'channel_id,user_id' });
     if (error) throw error;
 };
 

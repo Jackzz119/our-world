@@ -34,6 +34,7 @@ type ChatCardProps = {
     threads: Record<string, Msg[]>;
     onSend: (convId: string, text: string) => void;
     onSeen: (convId: string) => void;
+    notice?: string | null; // one-line "that did not save" from the write side
 };
 
 // Renders the first conversation only (no switcher, by design) and keeps the list pinned to the
@@ -47,7 +48,8 @@ export function ChatCard({
     dmConvs,
     threads,
     onSend,
-    onSeen
+    onSeen,
+    notice
 }: ChatCardProps) {
     const [text, setText] = useState('');
     const listRef = useRef<HTMLDivElement>(null);
@@ -120,6 +122,7 @@ export function ChatCard({
                     </button>
                 ))}
             </div>
+            {notice && <div className="cc-notice">{notice}</div>}
             {/* spec: input group 244×56 r28, 38px round send */}
             <div className="cc-input">
                 <input
@@ -191,6 +194,7 @@ const ChatCardStyles = () => (
     }
     .cc-sticker{width:84px;height:84px;object-fit:contain;margin-top:4px;}
     .cc-empty{padding:26px 0;text-align:center;font-size:12px;color:var(--cg-icon-muted);}
+    .cc-notice{padding:0 8px 6px;text-align:center;font-size:11.5px;color:var(--cg-icon-muted);}
     /* spec: reaction pill 101×46 r23 rgba(91,91,116,.54), centered-ish */
     .cc-quick{
         align-self:center;margin:0 0 4px -20px;

@@ -53,6 +53,7 @@ type ChannelScreenProps = {
     onEdit: (msgId: string, content: string) => void;
     onDelete: (msgId: string) => void;
     onReact: (msgId: string, emoji: string) => void;
+    notice?: string | null; // one-line "that did not save" from the write side
     // emote system (ai/features/chat.md §三「lib/emotes.ts」): shared world sticker library
     emotes: EmoteView[];
     hasWorld: boolean; // the library is world-scoped — no world, no importing
@@ -89,6 +90,7 @@ export function ChannelScreen({
     reachedStart,
     reads,
     onRetry,
+    notice,
     onDiscard,
     onEdit,
     onDelete,
@@ -191,6 +193,7 @@ export function ChannelScreen({
                                 actions={{ onRetry, onDiscard, onEdit, onDelete, onReact, onLoadOlder }}
                                 emotePicker={{ emotes, onSearchWeb, onImportUrl, onImportFile, onRemoveEmote }}
                             />
+                            {notice && <div className="chsc-notice">{notice}</div>}
                             <ChatComposer
                                 key={convId}
                                 placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}

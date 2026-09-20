@@ -20,6 +20,10 @@ const EXT_BY_TYPE: Record<string, string> = {
     'image/webp': 'webp',
     'image/avif': 'avif'
 };
+// The bucket's own rules (sql/storage-memories-bucket.sql): this mime allow-list and 25 MB per
+// file. Exported so a picker can refuse a file before uploading instead of after.
+export const MEMORY_IMAGE_TYPES = Object.keys(EXT_BY_TYPE);
+export const MEMORY_IMAGE_MAX_BYTES = 25 * 1024 * 1024;
 
 // Derive the thumbnail path from an original: foo/bar.jpg -> foo/bar.thumb.webp
 export const thumbPathOf = (originalPath: string): string => originalPath.replace(/\.[^./]+$/, '.thumb.webp');
@@ -60,9 +64,25 @@ const makeThumbDataUrl = async (file: File): Promise<string> => {
     }
 };
 
+// Best-effort removal of originals (plus their thumbnails) that ended up orphaned because a later
+// upload or the post insert failed. Never throws: an orphan is a cost, not a broken feature.
+export const removeMemoryImages = async (originalPaths: string[]): Promise<void> => {
+    if (!originalPaths.length) return;
+    const paths = originalPaths.flatMap((p) => [p, thumbPathOf(p)]);
+    await supabase.storage
+        .from(BUCKET)
+        .remove(paths)
+        .then(
+            () => undefined,
+            () => undefined
+        );
+};
+
 // Upload the original image plus a display-sized webp thumbnail for a world.
-// If the browser cannot decode the format, only the original is stored.
-// Returns the original's storage path to persist in posts.images.
+// If the browser cannot decode the format, only the original is stored; if the
+// thumbnail upload itself fails the original is removed again so nothing is
+// left half-uploaded. Returns the original's storage path to persist in
+// posts.images.
 export const uploadMemoryImage = async (worldId: string, file: File): Promise<{ originalPath: string }> => {
     const ext = EXT_BY_TYPE[file.type] ?? 'bin';
     const base = `${worldId}/${newId()}`;
@@ -79,7 +99,10 @@ export const uploadMemoryImage = async (worldId: string, file: File): Promise<{ 
         const { error: thumbErr } = await supabase.storage
             .from(BUCKET)
             .upload(thumbPathOf(originalPath), thumb, { contentType: 'image/webp', upsert: false });
-        if (thumbErr) throw thumbErr;
+        if (thumbErr) {
+            await removeMemoryImages([originalPath]);
+            throw thumbErr;
+        }
     }
 
     return { originalPath };

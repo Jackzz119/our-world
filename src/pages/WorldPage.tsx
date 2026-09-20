@@ -147,6 +147,7 @@ const WorldPage = () => {
         deleteMsg,
         toggleReaction,
         markRead,
+        writeError,
         loadOlder,
         reachedStart,
         addFriend,
@@ -297,6 +298,7 @@ const WorldPage = () => {
                             threads={threads}
                             onSend={send}
                             onSeen={markRead}
+                            notice={writeError}
                         />
                     </>
                 )}
@@ -352,6 +354,7 @@ const WorldPage = () => {
                     onImportFile={addEmoteFile}
                     onRemoveEmote={removeEmoteById}
                     onSeen={markRead}
+                    notice={writeError}
                     chatAlign={t.chatAlign}
                 />
             </div>

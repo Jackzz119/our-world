@@ -3,7 +3,7 @@
 // list. Moved out of screens.tsx verbatim.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPost } from '@/lib/posts';
-import { uploadMemoryImage } from '@/lib/storage';
+import { MEMORY_IMAGE_MAX_BYTES, MEMORY_IMAGE_TYPES, removeMemoryImages, uploadMemoryImage } from '@/lib/storage';
 import { IPhoto, ISparkle } from '@/themes/cinnaglass/icons';
 
 // Controlled multi-image pick: the thumbnail row IS the upload list — what
@@ -61,10 +61,20 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
         if (open) autogrow();
     }, [open]);
 
-    // Accept only images, cap at MAX_IMGS, mint one object URL per pick.
+    // Accept what the bucket accepts (its mime list and size cap, checked here
+    // so a refusal is instant and in plain words rather than an English error
+    // after a full upload), cap at MAX_IMGS, mint one object URL per pick.
     const addFiles = (files: Iterable<File>) => {
         if (busy) return;
-        const imgs = [...files].filter((f) => f.type.startsWith('image/'));
+        const imgs: File[] = [];
+        const refused: string[] = [];
+        for (const f of files) {
+            if (!MEMORY_IMAGE_TYPES.includes(f.type))
+                refused.push(`${f.name} 不是支持的格式（只收 png / jpg / webp / avif）`);
+            else if (f.size > MEMORY_IMAGE_MAX_BYTES) refused.push(`${f.name} 超过 25MB`);
+            else imgs.push(f);
+        }
+        setErr(refused.length ? `有 ${refused.length} 张没加进来：${refused.join('；')}` : null);
         if (!imgs.length) return;
         setPicked((prev) => [
             ...prev,
@@ -98,27 +108,29 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
         }
     };
 
-    // Uploads run sequentially so a mid-way failure leaves a known prefix in the
-    // bucket rather than an unknown scatter; the post row is written only after
-    // every image lands. On failure nothing is cleared — the draft stays.
+    // Uploads run sequentially; the post row is written only after every image
+    // lands. On failure the draft stays, and whatever already reached the
+    // bucket is removed again — nothing references it, and a retry uploads
+    // afresh — so a half-published post never leaves orphans behind.
     const publish = async () => {
         const v = text.trim();
         if ((!v && picked.length === 0) || !worldId || busy) return;
         setBusy(true);
         setErr(null);
+        const uploaded: string[] = [];
         try {
-            const images: string[] = [];
             for (const p of picked) {
                 const { originalPath } = await uploadMemoryImage(worldId, p.file);
-                images.push(originalPath);
+                uploaded.push(originalPath);
             }
-            await createPost({ worldId, content: v, images });
+            await createPost({ worldId, content: v, images: uploaded });
             setText('');
             setOpen(false);
             clearPicked();
             onPublished();
         } catch (e) {
-            setErr(e instanceof Error ? e.message : String(e));
+            void removeMemoryImages(uploaded);
+            setErr(`发布失败：${e instanceof Error ? e.message : String(e)}`);
         } finally {
             setBusy(false);
         }
@@ -199,7 +211,7 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
                 <input
                     ref={fileRef}
                     type="file"
-                    accept="image/*"
+                    accept={MEMORY_IMAGE_TYPES.join(',')}
                     multiple
                     hidden
                     onChange={(e) => {
@@ -236,7 +248,7 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
                         </button>
                     </div>
                 </div>
-                {err && <div className="empty-hint">发布失败：{err}</div>}
+                {err && <div className="empty-hint">{err}</div>}
             </div>
         </div>
     );

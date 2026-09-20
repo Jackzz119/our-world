@@ -61,6 +61,7 @@ export const ChannelStyles = () => (
   .chsc-msgs.left .chsc-m.me .chsc-rx{justify-content:flex-start;}
   .chsc-msgs.left .chsc-read{align-self:flex-start;margin:-6px 0 0 4px;}
   .chsc-top-hint{text-align:center;font-size:11px;color:var(--glass-sub);padding:0 0 4px;flex:0 0 auto;}
+  .chsc-notice{text-align:center;font-size:11.5px;color:var(--glass-sub);padding:2px 12px 6px;flex:0 0 auto;}
   .chsc-msgs::-webkit-scrollbar{width:6px;}
   .chsc-msgs::-webkit-scrollbar-thumb{background:var(--glass-line);border-radius:9px;}
   .chsc-m{display:flex;flex-direction:column;max-width:68%;position:relative;}

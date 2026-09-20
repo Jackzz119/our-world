@@ -3,10 +3,18 @@
 // ways rows get in — `absorb` for a fetched batch and `handleEvent` for a broadcast echo. It is
 // deliberately one module: absorb's four setState calls must land in a single React commit, or a
 // message would paint one frame before its reactions do. Feature doc: ai/features/chat.md §三.
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MESSAGE_PAGE_SIZE, getMessages, getReactions } from '@/lib/chat';
 import { Logman } from '@/lib/logman';
-import { dropMessageEverywhere, errMsg, mergeRows, upsertReactions, without } from '@/themes/cinnaglass/chat/store';
+import {
+    dropMessageEverywhere,
+    errMsg,
+    mergeRows,
+    reconcileRows,
+    replaceReactions,
+    upsertReactions,
+    without
+} from '@/themes/cinnaglass/chat/store';
 import type { Channel, ChannelReadRow, ChatMessageRow, ReactionRow, WorldEvent } from '@/types/chat';
 
 const TAG = '[chat][web][use-message-store]';
@@ -50,17 +58,45 @@ export function useMessageStore(
     const loadingOlder = useRef(new Set<string>());
 
     // deleted messages linger briefly so the particle effect can play over
-    // the still-rendered bubble, then get purged for real
+    // the still-rendered bubble, then get purged for real. One timer per id:
+    // our own delete and its DELETE echo both call this.
+    const vanishTimers = useRef(new Map<string, number>());
     const startVanish = useCallback((id: string) => {
+        if (vanishTimers.current.has(id)) return;
         setVanishingIds((s) => (s.has(id) ? s : new Set(s).add(id)));
-        setTimeout(() => {
-            setChanRows((prev) => dropMessageEverywhere(prev, id));
-            setVanishingIds((s) => without(s, id));
-        }, VANISH_MS);
+        vanishTimers.current.set(
+            id,
+            window.setTimeout(() => {
+                vanishTimers.current.delete(id);
+                setChanRows((prev) => dropMessageEverywhere(prev, id));
+                setVanishingIds((s) => without(s, id));
+            }, VANISH_MS)
+        );
+    }, []);
+    // A delete the server refused takes its vanish back: stop the purge if it
+    // has not fired yet and clear the flag so the bubble renders normally again
+    // (the caller puts the row back if the purge already ran).
+    const cancelVanish = useCallback((id: string) => {
+        const t = vanishTimers.current.get(id);
+        if (t !== undefined) {
+            window.clearTimeout(t);
+            vanishTimers.current.delete(id);
+        }
+        setVanishingIds((s) => without(s, id));
+    }, []);
+    useEffect(() => {
+        const timers = vanishTimers.current;
+        return () => {
+            for (const t of timers.values()) window.clearTimeout(t);
+            timers.clear();
+        };
     }, []);
 
     // merge one fetched batch (channels' pages + reactions + reads) into the
-    // shared stores — used by both the world and the account loaders
+    // shared stores — used by both the world and the account loaders. A merge
+    // (reconnect refill) treats each page as the truth for its span, so rows
+    // and reactions the other side removed while we were offline go away too;
+    // unconfirmed locals are exempt.
     const absorb = useCallback(
         (
             chans: Channel[],
@@ -69,14 +105,23 @@ export function useMessageStore(
             readRows: ChannelReadRow[],
             merge: boolean
         ) => {
+            const keep = new Set([...pendingRef.current, ...failedRef.current]);
             setChanRows((prev) => {
                 const next = { ...prev };
                 chans.forEach((c, i) => {
-                    next[c.id] = merge ? mergeRows(prev[c.id] ?? [], pages[i]) : pages[i];
+                    next[c.id] = merge
+                        ? reconcileRows(prev[c.id] ?? [], pages[i], keep, pages[i].length < MESSAGE_PAGE_SIZE)
+                        : pages[i];
                 });
                 return next;
             });
-            setReactions((prev) => upsertReactions(prev, rxRows));
+            setReactions((prev) =>
+                replaceReactions(
+                    prev,
+                    pages.flat().map((r) => r.id),
+                    rxRows
+                )
+            );
             setReads((prev) => {
                 const next = { ...prev };
                 for (const r of readRows) next[r.channel_id] = { ...next[r.channel_id], [r.user_id]: r.last_read_at };
@@ -175,6 +220,7 @@ export function useMessageStore(
         setPendingIds,
         setFailedIds,
         startVanish,
+        cancelVanish,
         absorb,
         handleEvent,
         loadOlder
