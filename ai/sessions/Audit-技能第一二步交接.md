@@ -4,7 +4,7 @@
 
 ## 手上这件事
 - 目标：用 hyber-operator-portal 的 `project-audit` 技能给本仓做五步全项目自审；现已完成第一步（文档/冗余/目录）与第二步（结构/复用/注释/格式化 + 用户批准的全部重构）。
-- 进行到：第二步 9 个 commit 在本地 `dev`（`dc74f51`..`365b0aa`），**未推送**；第三步「协议、后端与前端深度 review」未开始。入口 `ai/project-audit/INDEX.md`。
+- 进行到：第二步全部 commit 已推送到 `origin/dev`（`dc74f51`..`365b0aa`），随后又复刻了 hyber-operator-portal 的技能/协议体系并推送；第三步「协议、后端与前端深度 review」未开始。入口 `ai/project-audit/INDEX.md`。
 
 ## 本轮关键决策
 - 第二步 A 类（注释/引用/死样式/小复用/格式化）直接做，B 类（大文件拆分等）先给方案 —— 理由：技能规定全面重构须用户明确要求；用户随后批准全部 B 类并已执行。
@@ -20,7 +20,7 @@
 1. 确认 `git status` 干净、`pnpm exec tsc -b` 零错误（第二步交付状态）。
 2. 开第三步：新建 `ai/project-audit/runs/2026-09-2x-01/`，在 `STEPS.md` 拆子步骤，按技能 §第三步 从每个入口跟到协议/存储/网络/状态/呈现；只交付诊断与建议。线索见 INDEX「第三步开工时要知道的」。
 3. 有 Supabase 会话时跑 INDEX 里的运行时验收清单，补第二步「未验证」项。
-4. 技能真源/协议体系已复刻完成（`shelf init`、`ai/jaSkills`、`ai/jaAgents`、`.worktreeinclude`）；新设备 `git pull` 后跑 `shelf init --agents claude,codex` 再开工。
+4. 技能真源/协议体系已复刻完成（`ai/jaSkills` 唯一正本、`ai/jaAgents` 入库协议副本、`.shelf.json`、`.worktreeinclude`），无需再做接入工作；第 0 步的脚本就是它的落地方式。用户侧只做 `git pull origin dev` + `pnpm install`。
 
 ## 别踩的坑
 - `prettier --list-different` 有输出时退出码为 1，链式 `&&` 会中断后续命令。

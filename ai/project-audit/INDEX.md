@@ -5,7 +5,7 @@
 ## 现在在哪
 
 - **第一步（文档/冗余文件/目录）已结束**：commits `f7a151a`、`5e6652a`、`a9f7cfa`，已推送。
-- **第二步（结构/复用/注释/格式化 + 用户批准的全部重构）已交付**：commits `dc74f51` → `365b0aa`（9 个，**本地未推送**，`dev` 领先 `origin/dev` 9）。
+- **第二步（结构/复用/注释/格式化 + 用户批准的全部重构）已交付并推送**：commits `dc74f51` → `365b0aa`；其后 `055db5c`..`2efbfc7` 为技能/协议体系复刻与交接文档，不属于审核步骤。
 - **下一步 = 第三步「协议、后端与前端深度 review」**，尚未开始；之后是第四步（性能：先静态分析再真实运行 profiler）→ 拓展（[EXTRA-STEPS.md](EXTRA-STEPS.md) 当前无启用项）→ 第五步（AI 上下文与 token 成本收尾）。
 
 ## 技能与运行方式
@@ -26,13 +26,13 @@
 | 后端      | Supabase（auth / Postgres / Storage / Realtime Broadcast from Database）；schema 迁移历史不在仓库；`SUPABASE_ACCESS_TOKEN` 失效，MCP 连不上（TODO 继承待办）                                                                                                                    |
 | 本机限制  | **无 `.env.local`**，应用进不了世界：第二步的重构等价性靠 tsc / AST / 帧像素 / 计算样式 dump / 纯函数断言证明，运行时冒烟只到 `/login`。第三、四步若要真实运行，需要用户提供 Supabase 会话                                                                                      |
 | 文档      | `CLAUDE.md`/`AGENTS.md` 协议（受保护）；`ai/PROJECT.md`、`ai/TODO.md`（任务唯一来源）、`ai/features/`、`ai/design_system/`（常驻设计 Markdown）、`ai/reboot/`（归档）、`ai/codex-visual/`（codex-visual 技能比稿归档）、`ai/sessions/`（手动会话存档，不自动读）                |
-| 技能目录  | `.claude/skills` 与 `.agents/skills` 正文已对齐，仅 Codex 显示元数据 `agents/openai.yaml` 留在 `.agents`                                                                                                                                                                        |
+| 技能目录  | 唯一正本 `ai/jaSkills/`；`.claude/skills`、`.agents/skills`、`.codex/skills` 均为指向它的链接（gitignore，由第 0 步脚本生成）                                                                                                                                                   |
 
 ## 第三步开工时要知道的
 
 - 授权边界：第三步默认**只交付诊断、重构建议与验收待办**，不改业务行为；用户要求实施时再动。
 - 已知待核的协议/行为线索（来自前两步，勿当结论）：`ReactionRow.channel_id` 幻列对应的线上 DDL；`world-settings` 弹窗无 UI 入口、`settings.tsx savePw` 假成功（已记 `ai/TODO.md` Bugs）；`room-scene.tsx` render 期改 ref；`friendships`/DM 数据层冻结；`worlds` 外键 `ON DELETE CASCADE` 等 Supabase 审计遗留（`ai/features/supabase.md` §三/四）；`ai/PROJECT.md` 数据库表是「临时真源」（前端 select 反查，未核线上）。
-- 协议/技能体系对照 hyber-operator-portal 的偏差与复刻顺序：[ai/protocol-gap-report.md](../protocol-gap-report.md)（用户计划复刻，需逐步授意改受保护文件）。
+- 协议/技能体系已按 [ai/protocol-gap-report.md](../protocol-gap-report.md) 复刻完成（2026-09-19），新会话只需执行本文开头的第 0 步自举，不必再改受保护文件。
 - 第二步留给用户的产品决定：`image-slot.js` 是否换 React 头像选择器（会丢 reframe 交互与 `ow-image-slots-v1` 旧数据）。
 - 下次有 Supabase 会话时的运行时验收清单：进世界、Enter 唤聊天、点五个家具热点、翻日记、改世界设置看纪念卡与日历同步、窄卡收贴纸。
 
