@@ -43,5 +43,7 @@ __pycache__/
 .codex/
 .agents/
 # 🔴 别在这里加裸的 `SKILL.md` 或 `codex-visual/`：会把技能真源 ai/jaSkills/*/SKILL.md 与归档 ai/codex-visual/ 一起吞掉
-# codex-visual 技能新产物（报告与图）落这里，本地易失；有复用价值的手动搬进 ai/design_system/research/ 或归档
-/ai/design_system/codex-visual/
+# Raw visual batches stay local; curated proposals are tracked beside the design system.
+/ai/design_system/codex-visual/*
+!/ai/design_system/codex-visual/README.md
+!/ai/design_system/codex-visual/ui-unification/
