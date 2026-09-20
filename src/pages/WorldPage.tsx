@@ -12,7 +12,7 @@ const RoomScene = lazy(() => import('@/themes/cinnaglass/room/room-scene').then(
 import { LobbyScene } from '@/themes/cinnaglass/lobby';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
 import { updateMyDisplayName } from '@/lib/profiles';
-import { Rail, RoomHandle } from '@/themes/cinnaglass/shell/rail';
+import { Rail } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
@@ -22,6 +22,10 @@ import { ChannelScreen } from '@/themes/cinnaglass/chat/chat-hub';
 import { useChatThreads, convsFor } from '@/themes/cinnaglass/chat/chat-data';
 import { loadJson as owLoad } from '@/lib/local-store';
 import { useTweaks } from '@/themes/cinnaglass/tweaks';
+import { useCompactUi, useUiEnvironment } from '@/themes/cinnaglass/ui/use-ui-environment';
+import '@/themes/cinnaglass/ui/ui-system.css';
+import '@/themes/cinnaglass/shell/shell-layout.css';
+import '@/themes/cinnaglass/room/room-overlays.css';
 import type { Alarm, CalEvent, Profile, Widgets } from '@/themes/cinnaglass/model';
 import type { World } from '@/types/feed';
 import { getEnvFlag } from '@/utils';
@@ -83,6 +87,7 @@ const DEV_SURFACE = import.meta.env.DEV ? new URLSearchParams(window.location.se
 
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
+    const compact = useCompactUi();
     // v2 shell (concept-c): narrow rail + floating widgets. The chat card is
     // the stage-side chat surface; the covering hub stays one expand away.
     const [chatOpen, setChatOpen] = useState(false);
@@ -98,8 +103,15 @@ const WorldPage = () => {
         onHotspot
     } = useSurfaceRouter({
         initialScreen: DEV_SURFACE,
-        onOpenChat: () => setChatOpen(true),
-        onOpenMusic: () => setMusicOpen(true)
+        onOpenChat: () => {
+            setChatOpen(true);
+            if (compact) setMusicOpen(false);
+        },
+        onOpenMusic: () => {
+            setWidget('music', true);
+            setMusicOpen(true);
+            if (compact) setChatOpen(false);
+        }
     });
     // Four localStorage-backed slices; usePersistedState mirrors each one back
     // on every change (the read strategy stays per-slice — see the hook).
@@ -166,14 +178,19 @@ const WorldPage = () => {
     useEffect(() => {
         if (convOpen || screen) return; // UI layer open — scene shortcuts off
         const onKey = (e: KeyboardEvent) => {
-            if (e.key !== 'Enter') return;
+            if (e.key !== 'Enter' || e.isComposing || e.defaultPrevented || !entered || !world) return;
             const el = document.activeElement;
-            if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+            if (
+                el?.closest('input, textarea, select, button, a, [contenteditable=true]') ||
+                document.querySelector('dialog:modal')
+            )
+                return;
             setChatOpen(true);
+            if (compact) setMusicOpen(false);
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [convOpen, screen]);
+    }, [convOpen, screen, entered, world, compact]);
 
     // The world conversation's newest message drives both the rail's unread pip
     // and her in-world speech bubble.
@@ -189,6 +206,7 @@ const WorldPage = () => {
         setWidgets((w) => ({ ...w, [k]: v }));
     };
     const inWorld = entered && world !== null;
+    const uiRef = useUiEnvironment(t.mood, inWorld);
 
     // What the chrome displays: DB world identity first, localStorage as
     // fallback. Settings still edits the raw local profile — the write-back to
@@ -225,7 +243,16 @@ const WorldPage = () => {
     };
 
     return (
-        <div className="app" data-glass={t.glassStyle} data-mood={t.mood} style={{ position: 'absolute', inset: 0 }}>
+        <div
+            ref={uiRef}
+            className="app ui-environment"
+            data-reduced-transparency={t.reduceTransparency}
+            data-chat-open={chatOpen}
+            data-music-open={musicOpen}
+            data-glass={t.glassStyle}
+            data-mood={t.mood}
+            style={{ position: 'absolute', inset: 0 }}
+        >
             {/* v2 shell (concept-c): the scene owns the full viewport; every
                 chrome piece floats above it. The Discord-era sidebar/HUD
                 retired with the idle-companion pivot
@@ -236,7 +263,13 @@ const WorldPage = () => {
                 style={{ position: 'absolute', inset: 0 }}
             >
                 {inWorld ? (
-                    <Suspense fallback={null}>
+                    <Suspense
+                        fallback={
+                            <div className="room-scene-feedback" role="status">
+                                <div className="ui-surface">正在布置你们的小屋…</div>
+                            </div>
+                        }
+                    >
                         <RoomScene
                             active={screen === null || screen === 'timeline'}
                             mood={t.mood}
@@ -246,10 +279,8 @@ const WorldPage = () => {
                             presence={{
                                 pink: {
                                     name: liveProfile.her,
-                                    // placeholder copy until Realtime Presence
-                                    // lands (TODO R1) — layout is final
-                                    status: '在你身边',
-                                    online: true
+                                    // Seat identity is known; online presence is not implemented.
+                                    status: ''
                                 }
                             }}
                         />
@@ -281,21 +312,24 @@ const WorldPage = () => {
                             mood={t.mood}
                             setMood={(k) => setTweak('mood', k)}
                             wx={t.weather}
+                            weather={weather}
                             setWx={(k) => setTweak('weather', k)}
                         />
                         {widgets.anniv !== false && (
-                            <MomentCard anniv={liveProfile.anniv} onHide={() => setWidget('anniv', false)} />
+                            <MomentCard anniv={world?.anniversary ?? null} onHide={() => setWidget('anniv', false)} />
                         )}
-                        {widgets.music !== false && (
-                            <MusicMini spaceName={liveProfile.world} open={musicOpen} setOpen={setMusicOpen} />
-                        )}
-                        <RoomHandle
-                            onTap={() => {
-                                /* room carousel arrives with the gameroom/garden scenes */
+                        <MusicMini
+                            spaceName={liveProfile.world}
+                            visible={widgets.music !== false}
+                            open={musicOpen}
+                            setOpen={(value) => {
+                                setMusicOpen(value);
+                                if (value && compact) setChatOpen(false);
                             }}
                         />
                         <ChatCard
                             open={chatOpen}
+                            chatAlign={t.chatAlign}
                             onClose={() => setChatOpen(false)}
                             onExpand={() => {
                                 setChatOpen(false);
@@ -316,7 +350,7 @@ const WorldPage = () => {
                     tab={tab}
                     origin={surfaceOrigin}
                     onClose={closeSurface}
-                    anniv={liveProfile.anniv}
+                    anniv={world?.anniversary ?? null}
                     events={events}
                     setEvents={setEvents}
                     alarms={alarms}

@@ -1,141 +1,8 @@
-/* Approved B material, isolated from the frozen diary and legacy modal tokens. */
 .settings-dialog {
-    --set-tint: 63 64 72;
-    --set-top: 192 187 185;
-    --set-cold: 161 185 209;
-    --set-rim: 213 204 192;
-    --set-text: #fff8eb;
-    --set-muted: #dedbd4;
-    --set-error: #ffc2c8;
-    --set-accent: #f1d19a;
-    --set-liner-top: #43434f;
-    --set-liner-base: #34343f;
-    position: fixed;
-    inset: 0;
-    margin: auto;
-    padding: 0;
-    width: 488px;
-    max-width: calc(100vw - 24px);
-    max-height: calc(100dvh - 24px);
-    box-sizing: border-box;
-    isolation: isolate;
-    overflow: hidden;
-    border: 1px solid rgb(var(--set-rim) / 0.27);
-    border-radius: 26px;
-    color: var(--set-text);
-    background:
-        radial-gradient(ellipse at 0 0, rgb(var(--set-cold) / 0.12), transparent 58%),
-        linear-gradient(115deg, rgb(var(--set-top) / 0.1), transparent 40%), rgb(var(--set-tint) / 0.72);
-    box-shadow:
-        0 14px 36px -15px #000a,
-        inset 0 1px 0 rgb(var(--set-rim) / 0.15);
-    backdrop-filter: blur(12px) saturate(0.7);
-    -webkit-backdrop-filter: blur(12px) saturate(0.7);
-    font-size: 15px;
-    line-height: 1.5;
-    color-scheme: dark;
-}
-.settings-dialog[data-mood='golden'] {
-    --set-liner-top: #494235;
-    --set-liner-base: #39342c;
-}
-.settings-dialog[data-mood='night'] {
-    --set-liner-top: #3b342c;
-    --set-liner-base: #2d2924;
-}
-.settings-dialog[open] {
-    display: flex;
-    flex-direction: column;
-}
-.settings-dialog::backdrop {
-    background: #11131666;
-}
-.settings-dialog::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: url('/ui/nav/frost.webp') 42% 50% / 256px 512px;
-    opacity: 0.18;
-    pointer-events: none;
-    z-index: -1;
-}
-.settings-dialog::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    padding: 1px;
-    border-radius: inherit;
-    background: conic-gradient(
-        from 190deg,
-        rgb(var(--set-rim) / 0.04),
-        rgb(var(--set-cold) / 0.5) 63deg,
-        rgb(var(--set-rim) / 0.7) 135deg,
-        transparent 178deg,
-        rgb(var(--set-rim) / 0.4) 229deg,
-        transparent 285deg,
-        rgb(var(--set-rim) / 0.3)
-    );
-    mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-}
-.settings-dialog .set-header {
-    padding: 22px 24px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-.settings-dialog .set-header p {
-    margin: 0 0 4px;
-    font-size: 12px;
-    color: var(--set-muted);
-}
-.settings-dialog h2 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-}
-.settings-dialog h2:focus {
-    outline: none;
-}
-.settings-dialog button {
-    font: inherit;
-    cursor: pointer;
-    color: inherit;
-}
-.settings-dialog :is(button, input):focus-visible {
-    outline: 2px solid var(--set-accent);
-    outline-offset: 2px;
-}
-.settings-dialog .set-close {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    border-radius: 12px;
-    background: transparent;
-}
-.settings-dialog .set-close:hover {
-    background: #ffffff12;
-}
-.settings-dialog .set-content {
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: #aaa39866 transparent;
-    margin: 0 12px;
-    padding: 22px 12px 12px;
-    border-radius: 18px;
-    background: linear-gradient(145deg, var(--set-liner-top), var(--set-liner-base) 58%);
-    box-shadow:
-        inset 0 1px 0 #ffffff0c,
-        0 1px 4px #00000012;
+    --set-text: var(--ui-text);
+    --set-muted: var(--ui-muted);
+    --set-error: var(--ui-error);
+    --set-accent: var(--ui-accent);
 }
 .settings-dialog .set-label {
     font-size: 12px;
@@ -190,7 +57,7 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    overflow: hidden;
+    overflow: visible;
     flex-shrink: 0;
     position: relative;
     display: grid;
@@ -352,37 +219,16 @@
     background: #ffffff10;
 }
 .settings-dialog .set-foot {
-    padding: 16px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    color: var(--set-muted);
-    font-size: 12px;
-    flex-shrink: 0;
     overflow-wrap: anywhere;
 }
 .settings-dialog .hh {
     display: inline-flex;
     color: var(--set-accent);
 }
-@media (max-width: 767px), (max-height: 599px) {
-    .settings-dialog {
-        border-radius: 22px;
-    }
-    .settings-dialog .set-header {
-        padding: 18px 18px 12px;
-    }
-    .settings-dialog .set-content {
-        margin-inline: 10px;
-        padding: 18px 8px;
-        border-radius: 14px;
-    }
-    .settings-dialog .set-foot {
-        padding: 14px 18px;
-    }
-}
-
 .settings-dialog .set-row:has(.seg) > .set-body {
     flex-basis: 100%;
 }
@@ -393,16 +239,7 @@
     flex: 1;
     justify-content: center;
 }
-/* Stable reading surfaces also work when the browser cannot blur the scene. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .settings-dialog {
-        background: rgb(var(--set-tint));
-    }
-}
-@media (prefers-reduced-transparency: reduce) {
-    .settings-dialog {
-        background: rgb(var(--set-tint));
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-    }
+
+.settings-dialog .set-ava:has(image-slot:is([data-menu], [data-reframe])) {
+    z-index: 5;
 }

@@ -1,6 +1,7 @@
 // photo-wall.tsx — the 照片墙 surface body: every post image as a tilted
 // polaroid, grouped by month, with its own progressive lightbox. Moved out of
 // screens.tsx verbatim (only the component name changed).
+import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import { useEffect, useState } from 'react';
 import { signImageUrls, thumbPathOf } from '@/lib/storage';
 import type { FeedPost } from '@/types/feed';
@@ -12,12 +13,22 @@ type LightboxPhoto = { path: string; thumb?: string; date: string };
 // Photo wall: every image from every post, newest first, grouped by month and
 // laid out as tilted polaroids. Clicking one opens a progressive lightbox —
 // the signed thumbnail shows at once, the signed original swaps in when ready.
-export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: Record<string, string> }) {
+export function PhotoWall({
+    posts,
+    thumbUrls,
+    active = true
+}: {
+    posts: FeedPost[];
+    thumbUrls: Record<string, string>;
+    active?: boolean;
+}) {
     const [view, setView] = useState<LightboxPhoto | null>(null);
+    const [originalFailed, setOriginalFailed] = useState(false);
     const [fullUrl, setFullUrl] = useState<string | null>(null);
     // fullUrl resets in the open/close handlers (not the effect) so the effect
     // only talks to external systems: signing + the Esc listener.
     const openView = (p: LightboxPhoto) => {
+        setOriginalFailed(false);
         setFullUrl(null);
         setView(p);
     };
@@ -33,16 +44,16 @@ export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: 
         let cancelled = false;
         signImageUrls([view.path])
             .then((m) => {
-                if (!cancelled) setFullUrl(m[view.path] ?? null);
+                if (!cancelled) {
+                    setFullUrl(m[view.path] ?? null);
+                    setOriginalFailed(!m[view.path]);
+                }
             })
             .catch(() => {
-                /* keep showing the thumbnail */
+                if (!cancelled) setOriginalFailed(true);
             });
-        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeView();
-        window.addEventListener('keydown', onKey);
         return () => {
             cancelled = true;
-            window.removeEventListener('keydown', onKey);
         };
     }, [view]);
 
@@ -78,7 +89,7 @@ export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: 
     }
     return (
         <div>
-            <div className="pw-head">来自时间线的 {photos.length} 个瞬间</div>
+            <div className="pw-head">来自日记的 {photos.length} 个瞬间</div>
             {months.map((g) => (
                 <div key={g.label}>
                     <div className="pw-month">
@@ -87,7 +98,9 @@ export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: 
                     </div>
                     <div className="pw">
                         {g.items.map((ph) => (
-                            <figure
+                            <button
+                                type="button"
+                                aria-label={`查看 ${ph.date} 的照片`}
                                 className="pola"
                                 key={ph.key}
                                 style={{ '--rot': `${ph.rot}deg` } as React.CSSProperties}
@@ -95,8 +108,8 @@ export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: 
                             >
                                 <i className="tape"></i>
                                 <img src={ph.src} alt="" loading="lazy" />
-                                <figcaption>{ph.cap}</figcaption>
-                            </figure>
+                                <span className="pola-caption">{ph.cap}</span>
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -109,13 +122,22 @@ export function PhotoWall({ posts, thumbUrls }: { posts: FeedPost[]; thumbUrls: 
                 </div>
             )}
             {view && (
-                <div className="lb" onClick={closeView}>
-                    <img src={fullUrl ?? view.thumb} alt="" />
-                    <div className="lb-cap">
-                        {view.date}
-                        {!fullUrl && ' · 正在加载原图…'}
-                    </div>
-                </div>
+                <TaskDialog
+                    open={active}
+                    onClose={closeView}
+                    title={view.date}
+                    wide
+                    className="photo-lightbox-task"
+                    description={
+                        originalFailed
+                            ? '原图暂不可用，正在显示预览。'
+                            : !fullUrl
+                              ? '正在加载原图；先显示预览。'
+                              : undefined
+                    }
+                >
+                    <img className="photo-lightbox-image" src={fullUrl ?? view.thumb} alt={`${view.date} 的照片`} />
+                </TaskDialog>
             )}
         </div>
     );

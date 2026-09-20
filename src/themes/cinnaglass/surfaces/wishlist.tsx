@@ -44,19 +44,31 @@ export function Wishlist() {
                 </div>
             </div>
             {wishes.map((w) => (
-                <div className={`wish paper ${w.done ? 'done' : ''}`} key={w.id} onClick={() => toggle(w.id)}>
+                <button
+                    type="button"
+                    className={`wish ${w.done ? 'done' : ''}`}
+                    key={w.id}
+                    aria-pressed={w.done}
+                    onClick={() => toggle(w.id)}
+                >
                     <span className="box">{w.done && <IHeart size={13} fill="currentColor" sw={0} />}</span>
                     <span className="wt">{w.text}</span>
-                </div>
+                </button>
             ))}
             <div className="wl-add">
                 <input
                     value={val}
                     onChange={(e) => setVal(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && add()}
+                    aria-label="新的心愿"
                     placeholder="再许一个一起完成的愿望…"
                 />
-                <button className="chip-accent" onClick={add} aria-label="添加">
+                <button
+                    className="ui-icon-button ui-button-primary"
+                    onClick={add}
+                    disabled={!val.trim()}
+                    aria-label="添加"
+                >
                     <IPlus size={20} />
                 </button>
             </div>

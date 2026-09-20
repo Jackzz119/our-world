@@ -19,47 +19,62 @@ const mapWmo = (code: number): { kind: WeatherKind; label: string } => {
     return { kind: 'rain', label: '雷雨' };
 };
 // Fixed readings for the manual weather tweak — no network, no geolocation.
-const MANUAL_WX: Record<Exclude<WeatherTweak, 'auto'>, { kind: WeatherKind; label: string; temp: number }> = {
-    sun: { kind: 'sun', label: '晴', temp: 26 },
-    cloud: { kind: 'cloud', label: '多云', temp: 22 },
-    rain: { kind: 'rain', label: '小雨', temp: 18 },
-    snow: { kind: 'snow', label: '雪', temp: 1 }
+const MANUAL_WX: Record<Exclude<WeatherTweak, 'auto'>, { kind: WeatherKind; label: string; temp: null }> = {
+    sun: { kind: 'sun', label: '晴', temp: null },
+    cloud: { kind: 'cloud', label: '多云', temp: null },
+    rain: { kind: 'rain', label: '小雨', temp: null },
+    snow: { kind: 'snow', label: '雪', temp: null }
 };
 
 // What 'auto' shows before (and instead of) a successful reading: geolocation
 // missing, denied, slower than 7s, or a failed forecast request all land here.
-const OVERCAST: Weather = { kind: 'cloud', label: '多云', temp: 22, place: '' };
+const OVERCAST: Weather = { kind: 'cloud', label: '正在获取实况', temp: null, place: '', status: 'loading' };
 
 // Current weather for `tweak`. A manual tweak is a pure lookup — no state, no
 // network. 'auto' is the only case that needs an effect: it asks the browser
 // for a position, then open-meteo for that position's current conditions.
 export function useWeather(tweak: WeatherTweak): Weather {
     const [live, setLive] = useState<Weather>(OVERCAST);
+    const [previousTweak, setPreviousTweak] = useState(tweak);
+    // A new auto request starts with loading, never a stale previous forecast.
+    if (previousTweak !== tweak) {
+        setPreviousTweak(tweak);
+        if (tweak === 'auto') setLive(OVERCAST);
+    }
 
     useEffect(() => {
         if (tweak !== 'auto') return; // manual tweaks resolve during render, below
         let cancel = false;
-        const fallback = () => !cancel && setLive({ ...OVERCAST });
-        if (!navigator.geolocation) {
+        const controller = new AbortController();
+        const fallback = () => !cancel && setLive({ ...OVERCAST, label: '实况暂不可用', status: 'unavailable' });
+        if (!navigator.geolocation) return;
+        const to = setTimeout(() => {
+            controller.abort();
             fallback();
-            return;
-        }
-        const to = setTimeout(fallback, 7000);
+        }, 7000);
         navigator.geolocation.getCurrentPosition(
             (pos) => {
+                if (cancel || controller.signal.aborted) return;
                 const { latitude: la, longitude: lo } = pos.coords;
                 fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`
+                    `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code`,
+                    { signal: controller.signal }
                 )
-                    .then((r) => r.json())
+                    .then((r) => {
+                        if (!r.ok) throw new Error('Weather unavailable');
+                        return r.json();
+                    })
                     .then((d) => {
                         if (cancel) return;
                         clearTimeout(to);
                         const c = d.current;
+                        if (!Number.isFinite(c?.temperature_2m) || !Number.isFinite(c?.weather_code))
+                            throw new Error('Weather unavailable');
                         setLive({
                             ...mapWmo(c.weather_code),
                             temp: Math.round(c.temperature_2m),
-                            place: '当前位置'
+                            place: '当前位置',
+                            status: 'live'
                         });
                     })
                     .catch(() => {
@@ -75,10 +90,14 @@ export function useWeather(tweak: WeatherTweak): Weather {
         );
         return () => {
             cancel = true;
+            controller.abort();
             clearTimeout(to);
         };
     }, [tweak]);
 
     // memoised so the manual branch hands out one stable object per tweak
-    return useMemo(() => (tweak === 'auto' ? live : { ...MANUAL_WX[tweak], place: '' }), [tweak, live]);
+    return useMemo((): Weather => {
+        if (tweak !== 'auto') return { ...MANUAL_WX[tweak], place: '手动天气', status: 'manual' };
+        return navigator.geolocation ? live : { ...OVERCAST, label: '实况暂不可用', status: 'unavailable' };
+    }, [tweak, live]);
 }

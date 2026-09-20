@@ -3,8 +3,8 @@
 // the views (全部 / 待处理 / ＋添加好友); an 在线 tab is reserved until presence lands — no fake
 // online states. Friend management lives only here.
 // Mockup 方案 A: ai/design_system/uiux/research/cinnaglass-history/friends-page.html
-// Status (UI frozen, data layer kept): ai/features/chat.md §五.3「好友 / DM 定位待定」.
-import { useState } from 'react';
+// Secondary entry stays folded in the room-first navigation; existing data actions remain available.
+import { useRef, useState } from 'react';
 import type { FriendEntry, FriendRequest } from '@/themes/cinnaglass/chat/chat-data';
 
 // Friends-page CSS, injected alongside the hub's own <style>.
@@ -49,13 +49,18 @@ const FriendsStyles = () => (
   .fpg-add .d{font-size:12px;color:var(--glass-sub);margin-bottom:13px;}
   .fpg-add .line{display:flex;gap:8px;max-width:440px;}
   .fpg-add input{flex:1;min-width:0;height:38px;border-radius:12px;border:1px solid var(--glass-line);
-    background:var(--glass-paper);color:var(--glass-text);padding:0 12px;font:inherit;font-size:13px;outline:none;}
+    background:var(--glass-paper);color:var(--glass-text);padding:0 12px;font:inherit;font-size:16px;outline:none;}
+  .fpg-add input::placeholder{color:var(--ui-muted);opacity:1;}
   .fpg-add input:focus{border-color:var(--accent);background:var(--glass-hi);}
   .fpg-add .go{appearance:none;border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:700;padding:0 18px;
     border-radius:12px;color:#fff;background:linear-gradient(135deg,#86c99a,#5fa878);}
   .fpg-add .go:disabled{opacity:.5;cursor:default;}
   .fpg-add .msg{font-size:12px;color:var(--glass-sub);margin-top:9px;}
   .fpg-add .msg.err{color:#e0718f;}
+  .fpg-confirm{margin:0 0 14px;padding:14px;border:1px solid var(--ui-line);border-radius:12px;color:var(--ui-text);font-size:14px;line-height:1.6;}
+  .fpg-confirm p{margin:0 0 10px;overflow-wrap:anywhere;}
+  .fpg-confirm .actions{display:flex;flex-wrap:wrap;gap:8px;}
+  .fpg-row .nm{overflow-wrap:anywhere;}
   `}</style>
 );
 
@@ -90,7 +95,16 @@ export function FriendsPage({
     const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState<{ text: string; err: boolean } | null>(null);
+    const [removing, setRemoving] = useState<FriendEntry | null>(null);
+    const removeTrigger = useRef<HTMLButtonElement | null>(null);
+    const allTab = useRef<HTMLButtonElement>(null);
     const pendingCount = requestsIn.length;
+
+    // Changing the view cancels an unconfirmed removal without changing friendship data.
+    const selectTab = (next: Tab) => {
+        setRemoving(null);
+        setTab(next);
+    };
 
     // Send a friend request by email, then report the resolved display name or the server's reason
     // inline. Guards against double submits while the request is in flight.
@@ -116,13 +130,20 @@ export function FriendsPage({
             <div className="fpg-hd">
                 <span className="ttl">💗 好友</span>
                 <span className="sep" />
-                <button type="button" className={`fpg-tab ${tab === 'all' ? 'on' : ''}`} onClick={() => setTab('all')}>
+                <button
+                    ref={allTab}
+                    type="button"
+                    className={`fpg-tab ${tab === 'all' ? 'on' : ''}`}
+                    aria-pressed={tab === 'all'}
+                    onClick={() => selectTab('all')}
+                >
                     全部
                 </button>
                 <button
                     type="button"
                     className={`fpg-tab ${tab === 'pending' ? 'on' : ''}`}
-                    onClick={() => setTab('pending')}
+                    aria-pressed={tab === 'pending'}
+                    onClick={() => selectTab('pending')}
                 >
                     待处理
                     {pendingCount > 0 && <span className="fpg-bdg">{pendingCount}</span>}
@@ -133,17 +154,47 @@ export function FriendsPage({
                 <button
                     type="button"
                     className={`fpg-tab add ${tab === 'add' ? 'on' : ''}`}
-                    onClick={() => setTab('add')}
+                    aria-pressed={tab === 'add'}
+                    onClick={() => selectTab('add')}
                 >
                     ＋ 添加好友
                 </button>
-                <div className="fpg-x" onClick={onClose} title="关闭">
+                <button type="button" className="fpg-x" onClick={onClose} title="关闭" aria-label="关闭好友">
                     ✕
-                </div>
+                </button>
             </div>
             <div className="fpg-bd">
                 {tab === 'all' && (
                     <>
+                        {removing && (
+                            <div className="fpg-confirm" role="alert">
+                                <p>解除与「{removing.name}」的好友关系？聊天记录会保留。</p>
+                                <div className="actions">
+                                    <button
+                                        type="button"
+                                        className="ui-button"
+                                        autoFocus
+                                        onClick={() => {
+                                            setRemoving(null);
+                                            removeTrigger.current?.focus();
+                                        }}
+                                    >
+                                        取消
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="ui-button"
+                                        onClick={() => {
+                                            onRemove(removing.otherId);
+                                            setRemoving(null);
+                                            allTab.current?.focus();
+                                        }}
+                                    >
+                                        确认解除
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <div className="fpg-sec">全部好友 — {friends.length}</div>
                         {friends.length === 0 && (
                             <div className="fpg-empty">还没有好友，去「＋ 添加好友」把 ta 加进来吧</div>
@@ -159,16 +210,22 @@ export function FriendsPage({
                                 </div>
                                 <div className="acts">
                                     {f.dmChannelId && (
-                                        <button type="button" title="发私信" onClick={() => onOpenDm(f.dmChannelId!)}>
+                                        <button
+                                            type="button"
+                                            title="发私信"
+                                            aria-label={`给 ${f.name} 发私信`}
+                                            onClick={() => onOpenDm(f.dmChannelId!)}
+                                        >
                                             💬
                                         </button>
                                     )}
                                     <button
                                         type="button"
                                         title="解除好友"
-                                        onClick={() => {
-                                            if (window.confirm(`确定要解除和 ${f.name} 的好友关系吗？聊天记录会保留。`))
-                                                onRemove(f.otherId);
+                                        aria-label={`解除与 ${f.name} 的好友关系`}
+                                        onClick={(event) => {
+                                            removeTrigger.current = event.currentTarget;
+                                            setRemoving(f);
                                         }}
                                     >
                                         ✕
@@ -192,10 +249,20 @@ export function FriendsPage({
                                     <div className="st">想加你为好友</div>
                                 </div>
                                 <div className="acts">
-                                    <button type="button" title="接受" onClick={() => onAccept(r.otherId)}>
+                                    <button
+                                        type="button"
+                                        title="接受"
+                                        aria-label={`接受 ${r.name} 的好友申请`}
+                                        onClick={() => onAccept(r.otherId)}
+                                    >
                                         ✓
                                     </button>
-                                    <button type="button" title="拒绝" onClick={() => onRemove(r.otherId)}>
+                                    <button
+                                        type="button"
+                                        title="拒绝"
+                                        aria-label={`拒绝 ${r.name} 的好友申请`}
+                                        onClick={() => onRemove(r.otherId)}
+                                    >
                                         ✕
                                     </button>
                                 </div>
@@ -216,7 +283,12 @@ export function FriendsPage({
                                             <div className="st">等待对方接受…</div>
                                         </div>
                                         <div className="acts">
-                                            <button type="button" title="取消申请" onClick={() => onRemove(r.otherId)}>
+                                            <button
+                                                type="button"
+                                                title="取消申请"
+                                                aria-label={`取消向 ${r.name} 发出的申请`}
+                                                onClick={() => onRemove(r.otherId)}
+                                            >
                                                 ✕
                                             </button>
                                         </div>
@@ -227,7 +299,7 @@ export function FriendsPage({
                     </>
                 )}
                 {tab === 'add' && (
-                    <div className="fpg-add">
+                    <div className="fpg-add" aria-busy={busy}>
                         <h4>添加好友</h4>
                         <div className="d">输入对方的注册邮箱，向 ta 发送好友申请</div>
                         <div className="line">
@@ -235,10 +307,16 @@ export function FriendsPage({
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="somebody@email.com"
+                                aria-label="对方的注册邮箱"
+                                type="email"
+                                autoComplete="email"
                                 spellCheck={false}
                                 autoFocus
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') void submitAdd();
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                        e.preventDefault();
+                                        void submitAdd();
+                                    }
                                 }}
                             />
                             <button
@@ -250,7 +328,11 @@ export function FriendsPage({
                                 {busy ? '发送中…' : '发送申请 ✨'}
                             </button>
                         </div>
-                        {msg && <div className={`msg ${msg.err ? 'err' : ''}`}>{msg.text}</div>}
+                        {msg && (
+                            <div className={`msg ${msg.err ? 'err' : ''}`} role={msg.err ? 'alert' : 'status'}>
+                                {msg.text}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

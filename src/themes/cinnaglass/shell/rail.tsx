@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import type { IcoProps } from '@/themes/cinnaglass/icons';
-import { IBag, ICalendar, IChevron, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
+import { IBag, ICalendar, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
 import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from '@/themes/cinnaglass/shell/rail-icons';
 import '@/themes/cinnaglass/shell/navigation-glass.css';
 import type { Widgets } from '@/themes/cinnaglass/model';
@@ -27,12 +27,10 @@ const ROOM_DEFS: RoomDef[] = [
     { id: 'garden', name: '植物园', thumb: '/rooms/garden/thumb.png', locked: true }
 ];
 
-// Fixed-layout widget toggles (drag editing retired — ai/design_system/props.md,
-// ai/design_system/uiux/uiux.md). NOTE: 'presence' has no consumer in WorldPage yet.
+// Fixed companion widgets; only switches with active consumers are shown.
 const MODULE_DEFS: { key: string; label: string }[] = [
     { key: 'anniv', label: '纪念日卡' },
-    { key: 'music', label: '音乐迷你条' },
-    { key: 'presence', label: '对方状态胶囊' }
+    { key: 'music', label: '音乐迷你条' }
 ];
 
 type RailProps = {
@@ -177,40 +175,3 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
         </div>
     );
 }
-
-/**
- * Right-edge room handle: 65px wide with 10px clipped by the viewport edge,
- * left corners r24 (ai/codex-visual/20260811-055917Z/codex-report.md). Real
- * switching arrives with the second room — today it reads as the affordance
- * the comp promises.
- */
-export function RoomHandle({ onTap }: { onTap: () => void }) {
-    return (
-        <button className="room-handle" title="切换房间（更多房间即将开放）" onClick={onTap}>
-            <RoomHandleStyles />
-            <IChevron size={20} sw={4} />
-        </button>
-    );
-}
-
-// Scoped styles for RoomHandle; mounted inside the button so they arrive with it.
-const RoomHandleStyles = () => (
-    <style>{`
-    .room-handle{
-        position:absolute;right:-10px;top:29%;z-index:36;
-        width:65px;height:99px;
-        border-radius:24px 0 0 24px;
-        display:flex;align-items:center;justify-content:flex-start;
-        padding-left:14px;
-        appearance:none;cursor:pointer;
-        background:rgba(67,68,91,0.8);
-        border:1px solid var(--cg-stroke);border-right:0;
-        box-shadow:var(--cg-shadow), var(--cg-inset);
-        backdrop-filter:var(--cg-blur);
-        color:var(--cg-icon);
-        transition:transform 160ms ease,filter 160ms ease;
-    }
-    .room-handle:hover{transform:translateX(-4px);filter:brightness(1.08);}
-    .room-handle:active{transform:translateX(-2px) scale(0.97);}
-    `}</style>
-);

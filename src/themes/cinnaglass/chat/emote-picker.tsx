@@ -2,7 +2,7 @@
 // stickers / 🎞️gif(placeholder). One component, two modes — the composer's 😊 (emoji inserts,
 // stickers send) and the reaction bar's ➕ (emoji only; stickers are not reactions, D-7 / B-1).
 // The world tab hosts the import flow: Tenor search via the emotes edge function, local upload,
-// paste-URL. The panel is paper-solid (D-9).
+// paste-URL. The panel uses the adopted opaque reading liner and shared controls.
 // Specs: ai/features/chat.md §三「emote-picker.tsx / emoji-data.ts」(subtask EMO-4 not yet
 // backfilled — see ai/features/chat.md:13);
 // mockup 方案 B: ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html (B-1 / B-3);
@@ -10,6 +10,8 @@
 // ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-7 :53, D-9 :80); the current
 // register is ai/design_system/uiux/cinnaglass/decisions.md.
 import { useRef, useState } from 'react';
+import { IClose, IPlus } from '@/themes/cinnaglass/icons';
+import '@/themes/cinnaglass/chat/emote-picker.css';
 import { ALL_EMOJI, EMOJI_CATEGORIES } from '@/themes/cinnaglass/chat/emoji-data';
 import type { EmoteSearchResult } from '@/types/chat';
 import type { EmoteView } from '@/themes/cinnaglass/chat/chat-data';
@@ -21,70 +23,13 @@ const RECENT_MAX = 16;
 const loadRecent = (): string[] => {
     try {
         const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
-        return Array.isArray(v) ? v.slice(0, RECENT_MAX) : [];
+        return Array.isArray(v)
+            ? v.filter((item): item is string => typeof item === 'string').slice(0, RECENT_MAX)
+            : [];
     } catch {
         return [];
     }
 };
-
-// Picker panel CSS; the hub only positions the panel (.chsc-pop), it does not style it.
-const PickerStyles = () => (
-    <style>{`
-  .epk{width:318px;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;
-    background:var(--glass-paper);border:1px solid var(--glass-line);
-    box-shadow:0 18px 44px -14px rgba(20,29,51,.5);}
-  .epk-search{margin:10px 10px 8px;display:flex;align-items:center;gap:7px;height:32px;border-radius:10px;
-    background:rgba(34,51,90,.06);padding:0 10px;}
-  .epk-search input{flex:1;min-width:0;border:0;background:transparent;outline:none;font:inherit;
-    font-size:12px;color:var(--glass-text);}
-  .epk-tabs{display:flex;gap:2px;padding:0 10px 6px;border-bottom:1px solid rgba(34,51,90,.08);}
-  .epk-tab{flex:1;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;cursor:pointer;
-    border:0;background:transparent;padding:0;}
-  .epk-tab.on{background:rgba(89,197,237,.18);box-shadow:inset 0 -2px 0 var(--accent-deep);}
-  .epk-tab:disabled{opacity:.35;cursor:default;}
-  .epk-bd{max-height:288px;overflow-y:auto;padding-bottom:8px;}
-  .epk-bd::-webkit-scrollbar{width:6px;}
-  .epk-bd::-webkit-scrollbar-thumb{background:var(--glass-line);border-radius:9px;}
-  .epk-sec{font-size:10px;letter-spacing:.1em;font-weight:700;color:var(--glass-sub);padding:8px 12px 2px;text-transform:uppercase;}
-  .epk-grid{display:grid;grid-template-columns:repeat(8,34px);gap:1px;padding:2px 10px 4px;}
-  .epk-grid button{width:34px;height:34px;display:grid;place-items:center;font-size:19px;border-radius:8px;
-    cursor:pointer;border:0;background:transparent;padding:0;}
-  .epk-grid button:hover{background:rgba(89,197,237,.15);}
-  .epk-empty{font-size:12px;color:var(--glass-sub);padding:16px 12px;text-align:center;}
-
-  /* world sticker tiles */
-  .epk-stk{display:grid;grid-template-columns:repeat(4,68px);gap:6px;padding:4px 10px 8px;}
-  .epk-stk .tile{position:relative;width:68px;height:68px;border-radius:12px;cursor:pointer;border:0;padding:0;
-    background:rgba(34,51,90,.05);overflow:hidden;}
-  .epk-stk .tile img{width:100%;height:100%;object-fit:contain;}
-  .epk-stk .tile:hover{background:rgba(89,197,237,.15);}
-  .epk-stk .tile .rmv{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:7px;border:0;
-    display:none;place-items:center;cursor:pointer;font-size:10px;color:#fff;background:rgba(224,113,143,.9);padding:0;}
-  .epk-stk .tile:hover .rmv{display:grid;}
-  .epk-stk .add{display:grid;place-items:center;font-size:20px;color:var(--glass-sub);
-    border:1.5px dashed rgba(34,51,90,.25);background:transparent;}
-  .epk-stk .add:hover{color:var(--accent-deep);border-color:var(--accent);}
-
-  /* import view */
-  .epk-imp{padding:10px 12px;}
-  .epk-imp .row{display:flex;gap:6px;margin-bottom:8px;}
-  .epk-imp input{flex:1;min-width:0;height:30px;border-radius:9px;border:1px solid var(--glass-line);
-    background:rgba(255,255,255,.9);padding:0 9px;font:inherit;font-size:12px;outline:none;color:var(--glass-text);}
-  .epk-imp input:focus{border-color:var(--accent);}
-  .epk-imp button{appearance:none;border:0;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;
-    padding:0 11px;border-radius:9px;color:#fff;background:linear-gradient(135deg,#86c99a,#5fa878);}
-  .epk-imp button:disabled{opacity:.5;cursor:default;}
-  .epk-imp .alt{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--glass-sub);margin:4px 0 6px;}
-  .epk-imp .alt .lnk{text-decoration:underline;cursor:pointer;color:var(--accent-deep);}
-  .epk-imp .msg{font-size:11px;color:var(--glass-sub);margin-top:4px;}
-  .epk-imp .msg.err{color:#e0718f;}
-  .epk-imp .res{display:grid;grid-template-columns:repeat(4,68px);gap:6px;margin-top:6px;}
-  .epk-imp .res button{width:68px;height:68px;border-radius:12px;padding:0;overflow:hidden;
-    background:rgba(34,51,90,.05);}
-  .epk-imp .res img{width:100%;height:100%;object-fit:cover;}
-  .epk-back{font-size:11px;color:var(--accent-deep);cursor:pointer;padding:8px 12px 0;font-weight:700;}
-  `}</style>
-);
 
 // The world tab exists in composer mode only.
 type Tab = 'recent' | 'emoji' | 'world';
@@ -119,6 +64,7 @@ export function EmotePicker({
     const [tab, setTab] = useState<Tab>('emoji');
     const [q, setQ] = useState('');
     const [importing, setImporting] = useState(false);
+    const [removing, setRemoving] = useState<EmoteView | null>(null);
     const [impQ, setImpQ] = useState('');
     const [impName, setImpName] = useState('');
     const [impUrl, setImpUrl] = useState('');
@@ -186,24 +132,36 @@ export function EmotePicker({
     const nameOr = (fallback: string) => (impName.trim() || fallback).slice(0, 24);
 
     return (
-        <div className="epk" onClick={(e) => e.stopPropagation()}>
-            <PickerStyles />
+        <div
+            className="epk ui-liner"
+            aria-label={mode === 'reaction' ? '选择回应表情' : '选择表情与贴纸'}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(event) => {
+                if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+                    event.stopPropagation();
+                    if (!event.nativeEvent.isComposing) event.preventDefault();
+                }
+            }}
+        >
             {!importing && (
                 <>
                     <div className="epk-search">
-                        🔍
                         <input
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                             placeholder="搜索表情…"
+                            aria-label="搜索表情"
+                            autoFocus
                             spellCheck={false}
                         />
                     </div>
-                    <div className="epk-tabs">
+                    <div className="epk-tabs" aria-label="表情分类">
                         <button
                             type="button"
                             className={`epk-tab ${tab === 'recent' ? 'on' : ''}`}
                             title="最近使用"
+                            aria-label="最近使用"
+                            aria-pressed={tab === 'recent'}
                             onClick={() => setTab('recent')}
                         >
                             🕐
@@ -212,6 +170,8 @@ export function EmotePicker({
                             type="button"
                             className={`epk-tab ${tab === 'emoji' ? 'on' : ''}`}
                             title="Emoji"
+                            aria-label="Emoji 表情"
+                            aria-pressed={tab === 'emoji'}
                             onClick={() => setTab('emoji')}
                         >
                             😊
@@ -221,12 +181,20 @@ export function EmotePicker({
                                 type="button"
                                 className={`epk-tab ${tab === 'world' ? 'on' : ''}`}
                                 title="世界表情"
+                                aria-label="世界表情"
+                                aria-pressed={tab === 'world'}
                                 onClick={() => setTab('world')}
                             >
                                 💗
                             </button>
                         )}
-                        <button type="button" className="epk-tab" title="GIF（后续开放）" disabled>
+                        <button
+                            type="button"
+                            className="epk-tab"
+                            title="GIF（后续开放）"
+                            aria-label="GIF（后续开放）"
+                            disabled
+                        >
                             🎞️
                         </button>
                     </div>
@@ -237,7 +205,13 @@ export function EmotePicker({
                                 {emojiHits!.length === 0 && <div className="epk-empty">没找到「{q}」</div>}
                                 <div className="epk-grid">
                                     {emojiHits!.map((x) => (
-                                        <button key={x.e} type="button" title={x.k} onClick={() => pickEmoji(x.e)}>
+                                        <button
+                                            key={x.e}
+                                            type="button"
+                                            title={x.k}
+                                            aria-label={x.k}
+                                            onClick={() => pickEmoji(x.e)}
+                                        >
                                             {x.e}
                                         </button>
                                     ))}
@@ -247,10 +221,17 @@ export function EmotePicker({
                         {!query && tab === 'recent' && (
                             <>
                                 <div className="epk-sec">最近使用</div>
-                                {recent.length === 0 && <div className="epk-empty">还没用过表情，去别的 tab 逛逛</div>}
+                                {recent.length === 0 && (
+                                    <div className="epk-empty">还没用过表情，去 Emoji 里选一个吧</div>
+                                )}
                                 <div className="epk-grid">
                                     {recent.map((ch) => (
-                                        <button key={ch} type="button" onClick={() => pickEmoji(ch)}>
+                                        <button
+                                            key={ch}
+                                            type="button"
+                                            aria-label={ALL_EMOJI.find((item) => item.e === ch)?.k || ch}
+                                            onClick={() => pickEmoji(ch)}
+                                        >
                                             {ch}
                                         </button>
                                     ))}
@@ -264,7 +245,13 @@ export function EmotePicker({
                                     <div className="epk-sec">{cat.name}</div>
                                     <div className="epk-grid">
                                         {cat.items.map((x) => (
-                                            <button key={x.e} type="button" title={x.k} onClick={() => pickEmoji(x.e)}>
+                                            <button
+                                                key={x.e}
+                                                type="button"
+                                                title={x.k}
+                                                aria-label={x.k}
+                                                onClick={() => pickEmoji(x.e)}
+                                            >
                                                 {x.e}
                                             </button>
                                         ))}
@@ -279,45 +266,62 @@ export function EmotePicker({
                                         {query ? `没有叫「${q}」的贴纸` : '还没有贴纸，点 ＋ 去收集'}
                                     </div>
                                 )}
-                                <div className="epk-stk">
-                                    {worldHits.map((e) => (
-                                        <button
-                                            key={e.id}
-                                            type="button"
-                                            className="tile"
-                                            title={`:${e.name}:`}
-                                            onClick={() => onPickSticker?.(e)}
-                                        >
-                                            {e.url ? (
-                                                <img src={e.url} alt={e.name} />
-                                            ) : (
-                                                <span style={{ fontSize: 10 }}>{e.name}</span>
-                                            )}
-                                            <span
-                                                className="rmv"
-                                                title="移出表情库"
-                                                onClick={(ev) => {
-                                                    ev.stopPropagation();
-                                                    if (
-                                                        window.confirm(
-                                                            `把 :${e.name}: 移出你们的表情库？已发送的贴纸会变成占位。`
-                                                        )
-                                                    )
-                                                        onRemoveEmote(e.id);
+                                {removing && (
+                                    <div className="epk-confirm" role="alert">
+                                        <p>移除「{removing.name}」？已发送的贴纸会显示为占位。</p>
+                                        <div>
+                                            <button
+                                                type="button"
+                                                className="ui-button"
+                                                autoFocus
+                                                onClick={() => setRemoving(null)}
+                                            >
+                                                取消
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="ui-button"
+                                                onClick={() => {
+                                                    onRemoveEmote(removing.id);
+                                                    setRemoving(null);
                                                 }}
                                             >
-                                                ✕
-                                            </span>
-                                        </button>
+                                                确认移除
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="epk-stk">
+                                    {worldHits.map((e) => (
+                                        <div key={e.id} className="epk-sticker">
+                                            <button
+                                                type="button"
+                                                className="tile"
+                                                title={`:${e.name}:`}
+                                                aria-label={`发送贴纸 ${e.name}`}
+                                                onClick={() => onPickSticker?.(e)}
+                                            >
+                                                {e.url ? <img src={e.url} alt="" /> : <span>{e.name}</span>}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="epk-remove"
+                                                aria-label={`移除贴纸 ${e.name}`}
+                                                onClick={() => setRemoving(e)}
+                                            >
+                                                <IClose size={14} />
+                                            </button>
+                                        </div>
                                     ))}
                                     {canImport && (
                                         <button
                                             type="button"
                                             className="tile add"
                                             title="添加贴纸"
+                                            aria-label="添加贴纸"
                                             onClick={() => setImporting(true)}
                                         >
-                                            ＋
+                                            <IPlus size={22} />
                                         </button>
                                     )}
                                 </div>
@@ -328,18 +332,23 @@ export function EmotePicker({
             )}
             {importing && (
                 <>
-                    <div className="epk-back" onClick={() => setImporting(false)}>
+                    <button type="button" className="epk-back" onClick={() => setImporting(false)}>
                         ← 返回表情库
-                    </div>
+                    </button>
                     <div className="epk-imp">
                         <div className="row">
                             <input
                                 value={impQ}
                                 onChange={(e) => setImpQ(e.target.value)}
                                 placeholder="搜表情加进你们的世界…"
+                                aria-label="搜索网上贴纸"
+                                autoFocus
                                 spellCheck={false}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') void runWebSearch();
+                                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                        e.preventDefault();
+                                        void runWebSearch();
+                                    }
                                 }}
                             />
                             <button
@@ -355,6 +364,8 @@ export function EmotePicker({
                                 value={impName}
                                 onChange={(e) => setImpName(e.target.value)}
                                 placeholder="给它起个名字（:别名:）"
+                                aria-label="贴纸名称"
+                                maxLength={24}
                                 spellCheck={false}
                             />
                         </div>
@@ -365,6 +376,8 @@ export function EmotePicker({
                                         key={r.id}
                                         type="button"
                                         title="点击加入表情库"
+                                        aria-label={`导入贴纸 ${r.title}`}
+                                        disabled={impBusy}
                                         onClick={() =>
                                             void doImport(() => onImportUrl(r.url, nameOr(impQ.trim() || 'sticker')))
                                         }
@@ -376,13 +389,24 @@ export function EmotePicker({
                         )}
                         <div className="alt">
                             或
-                            <span className="lnk" onClick={() => fileRef.current?.click()}>
+                            <button
+                                type="button"
+                                className="lnk"
+                                disabled={impBusy}
+                                onClick={() => fileRef.current?.click()}
+                            >
                                 上传图片
-                            </span>
+                            </button>
                             /
-                            <span className="lnk" onClick={() => setImpUrl(impUrl ? '' : ' ')}>
+                            <button
+                                type="button"
+                                className="lnk"
+                                disabled={impBusy}
+                                aria-expanded={impUrl !== ''}
+                                onClick={() => setImpUrl(impUrl ? '' : ' ')}
+                            >
                                 粘贴图片链接
-                            </span>
+                            </button>
                         </div>
                         {impUrl !== '' && (
                             <div className="row">
@@ -390,6 +414,8 @@ export function EmotePicker({
                                     value={impUrl.trim()}
                                     onChange={(e) => setImpUrl(e.target.value || ' ')}
                                     placeholder="https://…"
+                                    aria-label="贴纸图片链接"
+                                    type="url"
                                     spellCheck={false}
                                 />
                                 <button
@@ -404,6 +430,7 @@ export function EmotePicker({
                         <input
                             ref={fileRef}
                             type="file"
+                            aria-label="上传贴纸图片"
                             accept="image/*"
                             style={{ display: 'none' }}
                             onChange={(e) => {
@@ -415,7 +442,11 @@ export function EmotePicker({
                                     );
                             }}
                         />
-                        {impMsg && <div className={`msg ${impMsg.err ? 'err' : ''}`}>{impMsg.text}</div>}
+                        {impMsg && (
+                            <div className={`msg ${impMsg.err ? 'err' : ''}`} role={impMsg.err ? 'alert' : 'status'}>
+                                {impMsg.text}
+                            </div>
+                        )}
                     </div>
                 </>
             )}

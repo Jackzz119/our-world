@@ -3,7 +3,8 @@
 // Every row here is real: the nickname writes profiles.display_name, the
 // password change re-authenticates then calls auth.updateUser, the email is
 // the auth user's and read-only.
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
+import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import '@/themes/cinnaglass/settings.css';
 import { supabase } from '@/lib/supabase';
 import { Logman } from '@/lib/logman';
@@ -12,7 +13,6 @@ import type { IcoProps } from '@/themes/cinnaglass/icons';
 import {
     ICheck,
     IChevron,
-    IClose,
     IDusk,
     IHeart,
     IKey,
@@ -25,7 +25,7 @@ import {
     IUser
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
-import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
+import type { ChatAlign, Mood, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
 
 const TAG = '[auth][web][settings]';
 
@@ -34,11 +34,6 @@ const isNetworkError = (e: { name?: string }) => e.name === 'AuthRetryableFetchE
 
 type SegOpt = { k: string; label: string; Icon?: (p: IcoProps) => ReactNode };
 // Option sets for the three segmented controls in 主题外观.
-const GLASS_OPTS: SegOpt[] = [
-    { k: 'cloud', label: '云朵' },
-    { k: 'sky', label: '天空' },
-    { k: 'twilight', label: '暮光' }
-];
 const CHAT_ALIGN_OPTS: SegOpt[] = [
     { k: 'left', label: '全部靠左' },
     { k: 'sides', label: '左右分侧' }
@@ -132,7 +127,13 @@ function PersonRow({
                 <span className="set-initial" aria-hidden="true">
                     {initial}
                 </span>
-                <image-slot id={slotId} shape="circle" placeholder=""></image-slot>
+                <image-slot
+                    id={slotId}
+                    data-ui="avatar"
+                    aria-label={`${name}的本机头像`}
+                    shape="circle"
+                    placeholder=""
+                ></image-slot>
             </span>
             <div className="set-body">
                 {onSave ? (
@@ -190,36 +191,7 @@ export function SettingsScreen({
     /** writes profiles.display_name; rejects with the reason on failure */
     onSaveMyName: (name: string) => Promise<void>;
 }) {
-    const dialogRef = useRef<HTMLDialogElement>(null);
-    const titleRef = useRef<HTMLHeadingElement>(null);
-    const titleId = useId();
     const passwordId = useId();
-    const backdropPress = useRef(false);
-
-    // Follow the approved navigation palette when opening or changing mood.
-    // This is a preset lookup, not a frame-by-frame lighting simulation.
-    useEffect(() => {
-        const dialog = dialogRef.current;
-        const rail = dialog?.closest('.app')?.querySelector('.rail-wrap');
-        if (!dialog || !rail || !open) return;
-        const palette = getComputedStyle(rail);
-        for (const token of ['tint', 'top', 'cold', 'rim']) {
-            dialog.style.setProperty(`--set-${token}`, palette.getPropertyValue(`--nav-${token}`));
-        }
-    }, [t.mood, open]);
-
-    // The browser owns background inertness, Escape and return to the opener.
-    useEffect(() => {
-        const dialog = dialogRef.current;
-        if (!dialog) return;
-        if (open && !dialog.open) {
-            dialog.showModal();
-            titleRef.current?.focus();
-        } else if (!open && dialog.open) {
-            dialog.close();
-        }
-    }, [open]);
-
     const p = profile;
     // the account email is the auth user's — shown, never edited here
     const { user } = useAuth();
@@ -300,234 +272,195 @@ export function SettingsScreen({
     };
 
     return (
-        <dialog
-            ref={dialogRef}
+        <TaskDialog
+            open={open}
+            onClose={onClose}
+            title="设置"
+            description="留一点安静给自己"
             className="settings-dialog"
-            data-mood={t.mood}
-            aria-labelledby={titleId}
-            onCancel={(event) => {
-                event.preventDefault();
-                onClose();
-            }}
-            onClose={() => {
-                if (open && !dialogRef.current?.open) onClose();
-            }}
-            onPointerDown={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                backdropPress.current =
-                    event.target === event.currentTarget &&
-                    (event.clientX < rect.left ||
-                        event.clientX > rect.right ||
-                        event.clientY < rect.top ||
-                        event.clientY > rect.bottom);
-            }}
-            onClick={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                if (
-                    backdropPress.current &&
-                    event.target === event.currentTarget &&
-                    (event.clientX < rect.left ||
-                        event.clientX > rect.right ||
-                        event.clientY < rect.top ||
-                        event.clientY > rect.bottom)
-                )
-                    onClose();
-                backdropPress.current = false;
-            }}
-        >
-            <header className="set-header">
-                <div>
-                    <p>留一点安静给自己</p>
-                    <h2 id={titleId} ref={titleRef} tabIndex={-1}>
-                        设置
-                    </h2>
+            footer={
+                <div className="set-foot">
+                    外观即时生效 · {p.world}
+                    <span className="hh">
+                        <IHeart size={11} fill="currentColor" sw={0} />
+                    </span>
                 </div>
-                <button type="button" className="set-close" onClick={onClose} aria-label="关闭设置">
-                    <IClose size={20} />
-                </button>
-            </header>
-            <div className="set-content">
-                {/* ── 个人资料 ── (world name + anniversary moved to the
+            }
+        >
+            {/* ── 个人资料 ── (world name + anniversary moved to the
                         world settings modal, which writes to DB — see
                         world-settings.tsx and ai/features/supabase.md) */}
-                <div className="set-label">
-                    <span className="ic">
-                        <IUser size={14} />
-                    </span>
-                    个人资料
-                </div>
-                <div className="set-group">
-                    <PersonRow
-                        slotId="set-ava-her"
-                        color="linear-gradient(135deg,#F8C8D6,#EF9DB4)"
-                        initial={p.her.slice(0, 1)}
-                        role="她"
-                        name={p.her}
-                    />
-                    <PersonRow
-                        slotId="set-ava-me"
-                        color="linear-gradient(135deg,#FCD9A0,#F1B45A)"
-                        initial={p.me.slice(0, 1)}
-                        role="他"
-                        name={p.me}
-                        onSave={onSaveMyName}
-                    />
-                </div>
+            <div className="set-label">
+                <span className="ic">
+                    <IUser size={14} />
+                </span>
+                个人资料
+            </div>
+            <div className="set-group">
+                <PersonRow
+                    slotId="set-ava-her"
+                    color="linear-gradient(135deg,#F8C8D6,#EF9DB4)"
+                    initial={p.her.slice(0, 1)}
+                    role="她"
+                    name={p.her}
+                />
+                <PersonRow
+                    slotId="set-ava-me"
+                    color="linear-gradient(135deg,#FCD9A0,#F1B45A)"
+                    initial={p.me.slice(0, 1)}
+                    role="他"
+                    name={p.me}
+                    onSave={onSaveMyName}
+                />
+            </div>
 
-                {/* ── 账号与密码 ── */}
-                <div className="set-label">
-                    <span className="ic">
-                        <IShield size={14} />
+            {/* ── 账号与密码 ── */}
+            <div className="set-label">
+                <span className="ic">
+                    <IShield size={14} />
+                </span>
+                账号与密码
+            </div>
+            <div className="set-group">
+                <div className="set-row">
+                    <span className="set-ico">
+                        <IMail size={16} />
                     </span>
-                    账号与密码
+                    <div className="set-body">
+                        <div className="set-t">{user?.email ?? '—'}</div>
+                        <div className="set-s">登录邮箱</div>
+                    </div>
                 </div>
-                <div className="set-group">
-                    <div className="set-row">
-                        <span className="set-ico">
-                            <IMail size={16} />
-                        </span>
-                        <div className="set-body">
-                            <div className="set-t">{user?.email ?? '—'}</div>
-                            <div className="set-s">登录邮箱</div>
+                <button
+                    type="button"
+                    className="set-row tap"
+                    aria-expanded={pwOpen}
+                    aria-controls={passwordId}
+                    onClick={() => setPwOpen((o) => !o)}
+                >
+                    <span className="set-ico">
+                        <IKey size={16} />
+                    </span>
+                    <span className="set-body">
+                        <span className="set-t">修改密码</span>
+                        <span className="set-s">{pwOpen ? '输入当前密码与新密码' : '点开修改'}</span>
+                    </span>
+                    <span className="set-chev" style={{ transform: pwOpen ? 'rotate(90deg)' : 'none' }}>
+                        <IChevron size={17} />
+                    </span>
+                </button>
+                <div id={passwordId} className="set-expand" hidden={!pwOpen}>
+                    <div className="set-pw">
+                        <input
+                            type="password"
+                            placeholder="当前密码"
+                            aria-label="当前密码"
+                            autoComplete="current-password"
+                            value={pw.cur}
+                            onChange={(e) => setPw((s) => ({ ...s, cur: e.target.value }))}
+                        />
+                        <input
+                            type="password"
+                            placeholder="新密码（至少 6 位）"
+                            aria-label="新密码（至少 6 位）"
+                            autoComplete="new-password"
+                            value={pw.a}
+                            onChange={(e) => setPw((s) => ({ ...s, a: e.target.value }))}
+                        />
+                        <input
+                            type="password"
+                            placeholder="再次输入新密码"
+                            aria-label="再次输入新密码"
+                            autoComplete="new-password"
+                            value={pw.b}
+                            onChange={(e) => setPw((s) => ({ ...s, b: e.target.value }))}
+                        />
+                        <div className="row">
+                            {pwErr ? (
+                                <span role="alert" className="err">
+                                    {pwErr}
+                                </span>
+                            ) : (
+                                <span role="status" className="ok">
+                                    {saved && (
+                                        <>
+                                            <ICheck size={14} />
+                                            已更新
+                                        </>
+                                    )}
+                                </span>
+                            )}
+                            <button className="btn-save" onClick={savePw} disabled={!pwValid}>
+                                {pwBusy ? '保存中…' : '保存'}
+                            </button>
                         </div>
+                    </div>
+                </div>
+                <button type="button" className="set-row tap" onClick={logout} disabled={loggingOut}>
+                    <span className="set-ico">
+                        <ILogout size={16} />
+                    </span>
+                    <span className="set-body">
+                        <span className="set-t" style={{ color: 'var(--set-error)' }}>
+                            退出账号
+                        </span>
+                        <span
+                            role="status"
+                            className="set-s"
+                            style={logoutErr ? { color: 'var(--set-error)' } : undefined}
+                        >
+                            {loggingOut ? '正在退出…' : (logoutErr ?? '回到登录页 · 回忆都在云端，不会丢')}
+                        </span>
+                    </span>
+                    <span className="set-chev">
+                        <IChevron size={17} />
+                    </span>
+                </button>
+            </div>
+
+            {/* ── 主题外观 ── */}
+            <div className="set-label">
+                <span className="ic">
+                    <IPaint size={14} />
+                </span>
+                主题外观
+            </div>
+            <div className="set-group">
+                <div className="set-row">
+                    <div className="set-body">
+                        <div className="set-t">减少透明效果</div>
+                        <div className="set-s">使用稳定底色，减少场景干扰</div>
                     </div>
                     <button
                         type="button"
-                        className="set-row tap"
-                        aria-expanded={pwOpen}
-                        aria-controls={passwordId}
-                        onClick={() => setPwOpen((o) => !o)}
+                        className="ui-button"
+                        role="switch"
+                        aria-label="减少透明效果"
+                        aria-checked={t.reduceTransparency}
+                        onClick={() => setTweak('reduceTransparency', !t.reduceTransparency)}
                     >
-                        <span className="set-ico">
-                            <IKey size={16} />
-                        </span>
-                        <span className="set-body">
-                            <span className="set-t">修改密码</span>
-                            <span className="set-s">{pwOpen ? '输入当前密码与新密码' : '点开修改'}</span>
-                        </span>
-                        <span className="set-chev" style={{ transform: pwOpen ? 'rotate(90deg)' : 'none' }}>
-                            <IChevron size={17} />
-                        </span>
-                    </button>
-                    <div id={passwordId} className="set-expand" hidden={!pwOpen}>
-                        <div className="set-pw">
-                            <input
-                                type="password"
-                                placeholder="当前密码"
-                                aria-label="当前密码"
-                                autoComplete="current-password"
-                                value={pw.cur}
-                                onChange={(e) => setPw((s) => ({ ...s, cur: e.target.value }))}
-                            />
-                            <input
-                                type="password"
-                                placeholder="新密码（至少 6 位）"
-                                aria-label="新密码（至少 6 位）"
-                                autoComplete="new-password"
-                                value={pw.a}
-                                onChange={(e) => setPw((s) => ({ ...s, a: e.target.value }))}
-                            />
-                            <input
-                                type="password"
-                                placeholder="再次输入新密码"
-                                aria-label="再次输入新密码"
-                                autoComplete="new-password"
-                                value={pw.b}
-                                onChange={(e) => setPw((s) => ({ ...s, b: e.target.value }))}
-                            />
-                            <div className="row">
-                                {pwErr ? (
-                                    <span role="alert" className="err">
-                                        {pwErr}
-                                    </span>
-                                ) : (
-                                    <span role="status" className="ok">
-                                        {saved && (
-                                            <>
-                                                <ICheck size={14} />
-                                                已更新
-                                            </>
-                                        )}
-                                    </span>
-                                )}
-                                <button className="btn-save" onClick={savePw} disabled={!pwValid}>
-                                    {pwBusy ? '保存中…' : '保存'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" className="set-row tap" onClick={logout} disabled={loggingOut}>
-                        <span className="set-ico">
-                            <ILogout size={16} />
-                        </span>
-                        <span className="set-body">
-                            <span className="set-t" style={{ color: 'var(--set-error)' }}>
-                                退出账号
-                            </span>
-                            <span
-                                role="status"
-                                className="set-s"
-                                style={logoutErr ? { color: 'var(--set-error)' } : undefined}
-                            >
-                                {loggingOut ? '正在退出…' : (logoutErr ?? '回到登录页 · 回忆都在云端，不会丢')}
-                            </span>
-                        </span>
-                        <span className="set-chev">
-                            <IChevron size={17} />
-                        </span>
+                        {t.reduceTransparency ? '已开启' : '已关闭'}
                     </button>
                 </div>
-
-                {/* ── 主题外观 ── */}
-                <div className="set-label">
-                    <span className="ic">
-                        <IPaint size={14} />
-                    </span>
-                    主题外观
+                <div className="set-row" style={{ flexWrap: 'wrap' }}>
+                    <div className="set-body">
+                        <div className="set-t">光线时段</div>
+                        <div className="set-s">一天里的光与氛围</div>
+                    </div>
+                    <Segmented opts={MOOD_OPTS} value={t.mood} onChange={(k) => setTweak('mood', k as Mood)} withIcon />
                 </div>
-                <div className="set-group">
-                    <div className="set-row">
-                        <div className="set-body">
-                            <div className="set-t">卡片配色</div>
-                            <div className="set-s">部分卡片适用；设置随光线时段变化</div>
-                        </div>
-                        <Segmented
-                            opts={GLASS_OPTS}
-                            value={t.glassStyle}
-                            onChange={(k) => setTweak('glassStyle', k as GlassStyle)}
-                        />
+                <div className="set-row">
+                    <div className="set-body">
+                        <div className="set-t">聊天消息排列</div>
+                        <div className="set-s">选择自己的消息是否靠右</div>
                     </div>
-                    <div className="set-row" style={{ flexWrap: 'wrap' }}>
-                        <div className="set-body">
-                            <div className="set-t">光线时段</div>
-                            <div className="set-s">一天里的光与氛围</div>
-                        </div>
-                        <Segmented
-                            opts={MOOD_OPTS}
-                            value={t.mood}
-                            onChange={(k) => setTweak('mood', k as Mood)}
-                            withIcon
-                        />
-                    </div>
-                    <div className="set-row">
-                        <div className="set-body">
-                            <div className="set-t">聊天消息排列</div>
-                            <div className="set-s">选择自己的消息是否靠右</div>
-                        </div>
-                        <Segmented
-                            opts={CHAT_ALIGN_OPTS}
-                            value={t.chatAlign}
-                            onChange={(k) => setTweak('chatAlign', k as ChatAlign)}
-                        />
-                    </div>
+                    <Segmented
+                        opts={CHAT_ALIGN_OPTS}
+                        value={t.chatAlign}
+                        onChange={(k) => setTweak('chatAlign', k as ChatAlign)}
+                    />
                 </div>
             </div>
-            <footer className="set-foot">
-                外观即时生效 · {p.world}
-                <span className="hh">
-                    <IHeart size={11} fill="currentColor" sw={0} />
-                </span>
-            </footer>
-        </dialog>
+        </TaskDialog>
     );
 }

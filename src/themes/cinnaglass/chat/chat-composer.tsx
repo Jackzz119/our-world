@@ -4,7 +4,7 @@
 // screens.tsx already exports a Composer (the journal editor).
 // Split out of channel-screen.tsx. Specs: ai/features/chat.md §三.
 import { useRef, useState } from 'react';
-import { ISend } from '@/themes/cinnaglass/icons';
+import { ISend, ISmile } from '@/themes/cinnaglass/icons';
 import { EmotePicker } from '@/themes/cinnaglass/chat/emote-picker';
 import type { EmoteView } from '@/themes/cinnaglass/chat/chat-data';
 import type { EmoteSearchResult } from '@/types/chat';
@@ -48,6 +48,7 @@ export function ChatComposer({
     // fails, because the failed bubble keeps the content.
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!text.trim()) return;
         onSubmit(text);
         setText('');
         onPaletteClose();
@@ -67,8 +68,15 @@ export function ChatComposer({
 
     return (
         <form className="chsc-input" onSubmit={submit}>
-            <button type="button" className="chsc-emo" title="表情" onClick={onPaletteToggle}>
-                😊
+            <button
+                type="button"
+                className="chsc-emo"
+                title="表情"
+                aria-label="选择表情"
+                aria-expanded={paletteOpen}
+                onClick={onPaletteToggle}
+            >
+                <ISmile size={20} />
             </button>
             {paletteOpen && (
                 <div className="chsc-pop for-input" onClick={(e) => e.stopPropagation()}>
@@ -92,12 +100,13 @@ export function ChatComposer({
                 ref={inputRef}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                aria-label="聊天内容"
                 placeholder={placeholder}
                 maxLength={500}
                 spellCheck={false}
                 autoFocus
             />
-            <button type="submit" aria-label="发送">
+            <button type="submit" aria-label="发送" disabled={!text.trim()}>
                 <ISend size={17} />
             </button>
         </form>

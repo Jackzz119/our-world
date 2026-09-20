@@ -1,105 +1,67 @@
-# UI 现状审计 · 2026-09-11
+# UI 现状审计与迁移收口
 
-> 配套 [统一设计与计划](ui-system.md)。对象为当时本地工作树，不推断线上部署。扫描范围：App 路由、全部 src UI 文件、样式导入/变量、功能入口与设计文档，并对代表界面做隔离 Chrome 实景检查；日记只识别依赖边界。
-> 2026-09-19 按当前 src 复核定位：漂移的行号改为函数名/选择器或已修正。
+> 2026-09-20 · 当前结论：本地 A/B 与边缘页面已统一实现；设备与性能专项仍待验收。原始扫描发生于 **2026-09-11**，其截图/测量仅是历史基线，不描述当前产品，也不推断线上部署。
+> 当前实施细节见 [统一实现](ui-system.md)，采用参数和新截图见 [主题规范](../../design_system/uiux/cinnaglass/ui-system.md)，待办只在 [TODO](../../TODO.md)。
 
-## 1. 当前不是一套 UI 材质
+## 1. 历史分歧与当前材料
 
-| 材质来源                                                                                                                   | 当前消费者                                           | 事实                                                                                                  |
-| -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `shell/navigation-glass.css` `--nav-*`                                                                                     | `.rail/.rail-pop/.rail-label`                        | 独立作用域、固定细纹、轻模糊、时辰预设边光；已获用户认可                                              |
-| `cinnaglass.css:23–43` `--cg-*`                                                                                            | 天气、纪念卡、音乐迷你条、聊天窄卡                   | `--cg-panel` 接 `--craft-shell`，`--cg-panel-dense` 固定灰绿底，`--cg-blur` 18px；无导航细纹/局部边缘 |
-| `materials.css` `--craft-*`（`:root` :3–16）与覆盖块 `.stage :is(.modal.glass, .collection-surface)`（:18–70，全文 70 行） | `.stage` 内 `.modal.glass`、`.collection-surface` 等 | 整窗变 `#d8cdba` 暖灰纸、`#a8ab90` 苔绿边、`backdrop-filter: none`；多个功能被同样覆盖                |
-| `--shell-* / --glass-*`                                                                                                    | 完整聊天、展开音乐、登录/大厅及其他旧组件            | 早期随 mood 的外壳体系，仍有蓝/紫渐变、旧控件和纸面文字重映射                                         |
-| 内联固定样式                                                                                                               | `room/room-scene.tsx` 状态胶囊/气泡                  | 独立灰紫底、蓝粉/绿点，不随导航配方                                                                   |
+2026-09-11 的五路材质并存：导航 `--nav-*`、灰绿浮窗 `--cg-*`、整窗暖纸 `--craft-*`、登录/聊天的旧玻璃与纸色重映射、头顶 UI 固定色。旧图中的灰绿浮窗和暖纸设置已被新实现替代。
 
-这解释了改一个 token 后侧栏、浮窗、弹窗为何不一起变。加载链：`main.tsx` → `cinnaglass.css` → `@import './materials.css'`（:1），导航另 import 专属 CSS，功能组件再挂各自 `<style>`。必须按消费者迁移，不能只调加载顺序掩盖冲突。
+当前导航仍为已认可基准；A/B 的 `--ui-*` 在 [公共样式](../../../src/themes/cinnaglass/ui/ui-system.css) 定义，环境从 [导航读取](../../../src/themes/cinnaglass/ui/use-ui-environment.ts)，正文采用不透明内衬。`--cg-*` 与失去消费者的旧原子样式已清；`materials.css` 和 C 的旧纸张变量保留隔离用途。
+
+固定纹理、背景模糊和预设边缘仍是艺术化模拟。晴雨改变后方场景，不代表导航实时反射场景光。
 
 ## 2. 入口与组件地图
 
-除 pages 外，下表路径相对 `src/themes/cinnaglass/`。A/B/C 含义见主计划，"建议归属"不是已完成迁移；通用 A/B 要求见计划 §3/§4，此处只记组件独有的处置要点。行号为 2026-09-19 复核值。
+以下路径相对 `src/themes/cinnaglass/`；页面路径另写。表内是 2026-09-20 实际实现，不沿用旧行号。
 
-| 界面                     | 当前入口与主要文件/选择器                                                        | 建议归属与处置                                           |
-| ------------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| 导航与房间/工具菜单      | `shell/rail.tsx` `Rail()` :44（`.rail/.rail-pop` :107 起）                       | A 基准；保留五入口与已认可视觉                           |
-| 右侧房间把手             | `shell/rail.tsx` `RoomHandle()` :178；`WorldPage.tsx:490` 回调为空               | A；单房间阶段收起无动作把手，锁定房间项须表达不可进入    |
-| 灯光/天气                | `shell/ambience.tsx` `Ambience()` :30；`.amb-pill`（:40）、`.amb-panel`          | A                                                        |
-| 纪念卡                   | `shell/floaters.tsx` `MomentCard()` :21；`.moment-card`                          | A；注意数字层级与窄屏避让                                |
-| 音乐折叠/展开            | `shell/floaters.tsx` `MusicMini()` :66→`music.tsx`；`.music-bar/.mp.glass`       | A 两态；一个音频状态源，播放与展开分开                   |
-| 聊天窄卡                 | 导航聊天→`shell/chat-card.tsx`；`.chat-card/.cc-*`                               | A；内容底须可读                                          |
-| 头顶状态/气泡            | `room/room-scene.tsx` 气泡 :155、状态胶囊 :236                                   | A 场景锚定变体；不扩成 C，真实性依赖 Presence            |
-| 完整聊天                 | 窄卡"展开完整聊天"→`chat/chat-hub.tsx`；`.chsc/.chsc-scrim`                      | B；收敛大窗与频道栏，保功能链                            |
-| 好友/DM                  | 完整聊天导航→`chat/friends-page.tsx`；`.fr-*`                                    | B 旧入口；收外壳，留数据层                               |
-| Emoji/贴纸/导入/消息操作 | `chat/emote-picker.tsx` `.ep-*`、消息 `.abar`                                    | 附属层，跟随 A/B 宿主                                    |
-| 设置                     | 导航设置→`settings.tsx` `SettingsScreen()` :144；`.modal.mini.glass`（:200）     | B 首个样板；清旧纸与彩色按钮混用，修正假保存             |
-| 世界设置                 | `WorldPage.tsx:519` 挂载 `world-settings.tsx`，无 navigate 入口                  | B；已有真实保存，恢复入口而非删除                        |
-| 日历/纪念日              | 工具→`calendar.tsx` `CalendarScreen()` :102；`.modal/.cal-*`                     | B；纪念日来源须与世界设置合并                            |
-| 时钟/闹钟                | 挂钟→`calendar.tsx` `ClockScreen()` :283；`.modal/.alarm`                        | B；能编列表≠到时提醒已接通                               |
-| 照片墙/原图              | 相框或工具照片→`surfaces/object-surfaces.tsx`；`.collection-surface/.pw-*/.pola` | 暂列 B；保留原色与原图浏览，专属相册另决策               |
-| 心愿单                   | 许愿罐→`surfaces/object-surfaces.tsx`；`.collection-surface/.wish`               | 暂列 B；本轮不做罐子                                     |
-| 登录/忘记密码            | `/login`→`pages/LoginPage.tsx/.module.css`                                       | B 账户页形态；旧 SVG 背景在用                            |
-| 重置密码                 | `/reset-password`→`pages/ResetPasswordPage.tsx`                                  | B 账户页形态；留真实重置链                               |
-| 大厅/无世界/创建/错误    | `/` 未进房间→`lobby.tsx`（`IslandArt` :32）                                      | B 入口页形态；自绘 IslandArt，不能漏 loading/empty/error |
-| 路由加载                 | `pages/ProtectedRoute.tsx` `Splash` :21–34（浅蓝渐变 :27）                       | 与账户页共用状态规范，避免孤立浅蓝画面                   |
-| 日记                     | `surfaces/object-surfaces.tsx` diary 分支、`journal-*`/`journal/diary.css`       | C；本 session 冻结                                       |
+| 界面               | 入口与主要文件                                                               | 当前处理                                                       |
+| ------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 导航/工具/房间菜单 | `shell/rail.tsx`、`shell/navigation-glass.css`                               | 保持基准；锁定房间表示未开放，不恢复旧无动作把手               |
+| 天气               | `shell/ambience.tsx`、`src/pages/world/useWeather.ts`                        | 同源 A 壳；加载/失败/手动分开，未知温度为 null                 |
+| 纪念卡             | `shell/floaters.tsx`                                                         | 同源材质、缺失纪念日空态、隐藏与工具恢复                       |
+| 音乐两态           | `shell/floaters.tsx`、`music.tsx`、`use-music-playback.ts`                   | 同一真实 WebAudio 状态；展开与播放/隐藏独立                    |
+| 聊天窄卡           | 导航聊天 → `shell/chat-card.tsx`                                             | A 壳与可读内容；保留真实消息/贴纸与展开路径                    |
+| 头顶 UI            | `room/room-scene.tsx`                                                        | 同源 DOM 气泡/标签；没有虚构 Presence 在线状态                 |
+| 完整聊天           | 窄卡展开 → `chat/chat-hub.tsx`                                               | TaskDialog；房间聊天优先，好友/DM 作为折叠次级入口             |
+| 表情/贴纸          | `chat/emote-picker.tsx`、`chat/emote-picker.css`，composer/message-list 定位 | 自适应网格、44px 控件、内部滚动、IME 防误提交、内联删除确认    |
+| 好友/DM            | `chat/friends-page.tsx`、`chat/conv-nav.tsx`                                 | 保留真实数据功能；内联确认、状态播报、字段名称、IME 与焦点行为 |
+| 设置               | 导航设置 → `settings.tsx`                                                    | TaskDialog 与随时辰内衬；减少透明效果、真实账号链路            |
+| 世界设置           | `world-settings.tsx` 已挂载，无用户入口                                      | B 壳已同步；入口依用户决定暂不恢复，不是死文件                 |
+| 日历/提醒          | 工具/挂钟 → `calendar.tsx`                                                   | B 壳；日期/温度缺失不造值，本机提醒列表不会通知                |
+| 照片/原图          | 相框/工具 → `surfaces/object-surfaces.tsx`、`photo-wall.tsx`                 | 仅非日记分支迁入 TaskDialog；图片原色与原图浏览保留            |
+| 心愿               | 许愿罐/工具 → `surfaces/wishlist.tsx`                                        | B 通用壳，明确当前浏览器本地保存                               |
+| 登录/重置          | `src/pages/LoginPage.tsx`、`ResetPasswordPage.tsx`                           | 真实书房背景 + 同源材料，保留 auth/错误/重试                   |
+| 大厅/路由等待      | `lobby.tsx`、`src/pages/ProtectedRoute.tsx`、`entry.css`                     | 实景背景；加载/已有世界/创建/失败各对应真实回调                |
+| 日记阅读/写作/详情 | `journal/` 与 C 共用依赖                                                     | 冻结，不以本次 A/B 完成状态涵盖其改造                          |
 
-双入口路由集中在 `WorldPage.tsx` 的 `onRail`/`onHotspot`（:336–350）。唱片机/挂钟/照片的入口事实说明"从活物件点击"不等于"专属拟物 UI"。
+## 3. 原问题的收口
 
-## 3. 主要问题及优先级
+| 历史问题（2026-09-11）                   | 当前状态（2026-09-20）                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| 多路材质与旧纸窗冲突                     | A/B 已共享母材质与阅读底，边缘页同步实景                                |
+| CSS 显隐弹窗背景可操作、隐藏控件仍获焦   | B 使用原生 TaskDialog；附属选择器先关闭、主窗退出回焦点，卸载路径也清理 |
+| 音乐按钮只展开、进度固定、隐藏后无法恢复 | WebAudio 音频时钟驱动；播放、展开、隐藏各自独立，工具/导航恢复          |
+| 390px 音乐越界、底导航和顶部卡片重叠     | 紧凑停靠与展开互斥已实现，浏览器边界回归完成；真机软键盘另验            |
+| 账号假保存                               | 2026-09-19 已接真实改密/退出/昵称；本次保留链路并补失败留稿             |
+| 天气失败被当成功，纪念日缺失回退假值     | 状态与 null 显式传递，界面使用缺省/未设置文字                           |
+| 旧 ChatCard `Msg` 导入阻塞构建           | 2026-09-19 已修，不能再引用成当前阻塞                                   |
+| 好友/贴纸子界面遗留旧控件与原生确认      | 已补同源子选择器、内联确认、键盘/IME 和反馈                             |
 
-P1 影响本次统一的正确性/核心操作，P2 是迁移时的次级一致性问题。本节只留证据与处置要点；执行任务在 [TODO.md](../../TODO.md) Bugs 节（层级与焦点、控件假状态、窄屏越界、`Msg` 阻塞四项已立项）。
-
-| 优先级 | 问题与证据                                                                                                                                                          | 处理建议                                                                             |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| P1     | 五路材质叠存，导航与灰绿浮窗、旧纸设置同屏                                                                                                                          | 先定表面类型和消费者，再迁公共值                                                     |
-| P1     | `.modal-scrim` z20 / `.modal` z21（`cinnaglass.css:482,498`）、聊天大窗 z22/23（`channel-screen.tsx:25,28`）、A 为 z35–40；实景中设置打开后 A 仍盖在上面且导航可点  | → TODO Bug「任务弹窗层级与焦点」（M2）：统一弹层与焦点管理，不逐文件抬 z-index       |
-| P1     | 设置无 dialog/aria-modal；隐藏 `.modal` 只有 `opacity:0; pointer-events:none`，`display:flex`、`visibility:visible`、`inert` 未设，按钮 tabIndex=0 且可编程聚焦成功 | 同上；隐藏控件须 inert 或卸载                                                        |
-| P1     | 音乐迷你条主按钮只切 `open`（`floaters.tsx:106`），进度条 `.mb-fill` 固定 34%（:175），封面转动也以 `open` 为条件（:96、`.mb-disc.spin` :166）                      | → TODO Bug「控件状态与真实行为不符」（M3）：音频引擎与视图显隐分开，隐藏后导航可恢复 |
-| P1     | `settings.tsx` `savePw()` :166–174 只 `setSaved`；"绑定邮箱"只改本地 profile；应用锁无校验消费                                                                      | 同上（M4）：接通或收起占位，禁止假成功文案                                           |
-| P1     | 390×844 实测音乐条宽 437、x=-84 与底导航重叠，天气与纪念卡重叠                                                                                                      | → TODO Bug「窄屏浮窗越界和重叠」（M3）：定停靠区/可用宽度，折叠与展开互斥            |
-| P2     | 世界设置有 DB 保存，界面却找不到入口                                                                                                                                | 设置中恢复"我们的小世界"                                                             |
-| P2     | `calendar.tsx:7` 的 `ANNIV` 为固定日期；MomentCard 使用世界纪念日                                                                                                   | 共用世界事实，避免两处不同倒计时                                                     |
-| P2     | Presence 固定在线、头像常亮绿点；闹钟只有编辑列表；"一起听"无双人同步                                                                                               | 按实际能力命名和显示状态，数据接通单独排                                             |
-| P2     | 小按钮、span 开关、div 会话/心愿项，消息操作只 hover 显示                                                                                                           | 统一语义控件、focus-visible、触屏入口，不等动画阶段                                  |
-| P2     | 字体、彩色图标底、蓝紫轨道、头像环与暖金导航混杂                                                                                                                    | 通用控件与身份/状态色分开，统一尺寸/字重/描边                                        |
-| P2     | 天气文档写"与现实脱钩"，代码实为 geolocation → Open-Meteo（`WorldPage.tsx:277–295`），失败回退"多云 22°"未区分实况失败                                              | 文档按事实描述，补 unavailable/fallback 语义                                         |
-
-额外工程阻塞（2026-09-19 复跑仍成立）：`pnpm exec tsc --project tsconfig.app.json --noEmit` 唯一输出为 `shell/chat-card.tsx(10,15): TS2305 … has no exported member 'Msg'`；该类型实际导出在 `chat-data.ts:46`。未修改。
+世界设置入口不纳入本轮完成项：用户明确暂缓，不能把旧建议「恢复入口」当本轮要求。Presence、通知调度、双人音乐同步属于未接通能力，UI 仅如实说明，不扩建后端。
 
 ## 4. 清理时不能踩的依赖
 
-| 对象                                          | 当前证据                                                           | 结论                                                        |
-| --------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `scene.tsx`                                   | `LoginPage.tsx:8`、`ResetPasswordPage.tsx:10` import               | 仍在用，待账户背景替换后清；旧 TODO"lobby 还用则保留"不准确 |
-| `rooms.ts`                                    | `WorldPage.tsx:24` 仍用 `owLoad`，其余旧房间/语音 mock 无 src 消费 | 先迁 loader 再查构建/脚本引用，不能整文件先删               |
-| `chat/chat-hub.tsx` / `chat/friends-page.tsx` | 从聊天窄卡展开可达，读真实聊天/好友/DM                             | 改入口与布局，留消息操作与数据功能                          |
-| `world-settings.tsx`                          | 已挂载，有真实保存链                                               | 修入口，非死文件                                            |
-| `image-slot.js`                               | `main.tsx` 副作用 import，设置头像使用                             | 仍在用，共享组件保留                                        |
-| `--cg-* / --glass-* / materials.css`          | 多个实际消费者，含日记共享区                                       | 渐进迁移；本轮不删材质文件、不改 C                          |
-| widget 注册与持久化                           | days/minimap/memory/ambient/lighting 等旧 key 与实际 JSX 不一致    | 整理消费者与存储兼容，别直接抹用户偏好                      |
-| `journal-book.tsx` 等旧书本文件/资产          | C 历史实现（现役是 `journal/room-book.tsx`）                       | 即使无引用也不在本 session 清理                             |
+- **已移除**：登录/重置的 `login-backdrop.tsx`、大厅独占漂浮岛与无消费者样式、失去 A/B 消费者的 `--cg-*`/旧玻璃原子样式。
+- **仍保留**：设置头像使用的 `image-slot.js`、真实聊天/好友/DM 数据链、暂无入口但有保存能力的世界设置、C 日记与共享纸张材质。
+- **兼容存储**：旧 `glassStyle` 随原 tweaks 存储保留，新 UI 使用减少透明效果；不能清理时重置用户偏好或日记状态。
+- **先前已清理**：`rooms.ts`、旧 3D 文件与旧类型残留已在 2026-09-19 项目审计退役；旧扫描的「仍被 WorldPage 引用」不是当前事实。
+- `.glass/.paper` 名称不能作为批量删除依据；按 JSX 真实消费者与 C 冻结边界判定。未来新增 UI 不再回写旧全局纸色规则。
 
-原表的 `src/types/database.ts`、`timeline_3d_posts.html` 两项已删除（2026-09-19 复核：工作树与 git 索引中均不存在）。
+## 5. 验证边界与历史证据
 
-文档需去除的歧义（历史稿保留并标注适用范围，不复制成新的真源）：底部胶囊/自动淡出提案、全窗近白→石墨泛化规则、全局"纸恒白"与暖灰纸冲突、图 4 角色避让与日记规则冲突、已否决的热点轮廓/换图、材质 token 必须全在单一 `:root`。
+当前已完成浏览器实现基线：三时辰/桌面/窄屏、材料/阅读、键盘显隐与焦点、聊天选择器、输入与失败留稿、本机音乐状态。账户、好友、上传等写回路通过隔离替身验证，未把它当作生产账号写操作或双人后端联调。TypeScript、构建与链接检查是静态门槛，不替代视觉与操作验收。
 
-`--accent-deep` 双真源已复核为不存在（`cinnaglass.css:92` `#2f9ad3`，与 `--accent-orb` 尾色一致；`:93` 的 `#268fbe` 是独立的 `--shell-accent`）；结论记在 TODO Bugs 已完成项。
+**仍未涵盖**：Safari/移动真机软键盘、系统缩放/200% 文本、屏幕阅读器/高对比度、低端设备 GPU/内存与常驻性能、双端断网恢复、新房间实景和日记内部。待办在 TODO，不用历史错误推断当前代码失败，也不把模拟测试写成真机通过。
 
-## 5. 本轮验证与限制
-
-- 本地服务 `http://localhost:5173/?enter=1`，隔离 headless Chrome，不动用户浏览器会话。
-- 源码与运行时联合核对导航三时辰材质：三档同一纹理 URL/尺寸/偏移，晴雨不直接改导航边缘渐变。
-- 实景尺寸：1440×900 三时辰默认态、暮色晴/雨、天气展开/聊天、设置；390×844 默认态。存计算样式、几何与部分交互探针。
-- 捕获 pageerror 为 0，仅覆盖本轮路径，不代表所有功能无错误。
-- 对共享 REST 写入设拦截（只放行 GET/HEAD/OPTIONS 与只读 feed RPC），本轮无被拦截写请求，也没有发消息/改密码/改共享资料/发布回忆。聊天文字图片与设置输入值由临时浏览器 CSS 隐去，布局材质保留。
-- 隐藏焦点探针只验证按钮可编程聚焦与 tabIndex=0，不等于屏幕阅读器或逐项 Tab 验收。
-- 未覆盖：新方案（尚未落码）、Safari、真触屏/软键盘、低端设备性能、真实花园/棋牌室、全状态对比度、双人后端联调、日记内部。类型检查仍有上述 `Msg` 错误，不能称完整构建通过。
-
-### 实景证据
-
-证据目录 `ai/design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/`，其中 [runtime.json](../../design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/runtime.json) 存 7 个 state 的逐组件 rect/backdrop/背景与 `hiddenModalButtonCount` 探针。截图为当时产品实景，不是设计稿；隐去文字头像的空白不算视觉缺陷。
-
-- `night-scene.png` / `golden-scene.png` / `twilight-scene.png` — 三时辰同屏材质差异
-- `widgets-twilight.png` — 导航/聊天/天气/音乐/纪念卡/状态胶囊同屏
-- `settings-twilight.png` — 暖灰纸窗与浮层/遮罩冲突
-- `mobile-390.png` — 音乐越界与底导航重叠，顶部两卡重叠
+原始证据仍留在 [2026-09-11 实景目录](../../design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/)；其中 [runtime.json](../../design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/runtime.json) 与旧三时辰、widgets、settings、mobile 图只用于前后对照。原审计仅含隔离 Chrome 代表路径与有限焦点探针；图中隐藏聊天/账号文字是隐私处理，不是 UI 空白缺陷。当前截图由 design system 常驻主题页登记，普通回归过程不逐轮存 report。

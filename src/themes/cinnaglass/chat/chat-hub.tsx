@@ -9,8 +9,9 @@
 // This file is now the shell only: it resolves convId and lays the hub out. Its CSS is in
 // channel-screen.styles.tsx, the switcher in conv-nav.tsx, the message flow in message-list.tsx,
 // the input row in chat-composer.tsx and the delete effect in bubble-dust.ts.
+import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { IClose, IHash } from '@/themes/cinnaglass/icons';
+import { IHash } from '@/themes/cinnaglass/icons';
 import { FriendsPage } from '@/themes/cinnaglass/chat/friends-page';
 import { ChannelStyles } from '@/themes/cinnaglass/chat/chat-hub.styles';
 import { ChatComposer } from '@/themes/cinnaglass/chat/chat-composer';
@@ -136,83 +137,95 @@ export function ChannelScreen({
     return (
         <>
             <ChannelStyles />
-            <div className="chsc-scrim" onClick={onClose} />
-            <div className="chsc glass">
-                {/* conversation switcher — the same set convsFor() gives the ChatCard,
+            <TaskDialog
+                open={true}
+                onClose={onClose}
+                title="聊天"
+                className="chat-task"
+                wide
+                onEscape={() => {
+                    if (inputPicker) {
+                        setInputPicker(false);
+                        mainRef.current?.querySelector<HTMLButtonElement>('.chsc-emo')?.focus();
+                        return true;
+                    }
+                    return false;
+                }}
+            >
+                <div className="chsc">
+                    {/* conversation switcher — the same set convsFor() gives the ChatCard,
                     plus the pinned friends entry (Discord-style, above DMs) */}
-                <ConvNav
-                    convId={convId}
-                    isFriends={isFriends}
-                    chConvs={chConvs}
-                    dmConvs={dmConvs}
-                    pendingCount={requestsIn.length}
-                    onSelect={onSelect}
-                />
+                    <ConvNav
+                        convId={convId}
+                        isFriends={isFriends}
+                        chConvs={chConvs}
+                        dmConvs={dmConvs}
+                        pendingCount={requestsIn.length}
+                        onSelect={onSelect}
+                    />
 
-                <div className="chsc-main" ref={mainRef}>
-                    {isFriends ? (
-                        <FriendsPage
-                            friends={friends}
-                            requestsIn={requestsIn}
-                            requestsOut={requestsOut}
-                            onAddFriend={onAddFriend}
-                            onAccept={onAcceptFriend}
-                            onRemove={onRemoveFriend}
-                            onOpenDm={onSelect}
-                            onClose={onClose}
-                        />
-                    ) : (
-                        <>
-                            <div className="chsc-hd">
-                                {ch ? (
-                                    <span className="ic">
-                                        <IHash size={18} />
-                                    </span>
-                                ) : (
-                                    <span className="chsc-ava" style={{ background: dm!.color }}>
-                                        {dm!.ini}
-                                    </span>
-                                )}
-                                <h3>{ch ? ch.name : dm!.name}</h3>
-                                <span className="topic">{ch ? ch.topic : '私信 · 只有你们两个人看得到'}</span>
-                                <div className="chsc-x" onClick={onClose} title="关闭">
-                                    <IClose size={16} />
+                    <div className="chsc-main" ref={mainRef}>
+                        {isFriends ? (
+                            <FriendsPage
+                                friends={friends}
+                                requestsIn={requestsIn}
+                                requestsOut={requestsOut}
+                                onAddFriend={onAddFriend}
+                                onAccept={onAcceptFriend}
+                                onRemove={onRemoveFriend}
+                                onOpenDm={onSelect}
+                                onClose={onClose}
+                            />
+                        ) : (
+                            <>
+                                <div className="chsc-hd">
+                                    {ch ? (
+                                        <span className="ic">
+                                            <IHash size={18} />
+                                        </span>
+                                    ) : (
+                                        <span className="chsc-ava" style={{ background: dm!.color }}>
+                                            {dm!.ini}
+                                        </span>
+                                    )}
+                                    <h3>{ch ? ch.name : dm!.name}</h3>
+                                    <span className="topic">{ch ? ch.topic : '私信 · 只有你们两个人看得到'}</span>
                                 </div>
-                            </div>
-                            <MessageList
-                                key={convId}
-                                convId={convId}
-                                msgs={msgs}
-                                isChannel={!!ch}
-                                reachedStart={!!reachedStart[convId]}
-                                dm={dm}
-                                readAt={readAt}
-                                chatAlign={chatAlign}
-                                hostRef={mainRef}
-                                onPaletteClose={() => setInputPicker(false)}
-                                actions={{ onRetry, onDiscard, onEdit, onDelete, onReact, onLoadOlder }}
-                                emotePicker={{ emotes, onSearchWeb, onImportUrl, onImportFile, onRemoveEmote }}
-                            />
-                            {notice && <div className="chsc-notice">{notice}</div>}
-                            <ChatComposer
-                                key={convId}
-                                placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
-                                onSubmit={(v) => onSend(convId, v)}
-                                paletteOpen={inputPicker}
-                                onPaletteToggle={() => setInputPicker((v) => !v)}
-                                onPaletteClose={() => setInputPicker(false)}
-                                emotes={emotes}
-                                canImport={hasWorld}
-                                onSendSticker={(emote) => onSendSticker(convId, emote)}
-                                onSearchWeb={onSearchWeb}
-                                onImportUrl={onImportUrl}
-                                onImportFile={onImportFile}
-                                onRemoveEmote={onRemoveEmote}
-                            />
-                        </>
-                    )}
+                                <MessageList
+                                    key={convId}
+                                    convId={convId}
+                                    msgs={msgs}
+                                    isChannel={!!ch}
+                                    reachedStart={!!reachedStart[convId]}
+                                    dm={dm}
+                                    readAt={readAt}
+                                    chatAlign={chatAlign}
+                                    hostRef={mainRef}
+                                    onPaletteClose={() => setInputPicker(false)}
+                                    actions={{ onRetry, onDiscard, onEdit, onDelete, onReact, onLoadOlder }}
+                                    emotePicker={{ emotes, onSearchWeb, onImportUrl, onImportFile, onRemoveEmote }}
+                                />
+                                {notice && <div className="chsc-notice">{notice}</div>}
+                                <ChatComposer
+                                    key={convId}
+                                    placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
+                                    onSubmit={(v) => onSend(convId, v)}
+                                    paletteOpen={inputPicker}
+                                    onPaletteToggle={() => setInputPicker((v) => !v)}
+                                    onPaletteClose={() => setInputPicker(false)}
+                                    emotes={emotes}
+                                    canImport={hasWorld}
+                                    onSendSticker={(emote) => onSendSticker(convId, emote)}
+                                    onSearchWeb={onSearchWeb}
+                                    onImportUrl={onImportUrl}
+                                    onImportFile={onImportFile}
+                                    onRemoveEmote={onRemoveEmote}
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </TaskDialog>
         </>
     );
 }

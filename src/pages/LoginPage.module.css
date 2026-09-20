@@ -1,201 +1,178 @@
-/* LoginPage.module.css — login-page-specific styles (scoped by CSS Modules).
-   Shared atoms (.glass / .btn-primary / .field) live in cinnaglass.css and are
-   referenced as plain global class strings; only login-unique pieces are here. */
-
-.wrap {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-    display: grid;
-    place-items: center;
-    padding: 20px;
-}
-
-.bg {
-    position: absolute;
-    inset: 0;
-    transform: scale(1.06);
-    filter: blur(2px) saturate(1.05);
-}
-
-.veil {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-        130% 100% at 50% 25%,
-        rgba(255, 255, 255, 0.3),
-        rgba(191, 230, 250, 0.55) 70%,
-        rgba(124, 198, 236, 0.6)
-    );
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-}
-
+/* Auth-specific layout; shared material and controls come from ui-system.css. */
 .card {
-    position: relative;
-    z-index: 1;
-    width: min(390px, 100%);
-    border-radius: 28px;
-    padding: 30px 28px 26px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 24px 60px -22px rgba(40, 90, 140, 0.45);
-    animation: lgIn 0.5s cubic-bezier(0.34, 1.3, 0.5, 1) both;
+    flex: 0 0 auto;
+    width: min(440px, 100%);
+    margin-block: auto;
+    border-radius: 26px;
+    padding: 26px 12px 12px;
 }
-@keyframes lgIn {
-    from {
-        opacity: 0;
-        transform: translateY(14px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
 .brand {
     text-align: center;
-    margin-bottom: 22px;
+    padding: 0 12px 22px;
 }
 .brand h1 {
     margin: 0;
-    font-size: 25px;
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    color: var(--glass-text);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ui-text);
 }
 .brand p {
-    margin: 5px 0 0;
-    font-size: 13px;
-    color: var(--glass-sub);
-    letter-spacing: 0.03em;
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ui-muted);
 }
-
 .mark {
-    width: 52px;
-    height: 52px;
-    border-radius: 18px;
     display: inline-grid;
     place-items: center;
-    color: #fff;
-    margin-bottom: 11px;
-    background: radial-gradient(120% 120% at 30% 22%, #fbe6a8, #f8c8d6 55%, #9fd6f4);
-    box-shadow: 0 9px 22px -8px rgba(248, 200, 214, 0.8);
+    width: 44px;
+    height: 44px;
+    margin-bottom: 10px;
+    color: var(--ui-accent);
 }
-
+.content {
+    padding: 24px 20px;
+    border-radius: 18px;
+}
 .google {
-    appearance: none;
-    cursor: pointer;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     width: 100%;
-    padding: 12px;
-    border-radius: var(--r-pill);
-    border: 1px solid var(--glass-border);
-    background: var(--glass-hi);
-    color: var(--glass-text);
-    transition:
-        transform 0.18s,
-        background 0.2s,
-        box-shadow 0.2s;
-    box-shadow: 0 3px 10px -5px rgba(20, 29, 51, 0.25);
+    gap: 10px;
 }
-.google:hover {
-    transform: translateY(-1px);
-    background: #fff;
-    box-shadow: 0 6px 16px -7px rgba(20, 29, 51, 0.3);
-}
-.google:active {
-    transform: scale(0.98);
-}
-
 .or {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 16px 0;
-    font-size: 11.5px;
-    color: var(--glass-sub);
-    letter-spacing: 0.08em;
+    margin: 18px 0;
+    font-size: 13px;
+    color: var(--ui-muted);
 }
 .or span {
     flex: 1;
     height: 1px;
-    background: var(--glass-border);
+    background: var(--ui-line);
 }
-
 .form {
     display: flex;
     flex-direction: column;
-    gap: 11px;
+    gap: 12px;
 }
-
-.msg {
-    font-size: 12.5px;
-    line-height: 1.5;
-    padding: 9px 13px;
+.field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 0 14px;
+    min-height: 48px;
+    border: 1px solid var(--ui-line);
     border-radius: 12px;
-    letter-spacing: 0.01em;
+    color: var(--ui-muted);
+    background: #00000012;
+}
+.field:focus-within {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 3px;
+}
+.field > svg {
+    flex-shrink: 0;
+}
+.field input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 8px 0;
+    border: 0;
+    outline: 0;
+    font: inherit;
+    font-size: 16px;
+    color: var(--ui-text);
+    background: transparent;
+    color-scheme: dark;
+}
+.field input::placeholder {
+    color: var(--ui-muted);
+    opacity: 1;
+}
+.msg {
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
 }
 .info {
-    color: #2f6b3f;
-    background: rgba(201, 232, 194, 0.55);
-    border: 1px solid rgba(134, 201, 154, 0.6);
+    color: var(--ui-success);
+    background: #c9e8c20c;
 }
 .error {
-    color: #9e2b46;
-    background: rgba(248, 200, 214, 0.5);
-    border: 1px solid rgba(239, 157, 180, 0.6);
+    color: var(--ui-error);
+    background: #ff8c8010;
 }
-
-/* password visibility toggle inside a .field */
 .eye {
     appearance: none;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
     border: 0;
+    border-radius: 9px;
+    color: var(--ui-muted);
     background: transparent;
     cursor: pointer;
-    display: inline-flex;
-    padding: 4px;
-    margin-right: -6px;
-    color: var(--glass-sub);
-    flex: 0 0 auto;
-    transition: color 0.16s;
 }
 .eye:hover {
-    color: var(--glass-text);
+    color: var(--ui-text);
+    background: #ffffff0d;
 }
-
-/* size only — the look comes from the global .btn-primary */
+.eye:focus-visible,
+.switchRow button:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
 .submit {
+    width: 100%;
     margin-top: 4px;
-    padding: 13px;
-    font-size: 14.5px;
 }
-
 .switchRow {
-    margin-top: 18px;
+    margin-top: 12px;
     text-align: center;
-    font-size: 12.5px;
-    color: var(--glass-sub);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ui-muted);
 }
 .switchRow button {
-    appearance: none;
+    min-height: 44px;
+    margin-left: 4px;
+    padding: 8px;
     border: 0;
+    border-radius: 8px;
     background: transparent;
-    cursor: pointer;
+    color: var(--ui-accent);
     font: inherit;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--accent-deep);
-    margin-left: 5px;
+    font-weight: 600;
+    cursor: pointer;
     text-underline-offset: 3px;
 }
 .switchRow button:hover {
     text-decoration: underline;
+}
+.switchRow button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+@media (max-width: 480px) {
+    .card {
+        border-radius: 22px;
+        padding-top: 20px;
+    }
+    .content {
+        padding: 20px 14px;
+        border-radius: 14px;
+    }
 }

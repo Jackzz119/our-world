@@ -1,29 +1,11 @@
-// LoginPage.tsx — cinnaglass (Cinnamoroll-toned) sign-in screen.
-// Original auth logic (Google OAuth + email/password) wrapped in cinnaglass UI.
-// Styling split: shared atoms (.glass / .btn-primary / .field) come from the
-// global cinnaglass.css; login-specific pieces from the scoped CSS Module.
+// Sign-in uses the room artwork and the same glass shell as in-world tasks.
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { LoginBackdrop } from '@/themes/cinnaglass/login-backdrop';
-import { Ico, IEye, IEyeOff, IHeart } from '@/themes/cinnaglass/icons';
+import { IEye, IEyeOff, IHeart, ILock, IMail } from '@/themes/cinnaglass/icons';
+import '@/themes/cinnaglass/ui/ui-system.css';
+import '@/themes/cinnaglass/entry.css';
 import styles from '@/pages/LoginPage.module.css';
-
-// Local field icons. icons.tsx carries an IMail and an ILock too, but their
-// paths are drawn on a different grid; these two are kept so the login page's
-// shapes stay exactly as approved. Nothing else may define icons inline.
-const IMail = (p: Parameters<typeof Ico>[0]) => (
-    <Ico {...p}>
-        <rect x="3" y="5" width="18" height="14" rx="2.5" />
-        <path d="m3.5 7.5 8.5 5.5 8.5-5.5" />
-    </Ico>
-);
-const ILock = (p: Parameters<typeof Ico>[0]) => (
-    <Ico {...p}>
-        <rect x="4.5" y="11" width="15" height="9" rx="2.5" />
-        <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-    </Ico>
-);
 
 // Google's official four-colour "G" mark — fixed brand colours, not themed.
 const GoogleMark = () => (
@@ -64,17 +46,26 @@ const LoginPage = () => {
     // OAuth redirect: Supabase bounces the browser to Google and back to the site
     // root, where ProtectedRoute picks up the new session.
     const handleGoogle = async () => {
+        if (busy) return;
+        setBusy(true);
         setMsg(null);
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: window.location.origin + '/' }
-        });
-        if (error) setMsg({ type: 'error', text: error.message });
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin + '/' }
+            });
+            if (error) throw error;
+        } catch (err) {
+            setMsg({ type: 'error', text: err instanceof Error ? err.message : '登录失败，请重试。' });
+        } finally {
+            setBusy(false);
+        }
     };
 
     // Forgot password: sends a recovery email whose link lands on /reset-password.
     // Requires the email field — it is the only input this path reads.
     const handleForgot = async () => {
+        if (busy) return;
         if (!email) {
             setMsg({ type: 'error', text: '先填上你的邮箱，再点忘记密码。' });
             return;
@@ -98,6 +89,7 @@ const LoginPage = () => {
     // sign-in navigates to the world.
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (busy) return;
         setBusy(true);
         setMsg(null);
         try {
@@ -119,13 +111,8 @@ const LoginPage = () => {
     };
 
     return (
-        <div className={styles.wrap}>
-            <div className={styles.bg}>
-                <LoginBackdrop />
-            </div>
-            <div className={styles.veil} />
-
-            <div className={`${styles.card} glass`}>
+        <main className="ui-entry ui-environment" data-mood="twilight">
+            <section className={`${styles.card} ui-surface`} aria-label="登录 Our World" aria-busy={busy}>
                 <div className={styles.brand}>
                     <span className={styles.mark}>
                         <IHeart size={22} fill="currentColor" sw={0} />
@@ -134,82 +121,101 @@ const LoginPage = () => {
                     <p>{signUpMode ? '创建只属于我们的小世界' : '回到只属于我们的小世界'}</p>
                 </div>
 
-                <button type="button" className={styles.google} onClick={handleGoogle}>
-                    <GoogleMark />
-                    使用 Google 继续
-                </button>
-
-                <div className={styles.or}>
-                    <span />
-                    或用邮箱
-                    <span />
-                </div>
-
-                <form className={styles.form} onSubmit={handleSubmit}>
-                    <label className="field">
-                        <IMail size={17} />
-                        <input
-                            type="email"
-                            autoComplete="email"
-                            placeholder="邮箱"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </label>
-                    <label className="field">
-                        <ILock size={17} />
-                        <input
-                            type={showPw ? 'text' : 'password'}
-                            autoComplete={signUpMode ? 'new-password' : 'current-password'}
-                            placeholder="密码"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                        <button
-                            type="button"
-                            className={styles.eye}
-                            onClick={() => setShowPw((v) => !v)}
-                            title={showPw ? '隐藏密码' : '显示密码'}
-                        >
-                            {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
-                        </button>
-                    </label>
-
-                    {msg && <div className={`${styles.msg} ${styles[msg.type]}`}>{msg.text}</div>}
-
-                    <button
-                        type="submit"
-                        className={`btn-primary ${styles.submit}`}
-                        disabled={busy || !email || !password}
-                    >
-                        {busy ? '稍等…' : signUpMode ? '注册' : '登录'}
-                    </button>
-                </form>
-
-                <div className={styles.switchRow}>
-                    {signUpMode ? '已经有账号了？' : '还没有账号？'}
+                <div className={`${styles.content} ui-liner`}>
                     <button
                         type="button"
-                        onClick={() => {
-                            setMode(signUpMode ? 'signin' : 'signup');
-                            setMsg(null);
-                        }}
+                        className={`ui-button ${styles.google}`}
+                        onClick={handleGoogle}
+                        disabled={busy}
                     >
-                        {signUpMode ? '去登录' : '创建一个'}
+                        <GoogleMark />
+                        使用 Google 继续
                     </button>
-                </div>
-                {!signUpMode && (
+
+                    <div className={styles.or}>
+                        <span />
+                        或用邮箱
+                        <span />
+                    </div>
+
+                    <form className={styles.form} onSubmit={handleSubmit}>
+                        <label className={styles.field}>
+                            <IMail size={17} />
+                            <input
+                                type="email"
+                                autoComplete="email"
+                                placeholder="邮箱"
+                                aria-label="邮箱"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label className={styles.field}>
+                            <ILock size={17} />
+                            <input
+                                type={showPw ? 'text' : 'password'}
+                                autoComplete={signUpMode ? 'new-password' : 'current-password'}
+                                placeholder="密码"
+                                aria-label="密码"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className={styles.eye}
+                                onClick={() => setShowPw((v) => !v)}
+                                title={showPw ? '隐藏密码' : '显示密码'}
+                                aria-label={showPw ? '隐藏密码' : '显示密码'}
+                                aria-pressed={showPw}
+                            >
+                                {showPw ? <IEyeOff size={17} /> : <IEye size={17} />}
+                            </button>
+                        </label>
+
+                        {msg && (
+                            <div
+                                className={`${styles.msg} ${styles[msg.type]}`}
+                                role={msg.type === 'error' ? 'alert' : 'status'}
+                            >
+                                {msg.text}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className={`ui-button ui-button-primary ${styles.submit}`}
+                            disabled={busy || !email || !password}
+                        >
+                            {busy ? '稍等…' : signUpMode ? '注册' : '登录'}
+                        </button>
+                    </form>
+
                     <div className={styles.switchRow}>
-                        忘记密码了？
-                        <button type="button" onClick={handleForgot} disabled={busy}>
-                            发重置邮件
+                        {signUpMode ? '已经有账号了？' : '还没有账号？'}
+                        <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => {
+                                setMode(signUpMode ? 'signin' : 'signup');
+                                setMsg(null);
+                            }}
+                        >
+                            {signUpMode ? '去登录' : '创建一个'}
                         </button>
                     </div>
-                )}
-            </div>
-        </div>
+                    {!signUpMode && (
+                        <div className={styles.switchRow}>
+                            忘记密码了？
+                            <button type="button" onClick={handleForgot} disabled={busy}>
+                                发重置邮件
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </section>
+        </main>
     );
 };
 

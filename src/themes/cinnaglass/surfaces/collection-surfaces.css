@@ -1,0 +1,90 @@
+/* Collections keep their paper artifacts inside the shared task material. */
+.collection-task {
+    --glass-text: var(--ui-text);
+    --glass-sub: var(--ui-muted);
+    --glass-line: var(--ui-line);
+    --glass-bg-2: #ffffff08;
+    --glass-paper: #ffffff06;
+    --glass-hi: #ffffff10;
+    --accent: var(--ui-accent);
+    --accent-deep: var(--ui-accent);
+    --accent-grad: linear-gradient(var(--ui-accent), var(--ui-accent));
+}
+.collection-task .pola {
+    width: 100%;
+    border: 0;
+    font: inherit;
+}
+.collection-task .pola-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    text-align: center;
+    font-size: 12px;
+    color: #695f4e;
+    letter-spacing: 0.05em;
+}
+.collection-task .wish {
+    width: 100%;
+    min-height: 52px;
+    text-align: left;
+    font: inherit;
+    color: var(--ui-text);
+    border: 1px solid var(--ui-line);
+    background: #ffffff06;
+}
+.collection-task .wish .box {
+    border-color: var(--ui-line);
+}
+.collection-task .wish.done .box {
+    background: var(--ui-accent);
+    color: #302719;
+}
+.collection-task .wish.done .wt {
+    opacity: 1;
+    color: var(--ui-muted);
+}
+.collection-task .wl-add input {
+    min-width: 0;
+    border-radius: 12px;
+}
+.collection-task .wl-add button {
+    border-radius: 12px;
+}
+.collection-task .empty-hint {
+    color: var(--ui-muted);
+    font-size: 13px;
+}
+.photo-lightbox-task .ui-dialog-content {
+    display: grid;
+    place-items: center;
+}
+.photo-lightbox-image {
+    max-width: 100%;
+    max-height: calc(100dvh - 200px);
+    object-fit: contain;
+    border-radius: 8px;
+}
+@media (max-width: 430px) {
+    .collection-task .pw {
+        column-gap: 12px;
+    }
+}
+
+.collection-task :is(.wish, input) {
+    --glass-text: var(--ui-text);
+    --glass-sub: var(--ui-muted);
+    --glass-line: var(--ui-line);
+    --glass-hi: #ffffff10;
+    --glass-hover: #ffffff10;
+}
+
+.collection-task .pw:has(> :last-child:nth-child(-n + 4)) {
+    columns: 2;
+}
+@media (max-width: 430px) {
+    .collection-task .pw:has(> :last-child:nth-child(-n + 4)) {
+        columns: 1;
+    }
+}

@@ -3,6 +3,8 @@
 // closing one object and opening another. The journal's own paging lives in
 // journal-room-book.tsx; this file owns the modal shell, focus trap and the
 // photo-wall + wishlist bodies.
+import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
+import '@/themes/cinnaglass/surfaces/collection-surfaces.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
@@ -106,6 +108,8 @@ export function SubScreen({
             if (previous) window.setTimeout(() => previous.focus(), 0);
             return;
         }
+        // Collections use native task dialogs; the frozen journal keeps its own trap.
+        if (screen !== 'timeline') return;
         restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         const panel = surfaceRefs.current[screen];
         window.requestAnimationFrame(() => panel?.querySelector<HTMLElement>('.object-x')?.focus());
@@ -159,12 +163,34 @@ export function SubScreen({
     return (
         <>
             <div
-                className={`modal-scrim object-scrim ${screen === 'timeline' ? 'diary-scrim' : ''} ${show ? 'show' : ''}`}
+                className={`modal-scrim object-scrim ${screen === 'timeline' ? 'diary-scrim' : ''} ${screen === 'timeline' ? 'show' : ''}`}
                 onClick={onClose}
             />
             {SURFACES.map((surface) => {
                 const active = visibleScreen === surface.k;
                 const diary = surface.k === 'timeline';
+                if (!diary) {
+                    return (
+                        <TaskDialog
+                            key={surface.k}
+                            open={screen === surface.k}
+                            onClose={onClose}
+                            title={surface.title}
+                            className={`collection-task ${surface.k}-task`}
+                            wide={surface.k === 'photos'}
+                            description={
+                                surface.k === 'photos'
+                                    ? '把一起留下的瞬间，慢慢看。'
+                                    : '心愿仅保存在当前浏览器，不会同步给对方。'
+                            }
+                        >
+                            {surface.k === 'photos' && (
+                                <PhotoWall posts={feed.posts} thumbUrls={thumbUrls} active={screen === 'photos'} />
+                            )}
+                            {surface.k === 'wishlist' && <Wishlist />}
+                        </TaskDialog>
+                    );
+                }
                 return (
                     <section
                         key={surface.k}
@@ -193,8 +219,6 @@ export function SubScreen({
                             {surface.k === 'timeline' && (
                                 <TimelineBody feed={feed} thumbUrls={thumbUrls} active={active} />
                             )}
-                            {surface.k === 'photos' && <PhotoWall posts={feed.posts} thumbUrls={thumbUrls} />}
-                            {surface.k === 'wishlist' && <Wishlist />}
                         </div>
                     </section>
                 );

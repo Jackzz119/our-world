@@ -63,6 +63,7 @@ export function StandardBoard() {
         const palette = getComputedStyle(rail);
         for (const token of ['tint', 'top', 'cold', 'rim', 'glow', 'solid']) {
             board.style.setProperty(`--sb-${token}`, palette.getPropertyValue(`--nav-${token}`));
+            board.style.setProperty(`--ui-${token}`, palette.getPropertyValue(`--nav-${token}`));
         }
     }, [mood]);
 
@@ -105,7 +106,7 @@ export function StandardBoard() {
     return (
         <main
             ref={boardRef}
-            className="sb-board"
+            className="sb-board ui-environment"
             data-mood={mood}
             data-surface={surface}
             data-solid={solid}

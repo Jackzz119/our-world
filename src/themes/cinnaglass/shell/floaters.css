@@ -1,0 +1,188 @@
+/* Widget placement is coordinated by the world shell; these rules own internal layout. */
+.moment-card {
+    position: absolute;
+    top: 41px;
+    right: 27px;
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 280px;
+    min-height: 92px;
+    padding: 12px 8px 12px 16px;
+    border-radius: 22px;
+    color: var(--ui-text);
+}
+.mc-icon {
+    display: flex;
+    color: var(--ui-accent);
+    flex: none;
+}
+.mc-lines {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+}
+.mc-line {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.mc-big {
+    font-size: 23px;
+    line-height: 1.2;
+}
+.mc-line.sub {
+    font-size: 12px;
+    color: var(--ui-muted);
+}
+.mc-hide {
+    flex: none;
+}
+.music-wrap {
+    position: absolute;
+    right: 27px;
+    bottom: 39px;
+    z-index: 35;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    width: 380px;
+    max-width: calc(100% - 24px);
+}
+.music-wrap[hidden],
+.music-full[hidden] {
+    display: none;
+}
+.music-full {
+    max-width: 100%;
+    max-height: calc(100dvh - 260px);
+    overflow-y: auto;
+    border-radius: 24px;
+    scrollbar-width: thin;
+}
+.music-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 86px;
+    padding: 10px 12px;
+    border-radius: 22px;
+    color: var(--ui-text);
+}
+.mb-disc {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+}
+.mb-mid {
+    flex: 1;
+    min-width: 0;
+}
+.mb-title {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 600;
+}
+.mb-status {
+    display: block;
+    margin: 3px 0 8px;
+    color: var(--ui-muted);
+    font-size: 11px;
+}
+.mb-progress {
+    display: block;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 4px;
+    color: var(--ui-accent);
+    background: #ffffff24;
+}
+.mb-progress::-webkit-progress-bar {
+    background: #ffffff24;
+    border-radius: 4px;
+}
+.mb-progress::-webkit-progress-value {
+    background: var(--ui-accent);
+    border-radius: 4px;
+}
+.mb-progress::-moz-progress-bar {
+    background: var(--ui-accent);
+    border-radius: 4px;
+}
+.mb-main,
+.mb-fold {
+    flex: none;
+}
+.mb-chevron {
+    display: flex;
+    transform: rotate(-90deg);
+}
+.mb-chevron.up {
+    transform: rotate(90deg);
+}
+.music-error {
+    align-self: stretch;
+    margin: 0;
+    max-width: 380px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: #ffe2c1;
+    font-size: 13px;
+    line-height: 1.5;
+}
+@media (max-width: 600px) {
+    .moment-card {
+        width: 250px;
+        padding-left: 12px;
+        gap: 7px;
+    }
+    .music-bar {
+        gap: 6px;
+        padding: 10px;
+    }
+    .mb-disc {
+        width: 40px;
+        height: 40px;
+    }
+    .mb-status {
+        font-size: 10px;
+    }
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .moment-card {
+        min-height: 76px;
+        padding: 8px;
+        gap: 4px;
+    }
+    .mc-icon {
+        display: none;
+    }
+    .mc-lines {
+        gap: 2px;
+    }
+    .mc-line {
+        display: block;
+        white-space: normal;
+        line-height: 1.45;
+    }
+    .mc-big {
+        font-size: 18px;
+    }
+    .mc-line.sub {
+        font-size: 11px;
+    }
+}

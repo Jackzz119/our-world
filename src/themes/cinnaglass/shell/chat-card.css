@@ -1,0 +1,151 @@
+/* Compact chat keeps the painting visible and text on a stable mood-colored liner. */
+.chat-card {
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 100px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+}
+.cc-head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+}
+.cc-title {
+    margin-right: auto;
+    font-size: 14px;
+    font-weight: 600;
+}
+.cc-hbtn.ui-icon-button {
+    background: transparent;
+    border-color: transparent;
+}
+.cc-list {
+    min-height: 0;
+    max-height: min(300px, 40dvh);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0 10px;
+    padding: 14px 10px;
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
+}
+.cc-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.chat-card[data-align='sides'] .cc-msg.me {
+    flex-direction: row-reverse;
+}
+.cc-ava {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--ui-line);
+    border-radius: 50%;
+    overflow: hidden;
+}
+.cc-ava img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cc-bubble {
+    max-width: calc(100% - 42px);
+    padding: 9px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 14px;
+    color: var(--ui-text);
+    font-size: 14px;
+    line-height: 1.6;
+    background: #ffffff08;
+    overflow-wrap: anywhere;
+}
+.cc-msg.me .cc-bubble {
+    border-color: #f1d19a33;
+}
+.cc-bubble small {
+    display: block;
+    color: var(--ui-muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+.cc-bubble .cc-failed {
+    color: var(--ui-error);
+}
+.cc-sticker {
+    width: 84px;
+    max-width: calc(100% - 42px);
+    height: 84px;
+    object-fit: contain;
+}
+.cc-empty {
+    padding: 22px 4px;
+    text-align: center;
+    color: var(--ui-muted);
+    font-size: 13px;
+}
+.cc-quick {
+    display: flex;
+    gap: 4px;
+    padding: 4px 10px;
+}
+.cc-q {
+    background: transparent;
+    border: 0;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.cc-q:hover {
+    background: var(--ui-hover);
+}
+.cc-q:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.cc-notice {
+    margin: 0 12px 8px;
+    color: var(--ui-error);
+    font-size: 12px;
+}
+.cc-input {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+    margin: 0 10px 10px;
+}
+.cc-input input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    background: var(--ui-liner-base);
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 14px;
+}
+.cc-input input::placeholder {
+    color: var(--ui-muted);
+    opacity: 1;
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .cc-list {
+        max-height: none;
+        flex: 1 1 auto;
+    }
+    .cc-head,
+    .cc-quick {
+        flex-shrink: 0;
+    }
+}
