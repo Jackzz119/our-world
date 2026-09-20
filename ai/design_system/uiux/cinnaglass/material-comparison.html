@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="dark" />
+        <title>Cinnaglass · 两种弹窗材质并排比较</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: #191a1d;
+                color: #f7f0e4;
+                font-family: system-ui, 'Microsoft YaHei', sans-serif;
+            }
+            main {
+                max-width: 1080px;
+                margin: auto;
+                padding: 28px 28px 36px;
+            }
+            .eyebrow {
+                color: #e5c38e;
+                font-size: 12px;
+                letter-spacing: 0.08em;
+            }
+            h1 {
+                font-size: 28px;
+                margin: 10px 0;
+            }
+            .intro {
+                color: #d0ccc6;
+                line-height: 1.7;
+                margin: 0;
+            }
+            nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin: 18px 0;
+                align-items: center;
+            }
+            button,
+            a {
+                min-height: 44px;
+                padding: 10px 15px;
+                border-radius: 10px;
+                font: inherit;
+            }
+            button {
+                background: #26282c;
+                color: #ece7de;
+                border: 1px solid #55565a;
+                cursor: pointer;
+            }
+            button[aria-pressed='true'] {
+                background: #e9c88e;
+                color: #27221c;
+                border-color: #e9c88e;
+            }
+            button:focus-visible,
+            a:focus-visible {
+                outline: 3px solid #ffe1a8;
+                outline-offset: 3px;
+            }
+            a {
+                color: #e9c88e;
+            }
+            .context {
+                margin: 0 0 20px;
+                font-size: 13px;
+                color: #c5c1bb;
+            }
+            .pair {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            figure {
+                min-width: 0;
+                margin: 0;
+            }
+            h2 {
+                margin: 0 0 8px;
+                font-size: 21px;
+            }
+            figcaption p {
+                margin: 0 0 14px;
+                color: #d4d0c9;
+                line-height: 1.5;
+                font-size: 14px;
+            }
+            .capture {
+                position: relative;
+            }
+            .capture img {
+                display: block;
+                width: 100%;
+                border-radius: 25px;
+            }
+            .region {
+                position: absolute;
+                top: 21.596%;
+                height: 66.508%;
+                left: 0;
+                right: 0;
+                border: 2px dashed #ffe1a8;
+                pointer-events: none;
+            }
+            .region span {
+                position: absolute;
+                right: 8px;
+                top: 6px;
+                background: #18191b;
+                color: #ffe1a8;
+                font-size: 12px;
+                padding: 5px 9px;
+                border-radius: 5px;
+            }
+            .takeaway {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                margin-top: 14px;
+                line-height: 1.7;
+                font-size: 14px;
+            }
+            .takeaway p {
+                margin: 0;
+            }
+            footer {
+                margin-top: 22px;
+                color: #bdb8b1;
+                font-size: 12px;
+                line-height: 1.7;
+            }
+            @media (max-width: 700px) {
+                main {
+                    padding: 20px 16px;
+                }
+                .pair,
+                .takeaway {
+                    grid-template-columns: 1fr;
+                    gap: 26px;
+                }
+                h1 {
+                    font-size: 24px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <div class="eyebrow">CINNAGLASS / M1 材质提案 · 待确认</div>
+            <h1>只看虚线框：正文要不要继续透出纹理？</h1>
+            <p class="intro">左右使用相同尺寸、场景、控件和文字。标题、页脚与反光边缘共用同一套磨砂外壳。</p>
+            <nav aria-label="对照场景">
+                <button type="button" data-scene="twilight" aria-pressed="true">暮色 · 正常居中</button>
+                <button type="button" data-scene="golden" aria-pressed="false">黄昏 · 明窗压力测试</button>
+                <a href="standard-board.html">打开可操作标准板 ↗</a>
+            </nav>
+            <p class="context" id="context" aria-live="polite">
+                正常使用位置的实际截图。虚线仅用于标注差异，不属于 UI。
+            </p>
+            <div class="pair">
+                <figure>
+                    <figcaption>
+                        <h2>B1 · 整块磨砂玻璃</h2>
+                        <p>正文仍有纹理和透景，整窗的材质连成一片。</p>
+                    </figcaption>
+                    <div class="capture">
+                        <img
+                            id="glass"
+                            src="ui-unification/material-comparison/twilight-glass.png"
+                            width="488"
+                            height="656"
+                            alt="B1：设置正文中仍可见不规则云纹与背景明暗"
+                        />
+                        <div class="region" aria-hidden="true"><span>看正文背后的云纹</span></div>
+                    </div>
+                </figure>
+                <figure>
+                    <figcaption>
+                        <h2>B2 · 磨砂外壳 + 稳定正文</h2>
+                        <p>正文铺均匀实底，磨砂保留在标题和页脚。</p>
+                    </figcaption>
+                    <div class="capture">
+                        <img
+                            id="grounded"
+                            src="ui-unification/material-comparison/twilight-grounded.png"
+                            width="488"
+                            height="656"
+                            alt="B2：设置正文为均匀深灰底，标题和页脚仍有磨砂纹理"
+                        />
+                        <div class="region" aria-hidden="true"><span>这块没有纹理，也不透景</span></div>
+                    </div>
+                </figure>
+            </div>
+            <div class="takeaway">
+                <p><strong>B1 的取舍：</strong>整体玻璃感更强；正文也会受到纹理与场景明暗干扰。</p>
+                <p><strong>B2 的取舍：</strong>阅读底更稳定；上下磨砂与中间实底会有明显分区。</p>
+            </div>
+            <footer>
+                这是当前实现的真实浏览器截图，没有为比稿额外加强纹理。B1/B2
+                尚未定稿；如果不喜欢两者，也可以继续调整正文底的厚度与分区方式。<br />素材与实现登记：<a
+                    href="ui-system.md"
+                    >当前主题规范</a
+                >。
+            </footer>
+        </main>
+        <script>
+            // Compare captures from the same frozen scene; annotations never alter the material.
+            const buttons = document.querySelectorAll('[data-scene]');
+            for (const button of buttons) {
+                button.addEventListener('click', () => {
+                    const scene = button.dataset.scene;
+                    for (const other of buttons) other.setAttribute('aria-pressed', String(other === button));
+                    for (const surface of ['glass', 'grounded']) {
+                        document.getElementById(surface).src =
+                            `ui-unification/material-comparison/${scene}-${surface}.png`;
+                    }
+                    document.getElementById('context').textContent =
+                        scene === 'golden'
+                            ? '同一弹窗临时移到明亮窗边，检查亮背景下的差别；这是压力测试，不是建议摆位。虚线不属于 UI。'
+                            : '正常使用位置的实际截图。虚线仅用于标注差异，不属于 UI。';
+                });
+            }
+        </script>
+    </body>
+</html>

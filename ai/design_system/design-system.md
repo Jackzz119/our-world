@@ -1,10 +1,10 @@
 # Our World · 当前设计系统
 
-> 维护：Monet；UI/UX：UI Tailor。更新：2026-09-13。此文档与下面链接的常驻 Markdown 是当前设计来源，README 只解释目录。
+> 维护：Monet；UI/UX：UI Tailor。更新：2026-09-20。此文档与下面链接的常驻 Markdown 是当前设计来源，README 只解释目录。
 
 ![当前小屋实景：双角色、书房、导航与场景悬浮控件](uiux/cinnaglass/ui-unification/audit-2026-09-11/twilight-scene.png)
 
-上图为 2026-09-11 产品实景；本轮只更新设计资料与技能，产品画面没有改版。导航已认可，其余 UI 尚待统一。
+上图为 2026-09-11 产品实景。导航已认可，其余 UI 尚待统一；当前新增 [M1 实景标准板与材质比稿](uiux/cinnaglass/ui-system.md#m1-可操作标准板提案未定稿)，仅作为待确认提案，产品尚未迁移。
 
 ## 整体风格
 
