@@ -25,8 +25,8 @@
 - [ ] **[BUG] 设置里「保存新密码」是假成功**（审核第三步 PA-035 扩展：同组邮箱行是 localStorage 假值、应用锁无人执行、退出忽略 `signOut` 错误会卡死）：`settings.tsx` 的 `savePw` 只把本地状态置为「已更新」，从未调用 `supabase.auth.updateUser`，密码实际未改（2026-09-19 审核第二步确认）。修法：接 `updateUser({ password })`，失败显示错误、成功后清空输入；同段「绑定邮箱」「应用锁」同属占位，一并接通或收起
 - [ ] **世界设置弹窗没有入口**（PA-037；纪念日为 null 时日历回退假日期）：`world-settings.tsx` 有真实的 DB 保存链（`updateWorld`），但 `screen='world-settings'` 在当前 UI 里无任何按钮可达（原 sidebar 入口随 Discord 壳层退役）。需产品决定入口位置（设置弹窗内的「我们的小世界」段 / 导航工具菜单），随 E1-U M4 落地
 - [ ] **审核第三步发现（2026-09-19，诊断未修，详见 `ai/project-audit/FINDINGS.md` PA-034～053）**：
-    - [ ] **[BUG][安全] dev 凭据可进生产包**：`VITE_DEV*` 未绑 `import.meta.env.DEV`，本机有 `.env.local` 时 `vite build` 内联密码（PA-042，一行修）
-    - [ ] **[BUG] 断网被误报「未登录」**：`currentUserId()` 走 `auth.getUser()` 网络往返且忽略 `error`，六个数据模块同根因（PA-034；即「回忆链路边界测试」第二条文案 bug）
+    - [x] **[BUG][安全] dev 凭据可进生产包**（2026-09-19 修，PA-042：env 读取改静态表并按 `import.meta.env.DEV` 门控，打包后实测 dist 无密码/邮箱值）：`VITE_DEV*` 未绑 `import.meta.env.DEV`，本机有 `.env.local` 时 `vite build` 内联密码（PA-042，一行修）
+    - [x] **[BUG] 断网被误报「未登录」**（2026-09-19 修，PA-034：`currentUserId()` 改读本地会话 `getSession()`，刷新失败的网络错误显示「网络好像断了」；断网实测待做）：`currentUserId()` 走 `auth.getUser()` 网络往返且忽略 `error`，六个数据模块同根因（PA-034；即「回忆链路边界测试」第二条文案 bug）
     - [ ] **[BUG] 房间装载期四处**：HiDPI 下房间缩到左上角露底、装载期间 mood/天气变更被丢、任一贴图 404 整间房静默空白、装载中回大厅报 TypeError（PA-041）
     - [ ] **[BUG] 聊天呈现**：对方头顶气泡在我 4.5s 内回复时挂住不消失；rail 红点无视已读、关窗回亮（PA-038）
     - [ ] **[BUG] 聊天一致性**：断线期间对方的删除/撤 reaction 重连后补不回；编辑/删除/reaction/已读失败不回滚无提示；重试已落库消息永远卡 failed（PA-039）
@@ -149,7 +149,7 @@
 - [ ] member 测试数据清理（【测试数据】前缀 ×6，上线前删）
 - [~] 回忆链路边界测试（2026-07-08 实测，2026-08-21 复核仍成立；2026-09-19 审核第三步再核，两条文案 bug 根因见 PA-034 / PA-040）：非图片 mime 被过滤 ✓、超 25MB 上传失败且草稿保留 ✓、断网失败且草稿保留 ✓、签名过期由 40 分钟续签覆盖 ✓。**剩两处文案 bug 待修**（2026-09-18 核对源码仍未修）：
     - 超限上传把 Storage 英文原文直接抛给用户（`The object exceeded the maximum allowed size`）→ 应映射中文
-    - 断网时 `createPost` 里 `auth.getUser()` 先失败，被误报成「未登录，无法发帖」→ 应区分网络错误（TypeError）提示「网络好像断了」
+    - ~~断网时 `createPost` 里 `auth.getUser()` 先失败，被误报成「未登录，无法发帖」~~ 2026-09-19 已修（PA-034），断网实测待做
     - 未覆盖：无世界账号的 error 态（需 Dashboard 建测试号）、双人视角 shared 帖复验
 - [ ] 聊天双端联调残项：互删粒子/reaction 同步/断网重试/贴纸互发（原 v1 CH-23/DM-8/EMO 验收；`pnpm dev2` 双账号）；验收清单追加 PA-038/039 四条（气泡到点消失、红点不回弹、断线删除补回、失败回滚）
 
