@@ -14,6 +14,7 @@ import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
 import { updateMyDisplayName } from '@/lib/profiles';
 import { Rail } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
+import { SunlitLetter } from '@/themes/cinnaglass/shell/sunlit-letter';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { WorldSurfaces } from '@/themes/cinnaglass/shell/world-surfaces';
@@ -193,12 +194,20 @@ const WorldPage = () => {
         return () => window.removeEventListener('keydown', onKey);
     }, [convOpen, screen, entered, world, compact]);
 
-    // The world conversation's newest message drives both the rail's unread pip
-    // and her in-world speech bubble.
+    // Unread follows her latest valid message; the newest message drives the short-lived bubble.
     const worldConvId = convsFor(entered && world !== null, channels, dmConvs)[0]?.id ?? '';
-    const lastMsg = (threads[worldConvId] || []).at(-1);
+    const worldMessages = threads[worldConvId] || [];
+    const lastMsg = worldMessages.at(-1);
+    const latestIncoming = [...worldMessages]
+        .reverse()
+        .find((msg) => msg.from === 'them' && !msg.pending && !msg.failed && !msg.vanishing);
     const myReadAt = uid ? reads[worldConvId]?.[uid] : undefined;
-    const { unread, bubble } = useWorldChatBubble(lastMsg, { chatOpen, convOpen, myReadAt });
+    const { unread, bubble } = useWorldChatBubble(lastMsg, {
+        chatOpen,
+        convOpen: convOpen === worldConvId ? convOpen : null,
+        myReadAt,
+        latestIncoming
+    });
 
     // Toggle an addon widget; the write-back rides on usePersistedState.
     // Required widgets are silently ignored.
@@ -250,6 +259,7 @@ const WorldPage = () => {
             data-reduced-transparency={t.reduceTransparency}
             data-chat-open={chatOpen}
             data-music-open={musicOpen}
+            data-letter-visible={inWorld && unread}
             data-glass={t.glassStyle}
             data-mood={t.mood}
             style={{ position: 'absolute', inset: 0 }}
@@ -317,6 +327,15 @@ const WorldPage = () => {
                             wx={t.weather}
                             weather={weather}
                             setWx={(k) => setTweak('weather', k)}
+                        />
+                        <SunlitLetter
+                            mood={t.mood}
+                            visible={unread}
+                            onOpen={() => {
+                                document.querySelector<HTMLButtonElement>('[data-nav-key="chat"]')?.focus();
+                                setChatOpen(true);
+                                if (compact) setMusicOpen(false);
+                            }}
                         />
                         {widgets.anniv !== false && (
                             <MomentCard anniv={world?.anniversary ?? null} onHide={() => setWidget('anniv', false)} />

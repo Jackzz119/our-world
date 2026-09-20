@@ -1,0 +1,86 @@
+/* Night keeps the approved golden paper. Twilight receives rose warmth and a violet edge. */
+.letter-notice[hidden] {
+    display: none;
+}
+.sunlit-letter {
+    --letter-paper: linear-gradient(135deg, #fff0b9, #eacb83);
+    --letter-edge: #ffedb6;
+    --letter-ink: #553b1c;
+    --letter-near: #ffd68244;
+    --letter-far: #ffd68222;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 270px;
+    min-height: 88px;
+    padding: 20px;
+    border: 1px solid var(--letter-edge);
+    border-radius: 5px 13px 6px 12px;
+    color: var(--letter-ink);
+    background: var(--letter-paper);
+    box-shadow:
+        0 0 24px var(--letter-near),
+        0 0 70px var(--letter-far),
+        0 8px 26px #0005;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+}
+[data-mood='golden'] .sunlit-letter {
+    --letter-paper: linear-gradient(135deg, #f7e6bd, #dfbc82);
+    --letter-edge: #f5dba8;
+    --letter-near: #ffd68218;
+    --letter-far: transparent;
+}
+[data-mood='twilight'] .sunlit-letter {
+    --letter-paper: linear-gradient(135deg, #f4dfce, #dfbaaa 64%, #c2b5c8);
+    --letter-edge: #e7cbca;
+    --letter-ink: #503946;
+    --letter-near: #eec6ac26;
+    --letter-far: #c9b8df12;
+}
+.sunlit-letter > span:last-child {
+    display: grid;
+    gap: 6px;
+}
+.sunlit-letter b {
+    font-size: 15px;
+}
+.sunlit-letter small {
+    font-size: 12px;
+}
+.sunlit-letter:focus-visible {
+    outline: 2px solid var(--letter-edge);
+    outline-offset: 4px;
+}
+@media (hover: hover) {
+    .sunlit-letter:hover {
+        filter: brightness(1.045);
+    }
+}
+.sunlit-letter:active {
+    filter: brightness(0.97);
+}
+.letter-fold {
+    width: 32px;
+    height: 23px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    position: relative;
+    flex: none;
+}
+.letter-fold::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translate(5px, -11px) rotate(45deg);
+}
+@media (max-width: 767px), (max-height: 599px) {
+    .sunlit-letter {
+        padding: 14px;
+        min-height: 76px;
+    }
+}

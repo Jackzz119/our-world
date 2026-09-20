@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Rail } from '@/themes/cinnaglass/shell/rail';
+import { SunlitLetter } from '@/themes/cinnaglass/shell/sunlit-letter';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { MusicMini } from '@/themes/cinnaglass/shell/floaters';
@@ -216,7 +217,7 @@ export function ClimateReview() {
             <header className="review-toolbar">
                 <div>
                     <strong>植物园 · UI 色调与环境入口</strong>
-                    <p>当前材质 + 候选交互；植物园是已有概念图，非已开放房间。</p>
+                    <p>已采用双入口与金亮信纸；暮色纸面适配待看样。植物园为概念图。</p>
                 </div>
                 <div className="review-options">
                     <label>
@@ -229,9 +230,8 @@ export function ClimateReview() {
                     <label>
                         入口方案
                         <select value={variant} onChange={(e) => setVariant(e.target.value)}>
-                            <option value="split">双入口 · 推荐</option>
-                            <option value="combined">合并入口</option>
-                            <option value="current">当前图标版</option>
+                            <option value="split">双入口 · 已采用</option>
+                            <option value="combined">合并入口 · 历史</option>
                         </select>
                     </label>
                     <label>
@@ -256,6 +256,7 @@ export function ClimateReview() {
                 data-mood={mood}
                 data-chat-open={chat}
                 data-music-open={music}
+                data-letter-visible={letter}
                 style={{
                     backgroundImage: `url(${scene === 'garden' ? '/arts/rooms/thumbs/garden.png' : `/rooms/study/${mood}.png`})`
                 }}
@@ -278,13 +279,13 @@ export function ClimateReview() {
                         }
                     }}
                 />
-                {variant === 'current' ? (
+                {variant === 'split' ? (
                     <Ambience
                         mood={mood}
                         setMood={setMood}
                         wx={wx}
                         setWx={setWx}
-                        weather={{ kind: 'sun', label: '晴', temp: null, place: '', status: 'manual' }}
+                        weather={{ kind: 'sun', label: '实况暂不可用', temp: null, place: '', status: 'unavailable' }}
                     />
                 ) : (
                     <ClimateControls
@@ -331,23 +332,15 @@ export function ClimateReview() {
                     }}
                     spaceName="温室听雨"
                 />
-                {letter && (
-                    <button
-                        className="sunlit-letter"
-                        onClick={() => {
-                            setLetter(false);
-                            setChat(true);
-                            if (compact) setMusic(false);
-                        }}
-                        aria-label="打开新来信"
-                    >
-                        <span className="letter-fold" aria-hidden="true" />
-                        <span>
-                            <b>有一封新来信</b>
-                            <small>像留在夜里的一束阳光</small>
-                        </span>
-                    </button>
-                )}
+                <SunlitLetter
+                    mood={mood}
+                    visible={letter}
+                    onOpen={() => {
+                        setLetter(false);
+                        setChat(true);
+                        if (compact) setMusic(false);
+                    }}
+                />
                 <aside className="review-caption">
                     {scene === 'garden'
                         ? '植物园原图固定；切换时辰仅检验 UI 配色，不生成植物园光照。'

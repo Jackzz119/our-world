@@ -24,6 +24,24 @@
 
 来源：[公共材质](../../../../src/themes/cinnaglass/ui/ui-system.css)、[导航说明](../../../features/navigation-glass.md)、[环境接口](../../../../src/themes/cinnaglass/ui/use-ui-environment.ts)、[停靠布局](../../../../src/themes/cinnaglass/shell/shell-layout.css)、[天气](../../../../src/themes/cinnaglass/shell/ambience.tsx)、[聊天窄窗](../../../../src/themes/cinnaglass/shell/chat-card.tsx)、[音乐](../../../../src/themes/cinnaglass/music.tsx)、[音频生命周期](../../../../src/themes/cinnaglass/use-music-playback.ts)、[场景反馈](../../../../src/themes/cinnaglass/room/room-overlays.css)。
 
+### 时辰 / 天气与新来信
+
+用户已批准双入口与夜晚金亮信纸，现已接入产品组件和现有消息已读链路。[植物园兼容与暮色信纸看样](../../codex-visual/ui-unification/climate-controls.html) 复用同一套组件；植物园仍是固定概念背景。暮色新增玫瑰金/灰紫纸面为本地适配版本，待用户视觉反馈，细节图保留在比稿区。
+
+![双入口天气：常驻类别文字，直接选择晴 / 雨 / 实况](environment-verification/weather-open.png)
+
+![天气悬停：复用导航暖金辉光与焦点反馈](environment-verification/weather-hover.png)
+
+类别图标固定为时钟与云，具体太阳/月亮放入有文字的选项；两个面板互斥，再点当前入口或 Esc 关闭。保留实况加载/不可用状态和手动天气不使用位置的说明。无新增天气后端或植物园场景。
+
+![夜晚金亮信纸：真实房间组件与隔离的未读测试数据](environment-verification/letter-night.png)
+
+![夜晚信纸细节：暖金纸面、细线信封与克制外发光](environment-verification/letter-night-detail.png)
+
+信纸保留批准稿的折角圆角、线性信封、金色渐变与两层柔光；文字保持深色，不闪烁、不循环呼吸。黄昏减弱外发光。暮色适配及精确色值看 [信纸样式](../../../../src/themes/cinnaglass/shell/sunlit-letter.css)，不是实时场景采光。
+
+只有世界会话内对方有效未读消息触发信纸；点击打开聊天并沿现有已读流程处理，已读后消失，新未读再次出现。删除、发送失败与待发送消息不伪造来信；读状态保存失败仍保留未读。桌面纪念卡向下避让；宽度 ≤1100px 或高度 ≤700px 且播放器展开时，两张提示卡暂时收起，未读点保留，播放器收起后恢复。小屏有来信时优先信纸。实现：[SunlitLetter](../../../../src/themes/cinnaglass/shell/sunlit-letter.tsx)、[未读判断](../../../../src/themes/cinnaglass/shell/use-world-chat-bubble.ts)、[入口编排](../../../../src/pages/WorldPage.tsx)。
+
 ## B 任务与功能弹窗
 
 **连续磨砂壳 + 圆角不透明阅读内衬**。标题和页脚共享外壳，正文滚动；黄昏暖灰褐、暮色灰紫、夜晚深暖灰。照片保留拍立得纸框，表单和通用壳不再使用旧纸/苔绿底。

@@ -49,8 +49,9 @@
 
 ### UI / UX 体系定稿（本 session 优先）
 
-- [ ] **环境入口辨识与 hover**：双入口「时辰 / 天气」及合并入口已制作可操作 mock，待用户选定后接入；`ai/design_system/codex-visual/ui-unification/climate-controls.md`
-- [ ] **光影信息语言**：按 design-system 的「暗处的一束阳光」理念细化金亮信纸新信息提示；当前仅视觉示意，触发/已读状态与动画另定。
+- [x] **环境入口辨识与 hover**：已按批准稿接入「时辰 / 天气」双入口、导航同源反馈、类别菜单互斥与真实天气状态；规范见 `ai/design_system/uiux/cinnaglass/ui-system.md`。
+- [x] **光影信息语言第一版**：金亮信纸已接世界会话真实未读/已读，点击打开聊天；时辰受色与小屏避让完成，不新增动画。
+- [ ] **暮色信纸视觉确认**：玫瑰金纸面 / 灰紫边缘 / 较弱外发光已本地看样；等待用户体验反馈，候选图在 `ai/design_system/codex-visual/ui-unification/climate-controls.md`。
 
 > 阶段与边界见 `ai/features/ui-system/ui-system.md` §6–7，消费者收口见同目录 `audit.md`。A/B 与边缘页面已本地实现；设备/性能专项单列，C 冻结，动画后置。
 
