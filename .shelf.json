@@ -52,8 +52,8 @@
       "localPath": "ai/jaSkills/logman"
     },
     "skills/_common/monet": {
-      "sourceCommit": "d296198b04f0b892dea83380bbfd6bef15f050cd",
-      "contentHash": "sha256:a897e0020a59eb3cb77499fc4c2759701f1d4df414a0790d90097ab41508eb0c",
+      "sourceCommit": "9ccd74a8f2a555e331a1022162e321ebe228d7a5",
+      "contentHash": "sha256:b2b6143ae1200b809a05dbe41244e4bca8f469299112a7911cde892a5a70da2a",
       "pulledAt": "2026-09-20",
       "localPath": "ai/jaSkills/monet"
     },
@@ -64,8 +64,8 @@
       "localPath": "ai/jaSkills/shelf-ops"
     },
     "skills/_common/ui-tailor": {
-      "sourceCommit": "058491bc5f5a619442f269ce1e93d735f3b77f8d",
-      "contentHash": "sha256:acdcf7b872ea6cad807c5fc35d029a7e9dcc3fdff2695118fd8e78f0ddc57868",
+      "sourceCommit": "40dbbd5ff26e86f29bfa41f623488fcd7ed24e73",
+      "contentHash": "sha256:2c3c3f553512073f25d396cbd0862b337f0530b608721e62efb8ac6a53498845",
       "pulledAt": "2026-09-20",
       "localPath": "ai/jaSkills/ui-tailor"
     },

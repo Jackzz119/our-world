@@ -117,7 +117,7 @@ export function StandardBoard() {
                     <span className="sb-mark">C</span>
                     <div>
                         <b>Cinnaglass</b>
-                        <small>02 / 连续玻璃壳 · 细节预览</small>
+                        <small>03 / 阅读底随时辰受色 · 细节预览</small>
                     </div>
                 </div>
                 <div className="sb-workbench-controls">
@@ -138,8 +138,8 @@ export function StandardBoard() {
                             value={surface}
                             onChange={(e) => setSurface(e.target.value as Surface)}
                         >
-                            <option value="inset">新版 · 连续玻璃壳</option>
-                            <option value="grounded">旧版 · 三段式</option>
+                            <option value="inset">新版 · 随时辰受色</option>
+                            <option value="grounded">原版 · 固定炭灰</option>
                         </select>
                     </label>
                     <button className="sb-button sb-primary" onClick={() => setSettingsOpen(true)}>
@@ -308,8 +308,8 @@ export function StandardBoard() {
                             value={surface}
                             onChange={(e) => setSurface(e.target.value as Surface)}
                         >
-                            <option value="inset">新版 连续玻璃壳</option>
-                            <option value="grounded">旧版 三段式</option>
+                            <option value="inset">新版 随时辰受色</option>
+                            <option value="grounded">原版 固定炭灰</option>
                         </select>
                     </label>
                     <label>
