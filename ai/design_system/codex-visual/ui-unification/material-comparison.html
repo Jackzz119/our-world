@@ -134,19 +134,20 @@
     <body>
         <main>
             <div class="eyebrow">CINNAGLASS / M1 材质提案 · 待确认</div>
-            <h1>保留阅读底，让玻璃外壳连成一体</h1>
-            <p class="intro">同一场景、同一内容。左边是原三段式，右边是连续玻璃边包住圆角阅读内衬。</p>
+            <h1>磨砂外壳不变，阅读底跟随时辰受色</h1>
+            <p class="intro">同一外壳、同一布局。左边固定炭灰，右边的稳定阅读底随时辰调整暖冷。</p>
             <nav aria-label="对照场景">
                 <button type="button" data-scene="twilight" aria-pressed="true">暮色 · 正常居中</button>
                 <button type="button" data-scene="golden" aria-pressed="false">黄昏 · 明窗压力测试</button>
-                <a href="standard-board.html">打开可操作标准板 ↗</a>
+                <button type="button" data-scene="night" aria-pressed="false">夜晚 · 室内暖光</button
+                ><a href="standard-board.html">打开可操作标准板 ↗</a>
             </nav>
             <p class="context" id="context" aria-live="polite">正常居中位置的真实截图，没有人为增强材质。</p>
             <div class="pair">
                 <figure>
                     <figcaption>
-                        <h2>调整前 · 三段式</h2>
-                        <p>正文横向接满窗口，标题与页脚被切成两段。</p>
+                        <h2>调整前 · 固定炭灰</h2>
+                        <p>内衬始终为炭灰，容易与暖冷变化的外壳脱节。</p>
                     </figcaption>
                     <div class="capture">
                         <img
@@ -154,14 +155,14 @@
                             src="material-comparison/twilight-previous.png"
                             width="488"
                             height="656"
-                            alt="调整前：深灰正文横向接满整窗"
+                            alt="调整前：固定炭灰色的圆角内衬"
                         />
                     </div>
                 </figure>
                 <figure>
                     <figcaption>
-                        <h2>调整后 · 连续玻璃壳</h2>
-                        <p>左右留出玻璃边，圆角内衬仍提供稳定阅读底。</p>
+                        <h2>调整后 · 随时辰受色</h2>
+                        <p>黄昏暖灰棕、暮色灰紫、夜晚深暖灰；仍不透景。</p>
                     </figcaption>
                     <div class="capture">
                         <img
@@ -169,17 +170,17 @@
                             src="material-comparison/twilight-inset.png"
                             width="488"
                             height="656"
-                            alt="调整后：连续玻璃边包住圆角阅读内衬"
+                            alt="调整后：圆角内衬与外壳共享时辰色调"
                         />
                     </div>
                 </figure>
             </div>
             <div class="takeaway">
-                <p><strong>原版：</strong>稳定正文与外壳之间存在贯穿全宽的硬分界。</p>
-                <p><strong>新版：</strong>保留阅读稳定性，用连续边框与圆角减轻分段感。</p>
+                <p><strong>原版：</strong>结构已连续，但内衬色调固定。</p>
+                <p><strong>新版：</strong>保持不透明阅读底，让暖冷色与外壳协调。</p>
             </div>
             <footer>
-                稳定阅读底的方向已获认可；本页展示圆角内衬与连续玻璃边的细节候选，正式产品尚未迁移。<br />素材与实现登记：<a
+                稳定阅读底的方向已获认可；本页展示阅读底随时辰受色的细节候选，正式产品尚未迁移。<br />素材与实现登记：<a
                     href="../../uiux/cinnaglass/ui-system.md"
                     >当前主题规范</a
                 >。

@@ -27,6 +27,19 @@ body {
         sans-serif;
     color: var(--sb-text);
 }
+/* Opaque reading colors follow the same mood as the untouched glass shell. */
+.sb-board[data-mood='golden'] {
+    --sb-liner-top: #494235;
+    --sb-liner-base: #39342c;
+}
+.sb-board[data-mood='twilight'] {
+    --sb-liner-top: #43434f;
+    --sb-liner-base: #34343f;
+}
+.sb-board[data-mood='night'] {
+    --sb-liner-top: #3b342c;
+    --sb-liner-base: #2d2924;
+}
 .sb-board button,
 .sb-board input,
 .sb-board select {
@@ -406,7 +419,7 @@ body {
     max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 24px);
     border-radius: 26px;
-    overflow: auto;
+    overflow: hidden;
 }
 .sb-dialog[open] {
     display: flex;
@@ -453,10 +466,8 @@ body {
     min-height: 0;
     border-top: 1px solid #ffffff19;
 }
-[data-surface='grounded'] .sb-dialog-content {
-    background: var(--sb-content);
-}
 /* A continuous rim surrounds the opaque reading liner instead of dividing the shell into bands. */
+[data-surface='grounded'] .sb-dialog-content,
 [data-surface='inset'] .sb-dialog-content {
     margin: 0 12px;
     padding: 22px 12px 12px;
@@ -467,6 +478,10 @@ body {
         inset 0 1px 0 #ffffff0c,
         0 1px 4px #00000012;
 }
+[data-surface='inset'] .sb-dialog-content {
+    background: linear-gradient(145deg, var(--sb-liner-top), var(--sb-liner-base) 58%);
+}
+[data-surface='grounded'] .sb-dialog-footer,
 [data-surface='inset'] .sb-dialog-footer {
     border-top: 0;
 }
@@ -718,6 +733,7 @@ body {
     .sb-dialog-content {
         padding: 18px;
     }
+    [data-surface='grounded'] .sb-dialog-content,
     [data-surface='inset'] .sb-dialog-content {
         margin-inline: 10px;
         padding: 18px 8px;

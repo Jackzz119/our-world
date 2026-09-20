@@ -3,6 +3,8 @@
 > UI Tailor 主维护，Monet 负责全局统一与视觉审核 · 2026-09-13。
 > [整体设计系统](../design-system.md) / [Cinnaglass 主题](cinnaglass/ui-system.md) / [交互规则](interaction.md)
 
+**[打开 UI/UX 全局风格预览](../preview.html#ui)**：直接展示本页及当前主题已登记的真实素材/实景，文字负责说明与链接；候选不混入此视图。与 [整体风格预览](../preview.html#world) 共用一个常驻入口，从 Markdown 自动取材。
+
 ![当前实景中的导航、天气、聊天和音乐控件；聊天内容已遮去](cinnaglass/ui-unification/audit-2026-09-11/widgets-twilight.png)
 
 这是现状示例，不是统一完成稿。界面围绕安静陪伴、真实状态和需要时可读展开；不把所有功能都做成同一种浮窗。
