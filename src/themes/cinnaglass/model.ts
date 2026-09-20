@@ -10,15 +10,14 @@ export type WeatherKind = 'sun' | 'cloud' | 'rain' | 'snow';
 // and, narrowed by the room scene, whether it rains inside the painting.
 export type Weather = { kind: WeatherKind; label: string; temp: number; place: string };
 
-// The couple's locally stored profile, used until the Supabase world record
-// takes over.
+// The couple's locally stored profile: the offline fallback for what the
+// Supabase world row and the two profiles rows say. (The account email lives
+// on the auth user and is not editable here; there is no app lock.)
 export type Profile = {
     world: string;
     her: string;
     me: string;
     anniv: string;
-    email: string;
-    lock: boolean;
     status: string;
 };
 

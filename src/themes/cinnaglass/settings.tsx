@@ -1,7 +1,12 @@
-// settings.tsx — 设置 modal. Reuses the .modal.mini shell + .glass + .sw switch.
+// settings.tsx — 设置 modal. Reuses the .modal.mini shell + .glass.
 // Three concise sections: 个人资料 / 账号与密码 / 主题外观 (theme is live via setTweak).
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+// Every row here is real: the nickname writes profiles.display_name, the
+// password change re-authenticates then calls auth.updateUser, the email is
+// the auth user's and read-only.
+import { useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Logman } from '@/lib/logman';
+import { useAuth } from '@/hooks/useAuth';
 import type { IcoProps } from '@/themes/cinnaglass/icons';
 import {
     ICheck,
@@ -11,7 +16,6 @@ import {
     IDusk,
     IHeart,
     IKey,
-    ILock,
     ILogout,
     IMail,
     IMoon,
@@ -22,6 +26,11 @@ import {
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
 import type { ChatAlign, GlassStyle, Mood, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
+
+const TAG = '[auth][web][settings]';
+
+// Auth errors that mean "the network, not you".
+const isNetworkError = (e: { name?: string }) => e.name === 'AuthRetryableFetchError';
 
 // Scoped styles for the settings rows, inline edits and segmented controls.
 const SettingsStyles = () => (
@@ -72,6 +81,7 @@ const SettingsStyles = () => (
   .set-pw .ok{font-size:11.5px;font-weight:600;color:#46a06f;margin-right:auto;display:flex;align-items:center;gap:5px;
     opacity:0;transition:opacity .2s;}
   .set-pw .ok.show{opacity:1;}
+  .set-pw .err{font-size:11.5px;font-weight:600;color:#C25A72;margin-right:auto;}
   .btn-save{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:var(--r-pill);
     color:#0d2336;padding:9px 18px;font-size:13px;background:var(--accent-grad);
     box-shadow:0 5px 13px -5px rgba(47,154,211,.6);transition:transform .16s,filter .2s;}
@@ -141,23 +151,41 @@ function Segmented({
     );
 }
 
-// One person row: avatar slot plus an inline-editable nickname. Names are still
-// local-only — the DB write-back is not wired here.
+// One person row: avatar slot plus the nickname. With `onSave` the name is an
+// inline edit that commits on blur / Enter to profiles.display_name and shows
+// the reason if that fails; without it (the partner's row — her name is her
+// own to change) it is plain text.
 function PersonRow({
     slotId,
     color,
     initial,
     role,
     name,
-    onName
+    onSave
 }: {
     slotId: string;
     color: string;
     initial: string;
     role: string;
     name: string;
-    onName: (v: string) => void;
+    onSave?: (v: string) => Promise<void>;
 }) {
+    // the draft only exists while the field is focused; otherwise the row
+    // shows whatever the DB (via WorldPage) says the name is
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState(name);
+    const [err, setErr] = useState<string | null>(null);
+    const commit = async () => {
+        setEditing(false);
+        const v = draft.trim();
+        if (!onSave || !v || v === name) return;
+        try {
+            await onSave(v);
+            setErr(null);
+        } catch (e) {
+            setErr(e instanceof Error ? e.message : String(e));
+        }
+    };
     return (
         <div className="set-row">
             <span className="set-ava" style={{ background: color }}>
@@ -165,74 +193,134 @@ function PersonRow({
                 <image-slot id={slotId} shape="circle" placeholder=""></image-slot>
             </span>
             <div className="set-body">
-                <input
-                    className="set-edit"
-                    value={name}
-                    onChange={(e) => onName(e.target.value)}
-                    spellCheck={false}
-                    maxLength={12}
-                    aria-label="昵称"
-                />
+                {onSave ? (
+                    <input
+                        className="set-edit"
+                        value={editing ? draft : name}
+                        onFocus={() => {
+                            setDraft(name);
+                            setEditing(true);
+                        }}
+                        onChange={(e) => setDraft(e.target.value)}
+                        onBlur={commit}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.currentTarget.blur();
+                        }}
+                        spellCheck={false}
+                        maxLength={12}
+                        aria-label="昵称"
+                    />
+                ) : (
+                    <div className="set-t" style={{ padding: '4px 8px' }}>
+                        {name}
+                    </div>
+                )}
+                {err && (
+                    <div className="set-s" style={{ paddingLeft: 8, color: '#C25A72' }}>
+                        没改成：{err}
+                    </div>
+                )}
             </div>
             <span className="set-tag">{role}</span>
         </div>
     );
 }
 
-// Personal settings modal. Profile and theme edits apply immediately to local
-// state; only sign-out touches the backend.
+// Personal settings modal. Theme edits apply immediately to local state; the
+// nickname, the password and sign-out talk to Supabase.
 export function SettingsScreen({
     open,
     onClose,
     t,
     setTweak,
     profile,
-    setP
+    onSaveMyName
 }: {
     open: boolean;
     onClose: () => void;
     t: Tweaks;
     setTweak: SetTweak;
+    /** names / world as WorldPage composes them (DB first, localStorage fallback) */
     profile: Profile;
-    setP: Dispatch<SetStateAction<Profile>>;
+    /** writes profiles.display_name; rejects with the reason on failure */
+    onSaveMyName: (name: string) => Promise<void>;
 }) {
     const p = profile;
-    const set = (k: keyof Profile, v: string | boolean) => setP((o) => ({ ...o, [k]: v }));
+    // the account email is the auth user's — shown, never edited here
+    const { user } = useAuth();
     const [pwOpen, setPwOpen] = useState(false);
     const [pw, setPw] = useState({ cur: '', a: '', b: '' });
     const [saved, setSaved] = useState(false);
+    const [pwErr, setPwErr] = useState<string | null>(null);
+    const [pwBusy, setPwBusy] = useState(false);
 
-    // UI-only placeholder: shows the success state without calling Supabase.
-    // Wiring updateUser here is still open — do not read the check mark as a real
-    // password change.
-    const pwValid = pw.cur && pw.a.length >= 4 && pw.a === pw.b;
-    const savePw = () => {
+    // Change password: prove the current one first (a fresh sign-in with it —
+    // Supabase has no "verify password" call), then auth.updateUser. Same
+    // 6-character floor as the reset page.
+    const pwValid = pw.cur && pw.a.length >= 6 && pw.a === pw.b && !pwBusy;
+    const savePw = async () => {
         if (!pwValid) return;
-        setSaved(true);
-        setPw({ cur: '', a: '', b: '' });
-        setTimeout(() => {
-            setSaved(false);
-            setPwOpen(false);
-        }, 1400);
+        setPwBusy(true);
+        setPwErr(null);
+        try {
+            const email = user?.email;
+            if (!email) throw new Error('没有登录邮箱，无法验证当前密码。');
+            const { error: authErr } = await supabase.auth.signInWithPassword({ email, password: pw.cur });
+            if (authErr) {
+                throw new Error(
+                    isNetworkError(authErr)
+                        ? '网络好像断了，稍后再试。'
+                        : authErr.code === 'invalid_credentials'
+                          ? '当前密码不对。'
+                          : authErr.message
+                );
+            }
+            const { error } = await supabase.auth.updateUser({ password: pw.a });
+            if (error) throw new Error(isNetworkError(error) ? '网络好像断了，稍后再试。' : error.message);
+            setSaved(true);
+            setPw({ cur: '', a: '', b: '' });
+            setTimeout(() => {
+                setSaved(false);
+                setPwOpen(false);
+            }, 1400);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            Logman.warn(TAG, `改密失败：${msg}`);
+            setPwErr(msg);
+        } finally {
+            setPwBusy(false);
+        }
     };
 
     // Sign out (settings is the account-level exit, Discord-style). The
     // explicit-logout flag keeps dev auto-login from bouncing us straight
     // back in; ProtectedRoute redirects to /login once the session clears.
+    // signOut() does not throw — it returns { error }, and on a network or
+    // server failure auth-js keeps the local session, so the row must recover
+    // (flag back off, button clickable again) and say what happened.
     const [loggingOut, setLoggingOut] = useState(false);
+    const [logoutErr, setLogoutErr] = useState<string | null>(null);
     const logout = async () => {
         if (loggingOut) return;
         setLoggingOut(true);
+        setLogoutErr(null);
         try {
             sessionStorage.setItem('ow-explicit-logout', '1');
         } catch {
             /* storage blocked — auto-login may bounce, sign out anyway */
         }
-        try {
-            await supabase.auth.signOut();
-        } catch (e) {
-            console.warn('[auth][web][SettingsScreen]\nsign-out failed:', e);
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            Logman.warn(TAG, `退出失败：${error.message}`);
+            try {
+                sessionStorage.removeItem('ow-explicit-logout');
+            } catch {
+                /* ignore */
+            }
             setLoggingOut(false);
+            setLogoutErr(
+                isNetworkError(error) ? '网络好像断了，退出没成功，再试一次。' : `退出没成功：${error.message}`
+            );
         }
     };
 
@@ -267,7 +355,6 @@ export function SettingsScreen({
                             initial={p.her.slice(0, 1)}
                             role="她"
                             name={p.her}
-                            onName={(v) => set('her', v)}
                         />
                         <PersonRow
                             slotId="set-ava-me"
@@ -275,7 +362,7 @@ export function SettingsScreen({
                             initial={p.me.slice(0, 1)}
                             role="他"
                             name={p.me}
-                            onName={(v) => set('me', v)}
+                            onSave={onSaveMyName}
                         />
                     </div>
 
@@ -292,16 +379,8 @@ export function SettingsScreen({
                                 <IMail size={16} />
                             </span>
                             <div className="set-body">
-                                <input
-                                    className="set-edit"
-                                    value={p.email}
-                                    onChange={(e) => set('email', e.target.value)}
-                                    spellCheck={false}
-                                    aria-label="绑定邮箱"
-                                />
-                                <div className="set-s" style={{ paddingLeft: 8 }}>
-                                    绑定的邮箱
-                                </div>
+                                <div className="set-t">{user?.email ?? '—'}</div>
+                                <div className="set-s">登录邮箱</div>
                             </div>
                         </div>
                         <div className="set-row tap" onClick={() => setPwOpen((o) => !o)}>
@@ -310,7 +389,7 @@ export function SettingsScreen({
                             </span>
                             <div className="set-body">
                                 <div className="set-t">修改密码</div>
-                                <div className="set-s">{pwOpen ? '输入旧密码与新密码' : '上次更新于 3 个月前'}</div>
+                                <div className="set-s">{pwOpen ? '输入当前密码与新密码' : '点开修改'}</div>
                             </div>
                             <span
                                 className="set-chev"
@@ -329,7 +408,7 @@ export function SettingsScreen({
                                 />
                                 <input
                                     type="password"
-                                    placeholder="新密码（至少 4 位）"
+                                    placeholder="新密码（至少 6 位）"
                                     value={pw.a}
                                     onChange={(e) => setPw((s) => ({ ...s, a: e.target.value }))}
                                 />
@@ -340,27 +419,19 @@ export function SettingsScreen({
                                     onChange={(e) => setPw((s) => ({ ...s, b: e.target.value }))}
                                 />
                                 <div className="row">
-                                    <span className={`ok ${saved ? 'show' : ''}`}>
-                                        <ICheck size={14} />
-                                        已更新
-                                    </span>
+                                    {pwErr ? (
+                                        <span className="err">{pwErr}</span>
+                                    ) : (
+                                        <span className={`ok ${saved ? 'show' : ''}`}>
+                                            <ICheck size={14} />
+                                            已更新
+                                        </span>
+                                    )}
                                     <button className="btn-save" onClick={savePw} disabled={!pwValid}>
-                                        保存
+                                        {pwBusy ? '保存中…' : '保存'}
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                        <div className="set-row">
-                            <span className="set-ico" style={{ background: 'linear-gradient(135deg,#C9E8C2,#86C99A)' }}>
-                                <ILock size={16} />
-                            </span>
-                            <div className="set-body">
-                                <div className="set-t">应用锁</div>
-                                <div className="set-s">{p.lock ? '进入小世界需要密码' : '关闭后无需验证即可进入'}</div>
-                            </div>
-                            <span className={`sw ${p.lock ? 'on' : ''}`} onClick={() => set('lock', !p.lock)}>
-                                <i />
-                            </span>
                         </div>
                         <div className="set-row tap" onClick={logout}>
                             <span className="set-ico" style={{ background: 'linear-gradient(135deg,#F8C8D6,#EF9DB4)' }}>
@@ -370,8 +441,8 @@ export function SettingsScreen({
                                 <div className="set-t" style={{ color: '#C25A72' }}>
                                     退出账号
                                 </div>
-                                <div className="set-s">
-                                    {loggingOut ? '正在退出…' : '回到登录页 · 回忆都在云端，不会丢'}
+                                <div className="set-s" style={logoutErr ? { color: '#C25A72' } : undefined}>
+                                    {loggingOut ? '正在退出…' : (logoutErr ?? '回到登录页 · 回忆都在云端，不会丢')}
                                 </div>
                             </div>
                             <span className="set-chev">

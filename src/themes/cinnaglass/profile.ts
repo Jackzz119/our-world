@@ -9,8 +9,6 @@ export const PROFILE_DEFAULT: Profile = {
     her: '小满',
     me: '知夏',
     anniv: '2025-06-04',
-    email: 'us@ourworld.love',
-    lock: false,
     status: '在你身边'
 };
 

@@ -30,8 +30,10 @@ type WorldSurfacesProps = {
     weather: Weather;
     t: Tweaks;
     setTweak: SetTweak;
+    /** names / world / anniversary as WorldPage composes them (DB first) */
     profile: Profile;
-    setProfile: Dispatch<SetStateAction<Profile>>;
+    /** settings → profiles.display_name; rejects with the reason on failure */
+    onSaveMyName: (name: string) => Promise<void>;
     world: World | null;
     worldIconUrl: string | null;
     onWorldSaved: (w: World) => void;
@@ -52,7 +54,7 @@ export function WorldSurfaces({
     t,
     setTweak,
     profile,
-    setProfile,
+    onSaveMyName,
     world,
     worldIconUrl,
     onWorldSaved
@@ -81,7 +83,7 @@ export function WorldSurfaces({
                 t={t}
                 setTweak={setTweak}
                 profile={profile}
-                setP={setProfile}
+                onSaveMyName={onSaveMyName}
             />
             <WorldSettingsScreen
                 open={screen === 'world-settings'}

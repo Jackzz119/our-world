@@ -11,6 +11,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 const RoomScene = lazy(() => import('@/themes/cinnaglass/room/room-scene').then((m) => ({ default: m.RoomScene })));
 import { LobbyScene } from '@/themes/cinnaglass/lobby';
 import { PROFILE_DEFAULT, gload } from '@/themes/cinnaglass/profile';
+import { updateMyDisplayName } from '@/lib/profiles';
 import { Rail, RoomHandle } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
@@ -123,7 +124,8 @@ const WorldPage = () => {
         enterWorld,
         createAndEnter,
         leaveWorld,
-        applySavedWorld
+        applySavedWorld,
+        applyMyName
     } = useWorldSession(AUTO_ENTER);
 
     // chat (see ai/features/chat.md): one thread store, two surfaces, two
@@ -205,6 +207,13 @@ const WorldPage = () => {
     const onWorldSaved = (w: World) => {
         applySavedWorld(w);
         setProfile((o) => ({ ...o, world: w.name, anniv: w.anniversary ?? o.anniv }));
+    };
+    // Nickname saved from settings: DB first (profiles.display_name), then the
+    // in-memory member names and the localStorage fallback follow.
+    const saveMyName = async (name: string) => {
+        const v = await updateMyDisplayName(name);
+        applyMyName(v);
+        setProfile((o) => ({ ...o, me: v }));
     };
 
     // Leave the world back to the lobby. Voice + shared music will
@@ -316,8 +325,8 @@ const WorldPage = () => {
                     weather={weather}
                     t={t}
                     setTweak={setTweak}
-                    profile={profile}
-                    setProfile={setProfile}
+                    profile={liveProfile}
+                    onSaveMyName={saveMyName}
                     world={world}
                     worldIconUrl={worldIconUrl}
                     onWorldSaved={onWorldSaved}

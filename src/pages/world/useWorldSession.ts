@@ -138,6 +138,12 @@ export function useWorldSession(autoEnter: boolean) {
     // World settings saved: swap in the fresh DB row so the chrome updates at
     // once. Syncing the localStorage profile buffer is again the caller's.
     const applySavedWorld = (w: World) => setWorld(w);
+    // My display name was written to profiles: update the member names and the
+    // profiles map (chat authorship reads it) without a refetch.
+    const applyMyName = (name: string) => {
+        setMemberNames((m) => ({ ...m, me: name }));
+        if (uid) setProfiles((p) => ({ ...p, [uid]: { ...p[uid], id: uid, display_name: name } }));
+    };
 
     return {
         world,
@@ -153,6 +159,7 @@ export function useWorldSession(autoEnter: boolean) {
         createAndEnter,
         retryLobby,
         leaveWorld,
-        applySavedWorld
+        applySavedWorld,
+        applyMyName
     };
 }

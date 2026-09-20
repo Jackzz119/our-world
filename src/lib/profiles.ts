@@ -1,7 +1,7 @@
 // profiles.ts — data access for user profiles (display identity for the feed).
 // The feed RPC only returns author_id; author names come from public.profiles,
 // fetched once per world (owner + member) and looked up per post.
-import { supabase } from '@/lib/supabase';
+import { supabase, currentUserId } from '@/lib/supabase';
 import type { FeedProfile } from '@/types/feed';
 
 // Fetch profiles by id, as an id -> profile map for author lookup. Nulls and
@@ -15,4 +15,17 @@ export const getProfilesByIds = async (ids: (string | null)[]): Promise<Record<s
     const map: Record<string, FeedProfile> = {};
     for (const row of (data ?? []) as FeedProfile[]) map[row.id] = row;
     return map;
+};
+
+// Rename myself: the only write this module does. profiles.display_name is
+// what every surface (room tags, chat authorship, journal) shows, so the
+// settings page writes here rather than to localStorage. Returns the trimmed
+// name that was stored; throws on an empty name or a Supabase error.
+export const updateMyDisplayName = async (name: string): Promise<string> => {
+    const v = name.trim();
+    if (!v) throw new Error('昵称不能为空。');
+    const id = await currentUserId('未登录，无法改昵称。');
+    const { error } = await supabase.from('profiles').update({ display_name: v }).eq('id', id);
+    if (error) throw error;
+    return v;
 };
