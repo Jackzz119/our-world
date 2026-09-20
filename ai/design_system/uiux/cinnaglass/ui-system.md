@@ -1,8 +1,8 @@
 # Cinnaglass · 当前主题规范
 
-> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) · 2026-09-13。
+> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) · 2026-09-20。
 
-导航是已认可的统一起点；A/B 其余界面只记录真实现状，C 日记本 session 冻结。本页是主题常驻规范，[HTML 组件/参数预览](ui-system.html) 看真实 CSS 与交互样板，历史内容必须有标识。
+导航是已认可的统一起点；设置已采用 B 新材质；其余 A/B 界面记录真实现状，C 日记本 session 冻结。本页是主题常驻规范，[HTML 组件/参数预览](ui-system.html) 看真实 CSS 与交互样板，历史内容必须有标识。
 
 ## A 场景悬浮 UI
 
@@ -16,11 +16,25 @@
 
 ## B 任务与功能弹窗
 
-![当前设置为暖灰纸，导航与音乐层级问题仍可见；输入值已隐藏](ui-unification/audit-2026-09-11/settings-twilight.png)
+**设置已定稿并接入本地产品（2026-09-20）**：连续磨砂外壳包住圆角阅读内衬，标题与页脚共享外壳，正文独立滚动。内衬不透明，只随时辰改变固有底色：黄昏暖灰褐、暮色灰紫、夜晚深暖灰；外壳纹理、透景和边缘配方沿用已批准样板。不是实时场景采光或物理反射。
 
-设置、照片、心愿、日历/时钟等通用壳混用暖灰纸与旧玻璃，纸色/文字以 [materials.css](../../../../src/themes/cinnaglass/materials.css) 为准；同源较厚磨砂外壳加稳定内容底**尚未批准或迁移**。照片仍用拍立得拼贴，心愿/时钟等内部内容无需强套书本。
+![暮色设置：灰紫阅读内衬与连续磨砂壳；真实组件使用演示账户数据](settings-verification/twilight.png)
 
-弹层规范须同时解决：打开/关闭、背景是否可操作、焦点进入/返回、隐藏后能否获焦、草稿保存、加载/错误、实际提交。已知层级/隐藏焦点/假成功问题见 [交互](../interaction.md) 与 [M2/M4 计划](../../../features/ui-system/ui-system.md)。
+![黄昏设置：暖灰褐内衬，导航同源边缘](settings-verification/golden.png)
+
+![夜晚设置：深暖灰内衬与暖色操作状态](settings-verification/night.png)
+
+![窄屏设置：标题与页脚保留，正文滚动，控件换行](settings-verification/mobile.png)
+
+图中为实际 SettingsScreen + RoomScene + Rail，姓名/邮箱是隔离测试的演示数据；正式入口为房间导航「设置」。[全局预览](../../preview.html#ui) 自动读取这些图；[原比稿](../../codex-visual/ui-unification/material-comparison.html) 只作来源。
+
+- **材质与布局**：外壳 488px，视口四周至少 12px；圆角 26px、小屏 22px；内衬圆角 18px、小屏 14px。只有正文滚动，保留标题与关闭入口；控件点击区至少 44px。唯一参数真源是 [settings.css](../../../../src/themes/cinnaglass/settings.css)，不另建 tokens 文档。
+- **操作**：原生 modal dialog 限制背景操作与焦点；打开聚焦标题，Esc/关闭按钮/点外关闭并返回入口。密码折叠后不可获焦；本次未新增开合动画。
+- **真实行为**：昵称失焦或 Enter 保存，失败留草稿可重试；邮箱只读；改密先验证当前密码，成功再清空，失败保留输入；退出失败可重试。设置关闭保留未提交密码（当前挂载期间），不写入持久存储；外观即时生效，没有虚构的总「应用」按钮。
+- **兼容与降级**：「卡片配色」暂保留供尚未迁移界面使用，并明确设置随时辰变化；不支持背景模糊或系统偏好减少透明时外壳用稳定底色。世界设置入口按用户决定暂不恢复。
+- **来源**：[settings.tsx](../../../../src/themes/cinnaglass/settings.tsx)、[导航配色](../../../../src/themes/cinnaglass/shell/navigation-glass.css)、[同一 frost.webp](../../../../public/ui/nav/frost.webp)。只改设置作用域，未改公共 `.modal/.paper` 或 C 日记依赖。
+
+其他 B（照片、心愿、日历/时钟、完整聊天等）仍待迁移；已批准设置样板不代表全站统一完成。它们的关闭/草稿/嵌套选择器需逐项按 [交互规则](../interaction.md) 和 [M2/M4 计划](../../../features/ui-system/ui-system.md) 验证。
 
 ## C 专属物件 UI
 
