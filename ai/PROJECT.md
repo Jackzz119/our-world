@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」，2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-18（审核第一步：精简为当前事实 + 索引，细节以 Features/设计系统为准；产品未改，日记本冻结）
+> 最后更新：2026-09-20（设置已在本地采用 B 类新材质与原生弹层；详细规范见设计系统，日记本冻结）
 
 ## 产品定位（PRD）
 
@@ -90,10 +90,10 @@ src/
 - **照片墙**：自然纵横比 polaroid 拼贴（纸框/胶带/微旋转/月份分组）+ lightbox 原图渐进加载（细节 timeline.md）
 - **随光磨砂导航**（2026-09-07）：固定细纹图 + backdrop 模糊 + 按 mood 的 CSS 边光，无运行时随机/物理反射；A 类悬浮 UI 基准，见 `ai/features/navigation-glass.md`
 - **聊天全链路**：Broadcast from Database（客户端只写库，trigger 广播 private topic `world:{id}`）；乐观发送/失败重试/原位编辑/删除/reaction/已读游标；贴纸系统（`world_emotes` 共享库 + Edge Function `emotes` 代理 Tenor 搜图转存 + EmotePicker 自维护 emoji 中文索引）；DM = `channels.type='dm'`（账号级 topic `user:{uid}`）。**DM/好友 UI 在新方向收起，数据层冻结保留**。细节 `ai/features/chat.md`（ChatDock 已被聊天窄卡 `shell/chat-card.tsx` + 头顶气泡取代）
-- **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 存 memories 桶 256px webp）；纪念日/在一起天数由 DB 实时计算；**欠：昵称写回 `profiles.display_name`**（TODO 继承待办）
+- **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 存 memories 桶 256px webp）；纪念日/在一起天数由 DB 实时计算；昵称已写回 `profiles.display_name`（2026-09-19）
 - **双实例调试**：`pnpm dev2`（5174 端口）双账号互发验收
-- **UI 基建现状**：四套材质变量并存、弹层各自独立，不是统一体系；消费者表与迁移计划见 `ai/features/ui-system/audit.md`、`ui-system.md`
-- **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。在用标签：`chat`；`auth` 域尚未走 Logman（`settings.tsx` 一处直接 `console.warn`）
+- **UI 基建现状**：2026-09-20 设置已在本地产品采用连续磨砂壳、随时辰内衬与原生 modal；其余弹层/材质尚未统一；消费者表与迁移计划见 `ai/features/ui-system/audit.md`、`ui-system.md`
+- **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
 
