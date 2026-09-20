@@ -1,6 +1,6 @@
 # PROJECT-AUDIT — 当前审核入口（交接用）
 
-> 新会话续接审核：先读本文，再读 [STEPS.md](STEPS.md) 的当前阶段与 [FINDINGS.md](FINDINGS.md)，按需再打开各 run 的报告与证据；不要重读全部历史报告。
+> 新会话续接审核：**第 0 步先自举**——刚拉下来的仓库没有根 `CLAUDE.md` / `AGENTS.md` 与 `.claude/skills`（gitignore），运行 `bash ai/jaSkills/custom-skill/scripts/sync-worktree.sh`（不依赖 shelf）生成协议与技能链接，然后从头读 `./CLAUDE.md` 与 `ai/PROJECT.md`「开工红线」；技能未被本会话自动发现时直接读 `ai/jaSkills/project-audit/SKILL.md` + `reference.md` 按其执行。之后读本文、[STEPS.md](STEPS.md) 当前阶段与 [FINDINGS.md](FINDINGS.md)，按需再打开各 run 的报告与证据；不要重读全部历史报告。
 
 ## 现在在哪
 

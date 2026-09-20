@@ -13,8 +13,11 @@
 - 不换 `image-slot.js` 为 React、不加 `world-settings` 入口、不接 `savePw` 后端 —— 理由：分别是产品决定 / 产品决定 / 功能而非重构；后两项已记 TODO。
 - `.claude/skills` 以内容更新的 `.agents` 版对齐（非反向）—— 理由：`.claude` 旧版是 7 月人格版且引用不存在路径；用户若本意相反可翻转。
 
-## 下一步续接动作
-1. 推送或确认是否推送 `dev` 的 9 个本地 commit（`git log a9f7cfa..dev`）。
+## 下一步续接动作（新设备 / 新会话按顺序做，不需要用户手动跑任何接入命令）
+0. **先自举协议与技能**（刚拉下来的仓库根目录没有 `CLAUDE.md` / `AGENTS.md`，`.claude/skills` 也不存在——它们被 gitignore）：
+   `bash ai/jaSkills/custom-skill/scripts/sync-worktree.sh`（不依赖 shelf；从 `ai/jaAgents/` 副本生成两份协议、建三条技能链接；有 shelf 的机器也可用 `shelf init --agents claude,codex`）。
+   跑完**从头读一遍 `./CLAUDE.md`**（本会话启动时它还不存在，不会被自动注入），再读 `ai/PROJECT.md`「开工红线」。技能未被本会话自动发现时，直接读 `ai/jaSkills/project-audit/SKILL.md` 与 `reference.md` 按其执行，等价于调用技能。
+1. 确认 `git status` 干净、`pnpm exec tsc -b` 零错误（第二步交付状态）。
 2. 开第三步：新建 `ai/project-audit/runs/2026-09-2x-01/`，在 `STEPS.md` 拆子步骤，按技能 §第三步 从每个入口跟到协议/存储/网络/状态/呈现；只交付诊断与建议。线索见 INDEX「第三步开工时要知道的」。
 3. 有 Supabase 会话时跑 INDEX 里的运行时验收清单，补第二步「未验证」项。
 4. 技能真源/协议体系已复刻完成（`shelf init`、`ai/jaSkills`、`ai/jaAgents`、`.worktreeinclude`）；新设备 `git pull` 后跑 `shelf init --agents claude,codex` 再开工。
