@@ -32,6 +32,7 @@
 
 - 授权边界：第三步默认**只交付诊断、重构建议与验收待办**，不改业务行为；用户要求实施时再动。
 - 已知待核的协议/行为线索（来自前两步，勿当结论）：`ReactionRow.channel_id` 幻列对应的线上 DDL；`world-settings` 弹窗无 UI 入口、`settings.tsx savePw` 假成功（已记 `ai/TODO.md` Bugs）；`room-scene.tsx` render 期改 ref；`friendships`/DM 数据层冻结；`worlds` 外键 `ON DELETE CASCADE` 等 Supabase 审计遗留（`ai/features/supabase.md` §三/四）；`ai/PROJECT.md` 数据库表是「临时真源」（前端 select 反查，未核线上）。
+- 协议/技能体系对照 hyber-operator-portal 的偏差与复刻顺序：[ai/protocol-gap-report.md](../protocol-gap-report.md)（用户计划复刻，需逐步授意改受保护文件）。
 - 第二步留给用户的产品决定：`image-slot.js` 是否换 React 头像选择器（会丢 reframe 交互与 `ow-image-slots-v1` 旧数据）。
 - 下次有 Supabase 会话时的运行时验收清单：进世界、Enter 唤聊天、点五个家具热点、翻日记、改世界设置看纪念卡与日历同步、窄卡收贴纸。
 
