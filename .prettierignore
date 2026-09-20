@@ -25,3 +25,9 @@ public/
 
 # Tool-managed metadata (agent-toolkit pull manifest)
 .agent-toolkit.json
+
+# 技能正本与协议入库副本来自货架（shelf），哈希入账，不做本地格式化
+ai/jaSkills/
+ai/jaAgents/
+ai/JASKILL.md
+.shelf.json

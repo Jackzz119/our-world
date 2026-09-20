@@ -23,9 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-#claude
+# 本机 MCP 配置
 .mcp.json
-.claude/settings.local.json
 
 .env
 
@@ -34,3 +33,15 @@ dist-ssr
 
 # Python tool caches
 __pycache__/
+# AI 协作配置是个人化的（shelf init 接入；真源在货架，入库副本在 ai/jaAgents/）
+# 只忽略根目录那两份协议：不能写裸 `CLAUDE.md`，它按文件名匹配任意层级，会把入库副本 ai/jaAgents/CLAUDE.md 一起忽略掉。
+/CLAUDE.md
+/AGENTS.md
+# agent 技能目录只是指向 ai/jaSkills 的链接；.claude/launch.json 是本项目的 dev server 预览配置，保留入库
+.claude/*
+!.claude/launch.json
+.codex/
+.agents/
+# 🔴 别在这里加裸的 `SKILL.md` 或 `codex-visual/`：会把技能真源 ai/jaSkills/*/SKILL.md 与归档 ai/codex-visual/ 一起吞掉
+# codex-visual 技能新产物（报告与图）落这里，本地易失；有复用价值的手动搬进 ai/design_system/research/ 或归档
+/ai/design_system/codex-visual/

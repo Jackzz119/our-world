@@ -39,7 +39,7 @@
 
 阶段报告链接：[runs/2026-09-18-01/01-documents.md](runs/2026-09-18-01/01-documents.md)
 
-技能来源：`/Users/chengzheng/Desktop/Files/hyber_platform/hyber-operator-portal/ai/jaSkill/project-audit/`（SKILL.md、reference.md）。技能本体已于 2026-09-19 复制到 `.claude/skills/project-audit/` 与 `.agents/skills/project-audit/`，供其他设备/会话使用。
+技能来源：`/Users/chengzheng/Desktop/Files/hyber_platform/hyber-operator-portal/ai/jaSkill/project-audit/`（SKILL.md、reference.md）。技能正本在 `ai/jaSkills/project-audit/`（2026-09-19 接入货架 shelf，`.claude/skills` 等为链接）。
 
 | ID     | 目标 / 范围                                                                                                                                        | 依赖 / 方法                                                                                       | 产出 / 验收                                                                                 | 状态                                                                                                                |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |

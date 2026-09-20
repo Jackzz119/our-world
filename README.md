@@ -5,7 +5,7 @@
 - 产品定位、技术事实与数据库结构：[ai/PROJECT.md](ai/PROJECT.md)
 - 任务唯一来源：[ai/TODO.md](ai/TODO.md)
 - 当前设计系统：[ai/design_system/design-system.md](ai/design_system/design-system.md)
-- AI 协作协议：[AGENTS.md](AGENTS.md)（Claude 专属见 [CLAUDE.md](CLAUDE.md)）
+- AI 协作：协议入库副本 [ai/jaAgents/](ai/jaAgents/)，技能正本 [ai/jaSkills/](ai/jaSkills/)，专属技能登记 [ai/JASKILL.md](ai/JASKILL.md)，开工红线见 PROJECT「开工红线」
 
 ## 技术栈
 
@@ -28,6 +28,17 @@ pnpm dev                     # http://localhost:5173
 | `node scripts/check-design-system.mjs` | 校验设计系统 Markdown/HTML 的链接与图文（零依赖）              |
 
 `VITE_*` 变量会打进浏览器代码，不要放 `service_role` 密钥。`.env.local` 不入库。
+
+## AI 协作配置
+
+`CLAUDE.md` / `AGENTS.md` 与 `.claude/` `.agents/` `.codex/` **有意不进 git**（个人化；真源在货架 shelf，入库副本在 `ai/jaAgents/`）。技能本体进 git，唯一正本 `ai/jaSkills/`，三个 agent 的技能目录只是指向它的链接。新检出或新 worktree：
+
+```bash
+shelf init --agents claude,codex                            # 有 shelf：还原协议 + 链接 + 账本（幂等）
+bash ai/jaSkills/custom-skill/scripts/sync-worktree.sh      # 没有 shelf：用 ai/jaAgents/ 副本兜底
+```
+
+桌面版 Claude Code / Codex 新建 worktree 时按 `.worktreeinclude` 复制两份协议。通用技能名册在协议「Skill 系统」节，本项目专属技能在 `ai/JASKILL.md`；改技能改 `ai/jaSkills/<名>/` 再 `shelf push`。
 
 ## 目录
 

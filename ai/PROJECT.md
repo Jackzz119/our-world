@@ -144,16 +144,23 @@ src/
 - 角色互动 emote（笑/抱抱/挥手）、语音消息、年度回顾、AI 回忆标签、纪念日场景装饰
 - 远期公开化：Steam（免费+装扮 DLC，SteamID 静默映射 Supabase 账号）、WE/Lively 只读壁纸输出口
 
-## 美术与 UI/UX 技能登记
+## 开工红线（本项目专属的强制前置动作）
 
-| 角色                    | 技能位置与职责                                                                                         | 项目入口                                                             |
-| ----------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| UI Tailor · UI 裁缝     | `.agents/skills/ui-tailor/SKILL.md`；统一负责 UI 与 UX（概念模型、流程、信息架构、术语、界面与可用性） | `ai/design_system/uiux/uiux.md`；主题 `uiux/cinnaglass/ui-system.md` |
-| Monet · 主美/概念设计师 | `.agents/skills/monet/SKILL.md`；统筹美术，调度 UI Tailor 并审核；不主导技术选型                       | `ai/design_system/design-system.md` 及领域子文档                     |
-| 视觉制作与第二意见      | 可用时优先 `codex-visual`，缺失时由上述角色用自身工具完成，不虚构工具                                  | 产物与调研按 concept/uiux 归档，原始批次可登记外部位置               |
-| 原画分层与环境光照      | 用户级 Codex skill `art-relighting`，Monet 按材质/光色分离需求调用                                     | `ai/design_system/research/art-relighting.md`                        |
+协议文件（`CLAUDE.md` / `AGENTS.md`）只写通用规则；下面是本项目自己的红线，每次开工必读：
 
-工作闭环、技能与项目文档的分工规则见 `AGENTS.md`「Codex skill 放置与创建规范」；此表只登记项目侧入口。
+1. **设计入口唯一**：整体风格与素材位置以 `ai/design_system/design-system.md` 及其链接的常驻 Markdown 为准；UI/UX 以 `ai/design_system/uiux/uiux.md`、主题规范 `uiux/cinnaglass/ui-system.md`、当前决定 `uiux/cinnaglass/decisions.md` 为准。`ai/STYLE.md` / `ai/UX.md` 只是旧链接兼容桩；`concept/` 与 `research/` 里的「定稿」是当时状态，不能覆盖现行决定。
+2. **UI/UX 工作流**：先读设计系统与 Monet 要求 → `ui-tailor` 设计/展示/验证 → 视觉完成件交 `monet` 审核 → 决定与素材同步回设计系统；没有独立 agent 时加载相应 skill 切换职责并标注「同 agent 自审」，不虚构委派。普通回合报告在 session 里给，不逐轮建 report 文件。
+3. **日记本（C 类物件 UI）冻结**：阅读/写作/详情/书本资产/翻页/遮罩/布局及其共享规则本 session 不动；改 `surfaces/`、`journal/`、公共 `.modal` / `.paper` 前必须证明范围只覆盖 A/B 类（`ai/features/ui-system/ui-system.md`）。当前导航是 A 类悬浮 UI 基准。
+4. **代码与结构规范**：`ai/project-audit/CONVENTIONS.md`（分层依赖方向、命名、复用/拆分、注释、格式化、脚本依赖）；写代码前看 `.prettierrc` 与 `eslint.config.js`，配置优先于现状；`pnpm exec tsc -b` 必须保持零错误。
+5. **数据与后端**：`ai/PROJECT.md` 数据库节是临时真源（前端 select 反查，未核线上），改表结构先看 `ai/features/supabase.md` 的审计遗留；`VITE_*` 变量进浏览器，不放 `service_role`。
+6. **审核中**：`project-audit` 五步全项目自审进行到第二步结束，入口 `ai/project-audit/INDEX.md`；审核发现的待办写回 `ai/TODO.md`，证据只放审核目录。
+7. **功能文档**：一个功能一份 `ai/features/<名>.md`；超过一个 md（子功能、调研、mockup、图片）就建 `ai/features/<名>/` 文件夹，主文档与附属材料互链（2026-07-13 用户定规）。
+
+## 技能与协议在哪
+
+- 技能唯一正本 `ai/jaSkills/`（`.claude/skills`、`.agents/skills`、`.codex/skills` 都是指向它的链接）；通用技能名册在根协议「Skill 系统」节，本项目专属登记在 `ai/JASKILL.md`。
+- 根 `CLAUDE.md` / `AGENTS.md` 不入库（个人化，真源在货架），入库副本在 `ai/jaAgents/`；新检出跑 `shelf init --agents claude,codex` 或 `bash ai/jaSkills/custom-skill/scripts/sync-worktree.sh` 还原；桌面版 worktree 按 `.worktreeinclude` 复制两份协议。
+- 项目角色入口：UI Tailor → `ai/design_system/uiux/uiux.md`；Monet → `ai/design_system/design-system.md`；视觉制作/第二意见优先 `codex-visual`（新产物落 `ai/design_system/codex-visual/`，gitignored；历史比稿归档在 `ai/codex-visual/`）；原画分层 `art-relighting` 为用户级 Codex skill，见 `ai/design_system/research/art-relighting.md`。
 
 ## 文档索引
 
@@ -162,5 +169,6 @@ src/
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`research/`、`uiux/research/` 调研与比稿
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
-- `ai/project-audit/` — 项目审核记录（`INDEX.md` 入口），普通开发不需加载
+- `ai/project-audit/` — 项目审核记录（`INDEX.md` 入口）与 `CONVENTIONS.md`，普通开发不需加载审核证据
+- `ai/jaSkills/` 技能正本 · `ai/JASKILL.md` 专属技能登记 · `ai/jaAgents/` 协议入库副本与 Multica 引导脚本 · `.shelf.json` 货架账本
 - `ai/codex-visual/` — `codex-visual` 技能产出的比稿/审核原始归档（12 个批次）；生产用生成原件在 `arts/`，使用中资料以常驻设计系统为准

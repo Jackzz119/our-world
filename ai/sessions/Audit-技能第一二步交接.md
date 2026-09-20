@@ -17,7 +17,7 @@
 1. 推送或确认是否推送 `dev` 的 9 个本地 commit（`git log a9f7cfa..dev`）。
 2. 开第三步：新建 `ai/project-audit/runs/2026-09-2x-01/`，在 `STEPS.md` 拆子步骤，按技能 §第三步 从每个入口跟到协议/存储/网络/状态/呈现；只交付诊断与建议。线索见 INDEX「第三步开工时要知道的」。
 3. 有 Supabase 会话时跑 INDEX 里的运行时验收清单，补第二步「未验证」项。
-4. 用户要复刻 hyber 的技能真源/协议体系：按 `ai/protocol-gap-report.md` 第四节顺序做，每步先要用户授意（改 CLAUDE/AGENTS/技能）。
+4. 技能真源/协议体系已复刻完成（`shelf init`、`ai/jaSkills`、`ai/jaAgents`、`.worktreeinclude`）；新设备 `git pull` 后跑 `shelf init --agents claude,codex` 再开工。
 
 ## 别踩的坑
 - `prettier --list-different` 有输出时退出码为 1，链式 `&&` 会中断后续命令。

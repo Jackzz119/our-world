@@ -1,5 +1,7 @@
 # 协议与技能体系：our-world 对照 hyber-operator-portal 的偏差报告
 
+> **2026-09-19 已按本报告复刻完成**（除用户决定保留的差异：`feature` 技能原样引入未剔 menu 段、不建 `PENDING-DECISIONS.md`、`ai/sessions/` 继续入库、`blender-create` 移除）。采用的是货架（shelf）当前的最新形态：`ai/jaSkills/`（复数）+ 整目录链接 + `shelf init`，`.worktreeinclude` 与 `sync-worktree.sh` 兜底。以下为复刻前的对照原文。
+>
 > 2026-09-19 对照。目的：复刻 hyber-operator-portal（下称 hyber）的「技能唯一真源 + 双 agent 协议 + 工作流」到本仓。只列偏差与复刻顺序，不在本文改任何协议文件（改 `CLAUDE.md` / `AGENTS.md` / 技能须用户明确授意）。
 
 ## 一、技能真源与目录结构
