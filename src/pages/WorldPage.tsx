@@ -103,14 +103,15 @@ const WorldPage = () => {
         onHotspot
     } = useSurfaceRouter({
         initialScreen: DEV_SURFACE,
-        onOpenChat: () => {
-            setChatOpen(true);
-            if (compact) setMusicOpen(false);
+        onToggleChat: () => {
+            setChatOpen((open) => !open);
+            if (!chatOpen && compact) setMusicOpen(false);
         },
-        onOpenMusic: () => {
+        onToggleMusic: () => {
+            const nextOpen = widgets.music === false || !musicOpen;
             setWidget('music', true);
-            setMusicOpen(true);
-            if (compact) setChatOpen(false);
+            setMusicOpen(nextOpen);
+            if (nextOpen && compact) setChatOpen(false);
         }
     });
     // Four localStorage-backed slices; usePersistedState mirrors each one back
@@ -298,6 +299,8 @@ const WorldPage = () => {
                 {inWorld && (
                     <>
                         <Rail
+                            chatOpen={chatOpen}
+                            musicOpen={musicOpen && widgets.music !== false}
                             unread={unread}
                             activeRoom="study"
                             onRoom={() => {

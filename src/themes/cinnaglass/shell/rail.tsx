@@ -34,6 +34,8 @@ const MODULE_DEFS: { key: string; label: string }[] = [
 ];
 
 type RailProps = {
+    chatOpen?: boolean;
+    musicOpen?: boolean;
     unread: boolean;
     activeRoom: string;
     onRoom: (id: string) => void;
@@ -46,7 +48,17 @@ type RailProps = {
 // Left navigation rail. Owns one popover at a time (rooms or modules) and closes
 // it on Escape or an outside pointer-down, both captured at window level so a
 // popover inside a modal still wins.
-export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget, onLeaveWorld }: RailProps) {
+export function Rail({
+    chatOpen = false,
+    musicOpen = false,
+    unread,
+    activeRoom,
+    onRoom,
+    onAction,
+    widgets,
+    setWidget,
+    onLeaveWorld
+}: RailProps) {
     const [pop, setPop] = useState<'rooms' | 'modules' | null>(null);
     const [pressed, setPressed] = useState<RailKey | null>(null);
     useEffect(() => {
@@ -84,7 +96,15 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
             aria-label={label}
             data-nav-key={key}
             data-pressed={pressed === key || undefined}
-            aria-expanded={key === 'rooms' || key === 'modules' ? pop === key : undefined}
+            aria-expanded={
+                key === 'rooms' || key === 'modules'
+                    ? pop === key
+                    : key === 'chat'
+                      ? chatOpen
+                      : key === 'music'
+                        ? musicOpen
+                        : undefined
+            }
             disabled={opts?.disabled}
             onPointerDown={(event) => {
                 if (event.isPrimary && event.button === 0) setPressed(key);
@@ -114,8 +134,8 @@ export function Rail({ unread, activeRoom, onRoom, onAction, widgets, setWidget,
         <div className="rail-wrap">
             <nav className="rail" aria-label="房间导航">
                 {btn('rooms', RailHome, '房间', { active: pop === 'rooms' })}
-                {btn('chat', RailChat, '聊天', { dot: unread })}
-                {btn('music', RailMusic, '一起听')}
+                {btn('chat', RailChat, '聊天', { dot: unread, active: chatOpen })}
+                {btn('music', RailMusic, '一起听', { active: musicOpen })}
                 {btn('modules', RailTools, '工具', { active: pop === 'modules' })}
                 {btn('settings', RailSettings, '设置')}
             </nav>

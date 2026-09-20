@@ -16,11 +16,11 @@ type SurfaceRouterOptions = {
     initialScreen: string | null;
     /** The chat card and the music player are not surfaces — they keep their
      *  own open flags in WorldPage, so the rail/hotspot routes call back out. */
-    onOpenChat: () => void;
-    onOpenMusic: () => void;
+    onToggleChat: () => void;
+    onToggleMusic: () => void;
 };
 
-export function useSurfaceRouter({ initialScreen, onOpenChat, onOpenMusic }: SurfaceRouterOptions) {
+export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic }: SurfaceRouterOptions) {
     const [screen, setScreen] = useState<string | null>(() =>
         initialScreen && MODAL_TABS.includes(initialScreen as TabKey) ? initialScreen : null
     );
@@ -37,10 +37,10 @@ export function useSurfaceRouter({ initialScreen, onOpenChat, onOpenMusic }: Sur
 
     // rail actions → surfaces (both entry channels open the same surface)
     const onRail = (k: RailKey, origin: { x: number; y: number; source: 'rail' }) => {
-        if (k === 'chat') onOpenChat();
+        if (k === 'chat') onToggleChat();
         else if (k === 'photos') open('photos', origin);
         else if (k === 'calendar') open('calendar');
-        else if (k === 'music') onOpenMusic();
+        else if (k === 'music') onToggleMusic();
         else if (k === 'settings') open('settings');
     };
     // furniture hotspots → the very same surfaces
@@ -48,7 +48,7 @@ export function useSurfaceRouter({ initialScreen, onOpenChat, onOpenMusic }: Sur
         if (id === 'timeline' || id === 'photos' || id === 'wishlist')
             open(id, { x: clientX, y: clientY, source: 'object' });
         else if (id === 'clock') open('clock');
-        else if (id === 'music') onOpenMusic();
+        else if (id === 'music') onToggleMusic();
     };
 
     return {
