@@ -220,7 +220,7 @@ export function ClimateReview() {
                 <header className="review-toolbar">
                     <div>
                         <strong>环境圆钮 · 两版比稿</strong>
-                        <p>A 双圆收纳 / B 双轨直达；同背景、同材质。天气为离线演示。</p>
+                        <p>A 已接正式组件；B 与文字入口保留历史对照。天气为离线演示。</p>
                     </div>
                     <div className="review-options">
                         <label>
@@ -233,9 +233,9 @@ export function ClimateReview() {
                         <label>
                             入口方案
                             <select value={variant} onChange={(e) => setVariant(e.target.value)}>
-                                <option value="orbits">A · 双圆收纳</option>
+                                <option value="orbits">A · 双圆收纳（已采用）</option>
                                 <option value="tracks">B · 双轨直达</option>
-                                <option value="split">现行版 · 对照</option>
+                                <option value="split">文字双入口 · 历史</option>
                                 <option value="combined">合并入口 · 历史</option>
                             </select>
                         </label>
@@ -294,9 +294,9 @@ export function ClimateReview() {
                         }
                     }}
                 />
-                {variant === 'orbits' || variant === 'tracks' ? (
+                {variant === 'tracks' ? (
                     <ClimateOrbits key={variant} mode={variant} mood={mood} setMood={setMood} wx={wx} setWx={setWx} />
-                ) : variant === 'split' ? (
+                ) : variant === 'orbits' ? (
                     <Ambience
                         mood={mood}
                         setMood={setMood}
