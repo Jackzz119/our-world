@@ -69,7 +69,8 @@ WorldPage
 - ChannelScreen：`inset 3% 4%`，scrim 点击关闭，入场 .34s
 - 头顶气泡 4500ms；贴纸显示「发来一张贴纸」；只对**对方**且**非 pending**的消息触发，同一条不重复冒泡
 - 删除粒子 `VANISH_MS = 900`（删除后继续渲染这么久放完粒子）；分页 `MESSAGE_PAGE_SIZE = 50`，窄卡只取尾部 40 条
-- 窄卡视觉规格：codex pixel spec §5.6（277px 宽卡）
+- 窄卡视觉规格：codex pixel spec §5.6（277px 宽卡）；2026-09-20 改为「更透的悬浮物」：外壳 `--ui-alpha` 0.36、内衬 `color-mix` 46%（减透明模式回 100%），参数在 `shell/chat-card.css`，规范见 `ai/design_system/uiux/cinnaglass/ui-system.md`「A 场景悬浮 UI」
+- 大窗 `MessageList` / `ChatComposer` 以 `list:${convId}` / `composer:${convId}` 为 key（2026-09-20）：二者是同级兄弟，共用 `convId` 会让 React 漏删旧消息列表，切会话时列表叠加
 
 ## 五、待实现 / 已知问题
 
