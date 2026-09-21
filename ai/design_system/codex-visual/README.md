@@ -2,7 +2,7 @@
 
 调研、候选、比稿和待确认原型放在这里；`uiux/` 只保留定稿规范与选定展示。原始工具批次默认本地忽略，明确保留的比稿目录单独入库，普通回归报告仍写在会话中。
 
-当前看样：[环境圆钮 A/B 与信纸](ui-unification/climate-controls.html) · [圆钮方案、截图与动效](ui-unification/climate-orbits.md) · [上一轮与暮色信纸](ui-unification/climate-controls.md)。A 双圆收纳、B 双轨直达为待选候选，保留正式双入口对照；只修复了正式天气面板的误滚动条，尚未替换入口造型。夜晚金亮信纸已接入产品；暮色适配待反馈。信纸复用 SunlitLetter，历史合并入口仅作对照。
+当前看样：[环境圆钮 A/B 与信纸](ui-unification/climate-controls.html) · [圆钮方案、截图与动效](ui-unification/climate-orbits.md) · [上一轮与暮色信纸](ui-unification/climate-controls.md)。用户已选择 A 双圆收纳并接入正式 Ambience；B 双轨与旧文字双入口留为历史对照。最新规范及实装截图/动图见 [当前主题](../uiux/cinnaglass/ui-system.md#时辰--天气与新来信)。夜晚金亮信纸已接入产品；暮色适配待反馈。信纸复用 SunlitLetter，历史合并入口仅作对照。
 
 已选定材质的原始比稿（这里的浮窗是历史候选，不代表当前产品）：[连续玻璃壳](ui-unification/standard-board.html) · [新旧并排比较](ui-unification/material-comparison.html)。通过项目开发服务打开 HTML，不使用 `file://` 打开 React 样板。
 

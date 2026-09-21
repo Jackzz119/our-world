@@ -2,8 +2,7 @@
 .app.ui-environment .amb-wrap {
     position: absolute;
     top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 38px;
     z-index: 41;
 }
 .app.ui-environment .moment-card {

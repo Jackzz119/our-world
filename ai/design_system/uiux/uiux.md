@@ -5,7 +5,7 @@
 
 **[打开 UI/UX 全局风格预览](../preview.html#ui)**：直接展示本页及当前主题已登记的真实素材/实景，文字负责说明与链接；候选不混入此视图。与 [整体风格预览](../preview.html#world) 共用一个常驻入口，从 Markdown 自动取材。
 
-![当前三类浮窗与导航同屏；真实组件、演示内容](cinnaglass/unification-verification/widgets-twilight.png)
+![当前双圆环境入口、导航、聊天与音乐；真实组件、书房原画及演示内容](cinnaglass/environment-verification/scene-twilight.png)
 
 这是本地已实施的统一基线。界面围绕安静陪伴、真实状态和需要时可读展开；不把所有功能都做成同一种浮窗。
 
@@ -14,7 +14,7 @@
 | 类别与采用界面                       | 当前外观/行为                                                 | 常驻规范与实施依据                                                                                            |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | A 导航                               | 五入口中性细纹磨砂；工具菜单、选中/悬停/按压反馈              | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[导航功能说明](../../features/navigation-glass.md)           |
-| A 天气/聊天/音乐                     | 同源磨砂/受色内衬；时辰/天气双入口，音乐使用真实本机合成音频 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[现状审计](../../features/ui-system/audit.md)                |
+| A 天气/聊天/音乐                     | 同源磨砂/受色内衬；左上双圆时辰/天气入口，音乐使用真实本机合成音频 | [主题 A](cinnaglass/ui-system.md#a-场景悬浮-ui)、[现状审计](../../features/ui-system/audit.md)                |
 | A 新来信 | 金亮信纸提示世界未读消息，点击进入聊天、已读消失 | [信纸规范与实景](cinnaglass/ui-system.md#时辰--天气与新来信) |
 | A 纪念卡/头顶状态/气泡               | 真实纪念日、姓名与聊天反馈；小屏避让，无占位在线绿点          | [交互规则](interaction.md)、[审计](../../features/ui-system/audit.md)                                         |
 | B 设置/确认/选择/错误弹窗            | 共享连续磨砂壳/受色内衬、原生弹层；内联确认/选择器可键盘操作  | [主题 B](cinnaglass/ui-system.md#b-任务与功能弹窗)、[统一计划](../../features/ui-system/ui-system.md)         |
@@ -32,6 +32,6 @@
 
 ## 当前设计边界
 
-导航是 A 基准；B 连续磨砂外壳与随时辰阅读内衬已批准，现役 A/B 与边缘页面已本地实装；世界设置入口按既定决定暂缓。日记冻结，整体 UI 动画后置。[decisions.md](cinnaglass/decisions.md) 只记录 UI 当前决定，位于本项目 `ai/design_system/uiux/`，不放技能目录。
+导航是 A 基准；B 连续磨砂外壳与随时辰阅读内衬已批准，现役 A/B 与边缘页面已本地实装；世界设置入口按既定决定暂缓。日记冻结，整体 UI 动画后置；已批准的环境圆钮滑动和展开动效单独接入。[decisions.md](cinnaglass/decisions.md) 只记录 UI 当前决定，位于本项目 `ai/design_system/uiux/`，不放技能目录。
 
 新研究与比稿在 [视觉工作台](../codex-visual/README.md)，旧研究留在 [历史目录](research/README.md)，未来概念及否决方向从 [concept](../concept/README.md) 查。日常任务报告只在 session 汇报。用户随时看当前 UI 就打开本页；HTML 为特定交互预览，不能替代持续更新的 Markdown。

@@ -1,6 +1,6 @@
 # 环境圆钮 · A/B 候选
 
-状态：2026-09-20 可操作比稿，等待选型；尚未替换正式环境入口。[打开比稿](climate-controls.html) / [现行 UI](../../uiux/cinnaglass/ui-system.md) / [上一轮与信纸](climate-controls.md)。顶部可切换方案、场景与时辰，点击「只看场景」隐藏看样工具。
+状态：2026-09-20 用户选定 A 双圆收纳，已接正式 Ambience；B 保留为历史备选。以下图片记录选型时的候选，最新状态/实装截图以现行 UI 为准。[打开比稿](climate-controls.html) / [现行 UI](../../uiux/cinnaglass/ui-system.md) / [上一轮与信纸](climate-controls.md)。顶部可切换方案、场景与时辰，点击「只看场景」隐藏看样工具。
 
 ## 同一背景上的两个方向
 
@@ -43,4 +43,4 @@
 
 复用真实书房三时辰原画、植物园概念图及 `/ui/nav/frost.webp`；没有新增绘画素材。植物园切时辰只改变 UI 配色，不代表植物园已实现重光照。组件：[climate-orbits.tsx](climate-orbits.tsx)，样式：[climate-orbits.css](climate-orbits.css)，宿主页：[climate-controls.tsx](climate-controls.tsx)。天气为隔离演示，不定位、不请求天气、不写账号；当前截图均为浏览器真实组件渲染。
 
-交互依据：[WAI-ARIA Radio Group](https://www.w3.org/WAI/ARIA/apg/patterns/radio/) 的分组、选中和键盘语义；[MDN prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion) 的系统动效偏好。视觉由本代理按 Monet 标准自审，不标为独立主美审核。定稿后只将选定方案和对应展示晋升 `uiux/`。
+交互依据：[WAI-ARIA Radio Group](https://www.w3.org/WAI/ARIA/apg/patterns/radio/) 的分组、选中和键盘语义；[MDN prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion) 的系统动效偏好。视觉由本代理按 Monet 标准自审，不标为独立主美审核。选定 A 的规范和正式组件截图/动图已晋升 `uiux/`；本页保留比稿来源，不作为当前状态真源。

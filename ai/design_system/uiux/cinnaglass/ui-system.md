@@ -6,17 +6,17 @@
 
 ## A 场景悬浮 UI
 
-![暮色：导航、天气、聊天、纪念卡、音乐与角色姓名的整体关系](unification-verification/widgets-twilight.png)
+![暮色：正式双圆入口、导航、聊天与音乐；真实组件和书房原画，隔离演示内容](environment-verification/scene-twilight.png)
 
-![黄昏：暖灰褐阅读底随场景时辰变化](unification-verification/widgets-golden.png)
+![黄昏：暖灰褐阅读底随场景时辰变化](environment-verification/scene-golden.png)
 
-![夜晚：深暖灰阅读底，米白文字与暖金操作保持语义](unification-verification/widgets-night.png)
+![夜晚：双圆收起，暖金信息与操作保持语义](environment-verification/scene-night.png)
 
-![窄屏：天气和纪念卡错开，当前聊天停靠于底导航上方](unification-verification/widgets-mobile.png)
+![窄屏：左上双圆展开，底导航与音乐保留操作空间](environment-verification/weather-mobile.png)
 
 **同源材质**：固定 [frost.webp](../../../../public/ui/nav/frost.webp)、实时背景模糊与艺术化边光。导航外观保持原配方；A/B 读取其三时辰的 tint/top/cold/rim。纹理不随打开或渲染随机变化，边缘不做真实场景反射；共同光环境仍是后续工作。
 
-**停靠与操作**：桌面左下聊天、右下音乐、上方天气/纪念卡；窄/矮屏聊天与展开音乐互斥，打开音乐能恢复已隐藏的 widget。A 不打开全屏遮罩；天气菜单 Esc 返回触发钮。聊天支持输入法，完整操作展开到 B；姓名不冒充在线状态，纪念日来自实际世界数据。
+**停靠与操作**：桌面左下聊天、右下音乐、左上天气、右上纪念卡；窄/矮屏聊天与展开音乐互斥，打开音乐能恢复已隐藏的 widget。A 不打开全屏遮罩；天气菜单 Esc 返回触发钮。聊天支持输入法，完整操作展开到 B；姓名不冒充在线状态，纪念日来自实际世界数据。
 
 ![展开音乐：同源外壳与稳定阅读底；进度、播放和音量对应实际音频](unification-verification/music.png)
 
@@ -26,13 +26,24 @@
 
 ### 时辰 / 天气与新来信
 
-用户已批准双入口与夜晚金亮信纸，现已接入产品组件和现有消息已读链路。[植物园兼容与暮色信纸看样](../../codex-visual/ui-unification/climate-controls.html) 复用同一套组件；植物园仍是固定概念背景。暮色新增玫瑰金/灰紫纸面为本地适配版本，待用户视觉反馈，细节图保留在比稿区。
+用户已选定 A「双圆收纳」并接入正式 Ambience；夜晚金亮信纸已接现有消息已读链路。[植物园兼容与暮色信纸看样](../../codex-visual/ui-unification/climate-controls.html) 复用同一套组件；植物园仍是固定概念背景。暮色新增玫瑰金/灰紫纸面为本地适配版本，待用户视觉反馈，细节图保留在比稿区。
 
-![双入口天气：常驻类别文字，直接选择晴 / 雨 / 实况](environment-verification/weather-open.png)
+![双圆天气：展开后只有类别、状态与三个符号选项](environment-verification/weather-open.png)
 
 ![天气悬停：复用导航暖金辉光与焦点反馈](environment-verification/weather-hover.png)
 
-类别图标固定为时钟与云，具体太阳/月亮放入有文字的选项；两个面板互斥，再点当前入口或 Esc 关闭。保留实况加载/不可用状态和手动天气不使用位置的说明。无新增天气后端或植物园场景。
+**A 双圆收纳（已采用并实现）**：类别固定为时钟/云，角标显示当前模式；桌面距左 38px、上 24px，窄/矮屏为 12px。展开宽 216px；选项是 52px 圆钮、间距 8px，固定磨砂纹理、细反光边与滑动暖金透镜。名称只在 hover/键盘聚焦时提示，无障碍名称始终保留。实况用定位符号，与晴/雨区分。
+
+两个面板互斥，再点当前入口、点外或 Esc 关闭；Esc 返回入口，Tab 离开控件也收起且不抢新焦点。点击、横向拖动超过 8px 或方向键循环选择；原偏好保存与 `useWeather` 不变。展开状态短词显示「定位中… / 实况不可用 / 晴 22°」等真实值，手动天气不造地点或温度；失败可切晴/雨。旧云/雪偏好不冒充实况、不误亮第一项，仍可切到当前三选项；不新增雪景能力。
+
+桌面高度 600–850px 时面板向入口右侧展开，避开竖导航；其余贴在下方。正常面板没有滚动条，仅极矮屏内衬超高时细条纵向滚动，装饰外壳不滚动。
+
+![黄昏双圆材质](environment-verification/circles-golden.png)
+![暮色双圆材质](environment-verification/circles-twilight.png)
+![夜晚双圆材质](environment-verification/circles-night.png)
+![正式组件的选中透镜滑动](environment-verification/selection-motion.gif)
+
+**已采用的局部动效**：选中透镜 360ms、`cubic-bezier(0.22, 0.8, 0.2, 1)`，连续/反向输入从当前位置续接；面板展开 180ms 淡入与 5px 上移归位，收起即时。系统减少动态效果时禁用这组动效。仅环境控件采用，不提前定义全局动画体系。实现：[Ambience](../../../../src/themes/cinnaglass/shell/ambience.tsx)、[局部样式](../../../../src/themes/cinnaglass/shell/ambience.css)；[原比稿与 B 备选](../../codex-visual/ui-unification/climate-orbits.md) 保留为设计来源。无新增天气后端或植物园场景。
 
 ![夜晚金亮信纸：真实房间组件与隔离的未读测试数据](environment-verification/letter-night.png)
 
