@@ -24,10 +24,35 @@ body {
     font-size: 17px;
     font-weight: 550;
 }
+.review-hide,
+.review-reopen {
+    border: 1px solid #ffffff30;
+    color: #eee8de;
+    background: #34343f;
+    border-radius: 9px;
+    padding: 8px 12px;
+    min-height: 36px;
+    font: inherit;
+    cursor: pointer;
+}
+.review-reopen {
+    position: fixed;
+    z-index: 70;
+    bottom: 4px;
+    right: 4px;
+    font-size: 11px;
+    opacity: 0.8;
+}
 .review-toolbar p {
     margin: 6px 0 0;
     font-size: 12px;
     color: #c9c4bb;
+}
+.app.climate-review.review-immersive {
+    inset: 0;
+}
+.app.climate-review.review-immersive :is(.chat-card, .music-wrap) {
+    max-height: calc(100dvh - 164px - env(safe-area-inset-bottom, 0px));
 }
 .review-options {
     display: flex;

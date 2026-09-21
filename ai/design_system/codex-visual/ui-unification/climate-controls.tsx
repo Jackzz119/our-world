@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Rail } from '@/themes/cinnaglass/shell/rail';
+import { ClimateOrbits } from './climate-orbits';
 import { SunlitLetter } from '@/themes/cinnaglass/shell/sunlit-letter';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
@@ -182,11 +183,12 @@ export function ClimateControls({ mood, setMood, wx, setWx, combined }: ClimateP
 }
 
 export function ClimateReview() {
-    const [mood, setMood] = useState<Mood>('twilight');
+    const [mood, setMood] = useState<Mood>('night');
     const [wx, setWx] = useState<WeatherTweak>('sun');
-    const [scene, setScene] = useState('garden');
-    const [variant, setVariant] = useState('split');
-    const [chat, setChat] = useState(true);
+    const [scene, setScene] = useState('study');
+    const [variant, setVariant] = useState('orbits');
+    const [chat, setChat] = useState(false);
+    const [tools, setTools] = useState(true);
     const [music, setMusic] = useState(false);
     const [settings, setSettings] = useState(false);
     const [task, setTask] = useState<'material' | 'chat'>('material');
@@ -214,45 +216,58 @@ export function ClimateReview() {
     };
     return (
         <>
-            <header className="review-toolbar">
-                <div>
-                    <strong>植物园 · UI 色调与环境入口</strong>
-                    <p>已采用双入口与金亮信纸；暮色纸面适配待看样。植物园为概念图。</p>
-                </div>
-                <div className="review-options">
-                    <label>
-                        背景
-                        <select value={scene} onChange={(e) => setScene(e.target.value)}>
-                            <option value="garden">植物园</option>
-                            <option value="study">书房</option>
-                        </select>
-                    </label>
-                    <label>
-                        入口方案
-                        <select value={variant} onChange={(e) => setVariant(e.target.value)}>
-                            <option value="split">双入口 · 已采用</option>
-                            <option value="combined">合并入口 · 历史</option>
-                        </select>
-                    </label>
-                    <label>
-                        材质时辰
-                        <select value={mood} onChange={(e) => setMood(e.target.value as Mood)}>
-                            {times.map((t) => (
-                                <option key={t.key} value={t.key}>
-                                    {t.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className="letter-switch">
-                        <input type="checkbox" checked={letter} onChange={(e) => setLetter(e.target.checked)} />
-                        金亮信纸示意
-                    </label>
-                </div>
-            </header>
+            {tools && (
+                <header className="review-toolbar">
+                    <div>
+                        <strong>环境圆钮 · 两版比稿</strong>
+                        <p>A 双圆收纳 / B 双轨直达；同背景、同材质。天气为离线演示。</p>
+                    </div>
+                    <div className="review-options">
+                        <label>
+                            背景
+                            <select value={scene} onChange={(e) => setScene(e.target.value)}>
+                                <option value="garden">植物园</option>
+                                <option value="study">书房</option>
+                            </select>
+                        </label>
+                        <label>
+                            入口方案
+                            <select value={variant} onChange={(e) => setVariant(e.target.value)}>
+                                <option value="orbits">A · 双圆收纳</option>
+                                <option value="tracks">B · 双轨直达</option>
+                                <option value="split">现行版 · 对照</option>
+                                <option value="combined">合并入口 · 历史</option>
+                            </select>
+                        </label>
+                        <label>
+                            材质时辰
+                            <select value={mood} onChange={(e) => setMood(e.target.value as Mood)}>
+                                {times.map((t) => (
+                                    <option key={t.key} value={t.key}>
+                                        {t.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="letter-switch">
+                            <input type="checkbox" checked={letter} onChange={(e) => setLetter(e.target.checked)} />
+                            金亮信纸示意
+                        </label>
+                        <button type="button" className="review-hide" onClick={() => setTools(false)}>
+                            只看场景
+                        </button>
+                    </div>
+                </header>
+            )}
+            {!tools && (
+                <button type="button" className="review-reopen" onClick={() => setTools(true)}>
+                    比稿选项
+                </button>
+            )}
             <div
                 ref={ref}
-                className="app ui-environment climate-review"
+                className={`app ui-environment climate-review ${tools ? '' : 'review-immersive'}`}
+                data-control={variant}
                 data-mood={mood}
                 data-chat-open={chat}
                 data-music-open={music}
@@ -279,7 +294,9 @@ export function ClimateReview() {
                         }
                     }}
                 />
-                {variant === 'split' ? (
+                {variant === 'orbits' || variant === 'tracks' ? (
+                    <ClimateOrbits key={variant} mode={variant} mood={mood} setMood={setMood} wx={wx} setWx={setWx} />
+                ) : variant === 'split' ? (
                     <Ambience
                         mood={mood}
                         setMood={setMood}
@@ -341,13 +358,15 @@ export function ClimateReview() {
                         if (compact) setMusic(false);
                     }}
                 />
-                <aside className="review-caption">
-                    {scene === 'garden'
-                        ? '植物园原图固定；切换时辰仅检验 UI 配色，不生成植物园光照。'
-                        : '书房时辰底图与 UI 配色同步。'}
-                    <br />
-                    聊天与音乐可反复点击导航开关；设置展示真实公共弹窗材质。
-                </aside>
+                {tools && (
+                    <aside className="review-caption">
+                        {scene === 'garden'
+                            ? '植物园原图固定；切换时辰仅检验 UI 配色，不生成植物园光照。'
+                            : '书房时辰底图与 UI 配色同步。'}
+                        <br />
+                        聊天与音乐可反复点击导航开关；设置展示真实公共弹窗材质。
+                    </aside>
+                )}
                 <TaskDialog
                     open={settings}
                     onClose={() => setSettings(false)}
