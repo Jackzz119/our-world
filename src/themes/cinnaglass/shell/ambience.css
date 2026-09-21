@@ -66,6 +66,11 @@
 }
 .amb-panel .ui-liner {
     padding: 16px;
+    max-height: calc(100dvh - 140px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e4d4b54d transparent;
 }
 .amb-panel h2 {
     font-size: 16px;
@@ -104,15 +109,13 @@
     line-height: 1.5;
     margin-bottom: 0;
 }
-.amb-panel {
-    max-height: calc(100dvh - 124px);
-    overflow: auto;
-}
 @media (max-width: 767px), (max-height: 599px) {
     .amb-panel {
         left: 0;
         transform: none;
-        max-height: calc(100dvh - 184px - env(safe-area-inset-bottom, 0px));
+    }
+    .amb-panel .ui-liner {
+        max-height: calc(100dvh - 200px - env(safe-area-inset-bottom, 0px));
     }
     .amb-trigger.rail-btn {
         min-width: 120px;
