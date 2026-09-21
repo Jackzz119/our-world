@@ -1,11 +1,28 @@
-/* Compact chat keeps the painting visible and text on a stable mood-colored liner. */
+/* Compact chat is a floating object: a lighter shell than the task dialogs and a translucent
+   mood-colored liner, so the painting reads through. Focused reading belongs to the full hub. */
 .chat-card {
+    --ui-alpha: 0.36;
+    --cc-liner-mix: 46%;
     width: 340px;
     max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 100px);
     display: flex;
     flex-direction: column;
     border-radius: 22px;
+}
+/* Whenever the shell falls back to a solid tint, the liner goes solid with it. */
+.ui-environment[data-reduced-transparency='true'] .chat-card {
+    --cc-liner-mix: 100%;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .chat-card {
+        --cc-liner-mix: 100%;
+    }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .chat-card {
+        --cc-liner-mix: 100%;
+    }
 }
 .cc-head {
     display: flex;
@@ -22,7 +39,8 @@
     background: transparent;
     border-color: transparent;
 }
-.cc-list {
+/* Scoped to the card so it outranks .ui-liner regardless of stylesheet order. */
+.chat-card .cc-list {
     min-height: 0;
     max-height: min(300px, 40dvh);
     overflow-y: auto;
@@ -33,6 +51,11 @@
     padding: 14px 10px;
     scrollbar-width: thin;
     overscroll-behavior: contain;
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--ui-liner-top) var(--cc-liner-mix), transparent),
+        color-mix(in srgb, var(--ui-liner-base) var(--cc-liner-mix), transparent) 58%
+    );
 }
 .cc-msg {
     display: flex;
@@ -64,7 +87,7 @@
     color: var(--ui-text);
     font-size: 14px;
     line-height: 1.6;
-    background: #ffffff08;
+    background: #ffffff12;
     overflow-wrap: anywhere;
 }
 .cc-msg.me .cc-bubble {

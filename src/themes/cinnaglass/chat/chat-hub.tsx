@@ -110,7 +110,9 @@ export function ChannelScreen({
     const mainRef = useRef<HTMLDivElement>(null);
     // render-time adjustment: drop the composer palette when switching conversations. The draft,
     // the open edit box and the reaction picker all reset on their own, because ChatComposer and
-    // MessageList are mounted with key={convId}.
+    // MessageList are remounted on a convId-derived key. The two keys carry distinct prefixes: they
+    // are siblings, and a shared key made React skip deleting the old MessageList, so every switch
+    // left one more message column stacked in the DOM.
     const [prevConv, setPrevConv] = useState(convId);
     if (convId !== prevConv) {
         setPrevConv(convId);
@@ -192,7 +194,7 @@ export function ChannelScreen({
                                     <span className="topic">{ch ? ch.topic : '私信 · 只有你们两个人看得到'}</span>
                                 </div>
                                 <MessageList
-                                    key={convId}
+                                    key={`list:${convId}`}
                                     convId={convId}
                                     msgs={msgs}
                                     isChannel={!!ch}
@@ -207,7 +209,7 @@ export function ChannelScreen({
                                 />
                                 {notice && <div className="chsc-notice">{notice}</div>}
                                 <ChatComposer
-                                    key={convId}
+                                    key={`composer:${convId}`}
                                     placeholder={ch ? `在 #${ch.name} 说点什么…` : `发给 ${dm!.name}…`}
                                     onSubmit={(v) => onSend(convId, v)}
                                     paletteOpen={inputPicker}

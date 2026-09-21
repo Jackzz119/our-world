@@ -168,6 +168,7 @@ export function ChatCard({
                     value={text}
                     placeholder="悄悄说…"
                     aria-label="聊天消息"
+                    autoComplete="off"
                     disabled={!cur}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => {
