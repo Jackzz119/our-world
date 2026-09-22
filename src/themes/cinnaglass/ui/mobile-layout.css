@@ -1,0 +1,171 @@
+/* A/B and entry layout only. No .modal/.paper/journal or scene geometry overrides. */
+:root {
+    --ui-safe-top: env(safe-area-inset-top, 0px);
+    --ui-safe-right: env(safe-area-inset-right, 0px);
+    --ui-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --ui-safe-left: env(safe-area-inset-left, 0px);
+}
+.ui-environment .ui-dialog {
+    left: var(--ui-safe-left);
+    right: var(--ui-safe-right);
+    top: calc(var(--ui-visible-top, 0px) + var(--ui-safe-top));
+    bottom: calc(var(--ui-keyboard-inset, 0px) + var(--ui-safe-bottom));
+    max-height: calc(var(--ui-visible-height, 100dvh) - var(--ui-safe-top) - var(--ui-safe-bottom) - 24px);
+    max-width: calc(100vw - var(--ui-safe-left) - var(--ui-safe-right) - 24px);
+}
+.ui-environment .ui-dialog-header > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.ui-environment .ui-dialog-header > button {
+    flex: none;
+}
+:is(.ui-entry.ui-environment, .ui-environment .ui-entry) {
+    top: var(--ui-visible-top, 0px);
+    bottom: auto;
+    height: var(--ui-visible-height, 100dvh);
+    padding: max(24px, var(--ui-safe-top)) max(24px, var(--ui-safe-right)) max(24px, var(--ui-safe-bottom))
+        max(24px, var(--ui-safe-left));
+    scroll-padding-block: 16px;
+}
+@media (max-width: 767px), (max-height: 599px) {
+    :is(.ui-entry.ui-environment, .ui-environment .ui-entry) {
+        padding: max(16px, var(--ui-safe-top)) max(12px, var(--ui-safe-right)) max(16px, var(--ui-safe-bottom))
+            max(12px, var(--ui-safe-left));
+    }
+    body .app.ui-environment .rail-wrap {
+        bottom: calc(10px + var(--ui-safe-bottom));
+    }
+    body .app.ui-environment .rail {
+        max-width: calc(100vw - var(--ui-safe-left) - var(--ui-safe-right) - 24px);
+    }
+    body .app.ui-environment .amb-wrap {
+        top: calc(12px + var(--ui-safe-top));
+        left: calc(12px + var(--ui-safe-left));
+    }
+    body .app.ui-environment .chat-card,
+    body .app.ui-environment .music-wrap {
+        left: calc(12px + var(--ui-safe-left));
+        right: calc(12px + var(--ui-safe-right));
+        bottom: calc(88px + var(--ui-safe-bottom));
+        max-height: calc(var(--ui-visible-height, 100dvh) - 176px - var(--ui-safe-top) - var(--ui-safe-bottom));
+    }
+    body .app.ui-environment .music-full {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        width: 100%;
+    }
+    body .app.ui-environment .music-full .mp {
+        width: 100%;
+    }
+    body .app.ui-environment .music-bar {
+        flex: none;
+    }
+    body .app.ui-environment .letter-notice {
+        top: calc(92px + var(--ui-safe-top));
+        right: calc(12px + var(--ui-safe-right));
+    }
+    body .app.ui-environment .moment-card {
+        top: calc(12px + var(--ui-safe-top));
+        right: calc(12px + var(--ui-safe-right));
+        width: min(178px, calc(100vw - 160px - var(--ui-safe-left) - var(--ui-safe-right)));
+    }
+    body .app.ui-environment[data-chat-open='true'] .letter-notice,
+    body .app.ui-environment:has(.amb-panel:not([hidden])) :is(.letter-notice, .moment-card) {
+        display: none;
+    }
+    body .app.ui-environment .chat-card .cc-list {
+        max-height: none;
+        flex: 1 1 auto;
+    }
+    .ui-environment .ui-dialog :is(input:not([type='range']), textarea, select),
+    body .app.ui-environment .cc-input input {
+        font-size: 16px;
+    }
+    .ui-environment .ui-dialog-header {
+        padding: 12px 16px;
+    }
+    .ui-environment .ui-dialog-header h2 {
+        font-size: 21px;
+    }
+    .ui-environment .chat-task {
+        height: calc(var(--ui-visible-height, 100dvh) - 24px);
+    }
+    .ui-environment .chat-task .chsc-hd {
+        flex-shrink: 0;
+    }
+    .ui-environment .chat-task .chsc-input {
+        flex-shrink: 0;
+        padding: 8px;
+    }
+    .ui-environment .chat-task .chsc-hd h3 {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+    .ui-environment .chat-task .chsc-pop {
+        max-height: min(320px, calc(var(--ui-visible-height, 100dvh) - 190px));
+    }
+}
+/* Landscape uses the right side for the active tool and keeps environment controls on the left. */
+@media (min-width: 600px) and (max-height: 599px) {
+    body .app.ui-environment .chat-card,
+    body .app.ui-environment .music-wrap {
+        left: max(154px, calc(var(--ui-safe-left) + 148px));
+        max-height: calc(var(--ui-visible-height, 100dvh) - 112px - var(--ui-safe-top) - var(--ui-safe-bottom));
+    }
+    body .app.ui-environment .music-wrap:has(.music-full:not([hidden])) .music-bar {
+        display: none;
+    }
+    body .app.ui-environment .music-full {
+        flex: 0 1 auto;
+    }
+    body .app.ui-environment .mp-top {
+        margin-bottom: 6px;
+    }
+    body .app.ui-environment .mp-note {
+        display: none;
+    }
+    body .app.ui-environment .mp-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 12px;
+    }
+    body .app.ui-environment .mp-transport {
+        grid-column: 2;
+        grid-row: 1 / 4;
+        gap: 6px;
+    }
+    body .app.ui-environment .mp-volume {
+        grid-column: 1 / -1;
+    }
+    body .app.ui-environment .mp-mode {
+        grid-column: 1 / -1;
+    }
+}
+/* Editing takes priority; all original widget state is retained when the keyboard closes. */
+[data-ui-keyboard='true'] body .app.ui-environment :is(.rail-wrap, .amb-wrap, .letter-notice, .moment-card) {
+    visibility: hidden;
+    pointer-events: none;
+}
+[data-ui-keyboard='true'] body .app.ui-environment .chat-card {
+    left: calc(12px + var(--ui-safe-left));
+    right: calc(12px + var(--ui-safe-right));
+    bottom: calc(var(--ui-keyboard-inset, 0px) + 12px);
+    max-height: calc(var(--ui-visible-height, 100dvh) - 24px);
+    width: auto;
+}
+[data-ui-keyboard='true'] body .app.ui-environment .cc-quick {
+    display: none;
+}
+@media (max-height: 450px) {
+    .ui-environment .ui-dialog-header p {
+        display: none;
+    }
+    .ui-environment .chat-task .chsc-hd .topic {
+        display: none;
+    }
+}
+[data-ui-keyboard='true'] .ui-environment .chat-task .chsc-hd .topic {
+    display: none;
+}

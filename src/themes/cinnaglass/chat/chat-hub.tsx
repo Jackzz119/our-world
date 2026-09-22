@@ -10,7 +10,7 @@
 // channel-screen.styles.tsx, the switcher in conv-nav.tsx, the message flow in message-list.tsx,
 // the input row in chat-composer.tsx and the delete effect in bubble-dust.ts.
 import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { IHash } from '@/themes/cinnaglass/icons';
 import { FriendsPage } from '@/themes/cinnaglass/chat/friends-page';
 import { ChannelStyles } from '@/themes/cinnaglass/chat/chat-hub.styles';
@@ -107,6 +107,9 @@ export function ChannelScreen({
     chatAlign
 }: ChannelScreenProps) {
     const [inputPicker, setInputPicker] = useState(false); // composer emoji palette
+    const [navOpen, setNavOpen] = useState(false);
+    const navId = useId();
+    const navTrigger = useRef<HTMLButtonElement>(null);
     const mainRef = useRef<HTMLDivElement>(null);
     // render-time adjustment: drop the composer palette when switching conversations. The draft,
     // the open edit box and the reaction picker all reset on their own, because ChatComposer and
@@ -151,20 +154,43 @@ export function ChannelScreen({
                         mainRef.current?.querySelector<HTMLButtonElement>('.chsc-emo')?.focus();
                         return true;
                     }
+                    if (navOpen) {
+                        setNavOpen(false);
+                        navTrigger.current?.focus();
+                        return true;
+                    }
                     return false;
                 }}
             >
                 <div className="chsc">
                     {/* conversation switcher — the same set convsFor() gives the ChatCard,
                     plus the pinned friends entry (Discord-style, above DMs) */}
-                    <ConvNav
-                        convId={convId}
-                        isFriends={isFriends}
-                        chConvs={chConvs}
-                        dmConvs={dmConvs}
-                        pendingCount={requestsIn.length}
-                        onSelect={onSelect}
-                    />
+                    <div className="chsc-sidebar" data-expanded={navOpen}>
+                        <button
+                            type="button"
+                            className="chsc-nav-toggle ui-button"
+                            ref={navTrigger}
+                            aria-expanded={navOpen}
+                            aria-controls={navId}
+                            onClick={() => setNavOpen((value) => !value)}
+                        >
+                            {navOpen ? '收起会话' : '切换会话'}
+                        </button>
+                        <div id={navId} className="chsc-nav-content">
+                            <ConvNav
+                                convId={convId}
+                                isFriends={isFriends}
+                                chConvs={chConvs}
+                                dmConvs={dmConvs}
+                                pendingCount={requestsIn.length}
+                                onSelect={(id) => {
+                                    onSelect(id);
+                                    setNavOpen(false);
+                                    if (navTrigger.current?.getClientRects().length) navTrigger.current.focus();
+                                }}
+                            />
+                        </div>
+                    </div>
 
                     <div className="chsc-main" ref={mainRef}>
                         {isFriends ? (

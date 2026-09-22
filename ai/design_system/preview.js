@@ -9,7 +9,8 @@ const catalogs = {
     ],
     ui: [
         ['UI 在场景中的关系', 'uiux/uiux.md'],
-        ['当前主题：导航、功能界面与日记', 'uiux/cinnaglass/ui-system.md']
+        ['当前主题：导航、功能界面与日记', 'uiux/cinnaglass/ui-system.md'],
+        ['手机版：竖屏、横屏与输入', 'uiux/mobile.md']
     ]
 };
 let revision = 0;

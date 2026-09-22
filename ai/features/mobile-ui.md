@@ -1,0 +1,63 @@
+# 移动端 UI 自适应
+
+> 2026-09-21 · 实现与浏览器回归完成；真机验收待做。任务状态归 [TODO](../TODO.md)，视觉遵循 [当前主题](../design_system/uiux/cinnaglass/ui-system.md)。独立于全局动画体系；日记 C 类保持冻结。
+
+## 目标与范围
+
+让手机竖屏、横屏及软键盘出现后仍能完成查看房间、聊天、音乐控制、天气切换、任务弹窗与账号入口操作。保持批准的双圆、导航材质与聊天透明度，不重新设计品牌风格。
+
+覆盖 A 导航/浮窗/来信、B 任务壳/完整聊天/设置/日历/时钟，以及登录/重置/大厅。共享规则只作用于 A/B/入口，不改日记布局、素材或翻页。
+
+## 布局契约
+
+- 竖屏：顶部环境与信息，底部导航，当前活动浮窗在导航上方；聊天和展开播放器互斥。
+- 横屏/低高度：减少重复信息、释放阅读空间；关闭、输入与发送始终可达，不把完整面板硬挤进剩余高度。
+- 安全区：避开刘海、圆角与底部手势区。允许用户缩放；文本输入不依赖禁止缩放维持尺寸。
+- 键盘：区分 layout viewport 与 visual viewport，输入区域跟随可见区域，关闭键盘恢复原布局，缩放不误判为键盘。
+- 弹层：标题和关闭固定，内容独立滚动；长名称/说明换行，禁止页面横向溢出。
+
+## 实施项
+
+- [x] ST-1：建立真实组件隔离样板与手机尺寸基线，记录具体溢出/遮挡。
+- [x] ST-2：修复安全区、紧凑布局与触控尺寸。
+- [x] ST-3：接入可见视口和输入适配，验证焦点/键盘恢复。
+- [x] ST-4：持久化 Playwright 回归入口，更新设计系统的实装展示。
+
+## 验证矩阵与边界
+
+基础尺寸：320×568、375×667、390×844、430×932；横屏 667×375、844×390；另验平板 768×1024 和桌面 1440×900。覆盖聊天/音乐 toggle、环境开关、任务窗滚动及关闭、完整聊天输入与表情、长内容、减少动态效果、安全区和可见视口收缩。
+
+Playwright 使用既有脚本依赖加载方式，不增加产品运行时依赖。真实组件配隔离数据、阻断外部写请求；截图默认输出临时目录，只有选定实装图进入设计系统。手机仿真和合成 visualViewport 事件不能代替 iOS/Android 真机输入法、地址栏、系统缩放与 GPU 测试，后者单列待验收。
+
+依据：[Playwright 设备仿真](https://playwright.dev/docs/emulation)、[MDN VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport)。
+
+## 已实施与验收记录
+
+2026-09-21：补充安全区、可见视口与紧凑屏布局；完整聊天会话列表改为可展开入口，选择后收起；横屏播放器并排安排进度与传输控制，隐藏重复迷你条；触屏打开聊天/音乐不抢输入焦点。B 壳在按键阶段消费子菜单 Esc，避免连续 Esc 意外连关父窗。
+
+- Playwright：12 个页面 × 8 种尺寸 = 96 组布局通过，另验触屏 toggle、天气选择、表情/会话 Esc 分层、旋转保留草稿、顶部/底部/左右安全区和 reduced-motion；页面异常为 0。
+- 4 类合成键盘收缩：聊天窄窗、完整聊天、登录、设置改密。收缩后输入仍可达，恢复后保留聊天草稿；双指缩放信号不误判为键盘。
+- 页面参数：`room`、`compact-chat`、`music`、`chat`、`settings`、`calendar`、`clock`、`photos`、`wishes`、`login`、`reset`、`lobby`。重置密码只覆盖无恢复会话的提示态，不包含有效恢复会话的提交验证。
+- TypeScript 产品与样板独立检查、改动文件 ESLint、Vite 生产构建通过；构建仍有主包超过 500 kB 的体积提示，本轮不扩大到拆包。
+- 视觉：Monet 同 agent 自审，选定正式组件截图登记到 [手机版常驻规范](../design_system/uiux/mobile.md)，全局预览读取同一份登记。日记未改。
+
+## 复跑入口
+
+先启动项目开发服务。测试采用 `scripts/lib/deps.mjs` 的既有依赖解析；Playwright 可来自工具运行环境，通过 `DIARY_NODE_MODULES` 指向其 node_modules，不给产品新增运行时依赖。默认 Chrome，可用 `MOBILE_UI_BROWSER` 指定已安装的兼容通道。
+
+```powershell
+$env:JOURNAL_URL='http://127.0.0.1:5177'
+node scripts/check-mobile-ui.mjs
+pnpm exec tsc -b
+pnpm exec tsc -p scripts/fixtures/tsconfig.json --noEmit
+pnpm exec vite build
+```
+
+`MOBILE_UI_OUTPUT` 可指定截图目录，默认系统临时目录 `our-world-mobile-ui`。样板位于 `/scripts/fixtures/mobile-ui.html?screen=room`，复用生产组件，外部请求在测试中阻断，操作使用本地回调；不作为产品路由或发布页面。
+
+## 尚未完成的设备验收
+
+- iOS Safari / Android Chrome 真机软键盘的开关、候选栏、旋转、地址栏伸缩，以及有效恢复会话中的密码表单。
+- 系统放大、200% 文本、屏幕阅读器与低端设备长驻性能。
+
+这些项目在 TODO 的设备专项中跟踪。当前结论不覆盖真实键盘、账号提交、联网消息或场景 GPU 性能。

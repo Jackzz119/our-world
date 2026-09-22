@@ -56,7 +56,8 @@ export function MusicMini({
     const foldRef = useRef<HTMLButtonElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        if (open && visible) panelRef.current?.querySelector<HTMLInputElement>('input')?.focus();
+        if (open && visible && matchMedia('(pointer: fine)').matches)
+            panelRef.current?.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
     }, [open, visible]);
 
     return (
@@ -67,7 +68,7 @@ export function MusicMini({
                 if (event.key === 'Escape' && open) {
                     event.stopPropagation();
                     setOpen(false);
-                    foldRef.current?.focus();
+                    requestAnimationFrame(() => foldRef.current?.focus());
                 }
             }}
         >
