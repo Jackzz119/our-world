@@ -55,6 +55,8 @@
 
 ### UI / UX 体系定稿（本 session 优先）
 
+- [x] **手机版 UI 自适应与浏览器回归**（2026-09-21）：安全区/可见视口、聊天会话收纳、横屏播放器与输入焦点完成；Playwright 8 尺寸 × 12 页面、4 类合成键盘和旋转/开关/Esc 检查通过。独立文档 `ai/features/mobile-ui.md`；实装图在 `ai/design_system/uiux/mobile.md`，真机仍归下方设备专项。
+
 - [x] **环境圆钮定稿与接入**（2026-09-20）：用户选择 A 双圆收纳，已接正式 Ambience、真实天气状态与原偏好保存；点击/拖动/键盘、七种尺寸与减动效通过。规范及动图见 `ai/design_system/uiux/cinnaglass/ui-system.md`。
 
 - [x] **环境入口辨识与 hover**：已按批准稿接入「时辰 / 天气」双入口、导航同源反馈、类别菜单互斥与真实天气状态；规范见 `ai/design_system/uiux/cinnaglass/ui-system.md`。

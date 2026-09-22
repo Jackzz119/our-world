@@ -1,6 +1,6 @@
 # Our World · 当前 UI/UX
 
-> UI Tailor 主维护，Monet 负责全局统一与视觉审核 · 2026-09-20。
+> UI Tailor 主维护，Monet 负责全局统一与视觉审核 · 2026-09-21。
 > [整体设计系统](../design-system.md) / [Cinnaglass 主题](cinnaglass/ui-system.md) / [交互规则](interaction.md)
 
 **[打开 UI/UX 全局风格预览](../preview.html#ui)**：直接展示本页及当前主题已登记的真实素材/实景，文字负责说明与链接；候选不混入此视图。与 [整体风格预览](../preview.html#world) 共用一个常驻入口，从 Markdown 自动取材。
@@ -23,6 +23,10 @@
 | 登录/重置/大厅/加载与错误页          | 真实书房素材与同源材质；加载/错误/重试保持账号与世界链路      | [主题边缘页面](cinnaglass/ui-system.md#边缘页面与公共规则)、[审计](../../features/ui-system/audit.md)         |
 
 每项采用 UI 的图片、特征、交互/动画与来源在上述常驻主题/交互文档中维护。全局 Monet 不能只管理 concept 而忽略这些链接。
+
+## 手机与低高度布局
+
+当前手机实装的图文、横屏播放器、聊天会话收纳和键盘行为见 [手机版规范](mobile.md)。8 种尺寸的正式组件回归由 [独立 Feature](../../features/mobile-ui.md) 管理，真机验收另列。
 
 ## 共同使用模型
 

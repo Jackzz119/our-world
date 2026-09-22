@@ -3,8 +3,10 @@ import WorldPage from '@/pages/WorldPage';
 import LoginPage from '@/pages/LoginPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import ProtectedRoute from '@/pages/ProtectedRoute';
+import { useUiViewport } from '@/themes/cinnaglass/ui/use-ui-viewport';
 
 const App = () => {
+    useUiViewport();
     return (
         <BrowserRouter>
             <Routes>

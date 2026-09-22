@@ -2,7 +2,7 @@
 
 > v2「放置陪伴小屋」，2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-20（A 双圆环境控制定稿接入，保留真实天气与偏好；暮色信纸待看样，日记本冻结）
+> 最后更新：2026-09-21（手机安全区/键盘/横竖屏布局与组件回归完成；真机待验收，暮色信纸待看样，日记本冻结）
 
 ## 产品定位（PRD）
 
@@ -94,6 +94,7 @@ src/
 - **世界属性**：`worlds.name/anniversary/icon_emoji/icon_path`（icon 存 memories 桶 256px webp）；纪念日/在一起天数由 DB 实时计算；昵称已写回 `profiles.display_name`（2026-09-19）
 - **双实例调试**：`pnpm dev2`（5174 端口）双账号互发验收
 - **环境与来信 UI**（2026-09-20）：左上角时钟/云双圆入口沿用导航材质，点击展开/收起、横拖或方向键选择；滑动透镜及真实天气状态沿原偏好与 `useWeather` 链路，较矮桌面面板向右避让导航；`SunlitLetter` 用金亮信纸提示世界未读消息，点击打开聊天并使用已有已读游标，已读后消失。时辰配色、小屏与播放器避让见 `ai/design_system/uiux/cinnaglass/ui-system.md`；暮色玫瑰金适配待用户看样，未新增通知后端。
+- **手机版 UI**（2026-09-21）：App 统一发布可见视口，A/B/入口适配安全区与软键盘；完整聊天按需展开会话、横屏播放器消除重复条。8 尺寸 × 12 页面及 4 类合成键盘回归通过，真机待验收；独立功能 `ai/features/mobile-ui.md`，图文 `ai/design_system/uiux/mobile.md`。
 - **UI 基建现状**：2026-09-20 本地 A/B 与边缘页面已统一为导航同源材料和原生 TaskDialog，音乐接真实本机 WebAudio、天气与未实现能力状态如实呈现；实现/兼容/验收边界见 `ai/features/ui-system/ui-system.md`，消费者与历史证据见同目录 `audit.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
@@ -167,7 +168,7 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`codex-visual/` 新调研与比稿；`research/`、`uiux/research/` 历史来源
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）

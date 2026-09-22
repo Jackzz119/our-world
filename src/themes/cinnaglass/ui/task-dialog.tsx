@@ -56,6 +56,13 @@ export function TaskDialog({
             ref={dialogRef}
             className={`ui-dialog ui-surface ${wide ? 'ui-dialog-wide' : ''} ${className}`}
             aria-labelledby={titleId}
+            onKeyDown={(event) => {
+                // Consume nested menus before the browser's dialog close request, including repeated Esc.
+                if (event.key === 'Escape' && !event.defaultPrevented && onEscape?.()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }}
             onCancel={(event) => {
                 event.stopPropagation();
                 event.preventDefault();

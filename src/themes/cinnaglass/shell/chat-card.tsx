@@ -70,12 +70,12 @@ export function ChatCard({
         if (el) el.scrollTop = el.scrollHeight;
     }, [msgs.length, open]);
 
-    // Opening the card puts the caret in the composer — Enter opens it, so typing should just work.
+    // Keyboard users can type immediately; touch users open the keyboard only by tapping the input.
     useEffect(() => {
         if (!open || !cur) return;
         const opener = document.activeElement;
         const card = cardRef.current;
-        inputRef.current?.focus();
+        if (matchMedia('(pointer: fine)').matches) inputRef.current?.focus();
         return () => {
             if (
                 opener instanceof HTMLElement &&
