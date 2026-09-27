@@ -1,6 +1,6 @@
 # 书房（对坐第一期）设计文档
 
-> 最后更新：2026-09-27 · 状态：🟡 开发中（ST-1 进行中）
+> 最后更新：2026-09-27 · 状态：🟡 开发中（第一个能跑的切片完成，开发环境加 `?table` 打开；5 / 10 subtasks）
 > 设计来源：[设计系统](../../design_system/design-system.md) · [角色](../../design_system/character.md) · [场景](../../design_system/scene.md) · [物件](../../design_system/props.md) · [效果](../../design_system/effects.md) · [对坐深化稿](../../design_system/concept/across-the-table/across-the-table.md)
 > 任务：[TODO](../../TODO.md)「E1 对坐 · 书房第一期」。本文件管细节与进度，PROJECT / TODO 只留摘要。
 
@@ -22,87 +22,114 @@
 
 ```
 WorldPage
- └─ RoomScene (React 壳，room-scene.tsx)
-     ├─ usePartnerPresence()            对方状态：dev 模拟面板 → 之后接 Realtime Presence
-     ├─ viewer / partner 形象            第一期：viewer=xiaoman, partner=ayu（本地设置可切）
-     └─ buildScene(app, STUDY_ROOM, avatars, mood, weather, handlers)   compositor.ts
-          ├─ 窗外 + 雨层（窗格遮罩）        rain-layer.ts
-          ├─ 室内底图 × 时辰 × 台灯开/关     compositor.ts（交叉淡化）
-          ├─ 对方人物（姿势状态机）          partner-layer.ts（替换 character-layer.ts）
-          ├─ 桌面前沿（挡住人物下半身）
-          ├─ 活物件：唱片机、杯子蒸汽、台灯拉绳   turntable-prop.ts 等
-          ├─ 台灯光层（加色，跟开关）          lighting.ts
-          ├─ 前景：我的手和杯子（按我的形象）
-          └─ 互动热区：对方头 / 身体、台灯拉绳、咖啡壶、唱片机、日记本   affordance.ts
+ └─ RoomScene (room-scene.tsx)                 开发环境带 ?table → TableRoomScene，否则上一期 PaintedRoomScene
+     └─ TableRoomScene (table-room-scene.tsx)  React 壳：挂 Pixi、气泡与名牌落位、dev 对方状态面板
+          └─ buildTableScene(app, STUDY_TABLE, cast, init, events)      table-scene.ts
+               ├─ 底图组：时辰 × 晴 / 雨，开灯版在下，关灯版按台灯亮度盖上
+               ├─ 窗面雨层（窗格遮罩）                 rain-layer.ts
+               ├─ 外套留痕（离开 / 离线）
+               ├─ 对方人物：姿势、眨眼、呼吸、触碰区    partner-layer.ts ← partner-state.ts（导演）
+               ├─ 对方的杯子 + 蒸汽                     steam-layer.ts
+               ├─ 台灯拉绳（拦截 lamp 热区）
+               ├─ 热区星芒（timeline / music / photos）  affordance.ts
+               └─ 前景：我的手和杯子 + 蒸汽（按我的形象）
 ```
 
-- 对方状态 → `PartnerState`（`reading | writing | away | offline | asleep`）→ 人物姿势与留痕物件；互动反应（`poked | patted | sipping`）临时覆盖姿势，结束后回到状态姿势。
-- 点日记本 → 沿用现有 `onHotspot('timeline')`；点唱片机 → 开始 / 暂停本机音乐（`use-music-playback`）。
+- 对方状态 → `PartnerState`（`reading | writing | away | offline | asleep`）→ 人物姿势、留痕、杯子热气和睡着时的台灯亮度；互动反应（`glance | sip | poked | patted`）临时覆盖姿势，结束后回到状态姿势。
+- `lamp` 热区在场景里拦截（拉绳）；其余热区照旧经 `onHotspot` 交给 WorldPage 映射到功能。
+- 第一期形象固定为 `viewer = xiaoman, partner = ayu`（`table-room-scene.tsx` 的 `CAST`），账号级形象归属之后再做。
 
 ## 三、模块设计
 
-| 模块                     | 改动                                                                                                                                      |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `room-types.ts`          | 模板新增：台灯开 / 关两版底图、对面座位（人物画布到底图的缩放与偏移、头部锚点）、桌面前沿层、前景层（按形象）、手机取景焦点、互动热区类型 |
-| `study-room.ts`          | 换成对坐书房的坐标与素材路径；所有锚点从素材 manifest 粘贴，不目测                                                                        |
-| `compositor.ts`          | 新的分层顺序；台灯状态；人物受光 = 时辰 tint × 台灯系数；按焦点的 cover 取景；小幅鼠标视差；减动效时冻结                                  |
-| `partner-layer.ts`（新） | 姿势集合、交叉淡化、眨眼 / 呼吸 / 微摆、随机待机动作、反应覆盖与打断；替换双犬的 `character-layer.ts`                                     |
-| `partner-state.ts`（新） | 纯逻辑：状态 → 姿势、反应优先级、随机待机节奏（可注入随机源，方便复现）                                                                   |
-| `affordance.ts`          | 热区扩展：对方头部（按住拖动 = 摸头）、身体（点 = 戳一下）、台灯拉绳、咖啡壶                                                              |
-| `room-scene.tsx`         | 接入形象与对方状态；头顶气泡锚到对方头部；dev 模拟面板                                                                                    |
-| 素材                     | 生产源 `arts/rooms/study/`、`arts/characters/ayu/`、`arts/characters/xiaoman/`；运行时 `public/rooms/study/`、`public/characters/<人物>/` |
+实际做法与原计划的差别：对坐书房用**新的一组文件**实现，上一期的 `compositor.ts` / `study-room.ts` / `character-layer.ts` 原样保留，继续跑线上书房，到 ST-10 一起删除；摸头 / 戳一下的触碰区放在 `partner-layer.ts`，不扩 `affordance.ts`。
+
+| 模块                                   | 内容                                                                                                                                                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `room-types.ts`                        | 新增对坐类型：`TableRoomTemplate`（底图 × 时辰 × 台灯开 / 关 × 晴 / 雨、前景、留痕、`steam`、`lamp`、`crop`）、`PartnerSeat`（缩放 / 偏移、头身触碰区、呼吸支点、`beside` 锚点）、`AvatarPoses`、`PartnerState`、`PoseId` |
+| `study-table.ts`（新）                 | 对坐书房模板与阿屿姿势表；坐标全部从 `arts/rooms/study/table-manifest.json` 粘贴，不目测                                                                                                                                  |
+| `table-scene.ts`（新）                 | 合成器：分层、台灯亮度（开 / 关 / 睡着调暗）、换时辰不透底的交叉淡化、人物受光、宽屏 / 窄屏取景、两层视差、30fps、页面隐藏暂停、减动效                                                                                    |
+| `partner-layer.ts`（新）               | 姿势精灵交叉淡化、眨眼 / 呼吸 / 微摆、摸头与戳一下的触碰区、气泡锚点                                                                                                                                                      |
+| `partner-state.ts`（新）               | 纯逻辑导演：状态 → 姿势、反应优先级（抬眼 < 喝一口 < 戳一下 < 摸头）、随机待机节奏；时间与随机源由调用方注入，可复现                                                                                                      |
+| `steam-layer.ts`（新）                 | 杯子蒸汽：程序生成的飘带，强度跟对方状态衰减                                                                                                                                                                              |
+| `table-room-scene.tsx`（新）           | React 壳：挂载与销毁、气泡和名牌落位（`placeBeside`）、dev 对方状态面板                                                                                                                                                   |
+| `room-scene.tsx`                       | 开发环境带 `?table` 时切到对坐书房，其余不变                                                                                                                                                                              |
+| `room-overlays.css`                    | 气泡 / 名牌按侧落位、手机贴右边缘折两行、dev 面板                                                                                                                                                                         |
+| `scripts/build-study-table.py`（新）   | 装配：裁透明边、转 WebP、SIFT 配准姿势画布、写 manifest；不合格的眨眼帧不输出                                                                                                                                             |
+| `scripts/fixtures/study-table.*`（新） | 验证页：真实壳层 + 对坐书房，`?mood` / `?weather` / `?bubble`                                                                                                                                                             |
+| 素材                                   | 生产源 `arts/rooms/study/`、`arts/characters/ayu/`；运行时 `public/rooms/study/table/`、`public/characters/ayu/`                                                                                                          |
 
 ## 四、时间线 / 参数
 
-| 参数         | 值（第一期起点，实测后调整）                                   |
-| ------------ | -------------------------------------------------------------- |
-| 姿势交叉淡化 | 180ms，ease-out                                                |
-| 眨眼         | 闭眼 140ms，间隔 2.4–6.5s 随机，15% 概率连眨                   |
-| 呼吸 / 微摆  | 3.6s 周期纵向 ±1.5%；7.4s 周期 ±0.008rad                       |
-| 抬眼         | 在场时每 20–60s 随机一次，持续 2.5–4s                          |
-| 喝一口       | 在场时每 90–180s 随机一次；递来咖啡后 1.2s 触发                |
-| 戳一下反应   | 1.4s 后回到状态姿势；1s 内连戳只续时长                         |
-| 摸头         | 按住头部并移动超过 12px 进入，松手后 0.8s 回到状态姿势         |
-| 台灯         | 开 / 关交叉淡化 420ms；关灯时人物 tint 再乘 0.72 并偏冷        |
-| 视差         | 最远层 2px、最近层 12px，跟鼠标，0.12 缓动；减少动态效果时关闭 |
-| 帧率         | 30fps 上限，页面隐藏暂停（沿用现有纪律）                       |
+| 参数          | 值（已实装，2026-09-27 实测）                                                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 姿势交叉淡化  | 180ms（线性）                                                                                                                                                   |
+| 眨眼          | 闭眼 140ms，间隔 2.4–6.5s 随机，15% 概率连眨；喝一口暂不眨眼（闭眼帧不合格）                                                                                    |
+| 呼吸 / 微摆   | 3.6s 周期纵向 +1.5%（横向 −0.3%）；7.4s 周期 ±0.008rad；支点在躯干底部中点                                                                                      |
+| 抬眼          | 看书时每 20–60s 随机一次，持续 2.5–4s；写字时不抬眼                                                                                                             |
+| 喝一口        | 看书时每 90–180s 随机一次，持续 2.4s，杯子离开桌面；「递一杯咖啡」目前由 dev 按钮立即触发，倒咖啡仪式做好后改在杯子滑到对面后触发                               |
+| 戳一下反应    | 1.4s 后回到状态姿势；连戳只续时长                                                                                                                               |
+| 摸头          | 按住头部并移动超过 12px 进入，按住期间保持，松手后 0.8s 回到状态姿势；触碰只在看书 / 写字时生效                                                                 |
+| 台灯          | 开 / 关交叉淡化 420ms；关灯时活物 tint 再乘 `0xb8c0d8`（约 ×0.72 / 0.75 / 0.85，偏冷）；对方睡着时 1.6s 内自动调暗到 55%                                        |
+| 换时辰 / 天气 | 900ms：新的一组底图整组盖上去，完成后旧组才变暗，中途不透底                                                                                                     |
+| 蒸汽          | 每只杯子 2–3 缕，寿命 3.2–4.6s，满强度时间隔 0.9–1.7s；对方离开或睡着后 15 分钟内减到三成，离线停止，喝一口时隐藏；我这杯常驻                                   |
+| 取景          | `crop: { x: 735, top: 84 }`：宽屏从 plate y 84（最高发顶上 12px）往下取，窄屏横向以 x 735（脸）居中；边缘余量 = 视差行程（横 3px、竖 5px），替代原来的 3% 放大  |
+| 气泡 / 名牌   | 一侧剩余 ≥ 150px 时放脸侧（先右后左），气泡在眼睛高度之上、名牌在肩线；都放不下时贴右边缘，宽度 = 脸右侧空间（至少 96px），最多两行，不显示名牌；睡着不显示名牌 |
+| 视差          | 底图与人物 3px，前景 10px（竖向减半），跟鼠标，0.12 缓动；减少动态效果时关闭                                                                                    |
+| 帧率          | 30fps 上限，页面隐藏暂停（沿用现有纪律）                                                                                                                        |
 
 ## 五、待实现 / 已知问题
 
 - **Presence 权限未知**：Realtime 私有频道的 presence 需要 `realtime.messages` 的对应策略，Supabase 管理访问目前 401（token 失效），接真实在场前需要用户重新授权或在 Dashboard 配置。
 - **声音名片存储**：`memories` 桶只允许 png / jpeg / webp / avif，音频要改桶配置，同样需要 Supabase 访问。
 - **形象归属**：第一期没有账号级形象字段，先用本地设置「我是：小满 / 阿屿」；之后加 `profiles` 字段或形象表。
-- **手机清晰度**：人物单独按竖版精度出图；底图按横屏出，手机竖屏裁切后背景会偏软，靠景深虚化接受，实测不够再补竖版底图。
+- **手机清晰度**：人物单独按约 1.8 倍精度出图（横版画布）；底图是 1536×1024 横屏，手机竖屏裁切后背景会偏软，靠景深虚化接受，实测不够再补竖版底图。
 - **上一期运行时素材**：书房底图、唱片机部件、双犬立绘仍在 `public/`，ST-10 删除。
+- **阿屿第一批姿势的缺陷**（Codex 自审报告 `arts/characters/ayu/source/codex-report.md`）：
+    - 喝一口的闭眼帧重画了袖子，显示尺寸下眼睛以外约 9% 像素有明显差异，装配脚本不输出它（`BLINK_REJECTED`），喝一口先不眨眼；
+    - 喝一口的躯干截断线比其他姿势低约 16px，桌面远沿会露一道硬边；
+    - 其余三组眨眼帧眼外差异 1–4%，肉眼基本看不出；
+    - 「被戳」只有笑，没有缩一下（为了肩线不漂移放弃了缩身）。
+      这几项下次出图时一起重生成。
+- **受光打磨**：黄昏时人物偏冷，亮窗前的外轮廓线有点像贴纸；手臂和杯子下面还没有接触阴影。
+- **手机竖屏里台灯和唱片机出画**：窄屏横向以脸为中心，拉灯和唱片机只在宽屏上能点。之后考虑横向拖动看房间，或补竖版底图。
+- **名牌取值**：真实 app 里名牌用的是上一期的 `liveProfile.her`，她的视角下应显示阿屿，接真实在场（ST-6）时一起改。聊天卡片里的头像也还是上一期的小狗。
 
 ## 实现计划
 
-进度：0 / 10 subtasks 完成（0%）
+进度：5 / 10 subtasks 完成（50%）
 
-- [ ] ST-1: 书房场景素材（她的视角）
-    - 影响文件：`arts/rooms/study/`、`public/rooms/study/`
+- [x] ST-1: 书房场景素材（她的视角）
+    - 影响文件：`arts/rooms/study/`、`public/rooms/study/table/`
     - 说明：Codex 生成室内底图（黄昏 / 暮色 / 夜晚 × 台灯开 / 关，对面是空椅）、桌面前沿层、前景（奶油色针织袖口捧杯）、对方的杯子、唱片机盘面与唱臂、台灯拉绳；几何按一档统一，逐档配色；输出锚点 manifest。验收：部件叠回与整图一致，边缘无白边，三档切换不变形。
-- [ ] ST-2: 阿屿姿势图
+    - 结果：7 张底图（夜晚晴 / 雨 × 开 / 关、暮色开 / 关、黄昏开；黄昏关灯版没做，那个时辰台灯影响很小），外加定几何用的母版 `master-night.png`，和 6 个部件（前景、对方的杯子、外套、拉绳、唱臂、唱片），由 `scripts/build-study-table.py` 装配、写 `table-manifest.json`。桌面前沿层没有做成单独的部件，改由姿势的躯干截断线对齐桌面远沿。
+- [x] ST-2: 阿屿姿势图
     - 影响文件：`arts/characters/ayu/`、`public/characters/ayu/`
     - 说明：竖版透明、同画布同锚点：看书、抬眼、写字、喝一口、酣睡、摸头反应、戳一下反应（各睁 / 闭眼）；外套搭椅背（离开留痕）。验收：脸和标志物与设定一致，姿势间躯干不漂移，透明边缘干净。
-- [ ] ST-3: 房间模板 v3
-    - 影响文件：`src/themes/cinnaglass/room/room-types.ts`、`study-room.ts`
+    - 结果：7 个姿势共用一张横版画布（没用竖版，见角色文档「制作方式」），SIFT 配准，残差中位 1.7px。缺陷见 §五。
+- [x] ST-3: 房间模板 v3
+    - 影响文件：`room-types.ts`、`study-table.ts`（新）
     - 说明：新增台灯两版底图、对面座位、桌面前沿、前景、取景焦点、互动热区；坐标全部来自 ST-1 / ST-2 的 manifest。
-- [ ] ST-4: 合成器改造
-    - 影响文件：`compositor.ts`、`lighting.ts`、`textures.ts`
+    - 结果：新写了 `TableRoomTemplate`，不改上一期的 `RoomTemplate`。取景从单一焦点点改成 `crop: { x, top }`，座位加了 `beside` 锚点，另加 `steam`。
+- [x] ST-4: 合成器改造
+    - 影响文件：`table-scene.ts`（新）、`lighting.ts`（复用配方）
     - 说明：新分层、台灯状态、人物受光、焦点取景、鼠标视差、减动效。验收：1440×900 / 390×844 / 844×390 三档构图正确，切时辰与开关灯无跳变。
-- [ ] ST-5: 对方人物状态机
+    - 结果：五种尺寸构图正确；换时辰、开关灯都不透底。受光打磨（黄昏偏冷、接触阴影）转为 §五 的已知问题。
+- [x] ST-5: 对方人物状态机
     - 影响文件：`partner-layer.ts`（新）、`partner-state.ts`（新）
     - 说明：姿势切换、眨眼 / 呼吸 / 微摆、随机待机、反应覆盖与打断。验收：五种状态与三种反应都能进入和退出，连点不抖。
+    - 结果：五种状态和四种反应（抬眼、喝一口、戳一下、摸头）都能进入和退出，优先级正确。
 - [ ] ST-6: 对方状态来源
-    - 影响文件：`room-scene.tsx`、新 hook `use-partner-presence.ts`
+    - 影响文件：`table-room-scene.tsx`、新 hook `use-partner-presence.ts`
     - 说明：第一期先做 dev 模拟面板（仅开发环境）；之后接 Supabase Realtime Presence（在线、页面可见、输入中、睡着了），权限确认后做。
+    - 进度：dev 模拟面板已完成（状态五选一、开关灯、递一杯咖啡）；真实在场等 Supabase 权限。
 - [ ] ST-7: 物件与互动
-    - 影响文件：`affordance.ts`、`turntable-prop.ts`、`compositor.ts`、`room-scene.tsx`
+    - 影响文件：`table-scene.ts`、`turntable-prop.ts`、`table-room-scene.tsx`
     - 说明：台灯拉绳、倒咖啡（壶 → 杯子滑到对面 → 对方喝一口）、唱片机落针放歌、日记本入口、戳一下 / 摸头。不画光圈描边，提示只用星芒与物件自身动作。
+    - 进度：拉绳开关灯、戳一下、摸头、两只杯子的蒸汽已完成；喝一口的反应已有，缺倒咖啡仪式（还需要生成咖啡壶部件）；唱片机落针（唱臂、唱片部件已产出）和日记 / 照片热区接功能未做。
 - [ ] ST-8: 桌面与手机布局
-    - 影响文件：`room-scene.tsx`、`room-overlays.css`、`shell/*`
+    - 影响文件：`table-room-scene.tsx`、`room-overlays.css`、`shell/*`
     - 说明：头顶气泡与状态锚到对方头部并避让脸；手机竖屏焦点裁切、横屏构图；用 `scripts/check-mobile-ui.mjs` 回归 8 种尺寸。
+    - 进度：气泡 / 名牌落位和宽屏 / 窄屏取景已完成，5 种尺寸已截图核对；`check-mobile-ui.mjs` 还没收录对坐书房，上线前补上。
 - [ ] ST-9: 他的视角
     - 影响文件：`arts/characters/xiaoman/`、`public/characters/xiaoman/`、前景炭灰袖口、形象设置
     - 说明：小满姿势图 + 炭灰卫衣袖口前景；本地设置「我是：小满 / 阿屿」切换视角。
@@ -112,4 +139,25 @@ WorldPage
 
 ## 测试记录
 
-（开发中，按 subtask 追加。）
+### 2026-09-27 第一个能跑的切片
+
+验证页：`scripts/fixtures/study-table.html`（真实壳层，不连账号、不写数据），实装截图见 [场景](../../design_system/scene.md#实装截图) 与 [角色](../../design_system/character.md#在场状态)。
+
+- **尺寸**：1440×900、1936×1015、768×1024、844×390、390×844、320×568。页面无报错，无横向溢出。
+- **构图**：宽屏头顶留一线，桌面和我的手在画内；窄屏脸居中。
+- **气泡落位**：宽屏在右侧；手机贴右边缘，折两行。
+- **状态**：看书、写字、离开（外套、杯子冒气）、离线（杯子不再冒气）、睡着（台灯 1.6s 调暗，不显示名牌）全部正确。
+- **反应**：戳一下、摸头（按住保持、松手 0.8s 回去）、喝一口（杯子离桌）正确。
+- **光**：三档时辰 × 晴 / 雨，开 / 关灯正确。
+- **tsc / eslint / prettier**：本轮文件全部通过。
+
+测试中发现并修掉的问题：
+
+- **开发面板把画布往下推了 88px**：`.table-dev` 的优先级输给全局 `.ui-surface { position: relative }`，面板掉进了文档流。改用和气泡一样的复合选择器。
+- **宽屏看不到我的手**：旧取景把脸放在屏幕中间，在 1.9:1 的屏幕上前景整片被裁掉。改成宽屏从头顶往下取。
+- **手机上头顶的气泡被顶栏盖住**：时辰 / 天气圆钮和纪念卡就在头顶上方。改成贴右边缘。
+- **贴边气泡被挤成 56px 窄条**：绝对定位加 `left` 时，收缩适配只剩 12px 可用宽度。改用 `right` 定位。
+- **换时辰时画面变暗一下**：旧的交叉淡化让新旧两张同时半透明，中途约 25% 透出背景。改成新组整组盖上、旧组事后再暗。
+- **组件里的 ref 在渲染时赋值**：原来靠一条 `eslint-disable` 让 React Compiler 的检查整组件跳过，所以没被发现。改到 `useLayoutEffect` 里赋值。
+
+验证方法备注：本机 Chrome 窗口被遮挡时页面处于隐藏态，`requestAnimationFrame` 停止，浏览器截图会拿到旧画面，而且扩展的按下事件有时送不进页面。动效要么手动推进 Pixi ticker 后用 `renderer.extract` 导出，要么用无头 Playwright 拍。Playwright 在 Codex 运行时里：`DIARY_NODE_MODULES=C:/Users/Jackzz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules`。

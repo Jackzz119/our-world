@@ -10,6 +10,7 @@ design_system/
 ├── scene.md                房间、书房第一期、分层、镜头与取景
 ├── props.md                桌上物件与活物件制作管线
 ├── effects.md              光影、天气、粒子、声音与性能边界
+├── study-verification/     书房实装截图（引擎里拍的，场景 / 角色 / UI 文档引用）
 ├── concept/                当期概念与深化稿（图、拼图、制作注记与出图 brief）
 ├── codex-visual/           待确认的比稿与原型；原始生成批次只留本地
 └── uiux/                   UI Tailor 管理，Monet 总审
