@@ -1,5 +1,5 @@
 // turntable-prop.ts — the room's one living prop. Living-diorama direction
-// (2026-08-22, ai/design_system/research/living-props.md): furniture moves
+// (2026-08-22, ai/design_system/props.md; full v2 record in arts/archive/v2-companion-house/research/living-props.md): furniture moves
 // instead of glowing. The record turns inside the disc plane itself —
 // discHomography maps that plane to base px, so a spin is a real perspective
 // rotation and rim and label both stay put. Its painted light and the tonearm

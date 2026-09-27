@@ -38,4 +38,12 @@
 
 导航是 A 基准；B 连续磨砂外壳与随时辰阅读内衬已批准，现役 A/B 与边缘页面已本地实装；世界设置入口按既定决定暂缓。日记冻结，整体 UI 动画后置；已批准的环境圆钮滑动和展开动效单独接入。[decisions.md](cinnaglass/decisions.md) 只记录 UI 当前决定，位于本项目 `ai/design_system/uiux/`，不放技能目录。
 
-新研究与比稿在 [视觉工作台](../codex-visual/README.md)，旧研究留在 [历史目录](research/README.md)，未来概念及否决方向从 [concept](../concept/README.md) 查。日常任务报告只在 session 汇报。用户随时看当前 UI 就打开本页；HTML 为特定交互预览，不能替代持续更新的 Markdown。
+## 对坐一期带来的界面（已定方向，待细化）
+
+2026-09-27 用户把「对坐」定为开发方向，UI 继续沿用 Cinnaglass。概念里画出的新界面还不是定稿规范，书房第一期之后逐个细化，定稿后再写进本页：大厅（亮着的窗）、房间选择、桌面置顶小窗、锁屏与小组件、邀请入座、声音名片录制、回忆墙、完整聊天的对坐版。概念图与流程说明见 [对坐深化稿·产品界面](../concept/across-the-table/across-the-table.md#产品界面)。
+
+![对坐概念中的九个产品界面](../concept/across-the-table/sheets/sheet-screens.jpg)
+
+书房第一期直接影响现有 UI 的只有两点：场景层会显示对方的在场状态（在线、输入中、离开、睡着），头顶气泡与信纸要避让对方的脸；手机竖屏以对方的脸为焦点裁切场景。本页的实装截图背景仍是上一期书房，翻新后重拍。
+
+新研究与比稿在 [视觉工作台](../codex-visual/README.md)；上一期的 UI 历史研究已移到 `arts/archive/v2-companion-house/ui-research/`，不作当前规范。当期概念从 [concept](../concept/README.md) 查。日常任务报告只在 session 汇报。用户随时看当前 UI 就打开本页；HTML 为特定交互预览，不能替代持续更新的 Markdown。

@@ -126,8 +126,8 @@
 
 /* ── composer — inside the journal it is absolutely positioned on the paper
    (journal-room.css). Bright white writing surface: words sit on paper,
-   not on hazy glass. Design ref:
-   ai/design_system/uiux/research/cinnaglass-history/composer-redesign.html */
+   not on hazy glass. Design ref: the first-iteration composer-redesign mockup, retired
+   2026-09-27 (see git history). */
 .compose {
     border-radius: 18px;
     padding: 10px;

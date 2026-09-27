@@ -1,0 +1,90 @@
+﻿[
+    {
+        "file":  "R-cabin-keyart.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2467959,
+        "sha256":  "AF36D2615D5349733122393C7F42D324A31096CC68A4419BBF80D5F2D2564A89"
+    },
+    {
+        "file":  "R-cabin-play.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2526753,
+        "sha256":  "5A83785B0A0653067A991546F1E869DCD1006334750FCD68D3A3106C133826ED"
+    },
+    {
+        "file":  "R-records-keyart.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2274457,
+        "sha256":  "2BA510EBC44782EC8048783FB58DDBC02C89ACBFD5E35351C2FF95948184AF4D"
+    },
+    {
+        "file":  "R-records-play.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2245763,
+        "sha256":  "9A370F77D1069596A150ADCEA221EBB466F0EDF9131F2024CA60A7A389CFBEA5"
+    },
+    {
+        "file":  "R-rooftop-keyart.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2444764,
+        "sha256":  "A24547D4D7D29CC31CC01C60EF5D62260C97FACDF5A9C6687C85E7626ED0388B"
+    },
+    {
+        "file":  "R-rooftop-play.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2431617,
+        "sha256":  "910467C345B266F7936C0ECD70341DCA431C6AA44684E6104A7699EAD1B6BB54"
+    },
+    {
+        "file":  "R-seaside-keyart.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2545977,
+        "sha256":  "FEEFD21A46FF1777FC3E7475CC8F2054E6D8D3C8E093BB3971818B8ABE1E51B1"
+    },
+    {
+        "file":  "R-seaside-play.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2519306,
+        "sha256":  "D4294EB02C7F6CB9E4CAFFFFBF01D9B9E7B08F13ABEAE7D66C9640BC0443197B"
+    },
+    {
+        "file":  "R-train-keyart.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2484412,
+        "sha256":  "9131FF9793B2B79E963FE8250FDEBBDA5F93DE2A69EB882C375BA819F8F1D2DA"
+    },
+    {
+        "file":  "R-train-play-initial.png",
+        "role":  "superseded",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2471130,
+        "sha256":  "5211D0B6BE221F6D43802068F37AA3C1033A3796A2F76DBC41073C76E9C13086"
+    },
+    {
+        "file":  "R-train-play.png",
+        "role":  "final",
+        "width":  1672,
+        "height":  941,
+        "bytes":  2419120,
+        "sha256":  "19CDCC70F0E8B62F26576EB46CA5605809D9F22B8985A27880B0FCCFC23DEA3D"
+    }
+]

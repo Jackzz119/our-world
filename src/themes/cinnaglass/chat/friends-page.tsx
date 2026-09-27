@@ -2,7 +2,8 @@
 // a 好友 entry above the DM list and selecting it swaps the right pane to this page. Top tabs filter
 // the views (全部 / 待处理 / ＋添加好友); an 在线 tab is reserved until presence lands — no fake
 // online states. Friend management lives only here.
-// Mockup 方案 A: ai/design_system/uiux/research/cinnaglass-history/friends-page.html
+// Layout follows D-8 in ai/features/chat.md (仍然生效的聊天交互规则); its first-iteration mockup
+// 方案 A was retired 2026-09-27 (see git history).
 // Secondary entry stays folded in the room-first navigation; existing data actions remain available.
 import { useRef, useState } from 'react';
 import type { FriendEntry, FriendRequest } from '@/themes/cinnaglass/chat/chat-data';

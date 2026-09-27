@@ -1,0 +1,27 @@
+Use case: infographic-diagram. Generate ONE beautifully art-directed landscape production concept board, 1536x1024 or larger landscape, all essential content inside 16:9 safe area. This is a visual "how the living scene is built" board for Our World concept B Side by Side. Image-first, painterly, immaculate labels, not a technical wall of text.
+
+REFERENCE ROLE: B1-keyart.png is the reference for the EXACT living scene, its architectural composition, two original adult human characters, cream cushioned high-rise window seat, distant dusk city, winding river, lit arched train bridge, mountains and cloudscape. Preserve this identifiable scene and its gouache/watercolor visible brushwork across ALL scene fragments and FOUR time variants. Xiaoman is the chestnut shoulder-haired woman with small star clip and cream cardigan, Ayu is navy-black tousled-haired man with round glasses and charcoal hoodie. Both always sit with their BACKS to the viewer and share earbud wires. Natural adult proportions; no franchise style, no puppies or old study-room.
+
+BOARD LAYOUT: Wide refined warm gray-violet neutral background with subtle paper grain. Top-left restrained small heading "场景分层". Left 65%: LARGE three-quarter EXPLODED VIEW of upright translucent 2D parallax planes, gently fanned apart in depth from lower-left front to upper-right back. The planes use identical camera/perspective, assembling the original window city image. This is a stack of separated flat painted planes, NOT a row of unrelated photos and NOT 3D furniture models. Bright precise leader lines to nine clearly spaced labels around the left diagram; no ambiguous overlapping type. Off-white or deep muted-gray typography depending on background, one clean font. Painterly artworks are saturated twilight indigo and warm peach-gold.
+
+EXACT NINE LAYERS AND LABELS, each label ONCE, each attached to the corresponding plane:
+"室内前景" — closest cutout: the near blurred plant at left, warm books, cushioned window seat, record player and cup at right; transparent outside their silhouettes.
+"角色 Spine" — separate clear cutout plane: just Xiaoman and Ayu seated shoulder to shoulder, back views with cream cardigan and charcoal hoodie; not furniture or city.
+"窗框与雨" — isolated dark window mullions and fine raindrop texture on transparent glass; no duplicated city on this layer.
+"近景楼群" — low near apartment buildings with distinct window lights.
+"河与列车" — winding reflective river and the arch bridge carrying a long lit train; a small curved directional arrow along the train path.
+"远景城市" — middle and distant skyline reduced in contrast, mountain silhouette.
+"云层" — textured violet and peach clouds on mostly transparent plane, a subtle horizontal drift arrow.
+"天空" — simple blue-violet to peach sunset sky gradient on rearmost solid plane.
+"光束层" — thin translucent warm sun-shaft overlay hovering above the stack, visibly LIGHT ONLY, never opaque yellow sheet; label connected to it. This is an additive overlay, not another skyline.
+
+Do not put all nine labels in a crowded paragraph. Give every leader line a clean gap. Do not duplicate layers. Make the physical ordering plausible: indoor and characters nearest, window, near buildings, river and train, distant skyline, cloud, sky farthest, light overlay separate. Use enough separation to see each layer's distinct painting. Fine diagram boundaries are permissible; no glowing rings, neon halos or object hotspot pins.
+
+RIGHT 31%: a tidy TWO BY TWO grid of four clean equal-sized preview frames, each shows the same camera angle and same geography/composition as B1, the two rear-view avatars on the same window seat, river and train bridge aligned at exactly the same place. SAME SCENE, ONLY lighting/weather changes.
+Top-left label EXACT "清晨": cool pearly dawn, pink sky and soft mist, interior calm.
+Top-right label EXACT "正午": clear turquoise-blue noon with bright cloud highlights and fresh daylight.
+Bottom-left label EXACT "黄昏": peach gold sunshafts and violet clouds as B1.
+Bottom-right label EXACT "雨夜": deep navy rainy night, visible droplets, lit train, warm city windows and soft indoor edge light.
+All four little frames remain illustrated at final quality with attractive atmospheric depth, not abstract swatches. Text labels beneath frames at readable size. A short heading above the grid "四时之景" is allowed. Do not add UI rails or player bars to the four previews.
+
+FINISH: high-end hand-painted animation background production board, elegantly composed like a crafted art book plate. Largest emphasis on visible plane artwork and four appealing mood variants; labels concise. No code, no texture byte counts, no paragraph descriptions, no English filler, no watermark. Chinese labels must be exact and legible; if a label cannot be rendered reliably use short English rather than malformed glyphs. Maintain the original two-person identity and palette in every scene preview.

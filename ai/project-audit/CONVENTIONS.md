@@ -46,12 +46,12 @@ index.html → src/main.tsx → App.tsx（路由）
 
 - 每个具名函数/方法/组件/导出常量前一句话说清职责；条件与副作用必须写；工具函数一句话，复杂函数最多 3–4 句。
 - 模块头可多行：说明文件负责什么、关键约束、功能文档路径（`// Feature doc: ai/features/...`）；不写实施流水与已退役方案。
-- 不写复述函数名或色值的注释；引用文档用现路径（`ai/design_system/...`、`ai/features/...`、`ai/codex-visual/<批次>/codex-report.md`），不用已成桩的 `ai/UX.md §N`。
+- 不写复述函数名或色值的注释；引用文档用现路径（`ai/design_system/...`、`ai/features/...`；上一期的比稿与报告在 `arts/archive/<期>/`），不用已成桩的 `ai/UX.md §N`。
 - 保留：许可证/归属、生成标记、工具指令（`eslint-disable`、`prettier-ignore`）。
 
 ## 格式化（已采纳）
 
-- `.prettierignore` 排除依赖/锁文件、受保护协议与技能目录、冻结原件（`ai/reboot`、`ai/codex-visual`、`cinnaglass-history`、`ai/sessions`）、审核证据 `ai/project-audit/runs`、`*.diff`、素材树 `arts/`、`public/`。
+- `.prettierignore` 排除依赖/锁文件、受保护协议与技能目录、冻结原件（`ai/reboot`、`ai/sessions`、概念制作注记 `ai/design_system/concept/*/notes`）、审核证据 `ai/project-audit/runs`、`*.diff`、素材树 `arts/`、`public/`。
 - 其余文件按 `.prettierrc` 全项目格式化；`pnpm format` 即全仓 `prettier --write .`，`pnpm exec prettier --check .` 应为零。
 
 ## 工具脚本（已采纳）

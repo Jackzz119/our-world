@@ -1,0 +1,17 @@
+Use case: ui-mockup. ONE product-grade desktop screen 房间选择 for Our World concept A. Landscape maximum supported resolution target 1672x941 16:9.
+Reference 1 A1: strictly retain Xiaoman's identity, face and high-end fine-line painterly anime CG style. Reference 2 A2: exact Cinnaglass interface materials. Reference 3 greenhouse keyart: architectural/place reference for the enlarged greenhouse card. Reference 4 train keyart: place reference for train thumbnail.
+The current room is a rainy evening intimate cafe scene, viewed FIRST PERSON by Ayu seated, his charcoal hoodie sleeves and hands holding a cup in foreground. Exactly one partner Xiaoman across the table, half body, same brown shoulder-length hair / gold star clip / amber eyes / white tee / gold necklace / cream knit cardigan as reference A1. She glances up warmly. This full screen scene has SOFT modest defocus for task focus, not washed out; faces should remain recognizable.
+Upper left two clock/cloud circles; left slim 5-icon nav rail home/chat/music/tools/settings; upper right 在一起 1221 天 card. These all use A2 neutral smoke-gray translucent fine-grain frosted glass, fine light rim, offwhite icons, warm gold accents.
+Along the BOTTOM half a wide continuous frosted carousel shelf, title 房间选择 at upper-left of the shelf, close x upper-right. EXACTLY TEN distinct room cards all visible in ONE horizontal line, with selected card slightly taller/wider. Room cards are places, not people. Each miniature depicts the SAME Xiaoman seated half-body across a table from viewer in that DIFFERENT place. Do not show Ayu as partner in any card. Keep faces tiny but adult semi-realistic. No extra thumbnail above row, no duplicated selected card. Order from left to right and exact Chinese labels:
+1 咖啡馆: brass pendant, marble cafe table, rainy tram window;
+2 温室: SELECTED enlarged card, glazed greenhouse, lush vines, terracotta pot and seedling, golden green daylight, Xiaoman seated;
+3 书房: dark library, green banker lamp, snowy window;
+4 暗房: red safelight, hanging developed polaroids, trays;
+5 唱片角: walnut vinyl shelves and turntable, plum/amber;
+6 列车: vintage burgundy carriage, mountain snow outside;
+7 天台: rooftop plants and twilight skyline;
+8 海边: pale turquoise seaside porch, sunny sea;
+9 木屋: pine cabin, fireplace and snowfall;
+10 棋牌室: green felt game table and warm lamps, exactly one Xiaoman.
+The selected 温室 card uses a restrained warm-gold filled header/pill or small check badge, NO glowing outline around the illustrated objects. Its extra caption only: 一起养一盆花. Beneath entire row centered small readable note: 换房间会同时带上 TA. Small bottom-right gold button: 一起去. Bottom footer comfortably separated from room labels. Minimize text to these exact short labels, crisp clean Chinese sans serif, no marketing words. Cards aligned and clearly countable; do not reduce to fewer than ten. Screen hierarchy: recognizable softened partner above, well-separated carousel task below, no cards obscuring her face.
+Art must stay as lush refined 2D anime CG as A1/A2, fine clean lines, cel shading + painterly gradients, warm skin, practical warm lights and cool ambient rim, bloom depth. No chibi, photorealistic humans, IP resemblance, logos, watermarks, ring hotspot markers, halo outlines, arbitrary English, or extra characters.

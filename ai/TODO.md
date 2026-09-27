@@ -2,19 +2,19 @@
 
 ## 北极星 & 开发顺序
 
-产品 = **双人放置陪伴小屋**（PRD 见 `ai/PROJECT.md`，设计系统见 `ai/design_system/design-system.md`，重定位依据见 `ai/reboot/`）。
+产品 = **对坐**：镜头就是你，桌子对面坐着你在乎的那个人（第三期，2026-09-27 定为开发方向；PRD 见 `ai/PROJECT.md`，设计系统见 `ai/design_system/design-system.md`）。
 
-> 形态路线：**R0 验证周 → R1 网页 MVP（当前重点）→ R2 Electron 壳 → R3 桌宠模式 → R4 远期**
-> MVP = 大耳狗风格双人房间（1 房间 × 4 时辰，当前 3 档）+ presence + 三大回忆组件挂物件 + ASMR 音景
+> 形态路线：**R1 网页第一期·书房（当前重点）→ R2 Electron 置顶小窗 → R3 更多房间与大厅 → R4 远期**
+> 第一期 = 翻新书房：男女角色的场景与基本动作 + 个别物件交互，手机与电脑同步；先做她的视角（对面是阿屿）
 
 ---
 
 ## Epics & Milestones
 
-- **E1 放置陪伴 MVP**（R0+R1）：两人真实用上「开着就行的小屋」；里程碑：媒介拍板 → 房间上线 → presence 通 → 三物件挂载完
-- **E1-U UI / UX 定稿**（A/B 与边缘实现完成，设备/性能验收与动画后续）：以已认可导航为 A 基准，收敛 A 悬浮 UI / B 任务界面 / C 专属物件；本 session 不处理日记，动画最后做。计划见 `ai/features/ui-system/ui-system.md`
-- **E2 桌面形态**（R2+R3）：Electron 壳与桌宠模式
-- **E3 玩法扩展**（R4）：养成/小游戏/多房间（Brain Dump 孵化）
+- **E1 对坐 · 书房第一期**（R1）：里程碑：设计系统翻新 ✅ → 书房素材 → 阿屿姿势与状态机 → 物件交互 → 桌面 / 手机布局 → 他的视角 → 清理上一期运行时素材。细节 `ai/features/study-room/study-room.md`
+- **E1-U UI / UX**（A/B 与边缘实现完成，设备 / 性能验收与动画后续）：Cinnaglass 继续沿用；对坐新界面（大厅、房间选择、置顶小窗、小组件、邀请入座、声音名片、回忆墙）书房之后细化。计划见 `ai/features/ui-system/ui-system.md`
+- **E2 桌面形态**（R2）：Electron 置顶小窗（TA 的半身）+ 托盘 + 开机自启
+- **E3 更多房间**（R3–R4）：唱片角、暗房、深夜书房、温室……十个房间按功能分批；大厅承载多人
 
 ## Bugs
 
@@ -44,6 +44,29 @@
 - [x] **[BUG] 聊天窄卡类型检查阻塞**（2026-09-19 修）：`chat-card.tsx` 改从 `chat-data` 导入 `Msg` 并读 `emoteUrl`；副作用：窄卡此前渲染不出贴纸（字段名错，运行时恒 undefined），现在会显示贴纸图片
 
 ---
+
+## 🔨 E1 对坐 · 书房第一期（当前重点）
+
+> 细节、参数与进度只在 `ai/features/study-room/study-room.md`；这里只列高层任务。
+
+- [x] **换期：设计系统翻新**（2026-09-27）：对坐成为唯一现行设计（整体 / 角色 / 场景 / 物件 / 效果重写，77 张概念图与制作注记入库）；上一期概念、调研、UI 比稿、Codex 批次与原画源移到 `arts/archive/v2-companion-house/`，第一期资料删除；Monet 技能加「换期与档案」规则
+- [ ] 书房场景素材（她的视角）：时辰三档 × 台灯开 / 关底图、桌面前沿、前景奶油色袖口、唱片机与台灯拉绳部件（ST-1）
+- [ ] 阿屿姿势图：看书、抬眼、写字、喝一口、酣睡、摸头 / 戳一下反应，离开留痕（ST-2）
+- [ ] 房间模板 v3 与合成器改造：新分层、台灯开关、人物受光、焦点取景、视差（ST-3 / ST-4）
+- [ ] 对方人物状态机 + 状态来源（先 dev 模拟，之后接 Realtime Presence）（ST-5 / ST-6）
+- [ ] 物件与互动：台灯拉绳、倒一杯咖啡、唱片机落针、日记本、戳一下 / 摸头（ST-7）
+- [ ] 桌面与手机布局同步（ST-8）
+- [ ] 他的视角：小满姿势图 + 炭灰袖口前景（ST-9）
+- [ ] 清理上一期运行时素材、重拍 UI 截图（ST-10）
+- [ ] 阻塞项（需用户处理 Supabase 访问）：Realtime Presence 权限；声音名片的音频存储（`memories` 桶只收图片格式）
+
+### 上一期未完成、已被对坐取代的条目（2026-09-27 关闭）
+
+- 双犬动作扩展（翻页 / 写字 / 喝咖啡 / 趴睡）与双犬状态机 → 由书房第一期的对方姿势与状态机取代
+- 唱片机遗留打磨（唱臂高光、投影形状、光层压缩）与法线贴图 2.5D 光照第二档 → 新书房唱片机重做时一并考虑
+- 许愿罐活物、P2 程序化件（台灯光晕、咖啡热气、窗帘）→ 台灯与杯子蒸汽进第一期，星星罐与窗帘随后续房间
+- 桌宠小窗「两张脸近景」构图 → 对坐的置顶小窗 = TA 的半身（E2）
+- 旧房间选择器里的棋牌室 / 植物园缩略图 → 由十个房间与大厅取代（运行时缩略图随 ST-10 清理）
 
 ## 🔨 Phase R0 — 形态验证周（不写代码壳，可与 R1 并行）
 
@@ -77,7 +100,7 @@
 
 ### 原画分层与环境光照
 
-- [x] **建立 `art-relighting` skill**（2026-09-12，用户级 Codex 技能）：项目说明 `ai/design_system/research/art-relighting.md`；产品光照尚未改造
+- [x] **建立 `art-relighting` skill**（2026-09-12，用户级 Codex 技能）：项目说明 `arts/archive/v2-companion-house/research/art-relighting.md`（已移档）；产品光照尚未改造
 - [ ] **场景与 UI 共用光环境定稿**：天光/窗光/室内灯职责与独立控制，玻璃外壳如何响应，比较现有图层与 shader 的必要性
 - [ ] **重光照资产样板与技能迭代**：用定稿素材验证共享材质、已知环境还原和新环境组合，再沉淀可复用做法；不把每个天气独立重画一套几何
 - [ ] **动态阴影 skill（后续）**：材质/光层工作流稳定后单独设计投影与遮蔽接口，本轮不创建
@@ -87,33 +110,33 @@
 - [x] 场景媒介与房间模板（2026-08-09/10）：静态底图 + 动效插槽多层合成，**PixiJS v8** 合成器 `room/compositor.ts` + `RoomTemplate`；技术事实见 `ai/PROJECT.md`「技术栈」，设计见 `ai/design_system/scene.md`
 - [x] 首个房间资产（书房三档底图 + 双角色四张立绘 + 棋牌室/植物园缩略图）：位置见 `ai/design_system/design-system.md`「实际素材位置」
 - [x] 角色动画第一版（双帧贴图 + 程序变形，零引擎）：参数见 `ai/design_system/character.md`；Rive/Spine 留给动作丰富化阶段
-- [ ] 双角色动作扩展：看书翻页 / 写字 / 喝咖啡 / 趴睡循环（需评估 Rive 或逐帧资产；方向见 `character.md`）
-- [ ] 角色状态机：presence 状态 → 动作映射 + 在线/离线切换（离线=空位留痕：留灯/杯子/围巾）
+- [x] ~~双角色动作扩展：看书翻页 / 写字 / 喝咖啡 / 趴睡循环~~（2026-09-27 被对坐取代，见 E1）
+- [x] ~~角色状态机：presence 状态 → 动作映射 + 在线/离线切换~~（2026-09-27 并入 E1 ST-5 / ST-6）
 - [x] 时辰系统：mood 三档跟系统时间（`moodFromHour`）+ 900ms 交叉淡化 + 氛围 pill 手动 override
 - [~] 天气层：晴/雨完成（窗外雨丝 + 玻璃水珠 + 云影光呼吸 + 实况 auto 档）；**雪待做**（`RoomWeather` 目前仅 sun/rain）
 
 ### Presence（陪伴核心）
 
-- [ ] Supabase Realtime Presence 接入：打开应用 = 在场，对方角色实时醒来/睡去
-- [ ] presence payload 带状态（reading/coffee/away），驱动对方角色动作
-- [ ] （MVP 后）行为翻译：对方正在打字 → 角色执笔；翻相册 → 拿相框
+- [ ] Supabase Realtime Presence 接入：打开应用 = 在场，对方角色实时坐到对面 / 离开（E1 ST-6，需 Supabase 权限）
+- [ ] presence payload 带状态（reading / writing / away / asleep），驱动对方角色动作（E1 ST-6）
+- [ ] 行为翻译：对方正在打字 → 角色低头写字（第一期做）；翻相册 → 拿相框（后续）
 
 ### 功能挂载（复用 v1 组件）
 
 - [x] 物件热点组件（2026-08-10 首版，2026-09-05 v5）：五件全挂（映射见 `room/study-room.ts`、`ai/design_system/props.md`）；提示 = 周期星星 + hover 问候星星 + 活物微动；**光环/描边/换图三条路全部否决并删除**
-- [~] **活物件（living props）**：家具自己动，hover 只改参数不换图。研究 `ai/design_system/research/living-props.md`；当前实现、装配脚本与产物路径见 `ai/PROJECT.md`「技术栈」、`ai/design_system/props.md`
-    - [x] 唱片机第一～五轮（2026-09-05～07）：透视真旋转 → 真分件 → 生成优先（用户定「部件必须由生成产出，不后抠、不手修」）→ 完全分离 + 固有色/光分层（用户铁律「**死物吃画里的光，活物吃场景的光；部件必须生成、互不包含**」）→ v5 按旋转对称性分解盘面、转轴针从原画切出（用户目标「原画级活物效果，1:1 不丢质感」）。各轮结论、闸门数值与教训见 `ai/design_system/research/living-props.md`
-    - [ ] **唱片机遗留打磨**（2026-09-07 记）：② 唱臂固有色顶边残留浅高光（codex 两次未去掉）→ 法线光照上线后可盖过或再出更平一版；④ 阴影仅位置/浓度随光向变、形状仍是剪影模糊 → 随第二档做投影变换；⑤ 光层 PNG 每张 171–190KB、六张 ≈1.1MB → 上线前量化或 WebP
-    - [ ] 第二档：法线贴图 2.5D 光照（唱臂法线图 + pixi 光照 filter，光源随 mood 移动、高光随臂身滑动、投影随光向拉伸）；之后再评估 3D 代理投影
+- [~] **活物件（living props）**：家具自己动，hover 只改参数不换图。研究 `ai/design_system/props.md`（上一期完整记录已移档至 `arts/archive/v2-companion-house/research/living-props.md`）；当前实现、装配脚本与产物路径见 `ai/PROJECT.md`「技术栈」、`ai/design_system/props.md`
+    - [x] 唱片机第一～五轮（2026-09-05～07）：透视真旋转 → 真分件 → 生成优先（用户定「部件必须由生成产出，不后抠、不手修」）→ 完全分离 + 固有色/光分层（用户铁律「**死物吃画里的光，活物吃场景的光；部件必须生成、互不包含**」）→ v5 按旋转对称性分解盘面、转轴针从原画切出（用户目标「原画级活物效果，1:1 不丢质感」）。各轮结论、闸门数值与教训见 `ai/design_system/props.md`（上一期完整记录已移档至 `arts/archive/v2-companion-house/research/living-props.md`）
+    - [x] ~~**唱片机遗留打磨**~~（2026-09-27 被新书房唱片机取代）（2026-09-07 记）：② 唱臂固有色顶边残留浅高光（codex 两次未去掉）→ 法线光照上线后可盖过或再出更平一版；④ 阴影仅位置/浓度随光向变、形状仍是剪影模糊 → 随第二档做投影变换；⑤ 光层 PNG 每张 171–190KB、六张 ≈1.1MB → 上线前量化或 WebP
+    - [x] ~~第二档：法线贴图 2.5D 光照~~（2026-09-27 关闭，新书房重做时再评估）（唱臂法线图 + pixi 光照 filter，光源随 mood 移动、高光随臂身滑动、投影随光向拉伸）；之后再评估 3D 代理投影
     - [ ] 沉淀 `living-props` 运动 skill（用户定名 2026-09-06，2026-09-12 后置）：复用 `art-relighting` 材质/光层产物，负责定件分类、运动几何/规格、装配与逐帧检测；先用许愿罐做第二次执行再抽通用脚本，动态阴影另案
-    - [ ] 许愿罐：星星 idle 漂浮、hover 更亮更快（分层资产：玻璃/5-8 颗星/丝带/光晕，走同一套生成优先装配管线）
-    - [ ] P2 程序化件：台灯光晕呼吸、咖啡热气、窗帘微飘（MeshPlane 扰动）
+    - [x] ~~许愿罐：星星 idle 漂浮~~（2026-09-27 关闭，星星罐随后续房间）、hover 更亮更快（分层资产：玻璃/5-8 颗星/丝带/光晕，走同一套生成优先装配管线）
+    - [x] ~~P2 程序化件：台灯光晕呼吸、咖啡热气、窗帘微飘~~（2026-09-27 台灯与蒸汽并入 E1 ST-7）
 - [ ] 日记专项遗留（本 session 不处理）：日记按用户定规「大幅严格居中，允许遮挡」，不再沿用旧角色避让规则；其他功能弹窗已由 E1-U M4 统一，日记不随之迁移
     - [x] 棕皮旧纸书本静态还原（2026-09-07）：`ai/design_system/uiux/cinnaglass/journal-room-object/book-implementation.md`
     - [x] 书页竖直翻动与连续翻阅（2026-09-07）：同目录 `turn-implementation.md`；「阅读时雨与场景不停播」已定
     - [ ] **书本实景确认**：静态美术与翻页等待用户实景审美/体验确认（工程检查通过 ≠ 逐像素复刻）
     - [ ] **书本后续动态**：从桌面拿起/收回、羽毛笔交互；Safari/低端设备、低带宽端点图片与真实花园验收
-    - [x] B 苔绿双页日记（2026-09-06 批准实装，视觉后被用户否决，由棕皮旧纸取代）：`ai/design_system/uiux/research/cinnaglass-history/journal-book-directions/implementation.md`
+    - [x] B 苔绿双页日记（2026-09-06 批准实装，视觉后被用户否决，由棕皮旧纸取代）：`arts/archive/v2-companion-house/ui-research/journal-book-directions/implementation.md`
     - [x] timeline v2「夜灯下的回忆」（2026-09-06 实装，已成历史视觉）：同上级目录 `timeline-night-glass/implementation.md`
 - [x] 聊天气泡浮对方角色头顶（2026-08-10）：新消息 → 头顶气泡 4.5s，贴纸显示「发来一张贴纸」（`WorldPage.tsx`）
 - [ ] 兜底提示重定：为触屏/键盘提供可发现入口；旧「全部热点亮轮廓」与已否决方案冲突，不再照旧实施（`ai/design_system/uiux/interaction.md` §5；活物专项另处理）
@@ -146,7 +169,7 @@
 ## 📦 Phase R3 — 桌宠模式
 
 - [ ] 全屏透明层 + `setIgnoreMouseEvents(forward:true)` 点击穿透（角色可点、空白穿透）
-- [ ] 桌宠小窗构图：两张脸近景 + ≤2 热点 + 1 气泡（概念图 03，独立构图不缩放主界面）
+- [ ] 置顶小窗构图：TA 的半身 + 戳一下 / 语音 / 放大 / 静音（对坐概念 UI-pip，取代旧「两张脸」构图）
 - [ ] 已知坑回归清单：透明窗不可 resize / DevTools 变不透明 / 数位板驱动干扰 / 升级 Electron 必测穿透
 
 ## 🌱 Phase R4 — 远期（孵化中，细节见 PROJECT.md Brain Dump）
@@ -175,7 +198,7 @@
 ## ✅ 已完成
 
 - **v1 全部成果**（2026-06~08，Discord-like 时代）：Supabase 后端 + auth + timeline/照片墙/聊天真后端 + 世界属性 + cinnaglass UI；服役部分见 `ai/PROJECT.md`「已有功能资产」
-- **配色光照递进定稿 + UI Design System 建册**（2026-08-07/08，D-9~D-12）：历史决策 `ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md`，全局外观规则已被后续裁决覆盖
+- **配色光照递进定稿 + UI Design System 建册**（2026-08-07/08，D-9~D-12）：历史决策登记簿（2026-09-27 随换期删除，仍生效的聊天规则见 `ai/features/chat.md`），全局外观规则已被后续裁决覆盖
 - **产品重定位启动包**（2026-08-09）：`ai/reboot/` 四文档，用户拍板转向放置陪伴
 - **文档体系 v2 重构**（2026-08-09）：三件套 PROJECT/TODO/STYLE 上线；STYLE 现已降为兼容入口，设计正文在 `ai/design_system/`
 - **Features 体系恢复**（2026-08-22）：`7c93c3c` 误删 `ai/features/`（违背 tech-plan §119），已原文恢复 timeline/chat/supabase 三份并加状态头

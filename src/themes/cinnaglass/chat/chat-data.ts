@@ -7,11 +7,9 @@
 // it composes are use-message-store / use-world-stream / use-account-stream / use-emote-library /
 // use-optimistic-send. Its path, its exports and useChatThreads' return face are unchanged, so no
 // consumer had to move.
-// Decisions cited below live in the historical register
-// ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-2 draft rules :11,
-// D-7 message states :53); the current register is ai/design_system/uiux/cinnaglass/decisions.md.
-// B-3 (sticker send) is a mockup clause in
-// ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html.
+// Decisions cited below (D-2 draft rules, D-7 message states) are kept in ai/features/chat.md
+// (仍然生效的聊天交互规则); the current UI register is ai/design_system/uiux/cinnaglass/decisions.md.
+// B-3 (sticker send) came from a first-iteration picker mockup, retired 2026-09-27 (see git history).
 import { useCallback, useMemo, useRef } from 'react';
 import { acceptFriend, removeFriendship, sendFriendRequest } from '@/lib/friends';
 import { Logman } from '@/lib/logman';

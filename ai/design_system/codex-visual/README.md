@@ -1,13 +1,12 @@
 # 视觉工作台
 
-调研、候选、比稿和待确认原型放在这里；`uiux/` 只保留定稿规范与选定展示。原始工具批次默认本地忽略，明确保留的比稿目录单独入库，普通回归报告仍写在会话中。
+这里只放**还在等决定**的比稿和原型；定下来的内容写进常驻文档，`uiux/` 只放定稿的 UI 规范。
 
-当前看样：[环境圆钮 A/B 与信纸](ui-unification/climate-controls.html) · [圆钮方案、截图与动效](ui-unification/climate-orbits.md) · [上一轮与暮色信纸](ui-unification/climate-controls.md)。用户已选择 A 双圆收纳并接入正式 Ambience；B 双轨与旧文字双入口留为历史对照。最新规范及实装截图/动图见 [当前主题](../uiux/cinnaglass/ui-system.md#时辰--天气与新来信)。夜晚金亮信纸已接入产品；暮色适配待反馈。信纸复用 SunlitLetter，历史合并入口仅作对照。
+| 待确认                                         | 内容                                                                                                                       |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [暮色信纸](ui-unification/climate-controls.md) | 暮色时辰下的玫瑰金 / 灰紫信纸适配，本地已做出，等用户看样；[可操作页面](ui-unification/climate-controls.html) 复用正式组件 |
 
-已选定材质的原始比稿（这里的浮窗是历史候选，不代表当前产品）：[连续玻璃壳](ui-unification/standard-board.html) · [新旧并排比较](ui-unification/material-comparison.html)。通过项目开发服务打开 HTML，不使用 `file://` 打开 React 样板。
+- [climate-controls.html](ui-unification/climate-controls.html) 依赖 [climate-orbits](ui-unification/climate-orbits.md) 的 B 双轨组件做对照，所以两者一起保留；A 双圆已是正式规范，见 [当前主题](../uiux/cinnaglass/ui-system.md#时辰--天气与新来信)。通过项目开发服务打开 HTML，不用 `file://`。
+- 已定案的比稿不留在这里：上一期的 UI 比稿在 `arts/archive/v2-companion-house/ui-research/`，场景方向比稿在 `arts/archive/v3-direction-proposals/`。
 
-2026-09-20 用户批准连续边框与随时辰内衬，已扩展到本地 A/B 与边缘页面；[当前规范与真实组件截图](../uiux/cinnaglass/ui-system.md#b-任务与功能弹窗) 为准。当前对照保持同一圆角内衬与磨砂外壳，只比较固定炭灰和随时辰受色：黄昏暖灰棕、暮色灰紫、夜晚深暖灰。外壳配方不变，内衬仍完全不透明；这是一组随现有 mood 切换的艺术调色，不是真实光照采样。设置支持关闭/重开、三时辰切换、输入与失败保留；账户和音乐仅作本页交互预览。
-
-![固定炭灰与随时辰受色的阅读内衬，实际浏览器同条件截图](ui-unification/material-comparison/overview.png)
-
-实现：[组件](ui-unification/standard-board.tsx)、[样式](ui-unification/standard-board.css)。真实房间/导航/天气复用产品组件，本页仍为隔离原型；产品已有共享 UI 基础与实际迁移，日记依赖未改。最终规范以 [设计系统](../design-system.md) 为准，确认后只晋升选定设计，不把整个候选批次移进 `uiux/`。
+**原始批次**：`codex-visual` 技能默认把每次委派的产物写到本目录下的时间戳文件夹（如 `20260925-091923Z/`），这些草稿、未选图和日志被 `.gitignore` 挡在仓库外。有价值的定稿图、提示词和注记整理后放进 concept 或常驻文档再入库。

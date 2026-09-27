@@ -1,6 +1,6 @@
 // use-world-chat-bubble.ts — how a new message reaches the world before it
 // reaches a chat surface: a red pip on the rail, and a short-lived speech
-// bubble over her character (ai/codex-visual/20260811-044310Z/codex-report.md
+// bubble over her character (arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md
 // M2; world-first chat in ai/design_system/uiux/interaction.md). Split out of
 // WorldPage (shell-structure-review.md §2.2 S5).
 import { useEffect, useRef, useState } from 'react';

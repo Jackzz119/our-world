@@ -152,7 +152,7 @@ Supabase 官方定价（查证自 supabase.com/pricing）：
 
 本章只留仍然有效的裁决与索引；被否决的视觉方案不再在此展开，实现细节各归其设计文档。
 
-**仍然生效的结构性裁决**（2026-09-05 Codex 比稿 + Claude 复核，原报告与最终决策见 `ai/codex-visual/20260905-215344Z/codex-report.md` 与 `decisions-v2.md`）：
+**仍然生效的结构性裁决**（2026-09-05 Codex 比稿 + Claude 复核，原报告与最终决策见 `arts/archive/v2-companion-house/codex-batches/20260905-215344Z/codex-report.md` 与 `decisions-v2.md`）：
 
 1. **界面名叫「我们的日记」**，代码内部 `timeline` 命名不动。
 2. **拆掉三 tab**：日记本 / 相框 / 许愿罐各开各的 ObjectSurface，三张始终挂载、互不复用容器（切物件不重置日记草稿、滚动与照片详情）；rail 与「更多」只是效率入口。原因：v1 把三件物件塞进一个近全屏弹窗，盖住整间书房、两只角色完全不可见。

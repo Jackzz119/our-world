@@ -1,0 +1,9 @@
+Edit ONLY diagram annotations on SECOND attached image B7-leaders-pass.png. FIRST attached B1-keyart.png is the locked scene/character reference. Preserve all artwork, typography wording, four time previews, composition, color and dimensions. No scene repaint or aesthetic changes.
+
+The board has nine correct exact labels. Keep all nine. Keep the existing correct SKY ("天空") and CLOUD ("云层") endpoints. Restore ONE clear subtle white cloud drift arrow pointing right on the cloud plane, from approximately x=751,y=228 to x=898,y=267 in the 1672x941 image. It must read as a motion arrow, not another leader line.
+
+Make three existing label leader endpoints unambiguous:
+- "远景城市": route to a visible tall distant city building at x=647,y=285, ABOVE the bridge, on the skyline plane.
+- "河与列车": route to the lit yellow TRAIN atop the arch bridge at x=715,y=370, so it unmistakably points to the river-and-train plane. Keep the already drawn dashed train-motion arrow on that plane.
+- "近景楼群": route to the dense low near buildings at x=573,y=455, separate from the bridge and window edge.
+Use thin white leaders and small endpoint dots. Lines may be routed around the exposed top of the relevant plane so the target is not hidden. Do not touch other annotations. All nine layer labels and all four time labels remain exactly unchanged and legible. Deliver the SAME complete landscape board with only these diagram annotation fixes.

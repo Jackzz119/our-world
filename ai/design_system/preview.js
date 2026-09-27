@@ -1,11 +1,12 @@
 // Show the real media registered in maintained Markdown; never copy design values into this viewer.
 const catalogs = {
     world: [
-        ['整体实景', 'design-system.md'],
-        ['三时辰场景原画', 'scene.md'],
-        ['双角色与表情素材', 'character.md'],
-        ['物件与已有动态', 'props.md'],
-        ['环境效果来源', 'effects.md']
+        ['对坐 · 整体', 'design-system.md'],
+        ['十个房间与书房', 'scene.md'],
+        ['人物、姿势与互动', 'character.md'],
+        ['桌上物件', 'props.md'],
+        ['光影与天气', 'effects.md'],
+        ['对坐深化稿全部概念图', 'concept/across-the-table/across-the-table.md']
     ],
     ui: [
         ['UI 在场景中的关系', 'uiux/uiux.md'],

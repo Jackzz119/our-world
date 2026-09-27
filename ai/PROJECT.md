@@ -1,60 +1,61 @@
 # Our World 项目文档
 
-> v2「放置陪伴小屋」，2026-08-09 产品重定位（决策依据与调研归档见 `ai/reboot/`）。
+> 第三期「对坐」，2026-09-25 选定、09-27 定为开发方向（概念与决定见 `ai/design_system/concept/across-the-table/`）。上一期「放置陪伴小屋」的重定位依据仍在 `ai/reboot/`，美术资料在 `arts/archive/v2-companion-house/`。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-21（手机安全区/键盘/横竖屏布局与组件回归完成；真机待验收，暮色信纸待看样，日记本冻结）
+> 最后更新：2026-09-27（换期：设计系统翻新、上一期资料移档；书房第一期开发开始）
 
 ## 产品定位（PRD）
 
-**Our World 是一间开着就行的放置陪伴小屋**——一个网页（之后可能用 Electron 打包成桌面 app）：固定镜头的温馨房间里，两只 Q 版长耳小狗代表一对情侣，各自坐在自己的位置上看书、写字、打盹；窗外光照跟着真实时间晨昏流转；两人的回忆（时间线/相册/聊天）藏在房间的每一件家具里，点击打开。
+**Our World 是一张和你在乎的人对坐的桌子**——一个网页（之后打包成桌面 app，可置顶小窗）加手机端：镜头就是你，桌子对面坐着对方的半身形象，前景是你自己的手和杯子；每个人的屏幕上都是对方，是同一张桌子的两头。对方真实在做什么（在线、输入中、离开、睡着），对面的角色就在做什么。聊天、回忆（日记、照片墙）和音乐是功能；房间里的物件是两个人之间的小仪式。
 
 四个产品要素：
 
-1. **美丽场景**——水彩暖光的房间，时辰光照 + 可切天气，放置产品的第一竞争力是画面
-2. **ASMR 声音**——雨声/壁炉/lofi 分层音景
-3. **简单个人管理**——时钟·闹钟、日历·约会、心愿单
-4. **爱人回忆组件**——timeline 日记、照片墙、实时聊天（v1 已全部接真后端）
+1. **对坐的场景**——二次元 CG 厚涂的半身角色 + 有景深和实景光源的房间，时辰与天气会变，画面是长期挂着的第一竞争力
+2. **对面是真人**——角色的每个主动动作都来自对方的真实状态或 TA 亲手留下的东西（录音、便条、送来的咖啡），不是 AI 陪伴
+3. **房间里的仪式**——一个房间 = 一个功能 + 一个小游戏：倒一杯咖啡给对方、拉灯、落针放歌、一起养花；结果留在对方那边，最后变成回忆
+4. **回忆与聊天**——timeline 日记、照片墙、实时聊天（v1 起已接真后端）
 
-### 差异化与市场依据（详见 `ai/reboot/market-research.md`）
+### 差异化与市场依据
 
-- 品类成功产品（Spirit City、Rusty's、Desktop Mate）全是单人+宠物结构；「两人共享陪伴空间 + 真实共享数据」无人交付
-- **presence 即陪伴**：瞥一眼就知道「她在不在、在干嘛」——在线角色回归座位，离线空位留痕（留灯/杯子/围巾）
-- **网页优先**：零安装、发链接即达；桌面壳与桌宠是增量演进
+- AI 陪伴很多，**真人陪伴**没人做好：同类竞品要么是单人加宠物（Spirit City、Desktop Mate），要么是和虚拟角色恋爱（Love and Deepspace）；这里的「角色」就是你的另一半或朋友本人
+- **presence 即陪伴**：瞥一眼就知道 TA 在不在、在干嘛；在线时 TA 坐在对面，离开时空椅留痕（外套、还冒热气的杯子）
+- **网页优先，三端同一视觉**：手机竖屏像一通画出来的视频通话，桌面置顶小窗就是 TA 的脸；桌宠是增量演进
+- 市场调研的原始依据见 `ai/reboot/market-research.md`（上一期写成，结论仍适用）
 
 ### 形态路线
 
 ```
-R0 验证周   Document PiP 置顶小窗 + Lively 贴壁纸实验（不写壳，验证「常驻」体感）
-R1 网页 MVP 场景 + 角色 + presence + 三大回忆组件挂物件（当前重点）
-R2 Electron 无边框置顶窗/贴边小窗 + 托盘 + 开机自启（桌宠方向 Electron 优先，Tauri 缺 forward API）
-R3 桌宠模式 全屏透明层 + 点击穿透，桌面缩小仅见两只角色（概念图 03）
-R4 远期     养成/益智小游戏/更多房间/Steam 公开发行（Brain Dump）
+R1 网页第一期  书房：男女角色、基本动作、在场状态、台灯/咖啡/唱片机等个别物件交互，手机与电脑同步（当前重点）
+R2 桌面壳       Electron 无边框置顶小窗 + 托盘 + 开机自启；小窗构图 = TA 的半身
+R3 更多房间     唱片角、暗房、深夜书房、温室……十个房间按功能分批；大厅（亮着的窗）承载多人与多空间
+R4 远期         自定义形象与声音名片完善、多人小桌、公开发行
 ```
 
-### 陪伴设计三铁律（违反即返工）
+### 陪伴设计铁律（违反即返工）
 
 1. **零成本在场**：应用开着形象就在；任何要「经营」的 presence 会让更忙的一方先放弃
-2. **只做正反馈**：不做惩罚/连坐/排行——「你在的时候我们都变好」
-3. **互动长在房间和物件上，不长在信息流里**：两个人没有 feed 存在的理由
+2. **只做正反馈**：不做惩罚、连坐、排行、连续打卡——植物不会死
+3. **互动长在房间和物件上，不长在信息流里**；场景不做 UI 功能的重复入口
+4. **对面是真人**：只翻译应用内已知的真实状态；人不在就空椅留痕，不装作在；「睡着了」只由本人主动设置
 
-### MVP 定义（大耳狗风格，两人自用）
+### 第一期定义（书房，两人自用）
 
-1 个房间模板（书房，概念图 01/02 构图）× 4 时辰 + 双角色状态机（idle/看书/写字/喝咖啡/打盹 + 在线/离线）+ Supabase Realtime Presence + 三物件热点（书桌→timeline、相框→照片墙、电话→聊天）+ 聊天气泡浮头顶 + ASMR 音景 + 极窄玻璃 rail。**不在 MVP**：语音、共享音乐同步、心愿单/日历后端、房间装扮、多房间、养成、小游戏。
+翻新现有书房为对坐书房（雨夜城市窗边桌），先做她的视角（登录她的账号，对面是阿屿），再做他的视角；男女角色的基本动作（看书、抬眼、写字、喝一口、酣睡、摸头与戳一下反应、离开留痕）；台灯拉绳、倒一杯咖啡、唱片机落针、日记本入口；手机与电脑布局同步。细节与进度见 `ai/features/study-room/study-room.md`。**不在第一期**：声音名片存储、共享同听、必须双方同时在线的互动（掌心相贴、碰杯）、其他房间、大厅、自定义形象。
 
 ## 核心体验
 
-- **主画面**：近景固定机位单房间，无 WASD、无自由镜头、无漫游，所有交互都是点击
-- **物件 → 功能映射**：书桌/日记本→时间线、相框→照片库、挂钟→时钟闹钟、唱片机→音乐、许愿罐→心愿单（当前实装五热点，以 `study-room.ts` / `ai/design_system/props.md` 为准）；规划：转盘电话→聊天、挂历→日历纪念日、对方角色→轻互动
-- **房间模板架构**（见 `ai/design_system/scene.md`）：房间 = 时辰底图 + 座位锚点 + 热点 + 窗格 + 钟面 + 活物件；当前三档 mood，四档为目标；角色动画独立于房间
-- **presence**：在线=角色回归座位+单绿点；离线=空位留痕；远期行为翻译（对方打字→角色执笔、翻相册→拿相框）
-- **体验循环**：开着 → 对方上线角色醒来 → 瞥一眼 → 轻互动/气泡 → 点书桌记录 → 点相框回看 → 窗外晨昏流转
+- **主画面**：第一人称固定机位，对方半身居中，桌子挡住下半身；前景是自己的手和杯子；只做小幅视差，无自由镜头、无漫游，所有交互都是点击 / 按住
+- **物件是仪式**：台灯拉绳开关灯、咖啡壶倒一杯给对方、唱片机落针放歌、日记本打开日记；完整功能仍从导航进入（物件与功能的对应以 `study-room.ts` / `ai/design_system/props.md` 为准）
+- **对方的状态**：在线看书、输入中低头写字、离开时空椅留痕、主动设为睡着时趴桌酣睡；戳一下、摸头随时能做，对方回来也能看到
+- **房间模板**：房间 = 时辰底图（台灯开 / 关）+ 对面座位 + 桌面前沿 + 前景 + 活物件 + 互动热区；角色与房间解耦（见 `ai/design_system/scene.md`）
+- **体验循环**：开着 → 对方上线坐到对面 → 瞥一眼 → 戳一下 / 倒杯咖啡 / 聊一句 → 一起听歌、翻日记 → 窗外晨昏流转
 
 ## 技术栈
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
-- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/compositor.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击。**活物件（living props）**：家具从底图分离后自己动，hover 只改参数不换图；唱片机已按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转。分层原则、闸门数值与教训见 `ai/design_system/research/living-props.md`（唯一技术正文），物件规范 `ai/design_system/props.md`，进度 `ai/TODO.md`「活物件」；装配器 `scripts/build-turntable-parts.py` → `public/rooms/study/parts/`，量测 `scripts/fit-disc-ellipse.py`，原画真源 `arts/rooms/study/source/`，装配输入与产物清单 `arts/rooms/study/generated/`（见其 README）
-- **角色层**: 双帧透明立绘（睁/闭眼）+ 程序复合变形（呼吸/摇摆/眨眼），与场景共享光照（参数见 `ai/design_system/character.md`）；动作丰富化再评估 Rive/Spine（`ai/reboot/tech-plan.md` §2）
+- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/compositor.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击；唱片机活物件按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转（装配器 `scripts/build-turntable-parts.py`，量测 `scripts/fit-disc-ellipse.py`）。**运行中的书房原画、唱片机部件与这套座位布局都是上一期实装**，书房第一期（`ai/features/study-room/study-room.md`）改造成对坐分层：台灯开 / 关底图、对面座位、桌面前沿、前景、互动热区。活物件制作规则见 `ai/design_system/props.md`，上一期原画源在 `arts/archive/v2-companion-house/rooms/study/`
+- **角色层**: 现为上一期的双犬双帧立绘（睁 / 闭眼）+ 程序复合变形（呼吸 / 摇摆 / 眨眼），与场景共享光照；第一期换成对方的半身姿势图（竖版透明、同画布同锚点）+ 状态机，制作方式见 `ai/design_system/character.md`；动作变多时再评估 Spine / Live2D
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
 - **实时架构**: 隔离的 2 人房间，Supabase Realtime 足够，无需权威游戏服务器
@@ -136,22 +137,18 @@ src/
 
 ## Brain Dump / 待探索想法
 
-- **养成系统**：两人重叠在线时段自动养植物/宠物，长成落进 timeline 成共同记忆（Forest 正反馈版）
-- **益智小游戏**：房间内触发的双人轻游戏
-- **更多房间类别**：模板化量产（卧室/厨房/阳台/咖啡角…），房间商店/解锁
-- **小纸条**：忙碌中给对方桌上放纸条/咖啡，对方回来才看到（异步轻互动）
-- **重逢时刻**：两人先后收工，角色碰头 + 今日共处时长小结
-- **行为翻译进阶**：对方打字→角色执笔、翻相册→角色拿相框
-- **异地时差**：窗外切「对方那边的天色」
-- **离线生长**：几天没开，回来墙上多了拍立得、植物长高
-- 角色互动 emote（笑/抱抱/挥手）、语音消息、年度回顾、AI 回忆标签、纪念日场景装饰
-- 远期公开化：Steam（免费+装扮 DLC，SteamID 静默映射 Supabase 账号）、WE/Lively 只读壁纸输出口
+对坐深化稿已经把上一期的大部分想法落成了房间玩法（温室养花、棋牌室桌游、蜡封信与小纸条、列车的异地窗景、离线生长的回忆墙），见 `ai/design_system/concept/across-the-table/across-the-table.md`。还没有归宿的：
+
+- **重逢时刻**：两人先后收工，一起伸个懒腰 + 今日共处时长小结
+- **行为翻译进阶**：对方翻相册 → 角色拿起相框；对方在听歌 → 戴上耳机轻轻点头
+- 年度回顾、AI 回忆标签、纪念日场景装饰
+- 远期公开化：Steam（免费 + 装扮 DLC，SteamID 静默映射 Supabase 账号）、WE / Lively 只读壁纸输出口
 
 ## 开工红线（本项目专属的强制前置动作）
 
 协议文件（`CLAUDE.md` / `AGENTS.md`）只写通用规则；下面是本项目自己的红线，每次开工必读：
 
-1. **设计入口唯一**：整体风格与素材位置以 `ai/design_system/design-system.md` 及其链接的常驻 Markdown 为准；UI/UX 以 `ai/design_system/uiux/uiux.md`、主题规范 `uiux/cinnaglass/ui-system.md`、当前决定 `uiux/cinnaglass/decisions.md` 为准。`ai/STYLE.md` / `ai/UX.md` 只是旧链接兼容桩；`concept/` 与 `research/` 里的「定稿」是当时状态，不能覆盖现行决定。
+1. **设计入口唯一**：整体风格与素材位置以 `ai/design_system/design-system.md` 及其链接的常驻 Markdown 为准；设计系统只放最新一期，上一期在 `arts/archive/`（只留一期，不作参考源）；UI/UX 以 `ai/design_system/uiux/uiux.md`、主题规范 `uiux/cinnaglass/ui-system.md`、当前决定 `uiux/cinnaglass/decisions.md` 为准。`ai/STYLE.md` / `ai/UX.md` 只是旧链接兼容桩；`concept/` 与 `research/` 里的「定稿」是当时状态，不能覆盖现行决定。
 2. **UI/UX 工作流**：先读设计系统与 Monet 要求 → `ui-tailor` 设计/展示/验证 → 视觉完成件交 `monet` 审核 → 决定与素材同步回设计系统。**2026-09-20 目录裁决：比稿、调研和待确认原型统一归 `ai/design_system/codex-visual/`，`uiux/` 只保留已敲定规范与选定展示；方向认可与细节定稿、设计批准与产品实现分别记录。** 技能本体仍在 `ai/jaSkills/`。没有独立 agent 时加载相应 skill 切换职责并标注「同 agent 自审」，不虚构委派；普通回合报告在 session 里给，不逐轮建 report 文件。已有混合目录随 UI 标准板合并后迁移并修正引用。
 3. **日记本（C 类物件 UI）冻结**：阅读/写作/详情/书本资产/翻页/遮罩/布局及其共享规则本 session 不动；改 `surfaces/`、`journal/`、公共 `.modal` / `.paper` 前必须证明范围只覆盖 A/B 类（`ai/features/ui-system/ui-system.md`）。当前导航是 A 类悬浮 UI 基准。
 4. **代码与结构规范**：`ai/project-audit/CONVENTIONS.md`（分层依赖方向、命名、复用/拆分、注释、格式化、脚本依赖）；写代码前看 `.prettierrc` 与 `eslint.config.js`，配置优先于现状；`pnpm exec tsc -b` 必须保持零错误。
@@ -163,15 +160,15 @@ src/
 
 - 技能唯一正本 `ai/jaSkills/`（`.claude/skills`、`.agents/skills`、`.codex/skills` 都是指向它的链接）；通用技能名册在根协议「Skill 系统」节，本项目专属登记在 `ai/JASKILL.md`。
 - 根 `CLAUDE.md` / `AGENTS.md` 不入库（个人化，真源在货架），入库副本在 `ai/jaAgents/`；新检出跑 `shelf init --agents claude,codex` 或 `bash ai/jaSkills/custom-skill/scripts/sync-worktree.sh` 还原；桌面版 worktree 按 `.worktreeinclude` 复制两份协议。
-- 项目角色入口：UI Tailor → `ai/design_system/uiux/uiux.md`；Monet → `ai/design_system/design-system.md`；视觉制作/第二意见优先 `codex-visual`（新产物落 `ai/design_system/codex-visual/`，gitignored；历史比稿归档在 `ai/codex-visual/`）；原画分层 `art-relighting` 为用户级 Codex skill，见 `ai/design_system/research/art-relighting.md`。
+- 项目角色入口：UI Tailor → `ai/design_system/uiux/uiux.md`；Monet → `ai/design_system/design-system.md`；视觉制作/第二意见优先 `codex-visual`（原始批次落 `ai/design_system/codex-visual/<时间戳>/`，gitignored；定稿图、提示词与制作注记整理进 concept 或常驻文档后入库）；原画分层 `art-relighting` 为用户级 Codex skill，上一期的使用记录在 `arts/archive/v2-companion-house/research/art-relighting.md`。
 
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
-- `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/` 构想与否决档案；`codex-visual/` 新调研与比稿；`research/`、`uiux/research/` 历史来源
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，开发中）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/across-the-table/` 当期对坐概念（77 张图、制作注记与出图 brief）；`codex-visual/` 待确认的比稿
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
 - `ai/project-audit/` — 项目审核记录（`INDEX.md` 入口）与 `CONVENTIONS.md`，普通开发不需加载审核证据
 - `ai/jaSkills/` 技能正本 · `ai/JASKILL.md` 专属技能登记 · `ai/jaAgents/` 协议入库副本与 Multica 引导脚本 · `.shelf.json` 货架账本
-- `ai/codex-visual/` — `codex-visual` 技能产出的比稿/审核原始归档（12 个批次）；生产用生成原件在 `arts/`，使用中资料以常驻设计系统为准
+- `arts/archive/` — 上一期（放置陪伴小屋）的概念、调研、比稿、Codex 批次与原画档案，以及对坐一期落选的方向比稿；只留一期，下次换期整期删除
