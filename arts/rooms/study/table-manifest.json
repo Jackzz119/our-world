@@ -1,0 +1,226 @@
+{
+  "plates": {
+    "night-on-dry": "/rooms/study/table/plate-night-on-dry.webp",
+    "night-off-dry": "/rooms/study/table/plate-night-off-dry.webp",
+    "night-on": "/rooms/study/table/plate-night-on.webp",
+    "night-off": "/rooms/study/table/plate-night-off.webp",
+    "twilight-on": "/rooms/study/table/plate-twilight-on.webp",
+    "twilight-off": "/rooms/study/table/plate-twilight-off.webp",
+    "golden-on": "/rooms/study/table/plate-golden-on.webp"
+  },
+  "parts": {
+    "fg-xiaoman": {
+      "src": "/rooms/study/table/fg-xiaoman.webp",
+      "box": {
+        "x": 307,
+        "y": 724,
+        "w": 907,
+        "h": 300
+      }
+    },
+    "mug-ayu": {
+      "src": "/rooms/study/table/mug-ayu.webp",
+      "box": {
+        "x": 942,
+        "y": 582,
+        "w": 134,
+        "h": 126
+      }
+    },
+    "jacket-ayu": {
+      "src": "/rooms/study/table/jacket-ayu.webp",
+      "box": {
+        "x": 451,
+        "y": 366,
+        "w": 604,
+        "h": 290
+      }
+    },
+    "tonearm": {
+      "src": "/rooms/study/table/tonearm.webp",
+      "box": {
+        "x": 1214,
+        "y": 593,
+        "w": 150,
+        "h": 70
+      }
+    },
+    "lamp-chain": {
+      "src": "/rooms/study/table/lamp-chain.webp",
+      "box": {
+        "x": 229,
+        "y": 479,
+        "w": 27,
+        "h": 80
+      }
+    },
+    "vinyl": {
+      "src": "/rooms/study/table/vinyl.webp",
+      "size": 1254
+    }
+  },
+  "alpha": [
+    {
+      "file": "fg-her-hands.png",
+      "alpha": true,
+      "transparent_share": 0.916,
+      "soft_edge_share": 0.0042
+    },
+    {
+      "file": "prop-ayu-mug.png",
+      "alpha": true,
+      "transparent_share": 0.992,
+      "soft_edge_share": 0.0012
+    },
+    {
+      "file": "prop-ayu-hoodie.png",
+      "alpha": true,
+      "transparent_share": 0.917,
+      "soft_edge_share": 0.0034
+    },
+    {
+      "file": "part-tonearm.png",
+      "alpha": true,
+      "transparent_share": 0.998,
+      "soft_edge_share": 0.0011
+    },
+    {
+      "file": "part-lamp-chain.png",
+      "alpha": true,
+      "transparent_share": 1.0,
+      "soft_edge_share": 0.0005
+    },
+    {
+      "file": "part-vinyl.png",
+      "alpha": true,
+      "transparent_share": 0.216,
+      "soft_edge_share": 0.0075
+    },
+    {
+      "file": "ayu-reading-open.png",
+      "alpha": true,
+      "transparent_share": 0.557,
+      "soft_edge_share": 0.013
+    },
+    {
+      "file": "ayu-reading-closed.png",
+      "alpha": true,
+      "transparent_share": 0.556,
+      "soft_edge_share": 0.0119
+    },
+    {
+      "file": "ayu-glance-open.png",
+      "alpha": true,
+      "transparent_share": 0.556,
+      "soft_edge_share": 0.0122
+    },
+    {
+      "file": "ayu-glance-closed.png",
+      "alpha": true,
+      "transparent_share": 0.555,
+      "soft_edge_share": 0.0119
+    },
+    {
+      "file": "ayu-writing-open.png",
+      "alpha": true,
+      "transparent_share": 0.56,
+      "soft_edge_share": 0.0126
+    },
+    {
+      "file": "ayu-writing-closed.png",
+      "alpha": true,
+      "transparent_share": 0.559,
+      "soft_edge_share": 0.012
+    },
+    {
+      "file": "ayu-sip-open.png",
+      "alpha": true,
+      "transparent_share": 0.58,
+      "soft_edge_share": 0.0136
+    },
+    {
+      "file": "ayu-asleep.png",
+      "alpha": true,
+      "transparent_share": 0.596,
+      "soft_edge_share": 0.0132
+    },
+    {
+      "file": "ayu-patted.png",
+      "alpha": true,
+      "transparent_share": 0.535,
+      "soft_edge_share": 0.0149
+    },
+    {
+      "file": "ayu-poked.png",
+      "alpha": true,
+      "transparent_share": 0.556,
+      "soft_edge_share": 0.0112
+    }
+  ],
+  "base": {
+    "w": 1536,
+    "h": 1024
+  },
+  "partner": {
+    "canvas": {
+      "w": 1377,
+      "h": 1015
+    },
+    "crop": [
+      86,
+      5
+    ],
+    "poses": {
+      "reading": {
+        "open": "/characters/ayu/reading-open.webp",
+        "closed": "/characters/ayu/reading-closed.webp"
+      },
+      "glance": {
+        "open": "/characters/ayu/glance-open.webp",
+        "closed": "/characters/ayu/glance-closed.webp"
+      },
+      "writing": {
+        "open": "/characters/ayu/writing-open.webp",
+        "closed": "/characters/ayu/writing-closed.webp"
+      },
+      "sip": {
+        "open": "/characters/ayu/sip-open.webp"
+      },
+      "asleep": {
+        "open": "/characters/ayu/asleep-open.webp"
+      },
+      "patted": {
+        "open": "/characters/ayu/patted-open.webp"
+      },
+      "poked": {
+        "open": "/characters/ayu/poked-open.webp"
+      }
+    },
+    "blink_rejected": [
+      "sip"
+    ],
+    "registration": {
+      "matches": 72,
+      "inliers": 27,
+      "scale": 0.57417,
+      "rotation_deg": 0.407,
+      "offset": [
+        296.64,
+        89.96
+      ],
+      "residual_px_median": 1.68,
+      "residual_px_p90": 2.54
+    },
+    "seat_origin": [
+      346.02,
+      92.83
+    ],
+    "seat_scale": 0.57417,
+    "reading_box_in_canvas": [
+      1,
+      39,
+      1365,
+      1012
+    ]
+  }
+}

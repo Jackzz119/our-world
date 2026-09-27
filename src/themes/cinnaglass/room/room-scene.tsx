@@ -9,6 +9,7 @@ import type { HotspotOpenEvent, RoomMood, RoomWeather } from '@/themes/cinnaglas
 import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/compositor';
 import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
+import { TableRoomScene } from '@/themes/cinnaglass/room/table-room-scene';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
@@ -58,13 +59,22 @@ type RoomSceneProps = {
 /** Collapse the app's weather vocabulary down to what the compositor can render. */
 const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
 
+// The across-the-table study replaces this painted room when it is complete
+// (ai/features/study-room/study-room.md ST-10); until then it runs in dev only, behind ?table.
+const TABLE_ROOM = import.meta.env.DEV && new URLSearchParams(window.location.search).has('table');
+
+/** The world scene: the across-the-table study under ?table in dev, otherwise the painted study. */
+export function RoomScene(props: RoomSceneProps) {
+    return TABLE_ROOM ? <TableRoomScene {...props} /> : <PaintedRoomScene {...props} />;
+}
+
 /**
  * Mounts one Pixi Application for the component's whole life and hands prop
  * changes to the scene handle; the scene itself is never rebuilt. The overhead
  * presence tags and message bubbles are DOM, positioned from a 600ms poll of
  * the seat anchors.
  */
-export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
+function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
     const holderRef = useRef<HTMLDivElement | null>(null);
     const sceneRef = useRef<SceneHandle | null>(null);
     const appRef = useRef<Application | null>(null);

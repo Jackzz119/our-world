@@ -172,6 +172,104 @@ export type RoomTemplate = {
     props?: RoomProps;
 };
 
+/* ------------------------------------------------------------------ */
+/* Across-the-table rooms (third iteration, ai/features/study-room/)   */
+/* ------------------------------------------------------------------ */
+
+/** The two launch avatars. The viewer sees the partner's avatar across the table and their own sleeves in front. */
+export type AvatarId = 'ayu' | 'xiaoman';
+
+/**
+ * What the partner is doing. Only real signals (or the dev simulator) may set
+ * it: away and offline show the empty chair, asleep is set by the partner.
+ */
+export type PartnerState = 'reading' | 'writing' | 'away' | 'offline' | 'asleep';
+
+/** Every pose an avatar ships; all share one canvas so they swap in place. */
+export type PoseId = 'reading' | 'glance' | 'writing' | 'sip' | 'asleep' | 'patted' | 'poked';
+
+/** One avatar's pose art. `closed` is the blink frame, present only on eyes-open poses. */
+export type AvatarPoses = {
+    /** Pose canvas size in px; every pose file has exactly this size. */
+    canvas: { w: number; h: number };
+    poses: Record<PoseId, { open: string; closed?: string }>;
+};
+
+/**
+ * Where the partner sits: the pose canvas lands on the plate with one scale
+ * and offset, measured by the assembly script, never eyeballed.
+ */
+export type PartnerSeat = {
+    /** Plate px where the pose canvas' top-left corner lands. */
+    origin: PxPoint;
+    /** Plate px per pose-canvas px. */
+    scale: number;
+    /** Pose-canvas px: pressing and stroking here pats, and overhead UI anchors to its top. */
+    head: PxRect;
+    /** Pose-canvas px: a tap here pokes. */
+    body: PxRect;
+    /** Pose-canvas px of the torso's bottom middle; breathing and sway pivot here. */
+    pivot: PxPoint;
+    /**
+     * Pose-canvas px around the head, over every pose, so speech never covers
+     * the face (ai/design_system/uiux/uiux.md): `left` / `right` sit at eye
+     * level just clear of the hair, `faceRight` is the x where the face ends
+     * on the viewer's right (a phone's bubble may cover hair up to it), and
+     * `shoulder` is the y the name tag drops to.
+     */
+    beside: { left: PxPoint; right: PxPoint; faceRight: number; shoulder: number };
+};
+
+/** Where steam rises from a cup: the rim's centre and width, in plate px. */
+export type CupRim = { rim: PxPoint; width: number };
+
+/** One hour's plate with the lamp on and, when the lamp can switch that hour, off. */
+export type LampPlates = { on: string; off?: string };
+
+/** A still part painted onto the plate's coordinates (full-plate canvas, trimmed box). */
+export type PlatePart = { src: string; box: PxRect };
+
+/**
+ * The desk lamp: its pull chain sways, and pulling it switches the plates
+ * between lit and unlit. The pull target is the room's `lamp` hotspot.
+ */
+export type LampSpec = {
+    chain: PlatePart;
+    /** Plate px of the chain's top, where it hangs from and swings around. */
+    pivot: PxPoint;
+};
+
+/** An across-the-table room template: plates per hour and lamp state, the partner's seat and the table's parts. */
+export type TableRoomTemplate = {
+    id: string;
+    /** Natural size of every plate; all plate-space coordinates use it. */
+    base: { w: number; h: number };
+    /**
+     * Plate per hour: lamp on, optionally off (no off plate = the lamp cannot
+     * switch that hour), and optionally a `rain` pair with rain painted on the
+     * glass. Runtime rain animates over whichever plate shows.
+     */
+    plates: Partial<Record<RoomMood, LampPlates & { rain?: LampPlates }>>;
+    moodFallback: Record<RoomMood, RoomMood>;
+    window: WindowSpec;
+    seat: PartnerSeat;
+    /** The viewer's own hands and mug in front, per the viewer's avatar (sleeves differ). */
+    foreground: Partial<Record<AvatarId, PlatePart>>;
+    /** What the partner leaves on the table when they get up: their mug stays, their jacket hangs on the chair. */
+    traces: { mug?: PlatePart; jacket?: Partial<Record<AvatarId, PlatePart>> };
+    /** Cups that steam: the partner's on the table, the viewer's in their hands. */
+    steam?: { partner?: CupRim; viewer?: CupRim };
+    lamp?: LampSpec;
+    /**
+     * How a screen that is not 3:2 crops the plate. Narrow screens keep plate
+     * column `x` centred (the partner's face); wide screens keep rows from
+     * `top` down (just above the partner's head), so as much of the table and
+     * the viewer's hands as fits stays in view below.
+     */
+    crop: { x: number; top: number };
+    hotspots: HotspotSpec[];
+};
+
 /** Resolve the art path for a mood, following the fallback chain once. */
 export function resolveRoomArt(room: RoomTemplate, mood: RoomMood): string {
     const direct = room.art[mood];
