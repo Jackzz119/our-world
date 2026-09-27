@@ -25,6 +25,29 @@
     border-radius: 99px;
     white-space: nowrap;
 }
+/* Across the table the partner faces the camera, so speech and the name tag sit beside the head
+   (table-room-scene.tsx): the bubble just above eye level, the tag centred on the shoulder line. */
+.room-bubble.ui-surface:is([data-side='right'], [data-side='edge']) {
+    transform: translate(0, calc(-100% - 4px));
+}
+.room-bubble.ui-surface[data-side='left'] {
+    transform: translate(-100%, calc(-100% - 4px));
+}
+/* A phone's bubble hugs the right edge in the narrow space beside the face, so it wraps to two lines. */
+.room-bubble.ui-surface[data-side='edge'] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    border-radius: 16px;
+}
+.presence-tag.ui-surface[data-side='right'] {
+    transform: translate(0, -50%);
+}
+.presence-tag.ui-surface[data-side='left'] {
+    transform: translate(-100%, -50%);
+}
 .presence-tag b {
     font-weight: 500;
     overflow: hidden;
@@ -68,4 +91,18 @@
 .room-scene-feedback p {
     color: var(--ui-muted);
     line-height: 1.6;
+}
+
+/* Dev-only stand-in for real presence while the across-the-table study is built (table-room-scene.tsx).
+   Compound selector for the same reason as the bubble: .ui-surface sets position: relative. */
+.table-dev.ui-surface {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    z-index: 5;
+    display: grid;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    transform: translateY(-50%);
 }
