@@ -2,7 +2,7 @@
 
 > 第三期「对坐」，2026-09-25 选定、09-27 定为开发方向（概念与决定见 `ai/design_system/concept/across-the-table/`）。上一期「放置陪伴小屋」的重定位依据仍在 `ai/reboot/`，美术资料在 `arts/archive/v2-companion-house/`。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-27（换期：设计系统翻新、上一期资料移档；书房第一期开发开始）
+> 最后更新：2026-09-27（换期：设计系统翻新、上一期资料移档；书房第一期第一个能跑的切片完成，开发环境 `?table`）
 
 ## 产品定位（PRD）
 
@@ -54,7 +54,7 @@ R4 远期         自定义形象与声音名片完善、多人小桌、公开�
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
-- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/compositor.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击；唱片机活物件按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转（装配器 `scripts/build-turntable-parts.py`，量测 `scripts/fit-disc-ellipse.py`）。**运行中的书房原画、唱片机部件与这套座位布局都是上一期实装**，书房第一期（`ai/features/study-room/study-room.md`）改造成对坐分层：台灯开 / 关底图、对面座位、桌面前沿、前景、互动热区。活物件制作规则见 `ai/design_system/props.md`，上一期原画源在 `arts/archive/v2-companion-house/rooms/study/`
+- **场景层**: PixiJS v8 合成器 `src/themes/cinnaglass/room/compositor.ts`，吃房间模板 `room-types.ts` / `study-room.ts`：底图×mood（golden/twilight/night）交叉淡化、雨层 mask 到窗格、真实走时挂钟、角色层、光照配方 mood×weather（weather 仅 sun/rain，雪待做）、星星提示、热点点击；唱片机活物件按「死物吃画里的光，活物吃场景的光」分层并做透视真旋转（装配器 `scripts/build-turntable-parts.py`，量测 `scripts/fit-disc-ellipse.py`）。**运行中的书房原画、唱片机部件与这套座位布局都是上一期实装**。对坐书房是另一套合成器 `table-scene.ts`（模板 `study-table.ts`），开发环境加 `?table` 由 `room-scene.tsx` 切换过去：整幅底图 × 时辰 × 台灯开 / 关 × 晴 / 雨、对方姿势层（`partner-layer.ts` + 导演 `partner-state.ts`）、杯子蒸汽 `steam-layer.ts`、前景的手、宽屏 / 窄屏取景；素材由 `scripts/build-study-table.py` 装配，细节与进度见 `ai/features/study-room/study-room.md`，上线替换后删除上一期那套。活物件制作规则见 `ai/design_system/props.md`，上一期原画源在 `arts/archive/v2-companion-house/rooms/study/`
 - **角色层**: 现为上一期的双犬双帧立绘（睁 / 闭眼）+ 程序复合变形（呼吸 / 摇摆 / 眨眼），与场景共享光照；第一期换成对方的半身姿势图（竖版透明、同画布同锚点）+ 状态机，制作方式见 `ai/design_system/character.md`；动作变多时再评估 Spine / Live2D
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -73,7 +73,7 @@ src/
 └── themes/cinnaglass/
     ├── cinnaglass.css · materials.css       # C/兼容材质与基础主题；reset 在 src/index.css
     ├── ui/              # ui-system.css（A/B 材质与控件）· task-dialog · use-ui-environment
-    ├── room/            # compositor（Pixi 合成器入口）+ textures · homography · lighting · fade-queue · rain-layer · clock-layer · character-layer · affordance · turntable-prop · room-scene（React 壳）· room-types · study-room
+    ├── room/            # compositor（Pixi 合成器入口）+ textures · homography · lighting · fade-queue · rain-layer · clock-layer · character-layer · affordance · turntable-prop · room-scene（React 壳）· room-types · study-room；对坐书房：table-scene · table-room-scene · study-table · partner-layer · partner-state · steam-layer
     ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card · world-surfaces · use-world-chat-bubble
     ├── journal/         # 日记本实体与翻页（C 类物件 UI，冻结）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
     ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· composer · photo-wall · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
@@ -165,7 +165,7 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，开发中）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，第一个切片可跑，5 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/across-the-table/` 当期对坐概念（77 张图、制作注记与出图 brief）；`codex-visual/` 待确认的比稿
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）

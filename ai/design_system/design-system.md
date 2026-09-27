@@ -45,21 +45,22 @@
 
 ## 实装现状（2026-09-27）
 
-- **书房第一期开发中**：翻新现有书房，先做她的视角（对面是阿屿，前景是她的奶油色针织袖口），再做他的视角。范围与进度见 [书房功能文档](../features/study-room/study-room.md)。
+- **书房第一期：第一个能跑的切片已完成**（开发环境加 `?table` 打开，线上仍是上一期书房）。她的视角：对面是阿屿，前景是她的奶油色针织袖口；三档时辰 × 晴 / 雨、台灯拉绳、五种在场状态、戳一下 / 摸头 / 喝一口的反应、两只杯子的蒸汽，桌面与手机同步。实装截图见 [场景](scene.md#实装截图) 与 [角色](character.md#在场状态)；他的视角、倒咖啡仪式和唱片机还没做，范围与进度见 [书房功能文档](../features/study-room/study-room.md)。
 - **运行中的书房原画和双犬角色属于上一期**（放置陪伴小屋），书房替换完成后删除；它们的源素材已移档。
 - **Cinnaglass UI 是当前 UI**：导航、双圆时辰 / 天气、聊天窄卡、音乐、纪念卡、金亮信纸、任务弹窗与手机布局继续沿用；UI 文档里的实装截图背景仍是上一期书房，书房翻新后重拍。
 
 ## 实际素材位置
 
-| 内容                         | 位置                                                                                               | 状态                                  |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| 对坐概念图                   | [concept/across-the-table/img](concept/across-the-table/img/)                                      | 当期参考，77 张全分辨率 JPG           |
-| 出图 brief 与 Codex 制作注记 | [concept/across-the-table/notes](concept/across-the-table/notes/)                                  | 画风锁、人物设定、逐图拆层与体积估算  |
-| 书房与角色生产素材           | `arts/rooms/study/`、`arts/characters/<人物>/`                                                     | 第一期开发中产出                      |
-| 运行时素材                   | [public/](../../public/)                                                                           | 书房与双犬为上一期，替换中；UI 为当前 |
-| UI 素材与样式                | [arts/ui](../../arts/ui/)、[public/ui](../../public/ui/)、[主题源码](../../src/themes/cinnaglass/) | 当前                                  |
-| 上一期档案                   | [arts/archive/v2-companion-house](../../arts/archive/v2-companion-house/README.md)                 | 放置陪伴小屋（2026-08-09～09-24）     |
-| 方向比稿档案                 | [arts/archive/v3-direction-proposals](../../arts/archive/v3-direction-proposals/scene-concepts.md) | 并肩、灯火小楼两个落选方向与比较      |
+| 内容                         | 位置                                                                                               | 状态                                                                                            |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 对坐概念图                   | [concept/across-the-table/img](concept/across-the-table/img/)                                      | 当期参考，77 张全分辨率 JPG                                                                     |
+| 出图 brief 与 Codex 制作注记 | [concept/across-the-table/notes](concept/across-the-table/notes/)                                  | 画风锁、人物设定、逐图拆层与体积估算                                                            |
+| 书房与角色生产素材           | `arts/rooms/study/`、`arts/characters/ayu/`                                                        | 第一期：7 张底图 + 1 张几何母版、6 个部件、阿屿 7 个姿势（采用的原图、Codex 报告与 manifest）   |
+| 运行时素材                   | [public/](../../public/)                                                                           | `rooms/study/table/`、`characters/ayu/` 为当前；旧书房底图与双犬为上一期，ST-10 删除；UI 为当前 |
+| 书房实装截图                 | [study-verification](study-verification/)                                                          | 2026-09-27 开发环境拍摄，隐藏开发面板                                                           |
+| UI 素材与样式                | [arts/ui](../../arts/ui/)、[public/ui](../../public/ui/)、[主题源码](../../src/themes/cinnaglass/) | 当前                                                                                            |
+| 上一期档案                   | [arts/archive/v2-companion-house](../../arts/archive/v2-companion-house/README.md)                 | 放置陪伴小屋（2026-08-09～09-24）                                                               |
+| 方向比稿档案                 | [arts/archive/v3-direction-proposals](../../arts/archive/v3-direction-proposals/scene-concepts.md) | 并肩、灯火小楼两个落选方向与比较                                                                |
 
 ## 维护规则
 
