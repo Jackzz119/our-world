@@ -1,0 +1,34 @@
+# Rooms II · 内置 imagegen 提示词记录
+
+所有参考为用户指定 A 系列原图；仅内置 image_gen 生成。本文件记录实际提示词，图像弱点与验收见 codex-report.md。
+
+实际 referenced_image_paths：keyart 使用以下 A1、A5、A6；play 使用本目录 R-records-keyart.png、A5、A1。
+
+- `D:/Repo/our-world/.claude/worktrees/dynamic-scene-concept-design-0b6ef0/ai/design_system/codex-visual/scene-concepts/A-across-the-table/20260925-091923Z/A1-keyart.png`
+- `D:/Repo/our-world/.claude/worktrees/dynamic-scene-concept-design-0b6ef0/ai/design_system/codex-visual/scene-concepts/A-across-the-table/20260925-091923Z/A5-avatar-creator.png`
+- `D:/Repo/our-world/.claude/worktrees/dynamic-scene-concept-design-0b6ef0/ai/design_system/codex-visual/scene-concepts/A-across-the-table/20260925-091923Z/A6-interactions.png`
+
+## R-records-keyart.png
+
+```text
+Use case: stylized-concept. Produce ONE finished landscape illustration, widest largest supported landscape approximately 1672x941, for Our World couples companion scene concept A "Across the Table". Asset: R-records-keyart.png. Reimagine the supplied references in a distinct intimate small vinyl listening shop at dusk; do NOT copy their apartment or UI.
+REFERENCES: A5 is exact male Ayu identity and rendering reference (ignore all UI). A1 is exact fine-lined high-end 2D anime CG rendering, warm skin and cream knit sleeves reference (ignore its reflected people). A6 reinforces tactile objects only.
+CAMERA: first person seated at a walnut listening counter, your body never visible except Xiaoman's delicate hands and oversized CREAM CABLE KNIT CARDIGAN cuffs along lower foreground. Exactly ONE visible person: Ayu seated directly across, waist hidden by counter, half-body portrait occupying center at conversational distance, face prominent not tiny. He is mid 20s, same dark navy-black tousled hair, thin round glasses, warm calm smile and charcoal hoodie as A5. Natural eye contact toward the camera.
+ACTION: Ayu holds up a square album sleeve below his face toward us, not covering his face, both hands anatomically correct visibly holding the sleeve edges. Sleeve has refined violet/peach abstract geometric artwork ONLY, no text or brand. A small cream sticky note on its corner has a tiny HAND-DRAWN HEART doodle as the wordless dedication (no letters). Warm headphones around his neck; neon reflects lightly along glasses but eyes stay clear.
+ROOM: bespoke walnut-lined record shop with tall vinyl shelving, record crates beside the counter, listening equipment and glowing warm table lamp. Large shop window on left reveals violet and orange twilight sky and distant low city silhouettes; on right background a small mounted pink neon sign shaped like a vinyl record, no lettering, visibly a physical wall fixture not a halo or interactive marker. Counter right features elegant real turntable with distinct single tonearm and black vinyl; viewer's second pair of headphones resting lower foreground beside her hands and cup. Additional album sleeves abstract art only.
+LIGHT/PALETTE: dusk violet, neon pink, amber practical lamp, rich walnut. Cinematic practical warm key plus pink/cool rim, detailed but subdued bokeh background, gentle bloom, painterly soft cel gradients, clean fine line art, exquisite hair highlights and amber skin bounce. High-end 2D anime CG at key-visual quality, semi-real anime proportions, not photorealistic or chibi, original character.
+FRAME: foreground hands and record crate edges, midground partner/counter, background shop distinctly separated, comfortable uncluttered face silhouette, breathable composition, lower body entirely occluded.
+FORBIDDEN: text, logos, watermark, UI panels, arrows, glowing rings/outlines around objects, markers, extra people or faces, mirrors/reflections of people, extra limbs, duplicated hands, existing franchise styling. Fine line art is normal, no interaction highlight strokes. No split panels.
+```
+
+## R-records-play.png
+
+```text
+Use case: stylized-concept. ONE landscape full-bleed 1672x941 approximately, largest supported landscape. Asset R-records-play.png. Make the tactile GAMEPLAY MOMENT in exactly the same little record shop and art style as the supplied records key art: walnut counter and shelving, big dusk violet-orange window left, warm brass dome lamp right and small pink physical vinyl-shaped neon sign on right wall. No writing on any background sleeves.
+Reference roles: generated records keyart = room continuity; A5 = exact Ayu identity; A1 = high-end anime illustration finish and Xiaoman cream knit sleeve texture. No UI from references.
+First-person seated camera is Xiaoman. Show only her foreground hands and large CREAM KNIT CARDIGAN cuffs. Exactly one character seated across at conversational distance, Ayu, mid20s, dark tousled navy-black hair, thin round glasses, charcoal hoodie, same face as A5. Half body, lower body hidden by counter. His large face and gentle absorbed smile stay fully unobstructed. Ayu now WEARS the headphones over both ears.
+Coordinated tactile action: at lower left, viewer Xiaoman's left hand steadies a walnut crate of records while right thumb and index finger separate sleeve edges, lifting ONE abstract peach-violet illustrated square album halfway out; album remains clearly inside the crate and face not occluded. Make both foreground hands anatomically natural and distinct. Tiny sticky note with a hand-drawn heart only on this sleeve, no text. Across on right counter, Ayu's anatomically correct right hand delicately holds the tonearm's small cue finger-lift, lowering stylus onto outer grooves of ONE black vinyl record on a beautiful wooden turntable. The turntable has exactly one tonearm connected to a visible pivot on its rear-right. Record shows subtle concentric motion glint. His other hand rests naturally on table near cup, not operating anything. Clear physical relationship fingers→cue→stylus→vinyl; no floating tonearm or extra needles.
+Viewer also listening: a thin headphone cable enters frame from below viewer's camera/cream sleeve region and joins listening jack, her worn headphones are outside this first-person view. No extra face, no mirror or viewer portrait. Two listeners implied naturally, not draw literal headsets at camera.
+Mood: shared music discovery. Counter below face has space between crate left and turntable right. Strong warm practical key, soft dusky violet fill, restrained pink rim reflected on glasses, fine clean linework, warm skin, luscious detailed hair, painterly cel gradients, soft bloom, 2D semi-real anime gacha key visual quality. Exactly the same original Ayu identity as A5, never chibi, never photoreal.
+No scene captions, words, letters, numbers, logos, UI, glowing interaction outlines/rings/halos, pin markers, arrows, or split panels. Neon on background wall is the specified physical shop sign, not an interactive cue. No extra people or human reflections. Ensure four hands total maximum, two belong to Ayu, two to viewer.
+```

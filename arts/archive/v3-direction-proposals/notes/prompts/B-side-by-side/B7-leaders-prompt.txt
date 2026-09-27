@@ -1,0 +1,7 @@
+Precisely edit ONLY TWO leader lines in the SECOND attached image, B7-label-pass.png, using FIRST attached B1-keyart.png as locked identity/style reference. Keep EVERY ART PIXEL, all nine label words, headings, all four right thumbnails, resolution and layout otherwise unchanged. This is a minimal correction.
+
+The exact label "天空" currently connects down onto the violet CLOUDS. That is wrong. Move ONLY its thin white leader line and endpoint to the exposed smooth PLAIN SKY GRADIENT ABOVE the cloud layer. In the 1672x941 reference, target the sky's clear peach-blue strip around x=757,y=155. The arrow already at x700,y158 can be left in place, but don't overlap the label line.
+
+The exact label "云层" currently connects down onto the distant SKYLINE/mountain layer. That is wrong. Move ONLY its thin white leader line and endpoint UP to the rich purple-peach CLOUD BANK around x=789,y=217. This is the cloud plane with its rightward drift arrow. Route the leader from "云层" rightward then up so it touches clouds, not the mountainous city below. Keep a distinct white endpoint dot on cloud paint.
+
+Do not change other labels or leader lines. Do not redraw art or alter light/characters. Exactly the same board with corrected SKY and CLOUD pointer endpoints.

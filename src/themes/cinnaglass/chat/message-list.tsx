@@ -3,7 +3,7 @@
 // glass-dust canvas the delete effect draws on. The hub mounts it with key={convId}, so an open
 // edit box or reaction picker cannot survive a conversation switch — that remount is the reset.
 // Split out of channel-screen.tsx. Message states / hover bar / reactions / delete particles follow
-// D-7 in ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53; the read avatar
+// D-7 in ai/features/chat.md (仍然生效的聊天交互规则); the read avatar
 // renders in DMs ONLY (D-7-3 修订 — ai/features/chat.md:61).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EmotePicker } from '@/themes/cinnaglass/chat/emote-picker';

@@ -2,8 +2,8 @@
 // <style> rather than a .css file: cinnaglass.css is imported globally, so moving these rules into
 // a stylesheet would change the cascade order and let the shared tokens win over `.chsc-*`.
 // Split out of channel-screen.tsx so the hub file reads as behaviour only.
-// Block comments inside cite D-7 clause numbers from the historical register named in the hub's
-// file header (ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53).
+// Block comments inside cite D-7 clause numbers, kept in ai/features/chat.md
+// (仍然生效的聊天交互规则).
 export const ChannelStyles = () => (
     <style>{`
   .chat-task {

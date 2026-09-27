@@ -5,10 +5,9 @@
 // paste-URL. The panel uses the adopted opaque reading liner and shared controls.
 // Specs: ai/features/chat.md §三「emote-picker.tsx / emoji-data.ts」(subtask EMO-4 not yet
 // backfilled — see ai/features/chat.md:13);
-// mockup 方案 B: ai/design_system/uiux/research/cinnaglass-history/emoji-picker.html (B-1 / B-3);
-// D-7 / D-9 live in the historical register
-// ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md (D-7 :53, D-9 :80); the current
-// register is ai/design_system/uiux/cinnaglass/decisions.md.
+// Layout follows the first-iteration picker mockup 方案 B (B-1 / B-3), retired 2026-09-27 (see git
+// history); D-7 lives in ai/features/chat.md (仍然生效的聊天交互规则) and the current UI register is
+// ai/design_system/uiux/cinnaglass/decisions.md.
 import { useRef, useState } from 'react';
 import { IClose, IPlus } from '@/themes/cinnaglass/icons';
 import '@/themes/cinnaglass/chat/emote-picker.css';

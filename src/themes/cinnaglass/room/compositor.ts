@@ -264,7 +264,7 @@ export async function buildScene(
             const seat = room.seats.find((s) => s.id === seatId);
             if (!seat) return null;
             // ~22px of air above the hand-tuned visual head top (see
-            // ai/codex-visual/20260811-044310Z/codex-report.md H1: the tag must
+            // arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md H1: the tag must
             // read as "her status", not a wall toast); toGlobal already yields
             // logical (CSS px) stage coordinates
             return root.toGlobal({

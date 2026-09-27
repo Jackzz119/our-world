@@ -64,4 +64,4 @@
 
 **仍未涵盖**：Safari/移动真机软键盘、系统缩放/200% 文本、屏幕阅读器/高对比度、低端设备 GPU/内存与常驻性能、双端断网恢复、新房间实景和日记内部。待办在 TODO，不用历史错误推断当前代码失败，也不把模拟测试写成真机通过。
 
-原始证据仍留在 [2026-09-11 实景目录](../../design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/)；其中 [runtime.json](../../design_system/uiux/cinnaglass/ui-unification/audit-2026-09-11/runtime.json) 与旧三时辰、widgets、settings、mobile 图只用于前后对照。原审计仅含隔离 Chrome 代表路径与有限焦点探针；图中隐藏聊天/账号文字是隐私处理，不是 UI 空白缺陷。当前截图由 design system 常驻主题页登记，普通回归过程不逐轮存 report。
+原始证据已随 2026-09-27 换期移档到 [2026-09-11 实景目录](../../../arts/archive/v2-companion-house/ui-research/audit-2026-09-11/)；其中 [runtime.json](../../../arts/archive/v2-companion-house/ui-research/audit-2026-09-11/runtime.json) 与旧三时辰、widgets、settings、mobile 图只用于前后对照。原审计仅含隔离 Chrome 代表路径与有限焦点探针；图中隐藏聊天/账号文字是隐私处理，不是 UI 空白缺陷。当前截图由 design system 常驻主题页登记，普通回归过程不逐轮存 report。

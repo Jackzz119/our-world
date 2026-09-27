@@ -1,0 +1,11 @@
+Use case: text-localization / precise-object-edit. Edit the SECOND attached image (B7-first-pass.png, the exploded scene production board). The FIRST attached image B1-keyart.png remains the locked reference for scene and character identity; every scene element must stay consistent with B1.
+
+Make a small targeted correction of the production board. Preserve the beautiful exploded painted planes, two seated rear-view characters, painterly style, right-side 2x2 time grid, typography quality, composition and landscape resolution. Do not redesign or regenerate the characters or environment.
+
+REQUIRED CORRECTION: The board currently has eight layer labels and is missing the ninth label "天空". Add a clearly readable exact "天空" label with a thin clean leader line pointing to the plain blue-to-peach gradient sky plane BEHIND the clouds and BEFORE the separate sunshaft overlay. There must now be EXACTLY NINE distinct layer labels in total, each once, connected to the correct content: "室内前景", "角色 Spine", "窗框与雨", "近景楼群", "河与列车", "远景城市", "云层", "天空", "光束层". Ensure nine labels and nine planes. Use enough breathing room: the upper center free area can accommodate the sky label to the left of the sky plane. Keep "光束层" pointing only to the sunlight overlay plane.
+
+SECOND SMALL CORRECTION: Add one thin subtle rightward motion arrow ALONG the cloud plane so cloud drift is shown, separate from the existing train-path arrow. Retain the existing train-path arrow. No bright neon, glowing object rings or pins.
+
+TEXT CLEANUP: Keep the two main headings "场景分层" and "四时之景", the exact nine layer labels above, and the four exact time labels "清晨", "正午", "黄昏", "雨夜". Remove ALL extra tiny descriptive sentences below layer labels, below time labels, decorative slogans and handwritten English in the lower gap. This board should have only these concise clean headings and labels. No paragraphs. The Our World handwritten logo may remain small at lower left. Use exact readable Chinese, no malformed glyphs.
+
+Keep all four time thumbnails and the original artwork intact. Output ONE final landscape board.

@@ -17,8 +17,8 @@
     --navy-deep: #141d33;
 
     /* ══ 光照递进 scheme (codex design, user-approved 2026-08-07) ══
-     Design source: ai/design_system/uiux/research/cinnaglass-history/mood-progression-codex/
-     (codex-report.md + golden/twilight/night-1440x900.png)
+     Design source: the first-iteration mood-progression study (codex-report.md + 1440x900 shots),
+     retired from the design system 2026-09-27; see git history for the originals.
 
      LUMINANCE FOLLOWS THE LIGHT. The shell brightness is driven by
      [data-mood] — the in-world time of day — forming one continuous ladder:
@@ -91,7 +91,7 @@
     /* The ground the floating chrome composites against. It travels with the
      hour AND must stay a gradient: a flat fill gives backdrop-filter nothing
      to work with and the shell collapses into a plain panel
-     (ai/codex-visual/20260811-044310Z/codex-report.md, High #3). */
+     (arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md, High #3). */
     --app-ground: linear-gradient(168deg, #73798d 0%, #5f657c 58%, #42485c 100%);
 
     /* --glass-* aliases: what component CSS actually writes */
@@ -192,7 +192,7 @@ body {
     /* alphas lowered from the first pass: at .78/.74/.72 this tier read as a
      LIGHT theme and the step down to night became a cliff. It has to sit
      between its neighbours, not next to golden
-     (ai/codex-visual/20260811-044310Z/codex-report.md, High #1). */
+     (arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md, High #1). */
     --shell-bg: linear-gradient(
         168deg,
         rgba(226, 229, 238, 0.66) 0%,
@@ -507,7 +507,7 @@ select {
 }
 /* a raised focus shell separates from ordinary chrome by its rim, not by
    going brighter — at night that rim turns cool blue
-   (ai/codex-visual/20260811-044310Z/codex-report.md, Med #2) */
+   (arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md, Med #2) */
 .modal.glass {
     border-color: var(--shell-focus-border);
 }

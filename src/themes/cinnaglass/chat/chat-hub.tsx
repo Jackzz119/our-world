@@ -3,8 +3,8 @@
 // left column switches between every conversation convsFor() yields, plus a pinned friends entry.
 // Threads are shared with the stage-side ChatCard — same store, two experiences.
 // Specs: ai/features/chat.md §三; message states / hover bar / reactions / delete particles follow
-// D-7 in ai/design_system/uiux/research/cinnaglass-history/ux-decisions.md:53 (historical register;
-// the current one is ai/design_system/uiux/cinnaglass/decisions.md). The read cursor avatar renders
+// D-7 in ai/features/chat.md (仍然生效的聊天交互规则; the current UI register is
+// ai/design_system/uiux/cinnaglass/decisions.md). The read cursor avatar renders
 // in DMs ONLY (D-7-3 修订: 频道不显示已读 — ai/features/chat.md:61).
 // This file is now the shell only: it resolves convId and lays the hub out. Its CSS is in
 // channel-screen.styles.tsx, the switcher in conv-nav.tsx, the message flow in message-list.tsx,

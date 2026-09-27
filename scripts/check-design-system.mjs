@@ -6,10 +6,13 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const designRoot = path.join(root, 'ai/design_system');
 const failures = [];
+// Timestamped codex-visual wrapper output (drafts, logs, raw prompts) is gitignored and never a design document.
+const rawBatch = /^\d{8}-\d{6}Z(-\d+)?$/;
 const walk = (dir) =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap((item) => {
         const target = path.join(dir, item.name);
-        return item.isDirectory() ? walk(target) : [target];
+        if (item.isDirectory()) return rawBatch.test(item.name) ? [] : walk(target);
+        return [target];
     });
 const slash = (value) => value.replaceAll('\\', '/');
 let checkedLinks = 0;

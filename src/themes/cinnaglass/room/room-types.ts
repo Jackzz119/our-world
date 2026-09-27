@@ -40,7 +40,7 @@ export type PxEllipse = {
 
 /**
  * Turntable prop: a painted platter that really spins (living props, see
- * ai/design_system/research/living-props.md).
+ * ai/design_system/props.md; full v2 record in arts/archive/v2-companion-house/research/living-props.md).
  *
  * Separated layers (scripts/build-turntable-parts.py): the base art ships
  * as the machine with an EMPTY well (no record, no arm). The record is the

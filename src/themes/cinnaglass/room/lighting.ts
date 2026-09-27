@@ -25,7 +25,7 @@ export type LightRecipe = {
 /**
  * The lighting recipe for every mood and weather; the only place light is
  * tuned. Past tuning rounds are written up in
- * ai/codex-visual/20260811-044310Z/codex-report.md.
+ * arts/archive/v2-companion-house/codex-batches/20260811-044310Z/codex-report.md.
  */
 export const RECIPES: Record<RoomMood, Record<RoomWeather, LightRecipe>> = {
     golden: {

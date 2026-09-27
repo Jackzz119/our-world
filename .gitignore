@@ -42,8 +42,7 @@ __pycache__/
 !.claude/launch.json
 .codex/
 .agents/
-# 🔴 别在这里加裸的 `SKILL.md` 或 `codex-visual/`：会把技能真源 ai/jaSkills/*/SKILL.md 与归档 ai/codex-visual/ 一起吞掉
-# Raw visual batches stay local; curated proposals are tracked beside the design system.
-/ai/design_system/codex-visual/*
-!/ai/design_system/codex-visual/README.md
-!/ai/design_system/codex-visual/ui-unification/
+# 🔴 别在这里加裸的 `SKILL.md`：会把技能真源 ai/jaSkills/*/SKILL.md 一起吞掉
+# Raw codex-visual batches (timestamped wrapper output: drafts, unpicked images, logs) stay local;
+# everything curated in the design system is tracked.
+/ai/design_system/**/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]Z*/

@@ -1,0 +1,131 @@
+﻿{
+    "final_count":  10,
+    "expected_count":  10,
+    "all_final_1672x941":  true,
+    "final_png_bytes":  22903930,
+    "files":  [
+                  {
+                      "file":  "LW-01-dawn.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2322329,
+                      "sha256":  "a59a3a454ad8aa8db00a2e9efa931526a3b4f85b8dbedba5f6d6fc586f8ece3a",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-02-overcast.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2168130,
+                      "sha256":  "7dfc849bcc24292a767eb77f82136a253012b0f53a83b6fbcef3a70bcddd7b3f",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-03-golden.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2326626,
+                      "sha256":  "a00cd0eeff53300b245ed68fd0eb6052f4b9b2e14762b859ce8eb6c92af669af",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-04-bluehour.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2155268,
+                      "sha256":  "c0ebc449ea9fbaf9f14e44270ce4957fbbfe96becf5878899c37655dd46032e9",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-04-bluehour-initial.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2195660,
+                      "sha256":  "e7036e2332553b795056bc8991e24a1d77769268f309935f3c4e512fbffe6177",
+                      "role":  "superseded"
+                  },
+                  {
+                      "file":  "LW-05-storm.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2470027,
+                      "sha256":  "fbd7964872daade979d9a1e683fb73040a8927d74b3600b98e0a75802a291d5d",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-05-storm-initial.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2561487,
+                      "sha256":  "8f8663829542bd3c1e8d1b9ddfacc46aec224ccc4e9152858e0776d5244ff51e",
+                      "role":  "superseded"
+                  },
+                  {
+                      "file":  "LW-05-storm-lighting-initial.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2452068,
+                      "sha256":  "f65fcc6db8a24756d328ce5db2857a00b02baa2c3e545a0cca923dd1544862b9",
+                      "role":  "superseded"
+                  },
+                  {
+                      "file":  "LW-06-snow.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2381032,
+                      "sha256":  "c50b7d664ef226fd41aeda161670a4960cf98b8c9c23836b093f6ab879789373",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-07-spring.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2379826,
+                      "sha256":  "8070e79f68938089317123523b444e84bdade80ce39ddf51f722726c5c81d4ab",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-08-summer.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2180283,
+                      "sha256":  "2b69d1976369c272b399d18e2141dc3642a359e191d83ba3840f5a6a0d6daf6a",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-09-autumn.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2410344,
+                      "sha256":  "0c88e7f351eb4fd60d03f65e48ae4df172d9dd805dc368ad8a7547c24fc71a7a",
+                      "role":  "final"
+                  },
+                  {
+                      "file":  "LW-10-candle.png",
+                      "width":  1672,
+                      "height":  941,
+                      "bytes":  2110065,
+                      "sha256":  "8a3f652b87a63d1803d4e312b337904a995a33f901c0232770f03b1a5b22bdd7",
+                      "role":  "final"
+                  }
+              ],
+    "references":  [
+                       {
+                           "file":  "D:\\Repo\\our-world\\.claude\\worktrees\\dynamic-scene-concept-design-0b6ef0\\ai\\design_system\\codex-visual\\scene-concepts\\A-across-the-table\\20260925-091923Z\\A1-keyart.png",
+                           "sha256":  "3312c2c50263cb926fe72e1882242d48fa25dd3cf3f59ecfb3995dbd87171b22",
+                           "role":  "reference, read only"
+                       },
+                       {
+                           "file":  "D:\\Repo\\our-world\\.claude\\worktrees\\dynamic-scene-concept-design-0b6ef0\\ai\\design_system\\codex-visual\\scene-concepts\\A-across-the-table\\20260925-091923Z\\A2-desktop.png",
+                           "sha256":  "497604d97ed358de9e869b03b9a5778a50d35fc1e4028c2b6d30a6b66b4e59f8",
+                           "role":  "reference, read only"
+                       },
+                       {
+                           "file":  "D:\\Repo\\our-world\\.claude\\worktrees\\dynamic-scene-concept-design-0b6ef0\\ai\\design_system\\codex-visual\\scene-concepts\\A-across-the-table\\20260925-091923Z\\A7-scene-layers.png",
+                           "sha256":  "2c9116fe0c22856dd767a43ba9573c88cdf2c87941911a2d7bb9189af2a51dd0",
+                           "role":  "reference, read only"
+                       }
+                   ],
+    "method":  "System.Drawing decoded dimensions; SHA256 hashes; separate direct visual inspection by root and delegated agents",
+    "note":  "No actual web compression benchmark or animation test performed"
+}
