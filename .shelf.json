@@ -52,9 +52,9 @@
       "localPath": "ai/jaSkills/logman"
     },
     "skills/_common/monet": {
-      "sourceCommit": "9ccd74a8f2a555e331a1022162e321ebe228d7a5",
-      "contentHash": "sha256:b2b6143ae1200b809a05dbe41244e4bca8f469299112a7911cde892a5a70da2a",
-      "pulledAt": "2026-09-20",
+      "sourceCommit": "afda2012b510af6769ff9126ca1786bc1fb7cfbe",
+      "contentHash": "sha256:b1d2c3ffd7959a308f0caf7c36ef783178360cefb52a61af403bbc4e6926e486",
+      "pulledAt": "2026-09-27",
       "localPath": "ai/jaSkills/monet"
     },
     "skills/_common/shelf-ops": {
