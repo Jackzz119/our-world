@@ -83,7 +83,7 @@
     line-height: 1.6;
 }
 
-/* Dev-only stand-in until real presence is wired (room-scene.tsx).
+/* Partner debug panel (development, or ?debug on any build; room-scene.tsx): presence stand-in and reaction triggers.
    Compound selector for the same reason as the bubble: .ui-surface sets position: relative. */
 .table-dev.ui-surface {
     position: absolute;
