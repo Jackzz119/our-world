@@ -70,4 +70,4 @@
 
 **性能**：动态精灵约 40 层加不超过 50 个粒子对 PixiJS 是小数目；真正的预算在纹理内存、滤镜（全场常驻不超过 2 个区域）和部件裁边（否则全屏过度绘制）。所有动画吃同一个场景时钟，失焦暂停。
 
-上一期唱片机的完整制作记录（透视单应、闸门数值、五轮迭代）已移档到 `arts/archive/v2-companion-house/research/living-props.md`；它的代码在 [turntable-prop.ts](../../src/themes/cinnaglass/room/turntable-prop.ts)，装配脚本在 [build-turntable-parts.py](../../scripts/build-turntable-parts.py)，新书房的唱片机改造复用。
+上一期唱片机的完整制作记录（透视单应、闸门数值、五轮迭代）已移档到 `arts/archive/v2-companion-house/research/living-props.md`。它的代码（`room/turntable-prop.ts`、`room/homography.ts`、`scripts/build-turntable-parts.py`、`scripts/fit-disc-ellipse.py`）绑定上一期的素材格式，已随旧书房删除，在 git 历史里（提交 d555f06 及之前）；新唱片机按新书房的唱臂与唱片部件重写时参考其中的透视旋转做法。

@@ -51,4 +51,4 @@
 - **帧率**：有动画时 30fps，静止时降到约 15fps，页面隐藏时暂停；设备像素比上限 1.5。
 - **预算**：常驻滤镜不超过 2 个区域；透明层都要裁边；房间、状态和衣服按需加载。
 
-实现：现有合成器 [compositor.ts](../../src/themes/cinnaglass/room/compositor.ts)、雨层 [rain-layer.ts](../../src/themes/cinnaglass/room/rain-layer.ts)、光照配方 [lighting.ts](../../src/themes/cinnaglass/room/lighting.ts)；第一期的改造进度见 [书房功能文档](../features/study-room/study-room.md)。各状态的拆层与体积估算见 [光影天气制作注记](concept/across-the-table/notes/lighting.md)。
+实现：合成器 [table-scene.ts](../../src/themes/cinnaglass/room/table-scene.ts)、蒸汽 [steam-layer.ts](../../src/themes/cinnaglass/room/steam-layer.ts)、雨层 [rain-layer.ts](../../src/themes/cinnaglass/room/rain-layer.ts)、活物的时辰 tint [lighting.ts](../../src/themes/cinnaglass/room/lighting.ts)；进度见 [书房功能文档](../features/study-room/study-room.md)。各状态的拆层与体积估算见 [光影天气制作注记](concept/across-the-table/notes/lighting.md)。

@@ -1,12 +1,12 @@
 // Isolated check page for the across-the-table study (ai/features/study-room/study-room.md):
-// the real TableRoomScene under the real shell, demo messages, no account and no writes.
+// the real RoomScene under the real shell, demo messages, no account and no writes.
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { Rail } from '@/themes/cinnaglass/shell/rail';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { MusicMini, MomentCard } from '@/themes/cinnaglass/shell/floaters';
-import { TableRoomScene } from '@/themes/cinnaglass/room/table-room-scene';
+import { RoomScene } from '@/themes/cinnaglass/room/room-scene';
 import { useUiEnvironment, useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
 import { useUiViewport } from '@/themes/cinnaglass/ui/use-ui-viewport';
 import { TWEAK_DEFAULTS, type Tweaks } from '@/themes/cinnaglass/tweaks';
@@ -98,7 +98,7 @@ export function StudyTableFixture() {
             data-music-open={music}
         >
             <div className="stage" style={{ position: 'absolute', inset: 0 }}>
-                <TableRoomScene
+                <RoomScene
                     mood={t.mood}
                     weatherKind={weatherKind}
                     bubble={bubble}

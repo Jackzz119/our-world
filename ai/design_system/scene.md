@@ -67,7 +67,7 @@
 
 ### 实装截图
 
-2026-09-27 在开发环境（`?table`）拍摄，线上仍是上一期书房。
+2026-09-27 拍摄（开发环境，隐藏了开发用的对方状态面板）。
 
 | 雨夜：气泡在他脸侧，名牌在肩线                             | 关灯：整间屋子转冷，两只杯子的热气更显眼               |
 | ---------------------------------------------------------- | ------------------------------------------------------ |
@@ -89,4 +89,4 @@
 - Codex 估算单个房间首次进入 4–12 MB（压缩下载，未实测）；下载体积不等于显存，一张 2048×2048 的透明贴图解码后约 16 MiB，所以房间、状态和衣服都按需加载。
 - 逐房间的拆层建议见制作注记：[房间 I](concept/across-the-table/notes/rooms-1.md)、[房间 II](concept/across-the-table/notes/rooms-2.md)、[光影天气](concept/across-the-table/notes/lighting.md)。
 
-生产素材落在 `arts/rooms/study/`（采用的原图、Codex 报告与 `table-manifest.json`），运行时在 `public/rooms/study/table/`。对坐书房的模板是 [study-table.ts](../../src/themes/cinnaglass/room/study-table.ts)，合成器是 [table-scene.ts](../../src/themes/cinnaglass/room/table-scene.ts)，模板里的坐标全部从 manifest 粘贴；上一期的 `study-room.ts` 仍在跑线上书房，随 ST-10 删除。接入进度见 [书房功能文档](../features/study-room/study-room.md)。
+生产素材落在 `arts/rooms/study/`（采用的原图、Codex 报告与 `table-manifest.json`），运行时在 `public/rooms/study/`（含房间选择卡片的缩略图 `thumb.webp`，由装配脚本从晴夜开灯底图缩出）。对坐书房的模板是 [study-table.ts](../../src/themes/cinnaglass/room/study-table.ts)，合成器是 [table-scene.ts](../../src/themes/cinnaglass/room/table-scene.ts)，模板里的坐标全部从 manifest 粘贴。上一期的水彩书房（`study-room.ts`、`compositor.ts` 与它的素材）已删除。接入进度见 [书房功能文档](../features/study-room/study-room.md)。

@@ -1,6 +1,6 @@
 // table-scene.ts — the across-the-table compositor (third iteration, see
-// ai/features/study-room/study-room.md). Same discipline as compositor.ts:
-// each layer is built by its own module, and this file decides the stacking,
+// ai/features/study-room/study-room.md). Each layer is built by its own
+// module, and this file decides the stacking,
 // the tick order and how one mood, weather or lamp change reaches every layer.
 //
 // Layer tree, all in plate px under one root that cover-fits the canvas by
@@ -36,7 +36,7 @@ import type {
 } from '@/themes/cinnaglass/room/room-types';
 import { createAffordance } from '@/themes/cinnaglass/room/affordance';
 import { createFadeQueue } from '@/themes/cinnaglass/room/fade-queue';
-import { RECIPES, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
+import { ACTOR_TINT, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
 import { createPartnerLayer, type HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
 import { createPartnerDirector } from '@/themes/cinnaglass/room/partner-state';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
@@ -264,8 +264,8 @@ export async function buildTableScene(
                 }
             }
         }
-        const rec = RECIPES[mood][weather];
-        const tint = dim > 0 ? mixTint(rec.actorTint, mulTint(rec.actorTint, LAMP_OFF_TINT), dim) : rec.actorTint;
+        const lit = ACTOR_TINT[mood][weather];
+        const tint = dim > 0 ? mixTint(lit, mulTint(lit, LAMP_OFF_TINT), dim) : lit;
         partner.setTint(tint);
         if (mugSprite) mugSprite.tint = tint;
         if (jacketSprite) jacketSprite.tint = tint;
