@@ -11,13 +11,14 @@ import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes/cinnaglass/room/table-scene';
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
 import { AYU_POSES, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
+import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
 const TAG = '[room][web][room-scene]';
 
 // First iteration: her view — the viewer is 小满, 阿屿 sits across (user direction 2026-09-27).
-const CAST: TableCast = { viewer: 'xiaoman', partner: 'ayu', poses: AYU_POSES };
+const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, poses: AYU_POSES };
 
 const PARTNER_STATES: { id: PartnerState; label: string }[] = [
     { id: 'reading', label: '在线·看书' },
@@ -40,6 +41,16 @@ type RoomSceneProps = {
 };
 
 const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
+
+// Draw at the screen's own pixel density (a phone is 3x) so the browser never
+// stretches the canvas a second time, within a pixel budget that keeps big
+// high-density desktop screens cheap.
+const MAX_CANVAS_PX = 8_000_000;
+const sceneResolution = () => {
+    const dpr = window.devicePixelRatio || 1;
+    const budget = Math.sqrt(MAX_CANVAS_PX / Math.max(1, window.innerWidth * window.innerHeight));
+    return Math.max(1, Math.min(dpr, 3, budget));
+};
 
 // CSS px: the room a side needs to hold speech clear of the hair, the margin
 // kept to the screen edge, and the least width a phone's bubble shrinks to.
@@ -114,7 +125,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     resizeTo: holder,
                     backgroundAlpha: 0,
                     antialias: true,
-                    resolution: Math.min(window.devicePixelRatio || 1, 2),
+                    resolution: sceneResolution(),
                     autoDensity: true
                 });
                 inited = true;

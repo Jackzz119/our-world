@@ -275,7 +275,7 @@ try {
         stage.render(0, [{ id: 1, from: 0, to: 2, direction: 1, progress: 0.49 }]);
         const firstImage = stage.element.querySelector('img[data-image-path]');
         const oldUrl = firstImage.src;
-        stage.updateImages(() => `${location.origin}/ui/journal/avatar-blue.webp?renewed=1`);
+        stage.updateImages(() => `${location.origin}/ui/journal/avatar-ayu.webp?renewed=1`);
         const renewed = [...stage.element.querySelectorAll('img[data-image-path]')].every(
             (img) => img.src.endsWith('?renewed=1') && img.alt === '回忆照片'
         );

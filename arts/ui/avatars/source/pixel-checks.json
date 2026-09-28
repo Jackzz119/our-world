@@ -1,0 +1,190 @@
+[
+  {
+    "file": "avatar-xiaoman.png",
+    "width": 512,
+    "height": 512,
+    "channels": 3,
+    "hasAlpha": false,
+    "cornerAlpha": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "cornerBlocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 480,
+        "y": 0,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 0,
+        "y": 480,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 480,
+        "y": 480,
+        "min": 255,
+        "max": 255
+      }
+    ],
+    "alpha0": 0,
+    "alpha255": 262144,
+    "alphaPartial": 0,
+    "innerMin": 255,
+    "innerMax": 255,
+    "innerMean": 255,
+    "bytes": 584092,
+    "sha256": "26ed0c56c31d2a7c091a99af0d70a6f0a815e489b9a64eee27098919bea8f72b"
+  },
+  {
+    "file": "avatar-ayu.png",
+    "width": 512,
+    "height": 512,
+    "channels": 3,
+    "hasAlpha": false,
+    "cornerAlpha": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "cornerBlocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 480,
+        "y": 0,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 0,
+        "y": 480,
+        "min": 255,
+        "max": 255
+      },
+      {
+        "x": 480,
+        "y": 480,
+        "min": 255,
+        "max": 255
+      }
+    ],
+    "alpha0": 0,
+    "alpha255": 262144,
+    "alphaPartial": 0,
+    "innerMin": 255,
+    "innerMax": 255,
+    "innerMean": 255,
+    "bytes": 522616,
+    "sha256": "2333bb324c2eaae13d594850a2404c81273080ddf3a7259e87eb4b58826e6627"
+  },
+  {
+    "file": "journal-avatar-xiaoman.png",
+    "width": 512,
+    "height": 512,
+    "channels": 4,
+    "hasAlpha": true,
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cornerBlocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 480,
+        "y": 0,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 0,
+        "y": 480,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 480,
+        "y": 480,
+        "min": 0,
+        "max": 0
+      }
+    ],
+    "alpha0": 77452,
+    "alpha255": 940,
+    "alphaPartial": 183752,
+    "innerMin": 251,
+    "innerMax": 254,
+    "innerMean": 252.919211057822,
+    "bytes": 516709,
+    "sha256": "53cb5d29bdce26dd319f32076c753313ab3c901e530e39cd81dad199295d34e2"
+  },
+  {
+    "file": "journal-avatar-ayu.png",
+    "width": 512,
+    "height": 512,
+    "channels": 4,
+    "hasAlpha": true,
+    "cornerAlpha": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cornerBlocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 480,
+        "y": 0,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 0,
+        "y": 480,
+        "min": 0,
+        "max": 0
+      },
+      {
+        "x": 480,
+        "y": 480,
+        "min": 0,
+        "max": 0
+      }
+    ],
+    "alpha0": 75655,
+    "alpha255": 944,
+    "alphaPartial": 185545,
+    "innerMin": 251,
+    "innerMax": 254,
+    "innerMean": 252.76182393536885,
+    "bytes": 500396,
+    "sha256": "e7dc20b1cdca27c73535abc88c993cc281c552c27742e072f784bfed018ad698"
+  }
+]

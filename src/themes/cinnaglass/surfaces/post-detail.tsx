@@ -7,6 +7,7 @@ import type { FeedPost, FeedProfile } from '@/types/feed';
 import { IClose } from '@/themes/cinnaglass/icons';
 import { fmtFullDate } from '@/themes/cinnaglass/surfaces/date-format';
 import { avaGrad, type AuthorTone } from '@/themes/cinnaglass/surfaces/author-tone';
+import { PARTNER, profileAvatar, VIEWER } from '@/themes/cinnaglass/cast';
 
 // Circular author avatar: uploaded image, else the first letter of the name,
 // else a dot. The ring colour carries identity (see toneOf).
@@ -24,8 +25,9 @@ function Avatar({
     const name = profile?.display_name?.trim() || '';
     return (
         <span className="ava" style={{ background: avaGrad(authorId), boxShadow: `0 0 0 1px ${ring}` }}>
-            {profile?.avatar_url || fallback ? (
-                <img src={profile?.avatar_url || fallback} alt={name} />
+            {/* a caller's fallback is already resolved against the profile (cast.ts profileAvatar) */}
+            {fallback || profile?.avatar_url ? (
+                <img src={fallback || profile?.avatar_url} alt={name} />
             ) : name ? (
                 [...name][0].toUpperCase()
             ) : (
@@ -104,7 +106,7 @@ export function PostDetail({
                         authorId={post.author_id}
                         profile={profile}
                         ring={tone.ring}
-                        fallback={mine ? '/avatars/blue.png' : '/avatars/pink.png'}
+                        fallback={profileAvatar(profile?.avatar_url, mine ? VIEWER : PARTNER)}
                     />
                     <div>
                         <div className="pd-name" style={{ color: mine ? 'var(--diary-blue)' : 'var(--diary-pink)' }}>
