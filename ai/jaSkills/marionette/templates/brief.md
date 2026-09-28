@@ -19,7 +19,7 @@ Production transparent RGBA sprite, exactly <W>x<H> px, genuine transparent back
 figure; no painted checkerboard, no solid backdrop, no glow, no cast shadow outside the figure). Single
 <character> only: no table, chair, room, props other than the stated ones, other people, text or frame.
 <Framing: centred at x=<cx>; top of hair at about y=<top>; shoulder silhouette about x=<x0> to x=<x1>.>
-<Seated behind an invisible table: the torso is hidden below a perfectly horizontal cut at y=<cut_y>;
+<Seated behind an invisible table: the torso is hidden below a perfectly horizontal cut at y=<cut_y, measured: the table's far edge on the scene converted through the anchor's registration>;
 forearms, hands and held objects may rest on the invisible tabletop and extend to about y=<cut_y+100>.>
 Shoulders, chest and the torso cut stay at exactly the same place and scale as the anchor; only head,
 arms, hands, face and the stated props may change. Soft, even, slightly warm front-left light with gentle

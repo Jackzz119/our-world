@@ -24,9 +24,12 @@ DEFAULTS = {
     "grid": 24,  # canvas px between mesh vertices
     "canvas": {
         "size": None,  # [w, h] every source file must have; None = take the anchor's
+        "crop": None,  # [x0, y0, x1, y1] the shared canvas, fixed once a runtime depends on its coordinates
         "probes_x": [],  # x columns where the shoulder line is measured against the anchor
         "cut_y": None,  # expected torso cut line (seated characters); None = not measured
-        "cut_probe_x": [],  # x columns where the cut line is measured
+        "cut_probe_x": [],  # x columns where the cut line is measured; poses.<id>.cut_probe_x overrides
+        "cut_window": 80,  # the cut edge is looked for within cut_y +/- this
+        "cut_plate_y": None,  # the table's far edge measured on the plate; assemble checks cut_y against it
     },
     "face": {"mode": "skin", "boxes": {}},  # boxes: pose -> [x0, y0, x1, y1] overrides detection
     "eyes": {"boxes": {}},  # pose -> [x0, y0, x1, y1]; default derived from the face box
@@ -43,6 +46,7 @@ DEFAULTS = {
         "morph_err": 0.12,  # mean abs colour error after warping (0..1)
         "morph_sil": 0.05,  # share of the target silhouette the warp misses
         "alpha_empty": 8,  # alpha below this is empty when trimming
+        "fit_cut_max_px": 16,  # poses with "fit_cut": a torso cut this close is fitted by the align stage
     },
 }
 
@@ -102,6 +106,11 @@ class Ctx:
         if not rec:
             raise SystemExit("run the assemble stage first")
         return rec["crop"]
+
+    def cut_columns(self, pose):
+        """Columns where this pose's torso cut is measured (its own list wins over the canvas default)."""
+        own = self.cfg["poses"][pose].get("cut_probe_x")
+        return self.cfg["canvas"]["cut_probe_x"] if own is None else own
 
     def to_build(self, box):
         """Source-canvas box/point -> assembled-canvas coordinates."""
@@ -265,9 +274,11 @@ def first_solid_y(rgba, x):
     return int(idx[0]) if len(idx) else None
 
 
-def cut_probe(rgba, x, cut_y, window=40):
+def cut_probe(rgba, x, cut_y, window=80):
     """y where column x goes from solid to empty within cut_y +/- window, i.e. the torso cut line.
-    None when the column has no clean edge there: an arm or a prop covers the cut (unobservable)."""
+    None when the column has no clean edge there. Measure only where the torso itself shows: a prop or
+    a hand in the column ends somewhere below the cut and reads as a torso running under the table, so
+    poses that cover the middle with a book set their own (empty) poses.<id>.cut_probe_x."""
     col = rgba[:, int(x), 3] >= 128
     for y in range(max(0, int(cut_y) - window), min(len(col) - 1, int(cut_y) + window)):
         if col[y] and not col[y + 1]:

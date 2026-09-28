@@ -88,6 +88,8 @@ allowed-tools: Read, Glob, Grep
 
 按 `references/generation.md` 写 brief（模板 `${CLAUDE_SKILL_DIR}/templates/brief.md`），交给出图工具。要点：
 
+- **每张出 3 个候选**，用 `rig.py pick` 按测量挑（验收 + 与 anchor 的头发轮廓残差），前两名再人看一眼定稿；
+
 - **anchor 先出、单独验收**，之后所有姿势都是「编辑 anchor」，不是「再画一张」；
 - 每张 prompt 都重复同一段**不变量**（画布、截断线、肩线、比例、透明、光）；
 - 闭眼帧只准改眼睑，其余像素原样保留——生成模型做不到完全保留，第 4 步会把几何对齐回来，
