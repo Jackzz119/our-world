@@ -1,0 +1,57 @@
+{
+    "date": "2026-09-24",
+    "tool": "image_gen.imagegen (built-in)",
+    "scope": "Static development concept reference; no production rig, layers or runtime performance claim",
+    "images": [
+        {
+            "file": "01-opposite-seats.png",
+            "status": "current-concept",
+            "references": [
+                "../cozy-living-scenes/03-rainy-night-carriage.png"
+            ],
+            "prompt": "Use case: stylized-concept. Asset: detailed production art direction for Our World, a cozy app for real friends and couples chatting, journaling and listening to music. Create ONE beautiful wide 3:2 cinematic illustration of TWO adults sitting OPPOSITE EACH OTHER AT THE SAME TABLE in a vintage scenic train booth.\nInput image is only a reference for painterly anime-CG finish, walnut, green upholstery and warm lamps. REDESIGN its composition: not separate booths, no other people, no cat.\nCamera is stationary, at seated eye height from the aisle, looking straight across the small table toward a very large train side window. Left adult has short dark hair, relaxed moss cardigan over cream shirt, reading an open book; right adult has dark auburn shoulder-length hair, cream cardigan over muted blue clothes, writing in a notebook. Original attractive adult everyday avatars, natural proportions and readable faces in gentle three-quarter/profile views, equal visual importance and approximately equal face size. Faces remain visible; no back-of-head foreground. They are quietly occupied independently, not staring at each other, no romantic scripted gestures. Both seats face inward toward the same table, clear legs/seat/table spatial logic.\nLarge central window takes roughly central 55% width and upper 50% height: blue-hour lake, distant mountains, warm village lights, fine rain on glass. Deep perspective, striking cool outside versus amber inside, warm individual brass wall lamps, long soft light on table, natural occlusion, tactile cloth and wood, rich painterly finish. Window frame and nearest seat corners frame image without blocking faces. Calm, immersive, feels like you are seated there rather than looking at a dollhouse. Table has just two mugs, book and notebook, room for light. No UI, no labels, no text, no logos. Avoid fisheye, overhead isometric, plastic glossy game assets, doll-like child proportions, frozen front-facing portraits. Master reference artwork, not a collage.",
+            "original": "C:\\Users\\Jackzz\\.codex\\generated_images\\01a0c81f-36d3-7c03-86c3-065a5721b557\\exec-82e1cba7-084c-4b71-8636-3fbfca809929.png"
+        },
+        {
+            "file": "02-light-and-route.png",
+            "status": "current-concept",
+            "references": [
+                "01-opposite-seats.png"
+            ],
+            "prompt": "Use case: lighting-weather. Create a polished 2 by 2 landscape art direction sheet. Use the provided image as the EXACT carriage geometry, camera, table, two seats, two adult character identities, clothing and style reference for all four panels. Same fixed camera and SAME table/window/person positions in each. Each panel is a full picturesque scene, equal size, thin cream gutters, no diagrams. Top-left: fresh soft daylight, train passing green lakeside meadow, shadows of trees lightly crossing table, lamps very faint. Top-right: golden evening along same lake, warm low sunlight moving across sleeves, hair, tabletop and wood. Bottom-left: blue-hour rain, same blue lake and mountain landscape, amber lamps and restrained wet window reflections. Bottom-right: the train briefly inside a short rock tunnel, dark exterior but characters clearly illuminated by warm lamps, never a black frame. Preserve exterior scenery direction/horizon consistency and coherent cabin perspective; these are mood studies, not different rooms. Small understated captions only in the margin: 'DAYLIGHT', 'GOLDEN HOUR', 'RAIN AT DUSK', 'TUNNEL'. Beautiful restrained cinematic anime painterly CG, original adults, independently reading and writing, not looking at viewer. No interface or extra characters, do not change props or invent more seats.",
+            "original": "C:\\Users\\Jackzz\\.codex\\generated_images\\01a0c81f-36d3-7c03-86c3-065a5721b557\\exec-cfe31c8c-426a-460b-a784-e9a9a17126e1.png"
+        },
+        {
+            "file": "03-avatar-and-activity.png",
+            "status": "superseded-draft",
+            "references": [
+                "01-opposite-seats.png"
+            ],
+            "prompt": "Use case: stylized-concept. Produce a polished professional character design and animation planning sheet for the cozy real-user avatar app 'Our World'. Reference image establishes EXACT painterly adult anime-CG finish, original two adult identities, clothing texture and scale, not a photographic person.\nCream artbook background, clear organized 3-column by 2-row design sheet, minimal clean English labels only. Title 'AVATAR / ACTIVITY STUDY'. Top row three modules:\n1 'BASE': two original adult half-body designs from reference, short dark-haired adult and auburn bob-haired adult, ordinary cozy clothing, same anatomy family, both shown in 3/4 view. \n2 'APPEARANCE': four distinct small adult bust variations showing visibly different skin tones from light to deep brown, short crop/bob/tied hair, round glasses on one, natural warm faces; same painterly rendering, not photos. These are options of equal status, not linked to sex.\n3 'OUTFIT': two complete knit everyday outfits on neutral adult mannequins, moss cardigan/cream shirt and navy overshirt/soft tee; a few tiny restrained color chips, no complex equipment.\nBottom row three storyboard groups, EACH has three clear small successive poses of the SAME reference dark-haired adult seated at the SAME train table, seen from his existing inward-facing 3/4 angle:\n'READ': holding book and reading -> one hand turns a page -> hands settled reading.\n'WRITE': book put down and notebook open -> hand writes -> pen rested while looking thoughtfully out of window.\n'LISTEN': book closed, headphones worn -> relaxed look outside -> small hand adjusting headphones.\nClear hand-object contact, no floating cups, bodies seated with stable pelvis, no action spectacle. Do not fake a sprite atlas or rig exports; finished painted concept poses for animators. No UI, no exploded body parts, no stiff front-facing portrait grid.",
+            "original": "C:\\Users\\Jackzz\\.codex\\generated_images\\01a0c81f-36d3-7c03-86c3-065a5721b557\\exec-9f08d68c-a544-4572-a95f-7c12d92f3b30.png"
+        },
+        {
+            "file": "03-avatar-and-activity-v2.png",
+            "status": "current-concept",
+            "references": [
+                "03-avatar-and-activity.png"
+            ],
+            "prompt": "Use case: precise-object-edit. This character development sheet is almost approved as a static concept reference. Make ONLY two continuity corrections and preserve the entire sheet layout, texts, skin tones, character identities, all other drawings, color palette and art quality unchanged.\n1. In bottom-right module '6. LISTEN', the MIDDLE small storyboard panel '2. LOOK OUT' must have the SAME dark over-ear headphones on the adult's head as panel 1 'HEADPHONES ON' and panel 3 'ADJUST'. Maintain his looking-out pose and resting hand, draw plausible headband and earcup without changing his face. No disappearing headphones.\n2. In bottom-left '4. READ', the RIGHTMOST small storyboard '3. READING (SETTLED)' has an unwanted vivid magenta glow below the mouth/chin. Remove only that magenta artifact and restore natural warm skin/shadow continuous with the other reading panels.\nNo other redesigns. Keep all panel dimensions, captions and beige background unchanged.",
+            "original": "C:\\Users\\Jackzz\\.codex\\generated_images\\01a0c81f-36d3-7c03-86c3-065a5721b557\\exec-9e353b8a-335f-4a69-8f11-e612655331c9.png"
+        },
+        {
+            "file": "04-four-seat-study.png",
+            "status": "future-layout-study",
+            "references": [
+                "01-opposite-seats.png"
+            ],
+            "prompt": "Use case: stylized-concept. Create one polished wide 3:2 scene illustration for a FUTURE four-person variant of the reference cozy scenic train room, not a user interface.\nReference is the style, vintage walnut/green cloth/large window/warm amber lamp material family, and the two original adults. Expand to a believable FOUR-SEAT table booth, two adults on the LEFT bench facing two on the RIGHT bench. Exactly four adults, all four heads and independent activities readable, no duplicates or extra people. The short dark-haired reference adult on left nearer aisle reads a book; beside him closer to window a deep brown-skinned adult with tied hair calmly listens to music. The auburn bob-haired reference adult on right near aisle writes in notebook; beside her closer to window another short-haired adult in blue quietly looks outside holding a mug. Clearly four places around one common rectangular table. Each person's head is staggered slightly so all faces read, natural anatomy, no person sitting on table. Same calm eye-level perspective, only slightly wider than reference, not a dollhouse, not top-down. Both nearest adults turned inward enough their profiles visible rather than backs of heads. Window remains a broad scenic view of twilight lake and mountain, but show honest modest loss of individual character size versus two-person version. Four mugs, shared central low lamp, books/notebooks without clutter. Strong warm-cool light, cozy painterly adult anime-CG style, beautifully lived-in. Calm independent activities, no exaggerated group social interaction, no text, no labels, no UI.",
+            "original": "C:\\Users\\Jackzz\\.codex\\generated_images\\01a0c81f-36d3-7c03-86c3-065a5721b557\\exec-b4fc1209-74ed-475e-8534-d2c4b4c04c75.png"
+        }
+    ],
+    "authoredLayout": {
+        "file": "05-layout-and-layers.svg",
+        "method": "Native SVG layout with embedded 01-opposite-seats.png; no image-generation prompt",
+        "status": "Static desktop/mobile and assembly proposal"
+    }
+}
