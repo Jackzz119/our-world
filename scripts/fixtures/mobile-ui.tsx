@@ -26,6 +26,9 @@ import { useUiViewport } from '@/themes/cinnaglass/ui/use-ui-viewport';
 import type { Channel } from '@/types/chat';
 import type { Msg } from '@/themes/cinnaglass/chat/chat-data';
 import type { Alarm, CalEvent } from '@/themes/cinnaglass/model';
+import { FRIENDS_VIEW } from '@/themes/cinnaglass/chat/chat-data';
+import { WorldSettingsScreen } from '@/themes/cinnaglass/world-settings';
+import type { World } from '@/types/feed';
 import LoginPage from '@/pages/LoginPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import '@/index.css';
@@ -36,6 +39,20 @@ import '@/themes/cinnaglass/image-slot';
 
 const noop = () => {};
 const done = async () => {};
+// ?screen=friends and ?screen=world: one demo friend and a demo world, never saved
+const demoFriends = [{ otherId: 'friend-fixture', name: '阿屿', color: '#7aa0c8', dmChannelId: null }];
+const demoWorld: World = {
+    id: 'layout-fixture',
+    owner_id: 'fixture',
+    member_id: 'fixture-partner',
+    name: '我们的小屋',
+    anniversary: '2023-05-20',
+    icon_emoji: '🌙',
+    icon_path: null,
+    intimacy_points: 0,
+    created_at: '2023-05-20T00:00:00Z'
+};
+
 const channels: Channel[] = ['悄悄话', '今天想和你分享的许多小事'].map((name, index) => ({
     id: `mobile-${index}`,
     name,
@@ -261,14 +278,21 @@ export function MobileFixture() {
                     <Wishlist />
                 </TaskDialog>
             )}
-            {screen === 'chat' && (
+            <WorldSettingsScreen
+                open={screen === 'world'}
+                onClose={close}
+                world={demoWorld}
+                iconUrl={null}
+                onSaved={noop}
+            />
+            {(screen === 'chat' || screen === 'friends') && (
                 <ChannelScreen
-                    convId={conv}
+                    convId={screen === 'friends' ? FRIENDS_VIEW : conv}
                     onSelect={setConv}
                     inWorld
                     channels={channels}
                     dmConvs={[]}
-                    friends={[]}
+                    friends={screen === 'friends' ? demoFriends : []}
                     requestsIn={[]}
                     requestsOut={[]}
                     onAddFriend={async () => ''}

@@ -8,10 +8,18 @@ const { chromium } = dependency('playwright');
 const sharp = dependency('sharp');
 const dir = path.resolve('ai/design_system/uiux/cinnaglass/journal-room-object/navigation-verification');
 await mkdir(dir, { recursive: true });
+// the room's dev-only presence panel is not part of the UI these screenshots document
+const hideDevPanel = () =>
+    document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style');
+        style.textContent = '.table-dev.ui-surface { display: none; }';
+        document.head.append(style);
+    });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
+await page.addInitScript(hideDevPanel);
 await page.addInitScript(() =>
     localStorage.setItem('ow-tweaks-v1', JSON.stringify({ mood: 'night', weather: 'rain' }))
 );
@@ -169,6 +177,7 @@ try {
     });
     const touchPage = await touchContext.newPage();
     touchPage.on('pageerror', (e) => errors.push(e.message));
+    await touchPage.addInitScript(hideDevPanel);
     await touchPage.addInitScript(() =>
         localStorage.setItem('ow-tweaks-v1', JSON.stringify({ mood: 'night', weather: 'rain' }))
     );
