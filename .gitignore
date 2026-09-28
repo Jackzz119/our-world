@@ -46,3 +46,5 @@ __pycache__/
 # Raw codex-visual batches (timestamped wrapper output: drafts, unpicked images, logs) stay local;
 # everything curated in the design system is tracked.
 /ai/design_system/**/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]Z*/
+# marionette build folders (raw / final / review): rebuilt from the tracked source with scripts/rig.py
+/arts/characters/*/build/

@@ -26,12 +26,11 @@ import 'pixi.js/prepare';
 import { AdjustmentFilter } from 'pixi-filters';
 import type {
     AvatarId,
-    AvatarPoses,
+    AvatarRig,
     HotspotOpenEvent,
     LampPlates,
     PartnerState,
     PlatePart,
-    PoseId,
     RoomMood,
     RoomWeather,
     TableRoomTemplate
@@ -39,20 +38,13 @@ import type {
 import { createAffordance } from '@/themes/cinnaglass/room/affordance';
 import { createFadeQueue } from '@/themes/cinnaglass/room/fade-queue';
 import { ACTOR_TINT, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
-import {
-    createPartnerLayer,
-    type HeadAnchors,
-    type IdleWeights,
-    loadIdleWeights,
-    loadMorphField,
-    type MorphField
-} from '@/themes/cinnaglass/room/partner-layer';
+import { createPartnerLayer, type HeadAnchors, loadPartnerRig } from '@/themes/cinnaglass/room/partner-layer';
 import { createPartnerDirector } from '@/themes/cinnaglass/room/partner-state';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
 import { createSteamLayer } from '@/themes/cinnaglass/room/steam-layer';
 
 /** Who sits where: the partner's pose art across the table, the viewer's sleeves in front. */
-export type TableCast = { viewer: AvatarId; partner: AvatarId; poses: AvatarPoses };
+export type TableCast = { viewer: AvatarId; partner: AvatarId; rig: AvatarRig };
 
 /** Starting conditions for a scene. */
 export type TableSceneInit = { mood: RoomMood; weather: RoomWeather; lampOn: boolean; partner: PartnerState };
@@ -133,30 +125,13 @@ export async function buildTableScene(
     const plateOf = (mood: RoomMood) => room.plates[mood] ?? room.plates[room.moodFallback[mood]];
     const lampPlates = Object.values(room.plates).flatMap((p) => (p ? [p, ...(p.rain ? [p.rain] : [])] : []));
     const plateUrls = [...new Set(lampPlates.flatMap((p) => (p.off ? [p.on, p.off] : [p.on])))];
-    const poseUrls = Object.values(cast.poses.poses).flatMap((p) => (p.closed ? [p.open, p.closed] : [p.open]));
     const foreground = room.foreground[cast.viewer];
     const jacket = room.traces.jacket?.[cast.partner];
     const parts = [foreground, room.traces.mug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
-    const [textures, weightList, morphList] = await Promise.all([
-        Assets.load<Texture>([...plateUrls, ...poseUrls, ...parts.map((p) => p.src)]),
-        Promise.all(
-            Object.entries(cast.poses.idle ?? {}).map(
-                async ([pose, url]) => [pose, await loadIdleWeights(url)] as const
-            )
-        ),
-        // a morph that fails to load only costs that pair its morph: it cross-fades instead
-        Promise.all(
-            Object.entries(cast.poses.morph ?? {}).map(async ([pair, url]) => {
-                try {
-                    return [pair, await loadMorphField(url)] as const;
-                } catch {
-                    return null;
-                }
-            })
-        )
+    const [textures, partnerRig] = await Promise.all([
+        Assets.load<Texture>([...plateUrls, ...parts.map((p) => p.src)]),
+        loadPartnerRig(cast.rig.manifest)
     ]);
-    const idleWeights = Object.fromEntries(weightList) as Partial<Record<PoseId, IdleWeights>>;
-    const morphs = new Map<string, MorphField>(morphList.filter((m) => m !== null));
 
     const partSprite = (part: PlatePart) => {
         const s = new Sprite(textures[part.src]);
@@ -215,14 +190,22 @@ export async function buildTableScene(
 
     const fades = createFadeQueue();
     const director = createPartnerDirector(init.partner, random, performance.now());
-    const partner = createPartnerLayer(room.seat, cast.poses, textures, idleWeights, morphs, random, {
-        onPoke() {
-            if (director.react('poked', performance.now())) events.onPoke?.();
+    const partner = createPartnerLayer(
+        room.seat,
+        partnerRig,
+        random,
+        {
+            onPoke() {
+                if (!director.react('poked', performance.now())) return;
+                partner.flinch();
+                events.onPoke?.();
+            },
+            onPat(holding) {
+                if (director.pat(holding, performance.now())) events.onPat?.(holding);
+            }
         },
-        onPat(holding) {
-            if (director.pat(holding, performance.now())) events.onPat?.(holding);
-        }
-    });
+        reduced
+    );
     scene.addChild(partner.container);
 
     const mugSprite = room.traces.mug ? partSprite(room.traces.mug) : null;
@@ -360,8 +343,9 @@ export async function buildTableScene(
         rain.update(dt);
 
         const pose = director.update(now);
-        partner.show(pose, fades, !reduced);
-        if (!reduced) partner.update(elapsed, now, fades);
+        partner.show(pose, true);
+        // every frame, reduced motion too: the layer owns the poses' opacity and the blinks
+        partner.update(elapsed);
         // the mug is in their hands while they sip
         if (mugSprite) mugSprite.visible = pose !== 'sip';
 
@@ -432,7 +416,7 @@ export async function buildTableScene(
 
     applyLight(false, 0);
     applyTraces(false);
-    partner.show(director.update(performance.now()), fades, false);
+    partner.show(director.update(performance.now()), false);
 
     return {
         setMood(next, animate) {

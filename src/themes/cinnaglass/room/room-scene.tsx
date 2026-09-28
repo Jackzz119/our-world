@@ -10,7 +10,7 @@ import type { HotspotOpenEvent, PartnerState, RoomMood, RoomWeather } from '@/th
 import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes/cinnaglass/room/table-scene';
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
-import { AYU_POSES, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
+import { AYU_RIG, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
@@ -18,7 +18,7 @@ import '@/themes/cinnaglass/room/room-overlays.css';
 const TAG = '[room][web][room-scene]';
 
 // First iteration: her view — the viewer is 小满, 阿屿 sits across (user direction 2026-09-27).
-const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, poses: AYU_POSES };
+const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, rig: AYU_RIG };
 
 const PARTNER_STATES: { id: PartnerState; label: string }[] = [
     { id: 'reading', label: '在线·看书' },

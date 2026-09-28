@@ -1,11 +1,12 @@
 // study-table.ts — the across-the-table study (first iteration of the third
 // product iteration, ai/features/study-room/study-room.md). Every number that
 // places art is pasted from arts/rooms/study/table-manifest.json, written by
-// scripts/build-study-table.py; window panes come from the frame-edge
+// scripts/build-study-table.py, except the seat, which the partner's rig build
+// measures (arts/characters/ayu/build/assemble.json); window panes come from the frame-edge
 // measurement on the plates, hotspots are generous tap areas over the painted
 // objects. Adjust here, never inside the layer modules.
 
-import type { AvatarPoses, TableRoomTemplate } from '@/themes/cinnaglass/room/room-types';
+import type { AvatarRig, TableRoomTemplate } from '@/themes/cinnaglass/room/room-types';
 
 const T = '/rooms/study';
 
@@ -37,8 +38,8 @@ export const STUDY_TABLE: TableRoomTemplate = {
         glow: { x: 300, y: 0, w: 1040, h: 520 }
     },
     seat: {
-        // SIFT registration of reading-open onto master-night: scale 0.57417,
-        // rotation 0.4° (ignored), residual median 1.7px / p90 2.5px
+        // SIFT registration of reading-open onto master-night (marionette assemble stage):
+        // scale 0.57417, rotation 0.4° (ignored), residual median 1.7px / p90 2.5px
         origin: { x: 346.02, y: 92.83 },
         scale: 0.57417,
         // pose-canvas px (the trimmed canvas shared by every pose)
@@ -80,33 +81,9 @@ export const STUDY_TABLE: TableRoomTemplate = {
     ]
 };
 
-const A = '/characters/ayu';
-// poses with a morph flow between every pair; build-pose-flow.py rejects sip (both hands leave the
-// book for the cup, so the flow drags the book along) and asleep, which keep the cover-and-fade
-const MORPHABLE = ['reading', 'glance', 'writing', 'patted', 'poked'] as const;
-
-/** 阿屿's poses, all on one trimmed 1377×1015 canvas (build-study-table.py). */
-export const AYU_POSES: AvatarPoses = {
-    canvas: { w: 1377, h: 1015 },
-    poses: {
-        reading: { open: `${A}/reading-open.webp`, closed: `${A}/reading-closed.webp` },
-        glance: { open: `${A}/glance-open.webp`, closed: `${A}/glance-closed.webp` },
-        writing: { open: `${A}/writing-open.webp`, closed: `${A}/writing-closed.webp` },
-        // no blink while sipping: the generated closed frame redraws the sleeves (BLINK_REJECTED in the script)
-        sip: { open: `${A}/sip-open.webp` },
-        asleep: { open: `${A}/asleep-open.webp` },
-        patted: { open: `${A}/patted-open.webp` },
-        poked: { open: `${A}/poked-open.webp` }
-    },
-    // breath and hair weights per pose, derived from the pose art itself
-    // optical-flow morphs between every pair the flow can follow (asleep moves too far and cross-fades)
-    morph: Object.fromEntries(
-        MORPHABLE.flatMap((a) => MORPHABLE.filter((b) => b !== a).map((b) => [`${a}-${b}`, `${A}/morph-${a}-${b}.png`]))
-    ),
-    idle: Object.fromEntries(
-        (['reading', 'glance', 'writing', 'sip', 'asleep', 'patted', 'poked'] as const).map((p) => [
-            p,
-            `${A}/idle-${p}.png`
-        ])
-    )
-};
+/**
+ * 阿屿's rig, built from arts/characters/ayu/rig.json with
+ * `python ai/jaSkills/marionette/scripts/rig.py all --config arts/characters/ayu/rig.json`.
+ * Which poses blink and which pairs morph is whatever that run shipped; nothing is listed here.
+ */
+export const AYU_RIG: AvatarRig = { manifest: '/characters/ayu/rig.json' };
