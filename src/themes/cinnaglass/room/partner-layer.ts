@@ -1,30 +1,42 @@
 // partner-layer.ts — the partner across the table: one mesh per pose on a
-// shared canvas, cross-faded in place, blinking on eyes-open poses, plus the
-// head and body zones that turn a tap into a poke and a press-and-stroke into
-// a pat. Which pose shows is decided by partner-state.ts; this layer only
+// shared canvas, swapped in place, blinking on eyes-open poses, plus the head
+// and body zones that turn a tap into a poke and a press-and-stroke into a
+// pat. Which pose shows is decided by partner-state.ts; this layer only
 // renders it.
 //
-// Idle motion follows Wallpaper Engine's approach to flat character art: a
-// grid mesh over the picture, deformed by per-area motion weights
-// (scripts/build-idle-weights.py) instead of scaling the whole figure. The
-// chest, shoulders and head rise a little with each breath while the hands and
-// book on the table stay put; the upper body leans a hair; hair tips sway on
-// their own with the wave travelling down the hair.
-//
-// Pose changes morph rather than dissolve (scripts/build-pose-flow.py): the
-// outgoing mesh bends towards the incoming pose's shape along a measured
-// optical flow while the incoming one relaxes out of the outgoing shape, the
-// way frame interpolation computes in-betweens from two frames.
+// The character is a marionette rig (ai/jaSkills/marionette): the pipeline
+// exports the pose frames, the idle weights, the morph fields and a manifest
+// (rig.json) listing what shipped; rig-core.ts does the math. Idle motion is a
+// grid mesh deformed by per-area weights (Wallpaper Engine's approach to flat
+// art); a pose change morphs along a measured optical flow where the pipeline
+// trusted one and covers-and-fades elsewhere; a poke adds a computed flinch
+// and laugh on top.
 
-import { Container, type FederatedPointerEvent, MeshPlane, Rectangle, type Texture } from 'pixi.js';
-import type { AvatarPoses, PartnerSeat, PoseId, PxPoint } from '@/themes/cinnaglass/room/room-types';
-import type { FadeQueue } from '@/themes/cinnaglass/room/fade-queue';
+import { Assets, Container, type FederatedPointerEvent, MeshPlane, Rectangle, type Texture } from 'pixi.js';
+import {
+    createBlinker,
+    createGesturePlayer,
+    createSwitcher,
+    decodeFlow,
+    decodeWeights,
+    deformVertices,
+    DEFAULT_MOTION,
+    type FlowField,
+    GESTURES,
+    gridSize,
+    type Motion,
+    type RigManifest,
+    type WeightMap
+} from '@/themes/cinnaglass/room/rig-core';
+import type { PartnerSeat, PoseId, PxPoint } from '@/themes/cinnaglass/room/room-types';
 
-/** Per-vertex motion weights for one pose: `breath` and `hair`, 0..1, row by row. */
-export type IdleWeights = { cols: number; rows: number; breath: Float32Array; hair: Float32Array };
-
-/** Per-vertex flow from one pose to another: where each vertex's content sits in the other pose, pose-canvas px. */
-export type MorphField = { dx: Float32Array; dy: Float32Array };
+/** An exported rig, loaded: the manifest, every pose texture, and the decoded data maps. */
+export type PartnerRig = {
+    manifest: RigManifest;
+    textures: Record<string, Texture>;
+    weights: Record<string, WeightMap>;
+    flows: Record<string, FlowField>;
+};
 
 /** One pose's mesh, its two frames and its rest geometry. */
 type Pose = {
@@ -32,7 +44,7 @@ type Pose = {
     open: Texture;
     closed: Texture | null;
     rest: Float32Array;
-    weights: IdleWeights | null;
+    weights: WeightMap | null;
 };
 
 export type PartnerTouch = {
@@ -51,10 +63,12 @@ export type PartnerLayer = {
     textures: Texture[];
     /** Scene light on the partner, as a multiply tint. */
     setTint: (tint: number) => void;
-    /** Show `pose` (null = nobody in the chair), cross-fading from the current one. */
-    show: (pose: PoseId | null, fades: FadeQueue, animate: boolean) => void;
-    /** Idle motion and blinking; `elapsed` drives the loops, `nowMs` the blinks and hand-overs. */
-    update: (elapsed: number, nowMs: number, fades: FadeQueue) => void;
+    /** Show `pose` (null = nobody in the chair): a morph or a cover-and-fade from the current one. */
+    show: (pose: PoseId | null, animate: boolean) => void;
+    /** A poke landed: the flinch and laugh that play on top of the poked pose. */
+    flinch: () => void;
+    /** Every frame: opacity, blinking and mesh motion; `elapsed` (seconds) drives the idle loops. */
+    update: (elapsed: number) => void;
     /** Plate px where UI can attach beside the head (PartnerSeat.beside, placed on the plate). */
     anchors: () => HeadAnchors;
 };
@@ -66,84 +80,92 @@ export type PartnerLayer = {
  */
 export type HeadAnchors = { left: PxPoint; right: PxPoint; faceRight: number; shoulder: number };
 
-// Pose swaps and the pat gesture (ai/features/study-room/study-room.md §四).
-const CROSSFADE_MS = 180;
-const HANDOVER_MS = 120;
-const MORPH_MS = 420;
-// falling asleep and waking move too far for a morph: a slower cover-and-fade reads as dozing off
-const SLOW_CROSSFADE_MS = 400;
-const SLOW_HANDOVER_MS = 300;
-const BLINK_MS = 140;
-const BLINK_GAP: [number, number] = [2400, 6500];
+// The pat gesture (ai/features/study-room/study-room.md §四).
 const PAT_START_PX = 12;
+// Every pose the director can ask for; a rig missing one would leave the chair empty.
+const POSES: readonly PoseId[] = ['reading', 'glance', 'writing', 'sip', 'asleep', 'patted', 'poked'];
 
-// Idle motion, in pose-canvas px (about 0.57 plate px each) and seconds.
-const BREATH_PX = 3.2;
-const BREATH_S = 3.6;
-const LEAN_RAD = 0.004;
-const LEAN_S = 7.4;
-const HAIR_PX = 4.5;
-const HAIR_S = [4.2, 2.3, 3.1];
-
-/** Decode a small data PNG into its RGBA bytes. */
+/** Decode a small data PNG into its RGBA bytes, with no premultiplication or colour management. */
 async function readPixels(url: string) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`${url}: ${response.status}`);
-    const bitmap = await createImageBitmap(await response.blob());
+    const bitmap = await createImageBitmap(await response.blob(), {
+        premultiplyAlpha: 'none',
+        colorSpaceConversion: 'none'
+    });
     const canvas = document.createElement('canvas');
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
     const g = canvas.getContext('2d', { willReadFrequently: true });
-    if (!g) throw new Error('pose data: no 2d canvas');
+    if (!g) throw new Error('rig data: no 2d canvas');
     g.drawImage(bitmap, 0, 0);
     return { w: bitmap.width, h: bitmap.height, px: g.getImageData(0, 0, bitmap.width, bitmap.height).data };
 }
 
-/** Read a weight map (R = breath, G = hair) written by scripts/build-idle-weights.py. */
-export async function loadIdleWeights(url: string): Promise<IdleWeights> {
-    const { w, h, px } = await readPixels(url);
-    const breath = new Float32Array(w * h);
-    const hair = new Float32Array(w * h);
-    for (let i = 0; i < w * h; i++) {
-        breath[i] = px[i * 4] / 255;
-        hair[i] = px[i * 4 + 1] / 255;
+/** Load an exported rig. A morph field that fails to load only costs that pair its morph. */
+export async function loadPartnerRig(manifestUrl: string): Promise<PartnerRig> {
+    const response = await fetch(manifestUrl);
+    if (!response.ok) throw new Error(`${manifestUrl}: ${response.status}`);
+    const manifest = (await response.json()) as RigManifest;
+    if (manifest.version !== 2 || manifest.flowFormat !== 'rgb12') throw new Error(`${manifestUrl}: unsupported rig`);
+    const missing = POSES.filter((p) => !manifest.poses[p]);
+    if (missing.length) throw new Error(`${manifestUrl}: no ${missing.join(', ')} pose`);
+    const { cols, rows } = gridSize(manifest);
+    const frames = Object.values(manifest.poses).flatMap((p) => (p.closed ? [p.open, p.closed] : [p.open]));
+    const [textures, weightList, flowList] = await Promise.all([
+        Assets.load<Texture>(frames),
+        Promise.all(
+            Object.entries(manifest.poses).flatMap(([id, p]) =>
+                p.idle
+                    ? [
+                          readPixels(p.idle).then(({ w, h, px }) => {
+                              if (w !== cols || h !== rows)
+                                  throw new Error(`${p.idle}: ${w}x${h}, not ${cols}x${rows}`);
+                              return [id, decodeWeights(px, cols, rows)] as const;
+                          })
+                      ]
+                    : []
+            )
+        ),
+        Promise.all(
+            Object.entries(manifest.morphs).map(async ([key, url]) => {
+                try {
+                    const { px } = await readPixels(url);
+                    return [key, decodeFlow(px, cols, rows)] as const;
+                } catch {
+                    return null;
+                }
+            })
+        )
+    ]);
+    const flows: Record<string, FlowField> = Object.fromEntries(flowList.filter((f) => f !== null));
+    // a morph needs both directions; drop the orphan of a half-loaded pair
+    for (const key of Object.keys(flows)) {
+        const [a, b] = key.split('-');
+        if (!flows[`${b}-${a}`]) delete flows[key];
     }
-    return { cols: w, rows: h, breath, hair };
+    return { manifest, textures, weights: Object.fromEntries(weightList), flows };
 }
-
-/** Read a morph flow (R = dx + 128, G = dy + 128) written by scripts/build-pose-flow.py. */
-export async function loadMorphField(url: string): Promise<MorphField> {
-    const { w, h, px } = await readPixels(url);
-    const dx = new Float32Array(w * h);
-    const dy = new Float32Array(w * h);
-    for (let i = 0; i < w * h; i++) {
-        dx[i] = px[i * 4] - 128;
-        dy[i] = px[i * 4 + 1] - 128;
-    }
-    return { dx, dy };
-}
-
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-const smoothstep = (a: number, b: number, x: number) => {
-    const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-    return t * t * (3 - 2 * t);
-};
 
 /**
- * Build the partner layer for `seat` from the avatar's pose art. `textures`
- * must already hold every pose file and `weights` every pose's motion weights
- * (a pose without weights stays still); `random` is the scene's shared source.
+ * Build the partner layer for `seat` from a loaded rig. `random` is the
+ * scene's shared source; `reduced` (prefers-reduced-motion) stills the idle
+ * motion, the morphs and the gestures, and keeps the blinks.
  */
 export function createPartnerLayer(
     seat: PartnerSeat,
-    art: AvatarPoses,
-    textures: Record<string, Texture>,
-    weights: Partial<Record<PoseId, IdleWeights>>,
-    morphs: Map<string, MorphField>,
+    rig: PartnerRig,
     random: () => number,
-    touch: PartnerTouch
+    touch: PartnerTouch,
+    reduced: boolean
 ): PartnerLayer {
-    const rand = (min: number, max: number) => min + random() * (max - min);
+    const { manifest } = rig;
+    const { cols, rows } = gridSize(manifest);
+    const motion: Motion = {
+        ...DEFAULT_MOTION,
+        pivotY: seat.pivot.y,
+        ...(reduced ? { breathPx: 0, leanRad: 0, hairPx: 0 } : {})
+    };
 
     // holder places the pose canvas on the plate; the motion is in the meshes
     const container = new Container();
@@ -153,40 +175,29 @@ export function createPartnerLayer(
     container.addChild(holder);
 
     const poses = new Map<PoseId, Pose>();
-    for (const [id, files] of Object.entries(art.poses) as [PoseId, AvatarPoses['poses'][PoseId]][]) {
-        const w = weights[id] ?? null;
-        const mesh = new MeshPlane({
-            texture: textures[files.open],
-            verticesX: w?.cols ?? 2,
-            verticesY: w?.rows ?? 2
-        });
+    for (const id of POSES) {
+        const files = manifest.poses[id];
+        const mesh = new MeshPlane({ texture: rig.textures[files.open], verticesX: cols, verticesY: rows });
         // blinks swap the texture on a canvas of the same size; the grid must stay
         mesh.autoResize = false;
         mesh.alpha = 0;
         holder.addChild(mesh);
         poses.set(id, {
             mesh,
-            open: textures[files.open],
-            closed: files.closed ? textures[files.closed] : null,
+            open: rig.textures[files.open],
+            closed: files.closed ? rig.textures[files.closed] : null,
             rest: Float32Array.from(mesh.geometry.positions),
-            weights: w
+            weights: rig.weights[id] ?? null
         });
     }
-
-    let current: PoseId | null = null;
-    // outgoing poses stay opaque under the incoming one until it has covered them
-    let handovers: { pose: Pose; at: number; out: number }[] = [];
-    // a running morph: `from` bends towards `to`'s shape, `to` relaxes out of `from`'s
-    let morph: { from: Pose; to: Pose; start: number; ab: MorphField; ba: MorphField } | null = null;
-    const endMorph = () => {
-        if (!morph) return;
-        morph.from.mesh.alpha = 0;
-        morph.to.mesh.alpha = 1;
-        morph = null;
-    };
-    let nextBlinkAt = performance.now() + rand(1500, 5000);
-    let blinkUntil = 0;
-    let doubleBlink = false;
+    // a pose without a weight map still morphs; it just has no idle motion of its own
+    const still: WeightMap = { cols, rows, breath: new Float32Array(cols * rows), hair: new Float32Array(cols * rows) };
+    const switcher = createSwitcher({
+        morphs: Object.fromEntries(Object.keys(rig.flows).map((k) => [k, k])),
+        slow: (p) => manifest.poses[p]?.slow ?? false
+    });
+    const blinker = createBlinker(random, performance.now());
+    const gestures = createGesturePlayer();
 
     // Plate-px rectangle of a pose-canvas rectangle.
     const toPlate = (r: { x: number; y: number; w: number; h: number }) =>
@@ -241,42 +252,6 @@ export function createPartnerLayer(
     head.on('pointerupoutside', endPress);
     body.on('pointertap', () => touch.onPoke());
 
-    // Deform one pose's mesh for this moment. Breath lifts along -y by the
-    // breath weight; the lean turns the weighted upper body about the seat's
-    // pivot; hair drifts sideways by the hair weight, its phase running down
-    // the hair so the tips follow the roots instead of all moving at once.
-    const TAU = Math.PI * 2;
-    const deform = (p: Pose, t: number, shift: MorphField | null, amount: number) => {
-        const w = p.weights;
-        if (!w) return;
-        const pos = p.mesh.geometry.positions;
-        const rest = p.rest;
-        const lift = -BREATH_PX * 0.5 * (1 + Math.sin((t / BREATH_S) * TAU));
-        const lean = LEAN_RAD * Math.sin((t / LEAN_S) * TAU);
-        const a1 = (t / HAIR_S[0]) * TAU;
-        const a2 = (t / HAIR_S[1]) * TAU + 1.3;
-        const a3 = (t / HAIR_S[2]) * TAU + 0.6;
-        for (let i = 0, n = w.cols * w.rows; i < n; i++) {
-            const x = rest[i * 2];
-            const y = rest[i * 2 + 1];
-            const b = w.breath[i];
-            const h = w.hair[i];
-            let dx = lean * (seat.pivot.y - y) * b;
-            let dy = lift * b;
-            if (h > 0.01) {
-                dx += HAIR_PX * h * (0.65 * Math.sin(a1 + y * 0.011) + 0.35 * Math.sin(a2 + y * 0.017));
-                dy += HAIR_PX * 0.25 * h * Math.sin(a3 + y * 0.013);
-            }
-            if (shift) {
-                dx += shift.dx[i] * amount;
-                dy += shift.dy[i] * amount;
-            }
-            pos[i * 2] = x + dx;
-            pos[i * 2 + 1] = y + dy;
-        }
-        p.mesh.geometry.getBuffer('aPosition').update();
-    };
-
     return {
         container,
         hitContainer,
@@ -284,94 +259,44 @@ export function createPartnerLayer(
         setTint(tint) {
             for (const p of poses.values()) p.mesh.tint = tint;
         },
-        show(pose, fades, animate) {
-            if (pose === current) return;
-            // a new change lands the running morph first; half-bent meshes never stack
-            endMorph();
-            const from = current ? poses.get(current) : undefined;
+        show(pose, animate) {
+            if (pose === switcher.current()) return;
+            const now = performance.now();
+            switcher.show(pose, now, animate && !reduced);
             const to = pose ? poses.get(pose) : undefined;
-            const ab = animate && current && pose ? morphs.get(`${current}-${pose}`) : undefined;
-            const ba = animate && current && pose ? morphs.get(`${pose}-${current}`) : undefined;
-            if (from && to && ab && ba) {
-                handovers = handovers.filter((h) => h.pose !== to);
-                from.mesh.texture = from.open;
-                to.mesh.texture = to.open;
-                holder.setChildIndex(to.mesh, holder.children.length - 1);
-                // the morph owns both opacities now; replace any fade still running on them
-                fades.start(from.mesh, 1, 1);
-                fades.start(to.mesh, 0, 1);
-                morph = { from, to, start: performance.now(), ab, ba };
-            } else if (to) {
-                const slow = current === 'asleep' || pose === 'asleep';
-                // coming back before a hand-over finished: it simply fades up again
-                handovers = handovers.filter((h) => h.pose !== to);
-                to.mesh.texture = to.open;
-                // the incoming pose fades in ABOVE the outgoing one, which stays fully
-                // opaque underneath: two half-transparent poses would let the room show through
-                holder.setChildIndex(to.mesh, holder.children.length - 1);
-                if (animate) fades.start(to.mesh, 1, slow ? SLOW_CROSSFADE_MS : CROSSFADE_MS);
-                else to.mesh.alpha = 1;
-            }
-            if (from && !morph) {
-                const slow = current === 'asleep' || pose === 'asleep';
-                from.mesh.texture = from.open;
-                if (!animate) from.mesh.alpha = 0;
-                // once covered, the outgoing pose fades out quickly, so parts outside the new
-                // silhouette (an arm that moved) leave softly instead of popping
-                else if (to)
-                    handovers.push({
-                        pose: from,
-                        at: performance.now() + (slow ? SLOW_CROSSFADE_MS : CROSSFADE_MS),
-                        out: slow ? SLOW_HANDOVER_MS : HANDOVER_MS
-                    });
-                else fades.start(from.mesh, 0, CROSSFADE_MS);
-            }
-            current = pose;
-            blinkUntil = 0;
-            nextBlinkAt = performance.now() + rand(BLINK_GAP[0], BLINK_GAP[1]);
+            if (to) holder.setChildIndex(to.mesh, holder.children.length - 1);
+            blinker.reset(now);
             setZones(pose !== null && pose !== 'asleep');
             if (!pose) endPress();
         },
-        update(elapsed, nowMs, fades) {
-            handovers = handovers.filter((h) => {
-                if (nowMs < h.at) return true;
-                fades.start(h.pose.mesh, 0, h.out);
-                return false;
-            });
-            const m = morph;
-            if (m) {
-                const t = (nowMs - m.start) / MORPH_MS;
-                if (t >= 1) endMorph();
-                else {
-                    const e = easeInOut(t);
-                    // shapes travel the whole way; the pictures swap only in the middle
-                    m.to.mesh.alpha = smoothstep(0.25, 0.75, t);
-                    // whatever the flow could not bend into the new silhouette leaves softly once
-                    // it is covered, instead of popping when the morph lands
-                    m.from.mesh.alpha = 1 - smoothstep(0.8, 1, t);
-                    deform(m.from, elapsed, m.ab, e);
-                    deform(m.to, elapsed, m.ba, 1 - e);
-                }
-            }
-            for (const p of poses.values()) {
-                if (p.mesh.alpha > 0 && (!morph || (p !== morph.from && p !== morph.to))) deform(p, elapsed, null, 0);
-            }
-
-            const p = current ? poses.get(current) : undefined;
-            if (!p?.closed || morph) return;
-            if (blinkUntil > 0 && nowMs >= blinkUntil) {
-                p.mesh.texture = p.open;
-                blinkUntil = 0;
-                if (doubleBlink) {
-                    doubleBlink = false;
-                    nextBlinkAt = nowMs + 180;
-                } else {
-                    nextBlinkAt = nowMs + rand(BLINK_GAP[0], BLINK_GAP[1]);
-                }
-            } else if (blinkUntil === 0 && nowMs >= nextBlinkAt) {
-                p.mesh.texture = p.closed;
-                blinkUntil = nowMs + BLINK_MS;
-                doubleBlink = random() < 0.15;
+        flinch() {
+            if (!reduced) gestures.play(GESTURES.flinchLaugh, performance.now());
+        },
+        update(elapsed) {
+            const now = performance.now();
+            const frame = switcher.frame(now);
+            // no blink while a morph bends the mesh: the closed frame would land on a half-bent grid
+            const closed = !switcher.morphing() && blinker.closed(now);
+            const pulse = gestures.sample(now);
+            const current = switcher.current();
+            for (const [id, p] of poses) {
+                const f = frame.get(id);
+                p.mesh.alpha = f?.alpha ?? 0;
+                if (!f) continue;
+                p.mesh.texture = id === current && closed && p.closed ? p.closed : p.open;
+                if (!p.weights && !f.shift) continue;
+                const shift = f.shift ? (rig.flows[f.shift.field] ?? null) : null;
+                deformVertices(
+                    p.rest,
+                    p.mesh.geometry.positions,
+                    p.weights ?? still,
+                    elapsed,
+                    motion,
+                    shift,
+                    f.shift?.amount ?? 0,
+                    pulse
+                );
+                p.mesh.geometry.getBuffer('aPosition').update();
             }
         },
         anchors() {

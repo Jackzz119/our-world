@@ -1,0 +1,79 @@
+{
+  "version": 2,
+  "canvas": {
+    "w": 1377,
+    "h": 1015
+  },
+  "grid": 24,
+  "flowFormat": "rgb12",
+  "anchor": "reading",
+  "poses": {
+    "reading": {
+      "slow": false,
+      "open": "/characters/ayu/reading-open.webp",
+      "closed": "/characters/ayu/reading-closed.webp",
+      "idle": "/characters/ayu/idle-reading.png"
+    },
+    "glance": {
+      "slow": false,
+      "open": "/characters/ayu/glance-open.webp",
+      "closed": "/characters/ayu/glance-closed.webp",
+      "idle": "/characters/ayu/idle-glance.png"
+    },
+    "writing": {
+      "slow": false,
+      "open": "/characters/ayu/writing-open.webp",
+      "closed": "/characters/ayu/writing-closed.webp",
+      "idle": "/characters/ayu/idle-writing.png"
+    },
+    "sip": {
+      "slow": false,
+      "open": "/characters/ayu/sip-open.webp",
+      "idle": "/characters/ayu/idle-sip.png"
+    },
+    "asleep": {
+      "slow": true,
+      "open": "/characters/ayu/asleep-open.webp",
+      "idle": "/characters/ayu/idle-asleep.png"
+    },
+    "patted": {
+      "slow": false,
+      "open": "/characters/ayu/patted-open.webp",
+      "idle": "/characters/ayu/idle-patted.png"
+    },
+    "poked": {
+      "slow": false,
+      "open": "/characters/ayu/poked-open.webp",
+      "idle": "/characters/ayu/idle-poked.png"
+    }
+  },
+  "morphs": {
+    "glance-patted": "/characters/ayu/morph-glance-patted.png",
+    "glance-poked": "/characters/ayu/morph-glance-poked.png",
+    "glance-reading": "/characters/ayu/morph-glance-reading.png",
+    "glance-writing": "/characters/ayu/morph-glance-writing.png",
+    "patted-glance": "/characters/ayu/morph-patted-glance.png",
+    "patted-poked": "/characters/ayu/morph-patted-poked.png",
+    "patted-reading": "/characters/ayu/morph-patted-reading.png",
+    "patted-writing": "/characters/ayu/morph-patted-writing.png",
+    "poked-glance": "/characters/ayu/morph-poked-glance.png",
+    "poked-patted": "/characters/ayu/morph-poked-patted.png",
+    "poked-reading": "/characters/ayu/morph-poked-reading.png",
+    "poked-writing": "/characters/ayu/morph-poked-writing.png",
+    "reading-glance": "/characters/ayu/morph-reading-glance.png",
+    "reading-patted": "/characters/ayu/morph-reading-patted.png",
+    "reading-poked": "/characters/ayu/morph-reading-poked.png",
+    "reading-writing": "/characters/ayu/morph-reading-writing.png",
+    "writing-glance": "/characters/ayu/morph-writing-glance.png",
+    "writing-patted": "/characters/ayu/morph-writing-patted.png",
+    "writing-poked": "/characters/ayu/morph-writing-poked.png",
+    "writing-reading": "/characters/ayu/morph-writing-reading.png"
+  },
+  "placement": {
+    "origin": [
+      346.02,
+      92.83
+    ],
+    "scale": 0.57417
+  }
+}

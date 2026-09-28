@@ -1,0 +1,23 @@
+{
+    "anchor": "reading",
+    "source": "arts/characters/ayu/source",
+    "source_pattern": "ayu-{pose}-{eye}.png",
+    "source_single": "ayu-{pose}.png",
+    "build": "arts/characters/ayu/build",
+    "runtime": "public/characters/ayu",
+    "url_base": "/characters/ayu",
+    "poses": {
+        "reading": { "blink": true },
+        "glance": { "blink": true },
+        "writing": { "blink": true },
+        "sip": {
+            "accept": "2026-09-27 batch: shoulders 9 px high and the torso cut 17 px low, no usable blink frame; regenerate with the next batch"
+        },
+        "asleep": { "morph": false, "slow": true, "probe": false },
+        "patted": {},
+        "poked": { "align_to": "reading" }
+    },
+    "canvas": { "probes_x": [350, 400, 1150, 1200], "cut_y": 900, "cut_probe_x": [600, 768, 950] },
+    "hair": { "by_pose": { "asleep": { "mode": "none" } } },
+    "plate": { "path": "arts/rooms/study/source/master-night.png" }
+}

@@ -64,16 +64,11 @@ export type PartnerState = 'reading' | 'writing' | 'away' | 'offline' | 'asleep'
 /** Every pose an avatar ships; all share one canvas so they swap in place. */
 export type PoseId = 'reading' | 'glance' | 'writing' | 'sip' | 'asleep' | 'patted' | 'poked';
 
-/** One avatar's pose art. `closed` is the blink frame, present only on eyes-open poses. */
-export type AvatarPoses = {
-    /** Pose canvas size in px; every pose file has exactly this size. */
-    canvas: { w: number; h: number };
-    poses: Record<PoseId, { open: string; closed?: string }>;
-    /** Per-pose idle motion weights (scripts/build-idle-weights.py); a pose without one stays still. */
-    idle?: Partial<Record<PoseId, string>>;
-    /** Morph flows between poses, keyed `from-to` (scripts/build-pose-flow.py); a missing pair cross-fades. */
-    morph?: Record<string, string>;
-};
+/**
+ * One avatar's rig: the manifest the marionette pipeline exports (ai/jaSkills/marionette), which
+ * lists every pose frame, blink frame, idle weight map and morph field that shipped.
+ */
+export type AvatarRig = { manifest: string };
 
 /**
  * Where the partner sits: the pose canvas lands on the plate with one scale
