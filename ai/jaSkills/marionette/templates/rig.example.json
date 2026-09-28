@@ -1,0 +1,26 @@
+{
+    "anchor": "reading",
+    "source": "<art source folder>/source",
+    "source_pattern": "hero-{pose}-{eye}.png",
+    "source_single": "hero-{pose}.png",
+    "build": "<art source folder>/build",
+    "runtime": "<public folder>/characters/hero",
+    "url_base": "/characters/hero",
+    "grid": 24,
+    "poses": {
+        "reading": { "blink": true },
+        "glance": { "blink": true },
+        "writing": { "blink": true },
+        "sip": { "blink": true },
+        "patted": {},
+        "poked": {},
+        "asleep": { "morph": false, "slow": true, "probe": false }
+    },
+    "canvas": {
+        "probes_x": [350, 400, 1150, 1200],
+        "cut_y": 900,
+        "cut_probe_x": [600, 768, 950]
+    },
+    "hair": { "mode": "dark", "lum_max": 0.3, "by_pose": { "asleep": { "mode": "none" } } },
+    "plate": { "path": "<scene frame the character was designed in>.png" }
+}
