@@ -155,6 +155,10 @@ export async function buildTableScene(
     // the grade only runs while it changes something: a filter re-renders the
     // whole world offscreen every frame, which is costly at a phone's 3x density
     const weatherFilter = new AdjustmentFilter();
+    // pixi filters default to resolution 1: at a 3x screen the rainy world would
+    // be redrawn at 1x and stretched back, which is what made rain look jagged
+    weatherFilter.resolution = 'inherit';
+    weatherFilter.antialias = 'inherit';
 
     const plateLayer = new Container();
     scene.addChild(plateLayer);
