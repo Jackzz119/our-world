@@ -5,7 +5,7 @@
 // The one that matters most is the see-through check: while the top pose is not opaque, some pose
 // under it must be. Breaking it is what makes a character flicker on a pose change.
 
-import { createBlinker, createSwitcher, decodeFlow } from './rig-core.ts';
+import { createBlinker, createGesturePlayer, createSwitcher, decodeFlow, GESTURES, REST_PULSE } from './rig-core.ts';
 import { createDirector } from './rig-director.ts';
 
 let failures = 0;
@@ -96,6 +96,34 @@ const ok = (cond: boolean, msg: string) => {
     }
     ok(blinks >= 9 && blinks <= 22, `blinks per minute: ${blinks}`);
     ok(Math.abs(closedMs / blinks - 140) <= 10, `closed ms per blink: ${closedMs / blinks}`);
+}
+
+// gestures: a real jump, no judder, and back to rest exactly
+{
+    for (const [name, g] of Object.entries(GESTURES)) {
+        let peak = 0;
+        let jump = 0;
+        let prev = g.at(0);
+        for (let t = 4; t < g.ms; t += 4) {
+            const p = g.at(t);
+            peak = Math.max(peak, p.lift);
+            jump = Math.max(
+                jump,
+                Math.abs(p.lift - prev.lift),
+                Math.abs(p.hairX - prev.hairX),
+                Math.abs(p.hairLag - prev.hairLag)
+            );
+            prev = p;
+        }
+        ok(peak > 4, `${name}: the body should visibly jump (peak ${peak.toFixed(1)} px)`);
+        ok(jump < 1, `${name}: no judder between 4 ms samples (worst step ${jump.toFixed(2)} px)`);
+        ok(Math.abs(g.at(g.ms - 1).lift) < 0.05, `${name}: ends at rest`);
+    }
+    const rising = GESTURES.flinchLaugh.at(40);
+    ok(rising.hairLag > 0, 'hair trails below the body while it rises');
+    const player = createGesturePlayer();
+    player.play(GESTURES.flinchLaugh, 1000);
+    ok(player.sample(1080).lift > 5 && player.sample(2400) === REST_PULSE, 'player runs a gesture and then rests');
 }
 
 // director: priorities, held reactions, states

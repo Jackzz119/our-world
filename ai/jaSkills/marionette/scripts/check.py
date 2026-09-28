@@ -2,7 +2,9 @@
 
 Per file: canvas size, genuine transparency, shoulder-line drift against the anchor pose, torso cut
 line; per blink pair: how much changed outside the eyes. FAIL means regenerate that file; a blink
-over the limit is rejected (the pose ships eyes-open) rather than failing the set.
+over the limit is rejected (the pose ships eyes-open) rather than failing the set. A pose with
+"accept": "<reason>" in rig.json turns its FAIL into a WARN that names the reason on every run: for a
+known defect that was decided on, never for a new one.
 
 Review: review/check-contact.jpg (every file on a checkerboard, so fake transparency shows) and
 review/check-overlay.jpg (every file at 50% over the anchor, so drift shows as double lines).
@@ -81,6 +83,10 @@ def run(ctx, args):
                 if seen and max(abs(v) for v in seen) > th["cut_fail_px"]:
                     status = "fail"
                     entry["issues"].append(f"torso cut line off by {max(seen, key=abs)}px (expected y={cut_y})")
+            if status == "fail" and fits and p.get("accept"):
+                # a known defect someone decided to ship with: still printed on every run
+                status = "warn"
+                entry["issues"].append(f"accepted: {p['accept']}")
             entry["status"] = grade(status)
             tag = f"{pose}-{eye} {entry['status'].upper()}"
             contact.append(label(shrink(on_checker(img), 384), tag))

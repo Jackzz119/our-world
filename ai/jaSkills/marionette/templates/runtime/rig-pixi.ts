@@ -11,6 +11,7 @@
 import { Assets, Container, MeshPlane, type Texture } from 'pixi.js';
 import {
     createBlinker,
+    createGesturePlayer,
     createSwitcher,
     decodeFlow,
     decodeWeights,
@@ -18,6 +19,7 @@ import {
     DEFAULT_MOTION,
     type BlinkTiming,
     type FlowField,
+    type Gesture,
     gridSize,
     type Motion,
     type RigManifest,
@@ -95,6 +97,8 @@ export type RigView = {
     /** Every texture, for renderer.prepare.upload before the first pose change. */
     textures: Texture[];
     show: (pose: string | null, animate: boolean) => void;
+    /** Play a computed body motion on top of the idle (GESTURES.flinchLaugh on a poke). */
+    gesture: (g: Gesture) => void;
     /** Call every frame; `elapsedS` drives the idle loops. */
     update: (elapsedS: number) => void;
     /** Scene light on the character, as a multiply tint. */
@@ -151,6 +155,7 @@ export function createRigView(
         timing: opts.timing
     });
     const blinker = createBlinker(random, performance.now(), opts.blink);
+    const gestures = createGesturePlayer();
 
     return {
         container,
@@ -162,10 +167,14 @@ export function createRigView(
             if (m) container.setChildIndex(m.mesh, container.children.length - 1);
             blinker.reset(now);
         },
+        gesture(g) {
+            if (!opts.reducedMotion) gestures.play(g, performance.now());
+        },
         update(elapsedS) {
             const now = performance.now();
             const frame = switcher.frame(now);
             const blinkClosed = !switcher.morphing() && blinker.closed(now);
+            const pulse = gestures.sample(now);
             for (const [id, m] of meshes) {
                 const f = frame.get(id);
                 m.mesh.alpha = f?.alpha ?? 0;
@@ -180,7 +189,8 @@ export function createRigView(
                     elapsedS,
                     motion,
                     shift,
-                    f.shift?.amount ?? 0
+                    f.shift?.amount ?? 0,
+                    pulse
                 );
                 m.mesh.geometry.getBuffer('aPosition').update();
             }
