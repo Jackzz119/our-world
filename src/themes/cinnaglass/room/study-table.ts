@@ -94,5 +94,12 @@ export const AYU_POSES: AvatarPoses = {
         asleep: { open: `${A}/asleep-open.webp` },
         patted: { open: `${A}/patted-open.webp` },
         poked: { open: `${A}/poked-open.webp` }
-    }
+    },
+    // breath and hair weights per pose, derived from the pose art itself
+    idle: Object.fromEntries(
+        (['reading', 'glance', 'writing', 'sip', 'asleep', 'patted', 'poked'] as const).map((p) => [
+            p,
+            `${A}/idle-${p}.png`
+        ])
+    )
 };

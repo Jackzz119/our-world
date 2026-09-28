@@ -22,6 +22,7 @@
 // table, chair) moves together; only the viewer's hands move against them.
 
 import { type Application, Assets, Container, Sprite, type Texture } from 'pixi.js';
+import 'pixi.js/prepare';
 import { AdjustmentFilter } from 'pixi-filters';
 import type {
     AvatarId,
@@ -30,6 +31,7 @@ import type {
     LampPlates,
     PartnerState,
     PlatePart,
+    PoseId,
     RoomMood,
     RoomWeather,
     TableRoomTemplate
@@ -37,7 +39,12 @@ import type {
 import { createAffordance } from '@/themes/cinnaglass/room/affordance';
 import { createFadeQueue } from '@/themes/cinnaglass/room/fade-queue';
 import { ACTOR_TINT, WEATHER_GRADE } from '@/themes/cinnaglass/room/lighting';
-import { createPartnerLayer, type HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
+import {
+    createPartnerLayer,
+    type HeadAnchors,
+    type IdleWeights,
+    loadIdleWeights
+} from '@/themes/cinnaglass/room/partner-layer';
 import { createPartnerDirector } from '@/themes/cinnaglass/room/partner-state';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
 import { createSteamLayer } from '@/themes/cinnaglass/room/steam-layer';
@@ -128,7 +135,15 @@ export async function buildTableScene(
     const foreground = room.foreground[cast.viewer];
     const jacket = room.traces.jacket?.[cast.partner];
     const parts = [foreground, room.traces.mug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
-    const textures = await Assets.load<Texture>([...plateUrls, ...poseUrls, ...parts.map((p) => p.src)]);
+    const [textures, weightList] = await Promise.all([
+        Assets.load<Texture>([...plateUrls, ...poseUrls, ...parts.map((p) => p.src)]),
+        Promise.all(
+            Object.entries(cast.poses.idle ?? {}).map(
+                async ([pose, url]) => [pose, await loadIdleWeights(url)] as const
+            )
+        )
+    ]);
+    const idleWeights = Object.fromEntries(weightList) as Partial<Record<PoseId, IdleWeights>>;
 
     const partSprite = (part: PlatePart) => {
         const s = new Sprite(textures[part.src]);
@@ -187,7 +202,7 @@ export async function buildTableScene(
 
     const fades = createFadeQueue();
     const director = createPartnerDirector(init.partner, random, performance.now());
-    const partner = createPartnerLayer(room.seat, cast.poses, textures, random, {
+    const partner = createPartnerLayer(room.seat, cast.poses, textures, idleWeights, random, {
         onPoke() {
             if (director.react('poked', performance.now())) events.onPoke?.();
         },
@@ -333,7 +348,7 @@ export async function buildTableScene(
 
         const pose = director.update(now);
         partner.show(pose, fades, !reduced);
-        if (!reduced) partner.update(elapsed, now);
+        if (!reduced) partner.update(elapsed, now, fades);
         // the mug is in their hands while they sip
         if (mugSprite) mugSprite.visible = pose !== 'sip';
 
@@ -396,6 +411,11 @@ export async function buildTableScene(
         if (animate) fades.start(jacketSprite, to, TRACE_FADE_MS);
         else jacketSprite.alpha = to;
     };
+
+    // every pose is uploaded now: a pose shown for the first time (the first pat)
+    // would otherwise upload its large texture mid-swap and stall a frame. Not
+    // awaited: the queue runs on frames, which a hidden tab never gets
+    void app.renderer.prepare.upload(partner.textures);
 
     applyLight(false, 0);
     applyTraces(false);

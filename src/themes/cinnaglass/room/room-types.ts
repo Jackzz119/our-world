@@ -69,6 +69,8 @@ export type AvatarPoses = {
     /** Pose canvas size in px; every pose file has exactly this size. */
     canvas: { w: number; h: number };
     poses: Record<PoseId, { open: string; closed?: string }>;
+    /** Per-pose idle motion weights (scripts/build-idle-weights.py); a pose without one stays still. */
+    idle?: Partial<Record<PoseId, string>>;
 };
 
 /**
