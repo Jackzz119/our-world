@@ -13,11 +13,19 @@ await sharp(reference)
     .extract({ left: 828, top: 224, width: 328, height: 209 })
     .png()
     .toFile(path.join(dir, 'reference-photo.png'));
+// the room's dev-only presence panel is not part of the UI these screenshots document
+const hideDevPanel = () =>
+    document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style');
+        style.textContent = '.table-dev.ui-surface { display: none; }';
+        document.head.append(style);
+    });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
 const base = baseUrl();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.stack || e.message));
+await page.addInitScript(hideDevPanel);
 await page.addInitScript(() => {
     if (!localStorage.getItem('ow-tweaks-v1'))
         localStorage.setItem('ow-tweaks-v1', JSON.stringify({ mood: 'night', weather: 'rain' }));
