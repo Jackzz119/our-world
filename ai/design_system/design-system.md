@@ -47,7 +47,7 @@
 
 - **书房第一期：第一个能跑的切片已上线**，替换了上一期书房。她的视角：对面是阿屿，前景是她的奶油色针织袖口；三档时辰 × 晴 / 雨、台灯拉绳、五种在场状态、戳一下 / 摸头 / 喝一口的反应、两只杯子的蒸汽，桌面与手机同步。实装截图见 [场景](scene.md#实装截图) 与 [角色](character.md#在场状态)；他的视角、倒咖啡仪式和唱片机还没做，范围与进度见 [书房功能文档](../features/study-room/study-room.md)。
 - **上一期的水彩书房、双犬、挂钟与唱片机已删除**（2026-09-27）：运行时素材与代码都已移除，原画源在上一期档案里。
-- **Cinnaglass UI 是当前 UI**：导航、双圆时辰 / 天气、聊天窄卡、音乐、纪念卡、金亮信纸、任务弹窗与手机布局继续沿用；UI 文档里的实装截图背景仍是上一期书房，书房翻新后重拍。
+- **Cinnaglass UI 是当前 UI**：导航、双圆时辰 / 天气、聊天窄卡、音乐、纪念卡、金亮信纸、任务弹窗与手机布局继续沿用；UI 文档的实装截图已重拍到新书房（少数需要账号的状态除外，见 [UI 地图](uiux/uiux.md)）；头像换成小满与阿屿。
 
 ## 实际素材位置
 
@@ -59,6 +59,7 @@
 | 运行时素材                   | [public/](../../public/)                                                                           | `rooms/study/`、`characters/ayu/`、UI 均为当前                                                |
 | 书房实装截图                 | [study-verification](study-verification/)                                                          | 2026-09-27 开发环境拍摄，隐藏开发面板                                                         |
 | UI 素材与样式                | [arts/ui](../../arts/ui/)、[public/ui](../../public/ui/)、[主题源码](../../src/themes/cinnaglass/) | 当前                                                                                          |
+| 头像                         | 生产源 `arts/ui/avatars/source/`，运行时 `public/avatars/`、`public/ui/journal/avatar-*.webp`      | 小满 / 阿屿，2026-09-28                                                                       |
 | 上一期档案                   | [arts/archive/v2-companion-house](../../arts/archive/v2-companion-house/README.md)                 | 放置陪伴小屋（2026-08-09～09-24）                                                             |
 | 方向比稿档案                 | [arts/archive/v3-direction-proposals](../../arts/archive/v3-direction-proposals/scene-concepts.md) | 并肩、灯火小楼两个落选方向与比较                                                              |
 

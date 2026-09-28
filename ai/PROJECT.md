@@ -165,7 +165,7 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，第一个切片可跑，5 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，第一个切片已上线，6 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/across-the-table/` 当期对坐概念（77 张图、制作注记与出图 brief）；`codex-visual/` 待确认的比稿
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
