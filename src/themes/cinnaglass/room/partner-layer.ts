@@ -10,6 +10,11 @@
 // chest, shoulders and head rise a little with each breath while the hands and
 // book on the table stay put; the upper body leans a hair; hair tips sway on
 // their own with the wave travelling down the hair.
+//
+// Pose changes morph rather than dissolve (scripts/build-pose-flow.py): the
+// outgoing mesh bends towards the incoming pose's shape along a measured
+// optical flow while the incoming one relaxes out of the outgoing shape, the
+// way frame interpolation computes in-betweens from two frames.
 
 import { Container, type FederatedPointerEvent, MeshPlane, Rectangle, type Texture } from 'pixi.js';
 import type { AvatarPoses, PartnerSeat, PoseId, PxPoint } from '@/themes/cinnaglass/room/room-types';
@@ -17,6 +22,9 @@ import type { FadeQueue } from '@/themes/cinnaglass/room/fade-queue';
 
 /** Per-vertex motion weights for one pose: `breath` and `hair`, 0..1, row by row. */
 export type IdleWeights = { cols: number; rows: number; breath: Float32Array; hair: Float32Array };
+
+/** Per-vertex flow from one pose to another: where each vertex's content sits in the other pose, pose-canvas px. */
+export type MorphField = { dx: Float32Array; dy: Float32Array };
 
 /** One pose's mesh, its two frames and its rest geometry. */
 type Pose = {
@@ -61,6 +69,10 @@ export type HeadAnchors = { left: PxPoint; right: PxPoint; faceRight: number; sh
 // Pose swaps and the pat gesture (ai/features/study-room/study-room.md §四).
 const CROSSFADE_MS = 180;
 const HANDOVER_MS = 120;
+const MORPH_MS = 420;
+// falling asleep and waking move too far for a morph: a slower cover-and-fade reads as dozing off
+const SLOW_CROSSFADE_MS = 400;
+const SLOW_HANDOVER_MS = 300;
 const BLINK_MS = 140;
 const BLINK_GAP: [number, number] = [2400, 6500];
 const PAT_START_PX = 12;
@@ -73,25 +85,49 @@ const LEAN_S = 7.4;
 const HAIR_PX = 4.5;
 const HAIR_S = [4.2, 2.3, 3.1];
 
-/** Read a weight map (R = breath, G = hair) written by scripts/build-idle-weights.py. */
-export async function loadIdleWeights(url: string): Promise<IdleWeights> {
-    const bitmap = await createImageBitmap(await (await fetch(url)).blob());
+/** Decode a small data PNG into its RGBA bytes. */
+async function readPixels(url: string) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${url}: ${response.status}`);
+    const bitmap = await createImageBitmap(await response.blob());
     const canvas = document.createElement('canvas');
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
     const g = canvas.getContext('2d', { willReadFrequently: true });
-    if (!g) throw new Error('idle weights: no 2d canvas');
+    if (!g) throw new Error('pose data: no 2d canvas');
     g.drawImage(bitmap, 0, 0);
-    const px = g.getImageData(0, 0, bitmap.width, bitmap.height).data;
-    const n = bitmap.width * bitmap.height;
-    const breath = new Float32Array(n);
-    const hair = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
+    return { w: bitmap.width, h: bitmap.height, px: g.getImageData(0, 0, bitmap.width, bitmap.height).data };
+}
+
+/** Read a weight map (R = breath, G = hair) written by scripts/build-idle-weights.py. */
+export async function loadIdleWeights(url: string): Promise<IdleWeights> {
+    const { w, h, px } = await readPixels(url);
+    const breath = new Float32Array(w * h);
+    const hair = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) {
         breath[i] = px[i * 4] / 255;
         hair[i] = px[i * 4 + 1] / 255;
     }
-    return { cols: bitmap.width, rows: bitmap.height, breath, hair };
+    return { cols: w, rows: h, breath, hair };
 }
+
+/** Read a morph flow (R = dx + 128, G = dy + 128) written by scripts/build-pose-flow.py. */
+export async function loadMorphField(url: string): Promise<MorphField> {
+    const { w, h, px } = await readPixels(url);
+    const dx = new Float32Array(w * h);
+    const dy = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+        dx[i] = px[i * 4] - 128;
+        dy[i] = px[i * 4 + 1] - 128;
+    }
+    return { dx, dy };
+}
+
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const smoothstep = (a: number, b: number, x: number) => {
+    const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+};
 
 /**
  * Build the partner layer for `seat` from the avatar's pose art. `textures`
@@ -103,6 +139,7 @@ export function createPartnerLayer(
     art: AvatarPoses,
     textures: Record<string, Texture>,
     weights: Partial<Record<PoseId, IdleWeights>>,
+    morphs: Map<string, MorphField>,
     random: () => number,
     touch: PartnerTouch
 ): PartnerLayer {
@@ -138,7 +175,15 @@ export function createPartnerLayer(
 
     let current: PoseId | null = null;
     // outgoing poses stay opaque under the incoming one until it has covered them
-    let handovers: { pose: Pose; at: number }[] = [];
+    let handovers: { pose: Pose; at: number; out: number }[] = [];
+    // a running morph: `from` bends towards `to`'s shape, `to` relaxes out of `from`'s
+    let morph: { from: Pose; to: Pose; start: number; ab: MorphField; ba: MorphField } | null = null;
+    const endMorph = () => {
+        if (!morph) return;
+        morph.from.mesh.alpha = 0;
+        morph.to.mesh.alpha = 1;
+        morph = null;
+    };
     let nextBlinkAt = performance.now() + rand(1500, 5000);
     let blinkUntil = 0;
     let doubleBlink = false;
@@ -201,7 +246,7 @@ export function createPartnerLayer(
     // pivot; hair drifts sideways by the hair weight, its phase running down
     // the hair so the tips follow the roots instead of all moving at once.
     const TAU = Math.PI * 2;
-    const deform = (p: Pose, t: number) => {
+    const deform = (p: Pose, t: number, shift: MorphField | null, amount: number) => {
         const w = p.weights;
         if (!w) return;
         const pos = p.mesh.geometry.positions;
@@ -222,6 +267,10 @@ export function createPartnerLayer(
                 dx += HAIR_PX * h * (0.65 * Math.sin(a1 + y * 0.011) + 0.35 * Math.sin(a2 + y * 0.017));
                 dy += HAIR_PX * 0.25 * h * Math.sin(a3 + y * 0.013);
             }
+            if (shift) {
+                dx += shift.dx[i] * amount;
+                dy += shift.dy[i] * amount;
+            }
             pos[i * 2] = x + dx;
             pos[i * 2 + 1] = y + dy;
         }
@@ -237,24 +286,44 @@ export function createPartnerLayer(
         },
         show(pose, fades, animate) {
             if (pose === current) return;
+            // a new change lands the running morph first; half-bent meshes never stack
+            endMorph();
             const from = current ? poses.get(current) : undefined;
             const to = pose ? poses.get(pose) : undefined;
-            if (to) {
+            const ab = animate && current && pose ? morphs.get(`${current}-${pose}`) : undefined;
+            const ba = animate && current && pose ? morphs.get(`${pose}-${current}`) : undefined;
+            if (from && to && ab && ba) {
+                handovers = handovers.filter((h) => h.pose !== to);
+                from.mesh.texture = from.open;
+                to.mesh.texture = to.open;
+                holder.setChildIndex(to.mesh, holder.children.length - 1);
+                // the morph owns both opacities now; replace any fade still running on them
+                fades.start(from.mesh, 1, 1);
+                fades.start(to.mesh, 0, 1);
+                morph = { from, to, start: performance.now(), ab, ba };
+            } else if (to) {
+                const slow = current === 'asleep' || pose === 'asleep';
                 // coming back before a hand-over finished: it simply fades up again
                 handovers = handovers.filter((h) => h.pose !== to);
                 to.mesh.texture = to.open;
                 // the incoming pose fades in ABOVE the outgoing one, which stays fully
                 // opaque underneath: two half-transparent poses would let the room show through
                 holder.setChildIndex(to.mesh, holder.children.length - 1);
-                if (animate) fades.start(to.mesh, 1, CROSSFADE_MS);
+                if (animate) fades.start(to.mesh, 1, slow ? SLOW_CROSSFADE_MS : CROSSFADE_MS);
                 else to.mesh.alpha = 1;
             }
-            if (from) {
+            if (from && !morph) {
+                const slow = current === 'asleep' || pose === 'asleep';
                 from.mesh.texture = from.open;
                 if (!animate) from.mesh.alpha = 0;
                 // once covered, the outgoing pose fades out quickly, so parts outside the new
                 // silhouette (an arm that moved) leave softly instead of popping
-                else if (to) handovers.push({ pose: from, at: performance.now() + CROSSFADE_MS });
+                else if (to)
+                    handovers.push({
+                        pose: from,
+                        at: performance.now() + (slow ? SLOW_CROSSFADE_MS : CROSSFADE_MS),
+                        out: slow ? SLOW_HANDOVER_MS : HANDOVER_MS
+                    });
                 else fades.start(from.mesh, 0, CROSSFADE_MS);
             }
             current = pose;
@@ -266,13 +335,30 @@ export function createPartnerLayer(
         update(elapsed, nowMs, fades) {
             handovers = handovers.filter((h) => {
                 if (nowMs < h.at) return true;
-                fades.start(h.pose.mesh, 0, HANDOVER_MS);
+                fades.start(h.pose.mesh, 0, h.out);
                 return false;
             });
-            for (const p of poses.values()) if (p.mesh.alpha > 0) deform(p, elapsed);
+            const m = morph;
+            if (m) {
+                const t = (nowMs - m.start) / MORPH_MS;
+                if (t >= 1) endMorph();
+                else {
+                    const e = easeInOut(t);
+                    // shapes travel the whole way; the pictures swap only in the middle
+                    m.to.mesh.alpha = smoothstep(0.25, 0.75, t);
+                    // whatever the flow could not bend into the new silhouette leaves softly once
+                    // it is covered, instead of popping when the morph lands
+                    m.from.mesh.alpha = 1 - smoothstep(0.8, 1, t);
+                    deform(m.from, elapsed, m.ab, e);
+                    deform(m.to, elapsed, m.ba, 1 - e);
+                }
+            }
+            for (const p of poses.values()) {
+                if (p.mesh.alpha > 0 && (!morph || (p !== morph.from && p !== morph.to))) deform(p, elapsed, null, 0);
+            }
 
             const p = current ? poses.get(current) : undefined;
-            if (!p?.closed) return;
+            if (!p?.closed || morph) return;
             if (blinkUntil > 0 && nowMs >= blinkUntil) {
                 p.mesh.texture = p.open;
                 blinkUntil = 0;

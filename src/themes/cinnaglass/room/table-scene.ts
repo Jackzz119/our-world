@@ -43,7 +43,9 @@ import {
     createPartnerLayer,
     type HeadAnchors,
     type IdleWeights,
-    loadIdleWeights
+    loadIdleWeights,
+    loadMorphField,
+    type MorphField
 } from '@/themes/cinnaglass/room/partner-layer';
 import { createPartnerDirector } from '@/themes/cinnaglass/room/partner-state';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
@@ -135,15 +137,26 @@ export async function buildTableScene(
     const foreground = room.foreground[cast.viewer];
     const jacket = room.traces.jacket?.[cast.partner];
     const parts = [foreground, room.traces.mug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
-    const [textures, weightList] = await Promise.all([
+    const [textures, weightList, morphList] = await Promise.all([
         Assets.load<Texture>([...plateUrls, ...poseUrls, ...parts.map((p) => p.src)]),
         Promise.all(
             Object.entries(cast.poses.idle ?? {}).map(
                 async ([pose, url]) => [pose, await loadIdleWeights(url)] as const
             )
+        ),
+        // a morph that fails to load only costs that pair its morph: it cross-fades instead
+        Promise.all(
+            Object.entries(cast.poses.morph ?? {}).map(async ([pair, url]) => {
+                try {
+                    return [pair, await loadMorphField(url)] as const;
+                } catch {
+                    return null;
+                }
+            })
         )
     ]);
     const idleWeights = Object.fromEntries(weightList) as Partial<Record<PoseId, IdleWeights>>;
+    const morphs = new Map<string, MorphField>(morphList.filter((m) => m !== null));
 
     const partSprite = (part: PlatePart) => {
         const s = new Sprite(textures[part.src]);
@@ -202,7 +215,7 @@ export async function buildTableScene(
 
     const fades = createFadeQueue();
     const director = createPartnerDirector(init.partner, random, performance.now());
-    const partner = createPartnerLayer(room.seat, cast.poses, textures, idleWeights, random, {
+    const partner = createPartnerLayer(room.seat, cast.poses, textures, idleWeights, morphs, random, {
         onPoke() {
             if (director.react('poked', performance.now())) events.onPoke?.();
         },

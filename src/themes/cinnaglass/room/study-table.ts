@@ -81,6 +81,9 @@ export const STUDY_TABLE: TableRoomTemplate = {
 };
 
 const A = '/characters/ayu';
+// poses with a morph flow between every pair; build-pose-flow.py rejects sip (both hands leave the
+// book for the cup, so the flow drags the book along) and asleep, which keep the cover-and-fade
+const MORPHABLE = ['reading', 'glance', 'writing', 'patted', 'poked'] as const;
 
 /** 阿屿's poses, all on one trimmed 1377×1015 canvas (build-study-table.py). */
 export const AYU_POSES: AvatarPoses = {
@@ -96,6 +99,10 @@ export const AYU_POSES: AvatarPoses = {
         poked: { open: `${A}/poked-open.webp` }
     },
     // breath and hair weights per pose, derived from the pose art itself
+    // optical-flow morphs between every pair the flow can follow (asleep moves too far and cross-fades)
+    morph: Object.fromEntries(
+        MORPHABLE.flatMap((a) => MORPHABLE.filter((b) => b !== a).map((b) => [`${a}-${b}`, `${A}/morph-${a}-${b}.png`]))
+    ),
     idle: Object.fromEntries(
         (['reading', 'glance', 'writing', 'sip', 'asleep', 'patted', 'poked'] as const).map((p) => [
             p,
