@@ -5,6 +5,7 @@
 // Feature doc: ai/features/timeline.md
 import type { FeedPost, FeedProfile } from '@/types/feed';
 import { thumbPathOf } from '@/lib/storage';
+import { journalAvatarSrc, PARTNER, profileAvatar, VIEWER } from '@/themes/cinnaglass/cast';
 
 // One post, or the slice of one post that fits on a page. start is the
 // character offset of this slice; continued marks a slice that is not the first.
@@ -41,12 +42,9 @@ function journalEntry(part: JournalPart, context: Context): HTMLElement {
     const meta = element('div', 'journal-meta');
     const avatar = document.createElement('img');
     avatar.className = 'journal-avatar';
-    const defaultAvatar = mine ? 'blue' : 'pink';
+    const who = mine ? VIEWER : PARTNER;
     const customAvatar = profile?.avatar_url && !profile.avatar_url.startsWith('/avatars/');
-    avatar.src =
-        context.roomArt && !customAvatar
-            ? `/ui/journal/avatar-${defaultAvatar}.webp`
-            : profile?.avatar_url || `/avatars/${defaultAvatar}.png`;
+    avatar.src = context.roomArt && !customAvatar ? journalAvatarSrc(who) : profileAvatar(profile?.avatar_url, who);
     avatar.alt = context.roomArt ? name : '';
     avatar.draggable = false;
     meta.append(avatar, element('b', 'journal-author', name));

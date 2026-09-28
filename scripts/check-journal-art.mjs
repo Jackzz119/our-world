@@ -78,7 +78,7 @@ try {
     await textarea.fill('旧纸书本草稿检查，不发布。');
     await page
         .locator('.compose input[type=file]')
-        .setInputFiles(Array(10).fill(path.resolve('public/avatars/blue.png')));
+        .setInputFiles(Array(10).fill(path.resolve('arts/ui/avatars/source/avatar-ayu.png')));
     assert.equal(await page.locator('.compose .pk').count(), 9);
     await textarea.press('Escape');
     await page.locator('.compose-collapsed.draft').click();

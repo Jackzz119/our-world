@@ -1,0 +1,15 @@
+Production asset delegation from Monet (lead art director, Claude). PRODUCTION, NOT CONCEPT ART: four avatar images for "Our World", a web + phone app where a couple sits across a table from each other (the "对坐" iteration). They replace the previous iteration's floppy-eared puppy avatars, which must not be imitated in any way except format.
+
+Characters (identity locks from ai/design_system/character.md, keep exactly):
+- 小满 (woman, early twenties): chestnut-brown shoulder-length hair with wispy bangs, a small gold star hair clip, amber eyes, cream oversized knit cardigan over a white tee, thin gold necklace; a gentle, slightly sleepy smile. Reference: CH-xiaoman-sheet.jpg.
+- 阿屿 (man, mid twenties): fluffy messy dark navy-to-black hair, thin round wire glasses, charcoal hoodie with drawstrings; a quiet, warm smile. Reference: CH-ayu-sheet.jpg and ayu-reading-open.png (the art actually shipping in the scene — his face must read as the same person).
+
+Deliverables (write into the output folder, exact names):
+1. avatar-xiaoman.png and avatar-ayu.png — chat card / memory card avatars. 512x512, fully opaque square, head-and-shoulders portrait centred so it survives a circular crop (keep the face and hair inside the central circle, nothing important in the corners). Style: the approved across-the-table look — high-end 2D anime CG, fine line art, soft cel shading with painterly gradients, warm translucent skin, detailed hair highlights, semi-realistic proportions (not chibi). Soft, simple out-of-focus background: 小满 warm peach-cream with a hint of lamp glow, 阿屿 cool dusky blue-grey with a hint of night city bokeh. Looking at the viewer, friendly. Reads clearly at 36px.
+2. journal-avatar-xiaoman.png and journal-avatar-ayu.png — avatars inside the old-paper diary book. 512x512 RGBA: a round paper medallion (thin aged-paper rim, like the old journal-avatar-blue.webp reference) with genuinely transparent corners outside the circle. Inside: the same person as deliverable 1, drawn to sit on old paper — warm sepia and muted tones, soft ink-and-watercolour finish, same identity and outfit. Reads clearly at 80px.
+
+Rules (user-set, non-negotiable): parts come straight from generation with their own alpha — never cut out of another picture, never hand-repaired; no rings, outlines, glows or badges around the avatar beyond the paper rim of the journal medallion; the characters are original — do not resemble any existing IP; no text or letters in the images. The puppy references (blue.png, journal-avatar-blue.webp) are FORMAT references only: size, framing and the paper medallion. Do not copy their content, animal features or scarves.
+
+Acceptance: identity matches the sheets (hair colour and cut, star clip for 小满, glasses for 阿屿); the pair looks like one set; the chat pair survives a circular crop; the journal pair has real alpha=0 corners; nothing blurry or jagged at the target sizes. Redo a file that fails and keep the failed draft with an -initial suffix.
+
+Write codex-report.md in Simplified Chinese: per file the pixel size, alpha check, how it answers the brief, and any defect you still see.

@@ -11,6 +11,7 @@ import { SettingsScreen } from '@/themes/cinnaglass/settings';
 import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { ChannelScreen } from '@/themes/cinnaglass/chat/chat-hub';
 import { LobbyScene } from '@/themes/cinnaglass/lobby';
+import { RoomScene } from '@/themes/cinnaglass/room/room-scene';
 import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import { PhotoWall } from '@/themes/cinnaglass/surfaces/photo-wall';
 import { thumbPathOf } from '@/lib/storage';
@@ -72,7 +73,7 @@ const photos: FeedPost[] = ['golden', 'twilight', 'night'].map((mood, index) => 
     visible_content: null,
     visible_images: [`${mood}.png`]
 }));
-// the study's empty-table plate for each hour stands in for photos and the room backdrop
+// the study's empty-table plate for each hour stands in for photos
 const PLATE: Record<string, string> = {
     golden: '/rooms/study/plate-golden-on.webp',
     twilight: '/rooms/study/plate-twilight-on.webp',
@@ -82,12 +83,18 @@ const photoUrls = Object.fromEntries(
     ['golden', 'twilight', 'night'].map((mood) => [thumbPathOf(`${mood}.png`), PLATE[mood]])
 );
 
-// Screen query selects a production surface without adding a product route or a visible test toolbar.
+// Screen query selects a production surface without adding a product route or a visible test toolbar;
+// ?mood and ?weather pick the light, as for screenshots.
 export function MobileFixture() {
     useUiViewport();
-    const initial = new URLSearchParams(location.search).get('screen') || 'room';
+    const query = new URLSearchParams(location.search);
+    const initial = query.get('screen') || 'room';
     const [screen, setScreen] = useState(initial);
-    const [t, setT] = useState<Tweaks>({ ...TWEAK_DEFAULTS, weather: 'sun' });
+    const [t, setT] = useState<Tweaks>({
+        ...TWEAK_DEFAULTS,
+        mood: (query.get('mood') as Tweaks['mood']) || TWEAK_DEFAULTS.mood,
+        weather: query.get('weather') === 'rain' ? 'rain' : 'sun'
+    });
     const ref = useUiEnvironment(t.mood, true);
     const compact = useCompactUi();
     const [chat, setChat] = useState(initial === 'compact-chat');
@@ -138,14 +145,15 @@ export function MobileFixture() {
             data-music-open={music}
             data-letter-visible={letter}
         >
-            <div
-                aria-hidden="true"
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `url('${PLATE[t.mood]}') center / cover`
-                }}
-            />
+            {/* the real scene behind every in-world screen; its dev presence panel is not part of the layout under test */}
+            <style>{'.table-dev.ui-surface { display: none; }'}</style>
+            {screen !== 'lobby' && (
+                <RoomScene
+                    mood={t.mood}
+                    weatherKind={t.weather === 'rain' ? 'rain' : 'sun'}
+                    presence={{ partner: { name: '阿屿', status: '' } }}
+                />
+            )}
             {screen === 'lobby' ? (
                 <LobbyScene status="ready" hasWorld busy={false} error={null} onEnter={close} onCreate={noop} />
             ) : (

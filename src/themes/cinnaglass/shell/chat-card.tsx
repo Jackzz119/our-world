@@ -5,6 +5,7 @@ import { convsFor, type Conv, type Msg } from '@/themes/cinnaglass/chat/chat-dat
 import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 import '@/themes/cinnaglass/shell/chat-card.css';
 import { IClose, IExpand, ISend } from '@/themes/cinnaglass/icons';
+import { avatarSrc, PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
 
 // One-tap reactions; they send as ordinary messages, not as reaction rows.
 const QUICK = [
@@ -12,10 +13,10 @@ const QUICK = [
     { emoji: '🌟', cls: 'q-star' }
 ];
 
-// Fixed two-person avatar art (public/avatars); real per-account avatars are not wired yet.
+// The two people's portraits by who is on this device (cast.ts); real per-account avatars are not wired yet.
 const AVATARS: Record<'me' | 'her', string> = {
-    me: '/avatars/blue.png',
-    her: '/avatars/pink.png'
+    me: avatarSrc(VIEWER),
+    her: avatarSrc(PARTNER)
 };
 
 // The card owns no server state — everything comes from useChatThreads through WorldPage.

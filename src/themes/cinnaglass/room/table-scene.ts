@@ -152,8 +152,9 @@ export async function buildTableScene(
     world.addChild(scene, front);
     root.addChild(world);
     app.stage.addChild(root);
+    // the grade only runs while it changes something: a filter re-renders the
+    // whole world offscreen every frame, which is costly at a phone's 3x density
     const weatherFilter = new AdjustmentFilter();
-    world.filters = [weatherFilter];
 
     const plateLayer = new Container();
     scene.addChild(plateLayer);
@@ -276,6 +277,7 @@ export async function buildTableScene(
         const grade = WEATHER_GRADE[weather];
         weatherFilter.saturation = grade.saturation;
         weatherFilter.brightness = grade.brightness;
+        world.filters = grade.saturation === 1 && grade.brightness === 1 ? [] : [weatherFilter];
     };
 
     const pullLamp = () => {
