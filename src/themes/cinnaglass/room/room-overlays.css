@@ -1,4 +1,4 @@
-/* Scene-attached A overlays consume the shared palette without changing Pixi or diary behavior. */
+/* Overlays attached to the scene (bubble, name tag, load error) use the shared A palette. */
 .room-bubble.ui-surface,
 .presence-tag.ui-surface {
     --ui-alpha: 0.82;
@@ -26,7 +26,7 @@
     white-space: nowrap;
 }
 /* Across the table the partner faces the camera, so speech and the name tag sit beside the head
-   (table-room-scene.tsx): the bubble just above eye level, the tag centred on the shoulder line. */
+   (room-scene.tsx): the bubble just above eye level, the tag centred on the shoulder line. */
 .room-bubble.ui-surface:is([data-side='right'], [data-side='edge']) {
     transform: translate(0, calc(-100% - 4px));
 }
@@ -53,18 +53,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.presence-tag > span:not(.presence-indicator) {
+.presence-tag > span {
     color: var(--ui-muted);
-}
-.presence-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #aaaaaa;
-    flex-shrink: 0;
-}
-.presence-indicator[data-online='true'] {
-    background: var(--ui-success);
 }
 @media (max-width: 767px), (max-height: 599px) {
     .app.ui-environment:is([data-chat-open='true'], [data-music-open='true']) .presence-tag {
@@ -93,7 +83,7 @@
     line-height: 1.6;
 }
 
-/* Dev-only stand-in for real presence while the across-the-table study is built (table-room-scene.tsx).
+/* Dev-only stand-in until real presence is wired (room-scene.tsx).
    Compound selector for the same reason as the bubble: .ui-surface sets position: relative. */
 .table-dev.ui-surface {
     position: absolute;

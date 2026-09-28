@@ -20,13 +20,14 @@
     pointer-events: none;
     background:
         linear-gradient(#17191f33, #17191f66),
-        url('/rooms/study/twilight.png') center / cover;
+        url('/rooms/study/plate-twilight-on.webp') center / cover;
 }
+/* The study's empty table: the lobby is the table before you sit down. */
 [data-mood='golden'] .ui-entry::before {
-    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/golden.png');
+    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/plate-golden-on.webp');
 }
 [data-mood='night'] .ui-entry::before {
-    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/night.png');
+    background-image: linear-gradient(#17191f33, #17191f66), url('/rooms/study/plate-night-on-dry.webp');
 }
 .ui-entry-card {
     flex: 0 0 auto;

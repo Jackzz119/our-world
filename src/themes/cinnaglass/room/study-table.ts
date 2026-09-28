@@ -7,7 +7,7 @@
 
 import type { AvatarPoses, TableRoomTemplate } from '@/themes/cinnaglass/room/room-types';
 
-const T = '/rooms/study/table';
+const T = '/rooms/study';
 
 export const STUDY_TABLE: TableRoomTemplate = {
     id: 'study',

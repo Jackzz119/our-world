@@ -48,7 +48,7 @@
 
 ### 对方身边的气泡与名牌
 
-已实装，目前在开发环境（`?table`）。对方正对镜头坐着，头顶上方就是时辰 / 天气圆钮和纪念卡，所以气泡不再放在头顶，而是放在脸侧，对应概念稿 A2（桌面）与 A3（手机）。
+已实装。对方正对镜头坐着，头顶上方就是时辰 / 天气圆钮和纪念卡，所以气泡不再放在头顶，而是放在脸侧，对应概念稿 A2（桌面）与 A3（手机）。
 
 - **宽屏与平板**：气泡在对方脸侧的眼睛高度，贴着头发外侧，哪一侧空间够（至少 150px）就放哪侧，先看右侧；名牌落在同一侧的肩线上。气泡单行，过长省略。
 - **手机竖屏**：头几乎占满屏宽，两侧都放不下。气泡贴屏幕右边缘、在眼睛高度，只用脸右侧的空间，最多两行，最多盖到头发，不盖脸；名牌不显示。
@@ -59,6 +59,6 @@
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | ![桌面书房里的气泡与名牌](../study-verification/desktop-night-rain.jpg) | ![手机竖屏书房里的气泡](../study-verification/phone-night-rain.jpg) |
 
-实现：[table-room-scene.tsx](../../../src/themes/cinnaglass/room/table-room-scene.tsx) 的 `placeBeside`，锚点是模板里阿屿座位的 `beside`（[study-table.ts](../../../src/themes/cinnaglass/room/study-table.ts)），样式在 [room-overlays.css](../../../src/themes/cinnaglass/room/room-overlays.css)。
+实现：[room-scene.tsx](../../../src/themes/cinnaglass/room/room-scene.tsx) 的 `placeBeside`，锚点是模板里阿屿座位的 `beside`（[study-table.ts](../../../src/themes/cinnaglass/room/study-table.ts)），样式在 [room-overlays.css](../../../src/themes/cinnaglass/room/room-overlays.css)。
 
 新研究与比稿在 [视觉工作台](../codex-visual/README.md)；上一期的 UI 历史研究已移到 `arts/archive/v2-companion-house/ui-research/`，不作当前规范。当期概念从 [concept](../concept/README.md) 查。日常任务报告只在 session 汇报。用户随时看当前 UI 就打开本页；HTML 为特定交互预览，不能替代持续更新的 Markdown。

@@ -44,7 +44,7 @@ export function useWorldChatBubble(
         // Announcing her message is the effect's whole purpose — this state has
         // to be set the moment the message lands, not from a later callback.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setBubble({ seatId: 'pink', text, key: Date.now() });
+        setBubble({ seatId: 'partner', text, key: Date.now() });
         window.clearTimeout(hideTimer.current);
         hideTimer.current = window.setTimeout(() => setBubble(null), BUBBLE_MS);
     }, [id, from, pending, text]);

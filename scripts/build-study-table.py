@@ -15,7 +15,7 @@ Inputs (codex-visual batch folders):
   --poses   ayu-<pose>-open.png / ayu-<pose>-closed.png, ayu-asleep.png, ...
 
 Outputs:
-  public/rooms/study/table/*.webp        plates and table parts
+  public/rooms/study/*.webp              plates, table parts and the room-picker thumbnail
   public/characters/ayu/*.webp            pose sprites, one shared (trimmed) canvas
   arts/rooms/study/source/, arts/characters/ayu/source/   adopted originals + reports
   arts/rooms/study/table-manifest.json    measured geometry
@@ -143,7 +143,7 @@ def main():
     args = ap.parse_args()
     args.review.mkdir(parents=True, exist_ok=True)
 
-    room_out = args.public / "rooms/study/table"
+    room_out = args.public / "rooms/study"
     ayu_out = args.public / "characters/ayu"
     room_src = args.arts / "rooms/study/source"
     ayu_src = args.arts / "characters/ayu/source"
@@ -170,7 +170,14 @@ def main():
             raise SystemExit(f"{src.name} is {img.size}, expected {(base_w, base_h)}")
         save_webp(img, room_out / f"plate-{name}.webp", alpha=False)
         shutil.copy2(src, room_src / src.name)
-        manifest["plates"][name] = f"/rooms/study/table/plate-{name}.webp"
+        manifest["plates"][name] = f"/rooms/study/plate-{name}.webp"
+        # the room picker's card: the clear night plate, cut to the old 400x250 card (a resize, no repaint)
+        if name == "night-on-dry":
+            crop_h = round(base_w * 250 / 400)
+            top = (base_h - crop_h) // 2
+            thumb = img.convert("RGB").crop((0, top, base_w, top + crop_h)).resize((400, 250), Image.LANCZOS)
+            thumb.save(room_out / "thumb.webp", "WEBP", quality=85, method=6)
+            manifest["thumb"] = "/rooms/study/thumb.webp"
 
     for file, key in PLATE_PARTS.items():
         src = args.parts / file
@@ -186,14 +193,14 @@ def main():
         save_webp(img.crop(box), room_out / f"{key}.webp", alpha=True)
         shutil.copy2(src, room_src / file)
         x0, y0, x1, y1 = box
-        manifest["parts"][key] = {"src": f"/rooms/study/table/{key}.webp", "box": {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0}}
+        manifest["parts"][key] = {"src": f"/rooms/study/{key}.webp", "box": {"x": x0, "y": y0, "w": x1 - x0, "h": y1 - y0}}
     vinyl = args.parts / "part-vinyl.png"
     if vinyl.exists():
         img = Image.open(vinyl).convert("RGBA")
         manifest["alpha"].append(check_alpha(Image.open(vinyl), vinyl.name))
         save_webp(img, room_out / "vinyl.webp", alpha=True)
         shutil.copy2(vinyl, room_src / vinyl.name)
-        manifest["parts"]["vinyl"] = {"src": "/rooms/study/table/vinyl.webp", "size": img.size[0]}
+        manifest["parts"]["vinyl"] = {"src": "/rooms/study/vinyl.webp", "size": img.size[0]}
 
     # poses: one union crop so every pose keeps the shared canvas alignment
     files = {}

@@ -72,8 +72,14 @@ const photos: FeedPost[] = ['golden', 'twilight', 'night'].map((mood, index) => 
     visible_content: null,
     visible_images: [`${mood}.png`]
 }));
+// the study's empty-table plate for each hour stands in for photos and the room backdrop
+const PLATE: Record<string, string> = {
+    golden: '/rooms/study/plate-golden-on.webp',
+    twilight: '/rooms/study/plate-twilight-on.webp',
+    night: '/rooms/study/plate-night-on-dry.webp'
+};
 const photoUrls = Object.fromEntries(
-    ['golden', 'twilight', 'night'].map((mood) => [thumbPathOf(`${mood}.png`), `/rooms/study/${mood}.png`])
+    ['golden', 'twilight', 'night'].map((mood) => [thumbPathOf(`${mood}.png`), PLATE[mood]])
 );
 
 // Screen query selects a production surface without adding a product route or a visible test toolbar.
@@ -137,7 +143,7 @@ export function MobileFixture() {
                 style={{
                     position: 'absolute',
                     inset: 0,
-                    background: `url('/rooms/study/${t.mood}.png') center / cover`
+                    background: `url('${PLATE[t.mood]}') center / cover`
                 }}
             />
             {screen === 'lobby' ? (

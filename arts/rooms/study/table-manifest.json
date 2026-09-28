@@ -1,16 +1,16 @@
 {
   "plates": {
-    "night-on-dry": "/rooms/study/table/plate-night-on-dry.webp",
-    "night-off-dry": "/rooms/study/table/plate-night-off-dry.webp",
-    "night-on": "/rooms/study/table/plate-night-on.webp",
-    "night-off": "/rooms/study/table/plate-night-off.webp",
-    "twilight-on": "/rooms/study/table/plate-twilight-on.webp",
-    "twilight-off": "/rooms/study/table/plate-twilight-off.webp",
-    "golden-on": "/rooms/study/table/plate-golden-on.webp"
+    "night-on-dry": "/rooms/study/plate-night-on-dry.webp",
+    "night-off-dry": "/rooms/study/plate-night-off-dry.webp",
+    "night-on": "/rooms/study/plate-night-on.webp",
+    "night-off": "/rooms/study/plate-night-off.webp",
+    "twilight-on": "/rooms/study/plate-twilight-on.webp",
+    "twilight-off": "/rooms/study/plate-twilight-off.webp",
+    "golden-on": "/rooms/study/plate-golden-on.webp"
   },
   "parts": {
     "fg-xiaoman": {
-      "src": "/rooms/study/table/fg-xiaoman.webp",
+      "src": "/rooms/study/fg-xiaoman.webp",
       "box": {
         "x": 307,
         "y": 724,
@@ -19,7 +19,7 @@
       }
     },
     "mug-ayu": {
-      "src": "/rooms/study/table/mug-ayu.webp",
+      "src": "/rooms/study/mug-ayu.webp",
       "box": {
         "x": 942,
         "y": 582,
@@ -28,7 +28,7 @@
       }
     },
     "jacket-ayu": {
-      "src": "/rooms/study/table/jacket-ayu.webp",
+      "src": "/rooms/study/jacket-ayu.webp",
       "box": {
         "x": 451,
         "y": 366,
@@ -37,7 +37,7 @@
       }
     },
     "tonearm": {
-      "src": "/rooms/study/table/tonearm.webp",
+      "src": "/rooms/study/tonearm.webp",
       "box": {
         "x": 1214,
         "y": 593,
@@ -46,7 +46,7 @@
       }
     },
     "lamp-chain": {
-      "src": "/rooms/study/table/lamp-chain.webp",
+      "src": "/rooms/study/lamp-chain.webp",
       "box": {
         "x": 229,
         "y": 479,
@@ -55,7 +55,7 @@
       }
     },
     "vinyl": {
-      "src": "/rooms/study/table/vinyl.webp",
+      "src": "/rooms/study/vinyl.webp",
       "size": 1254
     }
   },
@@ -161,6 +161,7 @@
     "w": 1536,
     "h": 1024
   },
+  "thumb": "/rooms/study/thumb.webp",
   "partner": {
     "canvas": {
       "w": 1377,

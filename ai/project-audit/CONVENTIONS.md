@@ -28,7 +28,7 @@ index.html → src/main.tsx → App.tsx（路由）
 | `src/themes/cinnaglass/**` | kebab-case                                    | 组件、引擎、CSS；`room/`、`shell/` 已分子目录 |
 | `ai/` 新目录               | kebab-case                                    | 历史遗留 `design_system` 不改                 |
 
-- 已采纳（2026-09-19）：日记、物件功能面、聊天分别归 `journal/`、`surfaces/`、`chat/`；合成器入口为 `room/compositor.ts`，聊天大窗为 `chat/chat-hub.tsx`；两个校验脚本的模块 URL 已同步。
+- 已采纳（2026-09-19）：日记、物件功能面、聊天分别归 `journal/`、`surfaces/`、`chat/`；合成器入口为 `room/table-scene.ts`（2026-09-27 对坐书房取代 `compositor.ts`），聊天大窗为 `chat/chat-hub.tsx`；两个校验脚本的模块 URL 已同步。
 - **已采纳（2026-09-19，PA-031 同批落地）：import 路径一律写 `@/…`，TS/TSX 不带扩展名。** 覆盖全 `src`，含同目录引用（`./model` → `@/themes/cinnaglass/model`）。三条细则：
     - 指向 `<目录>/index.ts(x)` 的写目录名（`@/utils`、`@/types`），不写 `@/utils/index`；
     - `.css` 与 `.js`（`image-slot.js`）保留扩展名——它们不是 TS 模块，解析器不该去猜；

@@ -1,101 +1,104 @@
-// room-scene.tsx — React shell for the PixiJS room compositor. Mounts one
-// Application per component life, feeds mood/weather prop changes to the
-// scene handle, and resizes with its host. This is the world scene of the
-// product.
+// room-scene.tsx — React shell for the world scene, the across-the-table study
+// (ai/features/study-room/study-room.md). Mounts one Pixi Application per
+// component life, feeds mood / weather / partner changes to the scene handle
+// and anchors the speech bubble and name tag beside the partner's head. In dev
+// a panel stands in for real presence until it is wired.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Application } from 'pixi.js';
-import type { HotspotOpenEvent, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
+import type { HotspotOpenEvent, PartnerState, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
 import type { WeatherKind } from '@/themes/cinnaglass/model';
-import { buildScene, type CharacterAssets, type SceneHandle } from '@/themes/cinnaglass/room/compositor';
-import { STUDY_ROOM } from '@/themes/cinnaglass/room/study-room';
-import { TableRoomScene } from '@/themes/cinnaglass/room/table-room-scene';
+import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes/cinnaglass/room/table-scene';
+import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
+import { AYU_POSES, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
 const TAG = '[room][web][room-scene]';
 
-// Seat id to character art. The room template names the seats; who sits in
-// them lives here.
-const CHARACTERS: CharacterAssets = {
-    blue: {
-        open: '/characters/blue-reading-open.png',
-        closed: '/characters/blue-reading-closed.png'
-    },
-    pink: {
-        open: '/characters/pink-writing-open.png',
-        closed: '/characters/pink-writing-closed.png'
-    }
-};
+// First iteration: her view — the viewer is 小满, 阿屿 sits across (user direction 2026-09-27).
+const CAST: TableCast = { viewer: 'xiaoman', partner: 'ayu', poses: AYU_POSES };
 
-/** Who occupies a seat, as the overhead tag shows them. */
-export type SeatPresence = {
-    name: string;
-    status: string;
-    online?: boolean;
-};
+const PARTNER_STATES: { id: PartnerState; label: string }[] = [
+    { id: 'reading', label: '在线·看书' },
+    { id: 'writing', label: '正在输入' },
+    { id: 'away', label: '暂时离开' },
+    { id: 'offline', label: '离线' },
+    { id: 'asleep', label: '睡着了' }
+];
 
-/**
- * The app's weather vocabulary as WorldPage reports it. Re-exported from the
- * theme's model so the scene names the same closed union the shell does.
- */
-export type { WeatherKind };
-
-/** Props the React shell forwards to the running scene and its DOM overlays. */
 type RoomSceneProps = {
     mood: RoomMood;
-    /** WorldPage weather kind — collapsed to the scene's sun/rain by toRoomWeather. */
     weatherKind: WeatherKind;
-    /** furniture hotspot taps (feature keys from the room template) */
     onHotspot?: (event: HotspotOpenEvent) => void;
-    /** overhead presence tags keyed by seat id (the partner's, usually) */
-    presence?: Record<string, SeatPresence>;
-    /** transient overhead speech bubble (new incoming message preview) */
+    /** Overhead tag for the partner; only the name is known until presence is wired. */
+    presence?: Record<string, { name: string; status: string; online?: boolean }>;
+    /** Transient overhead speech bubble (new incoming message preview). */
     bubble?: { seatId: string; text: string; key: number } | null;
-    /** false freezes the ticker while a full-screen surface covers the room */
+    /** false freezes the ticker while a full-screen surface covers the room. */
     active?: boolean;
 };
 
-/** Collapse the app's weather vocabulary down to what the compositor can render. */
 const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
 
-// The across-the-table study replaces this painted room when it is complete
-// (ai/features/study-room/study-room.md ST-10); until then it runs in dev only, behind ?table.
-const TABLE_ROOM = import.meta.env.DEV && new URLSearchParams(window.location.search).has('table');
+// CSS px: the room a side needs to hold speech clear of the hair, the margin
+// kept to the screen edge, and the least width a phone's bubble shrinks to.
+const SIDE_ROOM = 150;
+const EDGE = 12;
+const EDGE_MIN = 96;
 
-/** The world scene: the across-the-table study under ?table in dev, otherwise the painted study. */
-export function RoomScene(props: RoomSceneProps) {
-    return TABLE_ROOM ? <TableRoomScene {...props} /> : <PaintedRoomScene {...props} />;
-}
+// `x` is where the bubble starts (right), ends (left), or the right margin it keeps (edge).
+type Placement = { side: 'left' | 'right' | 'edge'; x: number; y: number; room: number };
 
 /**
- * Mounts one Pixi Application for the component's whole life and hands prop
- * changes to the scene handle; the scene itself is never rebuilt. The overhead
- * presence tags and message bubbles are DOM, positioned from a 600ms poll of
- * the seat anchors.
+ * Speech sits beside the head on whichever side has room, so it never covers
+ * the face. A phone has room on neither side (the head fills the width and
+ * the top bar sits right above it), so the bubble hugs the right screen edge
+ * at eye level and wraps inside the space right of the face, over the hair
+ * at most (对坐 concept A3).
  */
-function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
+function placeBeside(anchors: HeadAnchors, width: number): Placement {
+    const right = width - anchors.right.x - EDGE;
+    if (right >= SIDE_ROOM) return { side: 'right', ...anchors.right, room: right };
+    const left = anchors.left.x - EDGE;
+    if (left >= SIDE_ROOM) return { side: 'left', ...anchors.left, room: left };
+    return {
+        side: 'edge',
+        x: EDGE,
+        y: anchors.right.y,
+        room: Math.max(EDGE_MIN, width - anchors.faceRight - 2 * EDGE)
+    };
+}
+
+/** The across-the-table room: the scene, the overhead bubble on the partner, and the dev presence panel. */
+export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
     const holderRef = useRef<HTMLDivElement | null>(null);
-    const sceneRef = useRef<SceneHandle | null>(null);
+    const sceneRef = useRef<TableSceneHandle | null>(null);
     const appRef = useRef<Application | null>(null);
-    const [tagPos, setTagPos] = useState<Record<string, { x: number; y: number }>>({});
-    // a texture that failed to load used to leave a silent transparent canvas
+    const [head, setHead] = useState<{ anchors: HeadAnchors | null; width: number }>({ anchors: null, width: 0 });
     const [failed, setFailed] = useState(false);
+    const [partnerState, setPartnerState] = useState<PartnerState>('reading');
+    const [lampOn, setLampOn] = useState(true);
     const onHotspotRef = useRef(onHotspot);
-    onHotspotRef.current = onHotspot;
+    const moodRef = useRef(mood);
+    const weatherRef = useRef(weatherKind);
+    const partnerRef = useRef(partnerState);
+    // the async mount reads the latest props through these; layout effects land before it starts
+    useLayoutEffect(() => {
+        onHotspotRef.current = onHotspot;
+        moodRef.current = mood;
+        weatherRef.current = weatherKind;
+        partnerRef.current = partnerState;
+    });
 
     useEffect(() => {
         const holder = holderRef.current;
         if (!holder) return;
         let disposed = false;
-        // v8: Application.start/stop/destroy only exist after init() resolves,
-        // so the instance is published to appRef strictly post-init
-        let app: Application | null = null;
-        // while buildScene is still awaiting textures the async block below
-        // owns the Application; the cleanup only tears it down once `built`
         let built = false;
         let ro: ResizeObserver | null = null;
-        let tagTimer = 0;
+        let headTimer = 0;
+        let app: Application | null = null;
         const teardown = (a: Application) => {
             a.destroy(true, { children: true, texture: false });
             if (appRef.current === a) appRef.current = null;
@@ -121,54 +124,45 @@ function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                 }
                 app = a;
                 appRef.current = a;
-                const live = a; // non-null binding for the closures below
-                // dev-only handle for headless visual checks (pixi extract)
                 if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__owApp = a;
                 holder.appendChild(a.canvas);
-                const scene = await buildScene(
+                const scene = await buildTableScene(
                     a,
-                    STUDY_ROOM,
-                    CHARACTERS,
-                    moodRef.current,
-                    toRoomWeather(weatherRef.current),
-                    (event) => onHotspotRef.current?.(event)
+                    STUDY_TABLE,
+                    CAST,
+                    {
+                        mood: moodRef.current,
+                        weather: toRoomWeather(weatherRef.current),
+                        lampOn: true,
+                        partner: partnerRef.current
+                    },
+                    {
+                        onHotspot: (event) => onHotspotRef.current?.(event),
+                        onLamp: setLampOn
+                    }
                 );
                 if (disposed) {
-                    // unmounted mid-load: the cleanup skipped the app, so free it here
                     scene.destroy();
                     teardown(a);
                     return;
                 }
                 built = true;
-                // props that changed while the textures were loading would be
-                // lost: the prop effects below skip while sceneRef is null
                 scene.setMood(moodRef.current, false);
                 scene.setWeather(toRoomWeather(weatherRef.current), false);
+                scene.setPartnerState(partnerRef.current);
                 sceneRef.current = scene;
-                // pixi's resizeTo only reacts to window resizes; layout-driven
-                // size changes (sidebar collapse squeezing the stage) must be
-                // pushed through manually: renderer first, then cover-fit.
+                const live = a;
                 ro = new ResizeObserver(() => {
                     live.resize();
                     scene.resize();
                 });
                 ro.observe(holder);
-                // overhead tags track seat anchors (sway amplitude is tiny, a
-                // slow poll is cheaper and calmer than per-frame tracking)
-                const syncTags = () => {
-                    const next: Record<string, { x: number; y: number }> = {};
-                    for (const seat of STUDY_ROOM.seats) {
-                        const p = scene.getSeatScreenPos(seat.id);
-                        if (p) next[seat.id] = p;
-                    }
-                    setTagPos(next);
-                };
-                syncTags();
-                tagTimer = window.setInterval(syncTags, 600);
+                // the head sways only a few px, so a slow poll is calmer than per-frame tracking
+                const syncHead = () => setHead({ anchors: scene.headAnchors(), width: holder.clientWidth });
+                syncHead();
+                headTimer = window.setInterval(syncHead, 600);
             } catch (e) {
-                // a 404 on any base/character texture rejects buildScene; say so
-                // instead of leaving an empty canvas behind the floaters
-                Logman.error(TAG, `房间没能加载：${e instanceof Error ? e.message : String(e)}`);
+                Logman.error(TAG, `书房没能加载：${e instanceof Error ? e.message : String(e)}`);
                 if (a && inited) teardown(a);
                 if (!disposed) setFailed(true);
             }
@@ -176,22 +170,14 @@ function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
 
         return () => {
             disposed = true;
-            clearInterval(tagTimer);
+            clearInterval(headTimer);
             ro?.disconnect();
             sceneRef.current?.destroy();
             sceneRef.current = null;
-            // still loading → the async block tears the app down when it settles
             if (app && built) teardown(app);
         };
         // mount once — prop changes go through the handle below
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // latest props are readable inside the async mount above
-    const moodRef = useRef(mood);
-    moodRef.current = mood;
-    const weatherRef = useRef(weatherKind);
-    weatherRef.current = weatherKind;
 
     useEffect(() => {
         sceneRef.current?.setMood(mood, true);
@@ -201,23 +187,31 @@ function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
         sceneRef.current?.setWeather(toRoomWeather(weatherKind), true);
     }, [weatherKind]);
 
-    // The parent keeps the room running behind the journal, including rain.
-    // Other covering screens can still suspend rendering.
-    // (appRef is only set post-init, so start/stop are safe; a not-yet-ready
-    // scene simply skips — init leaves the ticker running by default)
     useEffect(() => {
-        const app = appRef.current;
-        if (!app || !sceneRef.current) return;
-        if (active) app.start();
-        else app.stop();
+        const scene = sceneRef.current;
+        if (!scene) return;
+        scene.setPartnerState(partnerState);
+        setHead({ anchors: scene.headAnchors(), width: holderRef.current?.clientWidth ?? 0 });
+    }, [partnerState]);
+
+    useEffect(() => {
+        const a = appRef.current;
+        if (!a || !sceneRef.current) return;
+        if (active) a.start();
+        else a.stop();
     }, [active]);
+
+    const partnerTag = Object.values(presence ?? {})[0];
+    const place = head.anchors ? placeBeside(head.anchors, head.width) : null;
+    // the name tag needs a free side, and a sleeper needs no label: the pose already says it
+    const tagAt = place && place.side !== 'edge' && partnerState !== 'asleep' ? place : null;
 
     return (
         <div ref={holderRef} className="room-scene" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
             {failed && (
                 <div className="room-scene-feedback" role="alert">
                     <div className="ui-surface">
-                        <h2>房间暂时没能加载</h2>
+                        <h2>书房暂时没能加载</h2>
                         <p>检查网络后刷新页面，已保存的内容仍会保留。</p>
                         <button className="ui-button" type="button" onClick={() => window.location.reload()}>
                             重新加载
@@ -225,33 +219,59 @@ function PaintedRoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     </div>
                 </div>
             )}
-            {bubble && tagPos[bubble.seatId] && (
+            {bubble && place && (
                 <div
                     key={bubble.key}
                     className="room-bubble ui-surface"
-                    style={{ left: tagPos[bubble.seatId].x, top: tagPos[bubble.seatId].y - 52 }}
+                    data-side={place.side}
+                    // anchored by its right side at the edge, so it can grow leftwards into the free space
+                    style={{
+                        ...(place.side === 'edge' ? { right: place.x } : { left: place.x }),
+                        top: place.y,
+                        maxWidth: Math.min(240, place.room)
+                    }}
                 >
                     {bubble.text}
                 </div>
             )}
-            {presence &&
-                Object.entries(presence).map(([seatId, p]) => {
-                    const pos = tagPos[seatId];
-                    if (!pos) return null;
-                    return (
-                        <div key={seatId} className="presence-tag ui-surface" style={{ left: pos.x, top: pos.y }}>
-                            {p.online !== undefined && (
-                                <span
-                                    className="presence-indicator"
-                                    data-online={p.online}
-                                    aria-label={p.online ? '在线' : '离线'}
-                                />
-                            )}
-                            {p.name && <b>{p.name}</b>}
-                            {p.status && <span>{p.status}</span>}
-                        </div>
-                    );
-                })}
+            {partnerTag?.name && tagAt && head.anchors && (
+                <div
+                    className="presence-tag ui-surface"
+                    data-side={tagAt.side}
+                    style={{ left: tagAt.x, top: head.anchors.shoulder }}
+                >
+                    <b>{partnerTag.name}</b>
+                    {partnerTag.status && <span>{partnerTag.status}</span>}
+                </div>
+            )}
+            {import.meta.env.DEV && (
+                <div className="table-dev ui-surface" role="group" aria-label="对方状态模拟（开发用）">
+                    <b>对方状态（开发模拟）</b>
+                    <select
+                        id="table-dev-state"
+                        value={partnerState}
+                        onChange={(e) => setPartnerState(e.target.value as PartnerState)}
+                    >
+                        {PARTNER_STATES.map((s) => (
+                            <option key={s.id} value={s.id}>
+                                {s.label}
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            sceneRef.current?.setLamp(!lampOn, true);
+                            setLampOn(!lampOn);
+                        }}
+                    >
+                        {lampOn ? '关灯' : '开灯'}
+                    </button>
+                    <button type="button" onClick={() => sceneRef.current?.offerSip()}>
+                        递一杯咖啡
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

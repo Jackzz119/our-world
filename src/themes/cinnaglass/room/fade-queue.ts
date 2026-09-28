@@ -1,6 +1,6 @@
-// fade-queue.ts — the one alpha tween runner the whole compositor shares.
-// Every cross-fade in the room (mood art, prop cuts, the light pass, the rain
-// layer) is queued here and stepped once per frame, so a layer never has to
+// fade-queue.ts — the one alpha tween runner the whole scene shares.
+// Every cross-fade in the room (plate groups, the lamp, poses, traces, the
+// rain layer) is queued here and stepped once per frame, so a layer never has to
 // grow its own tween loop. It holds exactly one piece of state: the list of
 // tweens still in flight.
 

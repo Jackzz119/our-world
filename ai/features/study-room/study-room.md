@@ -1,6 +1,6 @@
 # 书房（对坐第一期）设计文档
 
-> 最后更新：2026-09-27 · 状态：🟡 开发中（第一个能跑的切片完成，开发环境加 `?table` 打开；5 / 10 subtasks）
+> 最后更新：2026-09-27 · 状态：🟡 开发中（第一个能跑的切片已上线，替换了上一期书房；5 / 10 subtasks）
 > 设计来源：[设计系统](../../design_system/design-system.md) · [角色](../../design_system/character.md) · [场景](../../design_system/scene.md) · [物件](../../design_system/props.md) · [效果](../../design_system/effects.md) · [对坐深化稿](../../design_system/concept/across-the-table/across-the-table.md)
 > 任务：[TODO](../../TODO.md)「E1 对坐 · 书房第一期」。本文件管细节与进度，PROJECT / TODO 只留摘要。
 
@@ -22,8 +22,7 @@
 
 ```
 WorldPage
- └─ RoomScene (room-scene.tsx)                 开发环境带 ?table → TableRoomScene，否则上一期 PaintedRoomScene
-     └─ TableRoomScene (table-room-scene.tsx)  React 壳：挂 Pixi、气泡与名牌落位、dev 对方状态面板
+ └─ RoomScene (room-scene.tsx)                 React 壳：挂 Pixi、气泡与名牌落位、dev 对方状态面板
           └─ buildTableScene(app, STUDY_TABLE, cast, init, events)      table-scene.ts
                ├─ 底图组：时辰 × 晴 / 雨，开灯版在下，关灯版按台灯亮度盖上
                ├─ 窗面雨层（窗格遮罩）                 rain-layer.ts
@@ -37,11 +36,11 @@ WorldPage
 
 - 对方状态 → `PartnerState`（`reading | writing | away | offline | asleep`）→ 人物姿势、留痕、杯子热气和睡着时的台灯亮度；互动反应（`glance | sip | poked | patted`）临时覆盖姿势，结束后回到状态姿势。
 - `lamp` 热区在场景里拦截（拉绳）；其余热区照旧经 `onHotspot` 交给 WorldPage 映射到功能。
-- 第一期形象固定为 `viewer = xiaoman, partner = ayu`（`table-room-scene.tsx` 的 `CAST`），账号级形象归属之后再做。
+- 第一期形象固定为 `viewer = xiaoman, partner = ayu`（`room-scene.tsx` 的 `CAST`），账号级形象归属之后再做。
 
 ## 三、模块设计
 
-实际做法与原计划的差别：对坐书房用**新的一组文件**实现，上一期的 `compositor.ts` / `study-room.ts` / `character-layer.ts` 原样保留，继续跑线上书房，到 ST-10 一起删除；摸头 / 戳一下的触碰区放在 `partner-layer.ts`，不扩 `affordance.ts`。
+实际做法与原计划的差别：对坐书房用**新的一组文件**实现，没有在上一期的 `compositor.ts` 上改；2026-09-27 上线时把上一期的 `compositor.ts` / `study-room.ts` / `character-layer.ts` / `clock-layer.ts` / `turntable-prop.ts` / `homography.ts`、光照层与贴图工具里只为它服务的部分、旧底图 / 唱片机部件 / 双犬立绘 / 棋牌室与植物园缩略图、唱片机装配与量测脚本一并删除；摸头 / 戳一下的触碰区放在 `partner-layer.ts`，不扩 `affordance.ts`。
 
 | 模块                                   | 内容                                                                                                                                                                                                                      |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -51,12 +50,12 @@ WorldPage
 | `partner-layer.ts`（新）               | 姿势精灵交叉淡化、眨眼 / 呼吸 / 微摆、摸头与戳一下的触碰区、气泡锚点                                                                                                                                                      |
 | `partner-state.ts`（新）               | 纯逻辑导演：状态 → 姿势、反应优先级（抬眼 < 喝一口 < 戳一下 < 摸头）、随机待机节奏；时间与随机源由调用方注入，可复现                                                                                                      |
 | `steam-layer.ts`（新）                 | 杯子蒸汽：程序生成的飘带，强度跟对方状态衰减                                                                                                                                                                              |
-| `table-room-scene.tsx`（新）           | React 壳：挂载与销毁、气泡和名牌落位（`placeBeside`）、dev 对方状态面板                                                                                                                                                   |
-| `room-scene.tsx`                       | 开发环境带 `?table` 时切到对坐书房，其余不变                                                                                                                                                                              |
+| `room-scene.tsx`（取代上一期同名文件） | React 壳：挂载与销毁、气泡和名牌落位（`placeBeside`）、dev 对方状态面板                                                                                                                                                   |
+| `lighting.ts` / `textures.ts`          | 只留活物 tint、天气调色与星芒贴图；上一期的光照层、烘影、切块与降采样工具删除                                                                                                                                             |
 | `room-overlays.css`                    | 气泡 / 名牌按侧落位、手机贴右边缘折两行、dev 面板                                                                                                                                                                         |
 | `scripts/build-study-table.py`（新）   | 装配：裁透明边、转 WebP、SIFT 配准姿势画布、写 manifest；不合格的眨眼帧不输出                                                                                                                                             |
 | `scripts/fixtures/study-table.*`（新） | 验证页：真实壳层 + 对坐书房，`?mood` / `?weather` / `?bubble`                                                                                                                                                             |
-| 素材                                   | 生产源 `arts/rooms/study/`、`arts/characters/ayu/`；运行时 `public/rooms/study/table/`、`public/characters/ayu/`                                                                                                          |
+| 素材                                   | 生产源 `arts/rooms/study/`、`arts/characters/ayu/`；运行时 `public/rooms/study/`、`public/characters/ayu/`                                                                                                                |
 
 ## 四、时间线 / 参数
 
@@ -83,7 +82,7 @@ WorldPage
 - **声音名片存储**：`memories` 桶只允许 png / jpeg / webp / avif，音频要改桶配置，同样需要 Supabase 访问。
 - **形象归属**：第一期没有账号级形象字段，先用本地设置「我是：小满 / 阿屿」；之后加 `profiles` 字段或形象表。
 - **手机清晰度**：人物单独按约 1.8 倍精度出图（横版画布）；底图是 1536×1024 横屏，手机竖屏裁切后背景会偏软，靠景深虚化接受，实测不够再补竖版底图。
-- **上一期运行时素材**：书房底图、唱片机部件、双犬立绘仍在 `public/`，ST-10 删除。
+- **线上还没有真实在场**：接 Realtime Presence 之前（ST-6），生产环境里对方默认坐着看书，不能表达离开 / 离线 / 睡着，和「人不在就是空椅」的铁律有差距；开发环境用面板模拟。
 - **阿屿第一批姿势的缺陷**（Codex 自审报告 `arts/characters/ayu/source/codex-report.md`）：
     - 喝一口的闭眼帧重画了袖子，显示尺寸下眼睛以外约 9% 像素有明显差异，装配脚本不输出它（`BLINK_REJECTED`），喝一口先不眨眼；
     - 喝一口的躯干截断线比其他姿势低约 16px，桌面远沿会露一道硬边；
@@ -92,14 +91,14 @@ WorldPage
       这几项下次出图时一起重生成。
 - **受光打磨**：黄昏时人物偏冷，亮窗前的外轮廓线有点像贴纸；手臂和杯子下面还没有接触阴影。
 - **手机竖屏里台灯和唱片机出画**：窄屏横向以脸为中心，拉灯和唱片机只在宽屏上能点。之后考虑横向拖动看房间，或补竖版底图。
-- **名牌取值**：真实 app 里名牌用的是上一期的 `liveProfile.her`，她的视角下应显示阿屿，接真实在场（ST-6）时一起改。聊天卡片里的头像也还是上一期的小狗。
+- **名牌取值**：名牌显示 `liveProfile.her`，也就是这个世界里另一位成员的显示名，两个视角都正确；世界里还没有第二位成员时会退回默认名「小满」。聊天卡片里的头像还是上一期的小狗，属于 UI 换期。
 
 ## 实现计划
 
 进度：5 / 10 subtasks 完成（50%）
 
 - [x] ST-1: 书房场景素材（她的视角）
-    - 影响文件：`arts/rooms/study/`、`public/rooms/study/table/`
+    - 影响文件：`arts/rooms/study/`、`public/rooms/study/`
     - 说明：Codex 生成室内底图（黄昏 / 暮色 / 夜晚 × 台灯开 / 关，对面是空椅）、桌面前沿层、前景（奶油色针织袖口捧杯）、对方的杯子、唱片机盘面与唱臂、台灯拉绳；几何按一档统一，逐档配色；输出锚点 manifest。验收：部件叠回与整图一致，边缘无白边，三档切换不变形。
     - 结果：7 张底图（夜晚晴 / 雨 × 开 / 关、暮色开 / 关、黄昏开；黄昏关灯版没做，那个时辰台灯影响很小），外加定几何用的母版 `master-night.png`，和 6 个部件（前景、对方的杯子、外套、拉绳、唱臂、唱片），由 `scripts/build-study-table.py` 装配、写 `table-manifest.json`。桌面前沿层没有做成单独的部件，改由姿势的躯干截断线对齐桌面远沿。
 - [x] ST-2: 阿屿姿势图
@@ -119,15 +118,15 @@ WorldPage
     - 说明：姿势切换、眨眼 / 呼吸 / 微摆、随机待机、反应覆盖与打断。验收：五种状态与三种反应都能进入和退出，连点不抖。
     - 结果：五种状态和四种反应（抬眼、喝一口、戳一下、摸头）都能进入和退出，优先级正确。
 - [ ] ST-6: 对方状态来源
-    - 影响文件：`table-room-scene.tsx`、新 hook `use-partner-presence.ts`
+    - 影响文件：`room-scene.tsx`、新 hook `use-partner-presence.ts`
     - 说明：第一期先做 dev 模拟面板（仅开发环境）；之后接 Supabase Realtime Presence（在线、页面可见、输入中、睡着了），权限确认后做。
     - 进度：dev 模拟面板已完成（状态五选一、开关灯、递一杯咖啡）；真实在场等 Supabase 权限。
 - [ ] ST-7: 物件与互动
-    - 影响文件：`table-scene.ts`、`turntable-prop.ts`、`table-room-scene.tsx`
+    - 影响文件：`table-scene.ts`、`room-scene.tsx`、新的唱片机层（上一期 `turntable-prop.ts` 已删，透视旋转做法在 git 历史里可参考）
     - 说明：台灯拉绳、倒咖啡（壶 → 杯子滑到对面 → 对方喝一口）、唱片机落针放歌、日记本入口、戳一下 / 摸头。不画光圈描边，提示只用星芒与物件自身动作。
     - 进度：拉绳开关灯、戳一下、摸头、两只杯子的蒸汽已完成；喝一口的反应已有，缺倒咖啡仪式（还需要生成咖啡壶部件）；唱片机落针（唱臂、唱片部件已产出）和日记 / 照片热区接功能未做。
 - [ ] ST-8: 桌面与手机布局
-    - 影响文件：`table-room-scene.tsx`、`room-overlays.css`、`shell/*`
+    - 影响文件：`room-scene.tsx`、`room-overlays.css`、`shell/*`
     - 说明：头顶气泡与状态锚到对方头部并避让脸；手机竖屏焦点裁切、横屏构图；用 `scripts/check-mobile-ui.mjs` 回归 8 种尺寸。
     - 进度：气泡 / 名牌落位和宽屏 / 窄屏取景已完成，5 种尺寸已截图核对；`check-mobile-ui.mjs` 还没收录对坐书房，上线前补上。
 - [ ] ST-9: 他的视角
@@ -136,6 +135,7 @@ WorldPage
 - [ ] ST-10: 清理上一期运行时素材与重拍截图
     - 影响文件：`public/rooms/study/`（旧底图与部件）、`public/characters/`（双犬）、`character-layer.ts`、UI 文档截图
     - 说明：新书房上线后删除不再使用的旧素材与代码；重拍 UI 规范里的实装截图。
+    - 进度：旧素材与代码已删除（2026-09-27，见 §三 开头）；房间选择卡片、大厅 / 登录背景已换成新书房；UI 规范里的实装截图（背景还是上一期书房）待重拍。
 
 ## 测试记录
 

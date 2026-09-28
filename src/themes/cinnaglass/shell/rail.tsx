@@ -20,12 +20,9 @@ type RoomDef = {
     locked?: boolean;
 };
 
-// The three planned rooms. Only 'study' has a scene today; the others render locked.
-const ROOM_DEFS: RoomDef[] = [
-    { id: 'study', name: '书房', thumb: '/rooms/study/thumb.png' },
-    { id: 'gameroom', name: '棋牌室', thumb: '/rooms/gameroom/thumb.png', locked: true },
-    { id: 'garden', name: '植物园', thumb: '/rooms/garden/thumb.png', locked: true }
-];
+// Rooms with a scene. The across-the-table concept plans ten (ai/design_system/scene.md); a
+// room is listed here once its art ships, `locked` shows one that is announced but not open.
+const ROOM_DEFS: RoomDef[] = [{ id: 'study', name: '书房', thumb: '/rooms/study/thumb.webp' }];
 
 // Fixed companion widgets; only switches with active consumers are shown.
 const MODULE_DEFS: { key: string; label: string }[] = [

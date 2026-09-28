@@ -277,7 +277,8 @@
 .rooms-pop {
     left: 90px;
     top: 0;
-    width: 422px;
+    /* one card per room that has a scene, so the width follows the list */
+    width: max-content;
     height: 173px;
     box-sizing: border-box;
     border-radius: 21px;
@@ -476,13 +477,14 @@
         top: auto;
         bottom: 74px;
         transform: translateX(-50%);
-        width: min(400px, calc(100vw - 32px));
+        width: max-content;
+        max-width: calc(100vw - 32px);
         height: auto;
         padding: 14px;
         gap: 8px;
     }
     .rooms-pop .room-card {
-        width: calc((100% - 16px) / 3);
+        width: 104px;
         height: 110px;
     }
     .rail-tool-links .rail-label,

@@ -288,9 +288,9 @@ const WorldPage = () => {
                             onHotspot={onHotspot}
                             bubble={bubble}
                             presence={{
-                                pink: {
+                                partner: {
                                     name: liveProfile.her,
-                                    // Seat identity is known; online presence is not implemented.
+                                    // the other member of this world; online presence is not wired yet
                                     status: ''
                                 }
                             }}
