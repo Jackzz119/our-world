@@ -58,6 +58,10 @@ def run(ctx, args):
         written.add(f.name)
         morphs[f.stem[len("morph-") :]] = url(f.name)
 
+    # guided pairs only roughly agree on their shapes: the runtime swaps them in the narrow window
+    rec_morph = ctx.record("morph") or {}
+    guided = sorted(k2 for k, v in rec_morph.items() if v.get("kind") == "guided" for k2 in (k, "-".join(reversed(k.split("-")))))
+
     manifest = {
         "version": MANIFEST_VERSION,
         "canvas": rec["canvas"],
@@ -66,6 +70,7 @@ def run(ctx, args):
         "anchor": cfg["anchor"],
         "poses": poses,
         "morphs": morphs,
+        "guided": [k for k in guided if k in morphs],
     }
     if "registration" in rec:
         reg = rec["registration"]

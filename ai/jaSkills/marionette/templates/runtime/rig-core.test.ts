@@ -80,6 +80,25 @@ const ok = (cond: boolean, msg: string) => {
     ok((sw.frame(7200).get('s')?.alpha ?? 0) < 0.6, 'a slow pose is still fading in at 200 ms');
 }
 
+// a slow pose with fields morphs longer and still never shows through
+{
+    const sw = createSwitcher({ morphs: { 'a-s': 'x', 's-a': 'x' }, slow: (p) => p === 's' });
+    sw.show('a', 0, false);
+    sw.frame(0);
+    sw.show('s', 1000, true);
+    ok(sw.morphing(), 'a -> s has fields: a slow morph');
+    let through = -1;
+    for (let t = 1000; t <= 2000; t += 4) {
+        const fr = sw.frame(t);
+        if ((fr.get('s')?.alpha ?? 0) < 0.999 && (fr.get('a')?.alpha ?? 0) < 0.999) through = t;
+    }
+    ok(through === -1, `see-through during a slow morph at ${through}`);
+    const mid = createSwitcher({ morphs: { 'a-s': 'x', 's-a': 'x' }, slow: (p) => p === 's' });
+    mid.show('a', 0, false);
+    mid.show('s', 0, true);
+    ok(mid.morphing() && mid.frame(800).has('a') && !mid.frame(950).has('a'), 'a slow morph lands after 900 ms');
+}
+
 // blink rhythm over a simulated minute
 {
     let seed = 7;

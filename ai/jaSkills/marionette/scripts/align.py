@@ -9,6 +9,9 @@ Only geometry moves, no pixel is repainted.
 Two kinds, both opt-in per pose in rig.json:
   blink     "blink": true    the closed frame onto its own open frame; only the eye band may differ
   reaction  "align_to": id   the open frame onto pose `id`; only the `free` region may differ
+  cut       "fit_cut": true  the torso cut onto canvas.cut_y, when a generator lands it a few px off:
+            only the band just above the cut is stretched vertically (at most fit_cut_max_px),
+            the same map on the open and closed frame; further off still fails in check
             "free": "face" (default) / "eyes" / [x0, y0, x1, y1] in source px
             Use it for reactions whose head and body should not move (a laugh, a blush), never for
             ones that move on purpose (a head tilting up into a hand).
@@ -34,6 +37,7 @@ import numpy as np
 
 from common import (
     caption,
+    cut_probe,
     eye_box,
     face_box,
     flow,
@@ -170,6 +174,48 @@ def run(ctx, args):
             for im, name in ((final_open, "open"), (c, "closed (generated)"), (aligned, "closed (aligned)"))
         ]
         save_rgb(tile(rows, 1), ctx.review / f"blink-{pose}.jpg", quality=90)
+
+    # 3. torso cut onto the cut line, for poses that ask for it
+    x0c, y0c = ctx.crop()
+    cut_y = ctx.cfg["canvas"]["cut_y"]
+    for pose in rec["poses"]:
+        if not poses_cfg[pose].get("fit_cut") or cut_y is None:
+            continue
+        o = load_rgba(ctx.final / f"{pose}-open.png")
+        cut_b = cut_y - y0c
+        seen = [cut_probe(o, x - x0c, cut_b, ctx.cfg["canvas"]["cut_window"]) for x in ctx.cut_columns(pose)]
+        seen = [v for v in seen if v is not None]
+        if not seen:
+            print(f"  {pose}: fit_cut asked, but no torso cut is visible in its cut columns")
+            continue
+        measured = float(np.median(seen))
+        dy = cut_b - measured
+        if abs(dy) > ctx.th["fit_cut_max_px"]:
+            raise SystemExit(f"{pose}: torso cut {dy:+.0f}px from the cut line, beyond fit_cut_max_px: regenerate")
+        h, w = o.shape[:2]
+        top = measured - 150
+        ys = np.arange(h, dtype=np.float32)
+        # destination row y shows source row src(y): stretched between top and the cut, shifted below it
+        src = np.where(ys <= top, ys, np.where(ys <= cut_b, top + (ys - top) * (measured - top) / (cut_b - top), ys - dy))
+        map_y = np.repeat(src[:, None], w, axis=1).astype(np.float32)
+        map_x = np.repeat(np.arange(w, dtype=np.float32)[None, :], h, axis=0)
+        fitted = {}
+        for eye in ("open", "closed"):
+            f = ctx.final / f"{pose}-{eye}.png"
+            if f.exists():
+                img = o if eye == "open" else load_rgba(f)
+                fitted[eye] = cv2.remap(img, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+                save_rgba(fitted[eye], f)
+        stretch = (cut_b - top) / (measured - top)
+        result.setdefault("cuts", {})[pose] = {"measured": round(measured + y0c, 1), "fitted_to": cut_y, "stretch": round(float(stretch), 4)}
+        print(f"  {pose}: torso cut {measured + y0c:.0f} -> {cut_y} (band above it stretched x{stretch:.3f})")
+        band = (slice(int(max(0, top - 40)), int(min(h, cut_b + 30))), slice(0, w))
+        views = []
+        for name, im in (("generated", o), ("fitted", fitted["open"])):
+            v = np.ascontiguousarray(on_backdrop(im[band]).astype(np.uint8))
+            cv2.line(v, (0, int(cut_b - band[0].start)), (w, int(cut_b - band[0].start)), (255, 80, 80), 2)
+            views.append(label(v.astype(np.float32), name))
+        save_rgb(caption(tile(views, 1), f"{pose}: the red line is the table's far edge"), ctx.review / f"fitcut-{pose}.jpg", quality=86)
 
     ctx.write_record("align", result)
     return status

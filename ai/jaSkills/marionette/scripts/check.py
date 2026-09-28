@@ -76,13 +76,18 @@ def run(ctx, args):
                 elif worst_dy > th["probe_warn_px"]:
                     status = max(status, "warn", key=["pass", "warn", "fail"].index)
                     entry["issues"].append(f"shoulder line drifts {worst_dy}px")
-            if p["probe"] and cut_y is not None and cfg["canvas"]["cut_probe_x"] and fits:
-                cut = {x: cut_probe(img, x, cut_y) for x in cfg["canvas"]["cut_probe_x"]}
+            if p["probe"] and cut_y is not None and ctx.cut_columns(pose) and fits:
+                cut = {x: cut_probe(img, x, cut_y, cfg["canvas"]["cut_window"]) for x in ctx.cut_columns(pose)}
                 entry["cut_y"] = cut
                 seen = [v - cut_y for v in cut.values() if v is not None]
                 if seen and max(abs(v) for v in seen) > th["cut_fail_px"]:
-                    status = "fail"
-                    entry["issues"].append(f"torso cut line off by {max(seen, key=abs)}px (expected y={cut_y})")
+                    off = max(seen, key=abs)
+                    if p.get("fit_cut") and abs(off) <= th["fit_cut_max_px"]:
+                        status = max(status, "warn", key=["pass", "warn", "fail"].index)
+                        entry["issues"].append(f"torso cut line off by {off}px: the align stage fits it onto y={cut_y}")
+                    else:
+                        status = "fail"
+                        entry["issues"].append(f"torso cut line off by {off}px (expected y={cut_y})")
             if status == "fail" and fits and p.get("accept"):
                 # a known defect someone decided to ship with: still printed on every run
                 status = "warn"

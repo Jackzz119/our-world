@@ -1,7 +1,8 @@
 """Stage 2 — assemble: one shared trimmed canvas for every pose, and optionally where it sits in the scene.
 
 The pixels are never touched: every frame is cropped by the same union box (so the poses keep their
-registration) into build/raw/. Blink frames rejected by `check` are left out. With `plate` set, the
+registration) into build/raw/. With canvas.crop set, that box is fixed instead, and a frame reaching
+outside it stops the build rather than being cut. Blink frames rejected by `check` are left out. With `plate` set, the
 anchor pose is registered onto that scene frame (SIFT, uniform scale + translation, the model a 2D
 runtime places a sprite with) and the result is written with its residuals.
 
@@ -71,9 +72,19 @@ def run(ctx, args):
         raise SystemExit(f"pose canvases differ: {sorted(sizes)}; every pose must share one canvas")
 
     # one union crop so every pose keeps the shared alignment
-    boxes = [alpha_box(f, ctx.th["alpha_empty"]) for f in frames.values()]
-    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
-    x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+    boxes = {k: alpha_box(f, ctx.th["alpha_empty"]) for k, f in frames.items()}
+    x0, y0 = min(b[0] for b in boxes.values()), min(b[1] for b in boxes.values())
+    x1, y1 = max(b[2] for b in boxes.values()), max(b[3] for b in boxes.values())
+    fixed = cfg["canvas"]["crop"]
+    if fixed:
+        # a runtime places touch zones and anchors in canvas px: a canvas that moves with every new
+        # frame would silently shift them all, so once fixed it stays, and nothing is ever cut to fit
+        over = {f"{p}-{e}": [max(0, fixed[0] - b[0]), max(0, fixed[1] - b[1]), max(0, b[2] - fixed[2]), max(0, b[3] - fixed[3])] for (p, e), b in boxes.items()}
+        over = {k: v for k, v in over.items() if any(v)}
+        if over:
+            detail = "; ".join(f"{k} by {v} (left, top, right, bottom)" for k, v in over.items())
+            raise SystemExit(f"canvas.crop {fixed} would cut: {detail}. Regenerate those frames, or enlarge the crop and update the runtime's canvas coordinates")
+        x0, y0, x1, y1 = fixed
 
     if ctx.raw.exists():
         shutil.rmtree(ctx.raw)  # a stage owns its folder: nothing stale survives a re-run
@@ -106,6 +117,16 @@ def run(ctx, args):
         ctx.review.mkdir(parents=True, exist_ok=True)
         Image.fromarray(np.clip(over, 0, 255).astype(np.uint8)).save(ctx.review / "register.png")
         print(f"  registered: scale {reg['scale']}, rotation {reg['rotation_deg']} deg, residual median {reg['residual_px_median']}px")
+        edge = cfg["canvas"]["cut_plate_y"]
+        if edge is not None and cfg["canvas"]["cut_y"] is not None:
+            # where the table's far edge lands on the pose canvas: the torso cut must be there, or
+            # the scene behind the table shows between the torso and the tabletop (or the torso covers it)
+            want = (edge - reg["offset"][1]) / reg["scale"]
+            record["cut_y_from_plate"] = round(want, 1)
+            if abs(want - cfg["canvas"]["cut_y"]) > ctx.th["cut_fail_px"]:
+                print(f"  FAIL canvas.cut_y is {cfg['canvas']['cut_y']} but the table's far edge (plate y {edge}) lands at y {want:.0f}: fix cut_y and the brief")
+                ctx.write_record("assemble", record)
+                return "fail"
         if abs(reg["rotation_deg"]) > 1 or reg["residual_px_median"] > 3:
             print("  WARN registration is loose: look at review/register.png before trusting it")
             ctx.write_record("assemble", record)

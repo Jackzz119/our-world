@@ -152,6 +152,7 @@ export function createRigView(
     const switcher = createSwitcher({
         morphs: available,
         slow: (p) => manifest.poses[p]?.slow ?? false,
+        narrow: (a, b) => manifest.guided?.includes(`${a}-${b}`) ?? false,
         timing: opts.timing
     });
     const blinker = createBlinker(random, performance.now(), opts.blink);
