@@ -5,9 +5,10 @@
 // test can replay any sequence exactly. An engine adapter (rig-pixi.ts, or your own) owns the
 // meshes and applies what this computes:
 //
-//   deformVertices  idle breath / lean / hair sway, plus a morph shift, into a mesh's positions
+//   deformVertices  idle breath / lean / hair sway, plus a morph shift and a gesture, into a mesh
 //   createSwitcher  which poses are visible at what opacity, and which ones are mid-morph
 //   createBlinker   when the current pose shows its closed-eye frame
+//   createGesturePlayer  short computed body motions (a flinch, a laugh) on top of the idle
 //
 // The files it reads are written by the pipeline's export stage (rig.json + data PNGs).
 
@@ -90,10 +91,29 @@ export const DEFAULT_MOTION: Omit<Motion, 'pivotY'> = {
 const TAU = Math.PI * 2;
 
 /**
+ * A gesture's offsets at one moment, added on top of the idle motion. The weight maps decide who
+ * carries them: the body terms ride the breath weight (shoulders and head move, hands resting on the
+ * table stay), the hair terms ride the hair weight.
+ */
+export type Pulse = {
+    /** Body lift, canvas px, + = up. */
+    lift: number;
+    /** Upper-body lean about pivotY, radians. */
+    lean: number;
+    /** Extra sideways hair offset, px. */
+    hairX: number;
+    /** How far the hair trails below the body, px: the hair lags a moving body, so it bounces. */
+    hairLag: number;
+};
+
+export const REST_PULSE: Pulse = { lift: 0, lean: 0, hairX: 0, hairLag: 0 };
+
+/**
  * Write one moment of a pose's mesh into `out` (x, y interleaved, same layout as `rest`).
  * Breath lifts along -y by the breath weight; the lean turns the weighted upper body about pivotY;
  * hair drifts sideways by the hair weight with its phase running down the hair, so the tips follow
- * the roots. `shift` * `amount` adds a morph on top, so idle motion never stops during a transition.
+ * the roots. `shift` * `amount` adds a morph on top, so idle motion never stops during a transition;
+ * `pulse` adds a gesture on top of both.
  */
 export function deformVertices(
     rest: Float32Array,
@@ -102,10 +122,11 @@ export function deformVertices(
     t: number,
     m: Motion,
     shift: FlowField | null = null,
-    amount = 0
+    amount = 0,
+    pulse: Pulse = REST_PULSE
 ): void {
-    const lift = -m.breathPx * 0.5 * (1 + Math.sin((t / m.breathS) * TAU));
-    const lean = m.leanRad * Math.sin((t / m.leanS) * TAU);
+    const lift = -m.breathPx * 0.5 * (1 + Math.sin((t / m.breathS) * TAU)) - pulse.lift;
+    const lean = m.leanRad * Math.sin((t / m.leanS) * TAU) + pulse.lean;
     const a1 = (t / m.hairS[0]) * TAU;
     const a2 = (t / m.hairS[1]) * TAU + 1.3;
     const a3 = (t / m.hairS[2]) * TAU + 0.6;
@@ -119,6 +140,8 @@ export function deformVertices(
         if (h > 0.01) {
             dx += m.hairPx * h * (0.65 * Math.sin(a1 + y * 0.011) + 0.35 * Math.sin(a2 + y * 0.017));
             dy += m.hairPx * 0.25 * h * Math.sin(a3 + y * 0.013);
+            dx += pulse.hairX * h;
+            dy += pulse.hairLag * h;
         }
         if (shift) {
             dx += shift.dx[i] * amount;
@@ -316,6 +339,83 @@ export function createBlinker(random: () => number, nowMs: number, timing: Parti
                 again = random() < B.doubleChance;
             }
             return until > 0;
+        }
+    };
+}
+
+/* ---------------------------------------------------------------- gestures */
+
+/** A short computed motion: offsets as a function of ms since it started, over by `ms`. */
+export type Gesture = { ms: number; at: (ms: number) => Pulse };
+
+// rises fast to 1 at `peak` ms, then dies away with time constant `decay`
+const spike = (t: number, peak: number, decay: number) =>
+    t <= 0 ? 0 : t < peak ? 1 - (1 - t / peak) ** 2 : Math.exp(-(t - peak) / decay);
+
+/** A gesture from its body curves; the hair trails the body by `lagMs`, and it all fades out at the end. */
+function withTrailingHair(ms: number, body: (t: number) => Omit<Pulse, 'hairLag'>, lagMs = 70): Gesture {
+    return {
+        ms,
+        at(t) {
+            const now = body(t);
+            const before = body(t - lagMs);
+            const k = 1 - smoothstep(ms - 200, ms, t);
+            return {
+                lift: now.lift * k,
+                lean: now.lean * k,
+                hairX: now.hairX * k,
+                hairLag: (now.lift - before.lift) * k
+            };
+        }
+    };
+}
+
+/**
+ * Stock gestures, sized for a half-body figure about 1000 canvas px tall; scale them for yours.
+ * They are what makes a reaction more than a picture swap: the pose changes the face, the gesture
+ * gives the body a moment of physics.
+ */
+export const GESTURES = {
+    /** Poked: a startled little jump, then the shoulders shake with a laugh. */
+    flinchLaugh: withTrailingHair(1300, (t) => {
+        const laugh = t < 220 ? 0 : smoothstep(220, 300, t) * Math.exp(-(t - 220) / 520);
+        // "ha-ha" at about 4.5 a second
+        const beat = Math.abs(Math.sin((Math.PI * (t - 220)) / 220));
+        return {
+            lift: 9 * spike(t, 80, 200) + 4.5 * laugh * beat,
+            lean: 0.014 * spike(t, 80, 260) + 0.004 * laugh * Math.sin((TAU * (t - 220)) / 440),
+            hairX: 3.5 * spike(t - 40, 90, 220) + 3.5 * laugh * Math.sin((TAU * (t - 260)) / 220)
+        };
+    }),
+    /** A small start: the jump alone, no laugh. */
+    startle: withTrailingHair(600, (t) => ({
+        lift: 6 * spike(t, 80, 160),
+        lean: 0.008 * spike(t, 80, 200),
+        hairX: 2.5 * spike(t - 40, 90, 180)
+    }))
+} satisfies Record<string, Gesture>;
+
+export type GesturePlayer = {
+    /** Start `g` now; a gesture already running is replaced. */
+    play: (g: Gesture, nowMs: number) => void;
+    /** The running gesture's offsets, or REST_PULSE. */
+    sample: (nowMs: number) => Pulse;
+};
+
+export function createGesturePlayer(): GesturePlayer {
+    let running: { g: Gesture; start: number } | null = null;
+    return {
+        play(g, now) {
+            running = { g, start: now };
+        },
+        sample(now) {
+            if (!running) return REST_PULSE;
+            const t = now - running.start;
+            if (t >= running.g.ms) {
+                running = null;
+                return REST_PULSE;
+            }
+            return running.g.at(t);
         }
     };
 }
