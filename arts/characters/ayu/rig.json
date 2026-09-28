@@ -7,17 +7,109 @@
     "runtime": "public/characters/ayu",
     "url_base": "/characters/ayu",
     "poses": {
-        "reading": { "blink": true },
-        "glance": { "blink": true },
-        "writing": { "blink": true },
-        "sip": {
-            "accept": "2026-09-27 batch: shoulders 9 px high and the torso cut 17 px low, no usable blink frame; regenerate with the next batch"
+        "reading": {
+            "blink": true
         },
-        "asleep": { "morph": false, "slow": true, "probe": false },
+        "glance": {
+            "blink": true
+        },
+        "writing": {
+            "blink": true
+        },
+        "sip": {
+            "blink": true,
+            "cut_probe_x": [
+                600,
+                768,
+                950
+            ],
+            "fit_cut": true
+        },
+        "asleep": {
+            "morph": false,
+            "slow": true,
+            "probe": false
+        },
         "patted": {},
-        "poked": { "align_to": "reading" }
+        "poked": {
+            "align_to": "reading"
+        }
     },
-    "canvas": { "probes_x": [350, 400, 1150, 1200], "cut_y": 900, "cut_probe_x": [600, 768, 950] },
-    "hair": { "by_pose": { "asleep": { "mode": "none" } } },
-    "plate": { "path": "arts/rooms/study/source/master-night.png" }
+    "canvas": {
+        "crop": [
+            85,
+            5,
+            1467,
+            1020
+        ],
+        "probes_x": [
+            350,
+            400,
+            1150,
+            1200
+        ],
+        "cut_y": 968,
+        "cut_probe_x": [],
+        "cut_plate_y": 646
+    },
+    "hair": {
+        "by_pose": {
+            "asleep": {
+                "mode": "none"
+            }
+        }
+    },
+    "plate": {
+        "path": "arts/rooms/study/source/master-night.png"
+    },
+    "face": {
+        "boxes": {
+            "sip": [
+                650,
+                298,
+                927,
+                659
+            ]
+        }
+    },
+    "regions": {
+        "hands": {
+            "reading": [
+                445,
+                691,
+                1137,
+                1001
+            ],
+            "glance": [
+                446,
+                690,
+                1140,
+                1002
+            ],
+            "writing": [
+                471,
+                780,
+                1137,
+                1005
+            ],
+            "patted": [
+                429,
+                819,
+                1154,
+                997
+            ],
+            "poked": [
+                447,
+                690,
+                1138,
+                1001
+            ],
+            "sip": [
+                513,
+                440,
+                1050,
+                736
+            ]
+        }
+    }
 }

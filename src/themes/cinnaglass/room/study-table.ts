@@ -40,18 +40,21 @@ export const STUDY_TABLE: TableRoomTemplate = {
     seat: {
         // SIFT registration of reading-open onto master-night (marionette assemble stage):
         // scale 0.57417, rotation 0.4° (ignored), residual median 1.7px / p90 2.5px
-        origin: { x: 346.02, y: 92.83 },
+        origin: { x: 345.44, y: 92.83 },
         scale: 0.57417,
-        // pose-canvas px (the trimmed canvas shared by every pose)
-        head: { x: 394, y: 40, w: 485, h: 410 },
-        body: { x: 30, y: 450, w: 1320, h: 560 },
+        // pose-canvas px: the shared canvas is fixed in arts/characters/ayu/rig.json (canvas.crop,
+        // source x 85–1467, y 5–1020), so these never move when a pose is regenerated
+        head: { x: 395, y: 40, w: 485, h: 410 },
+        body: { x: 31, y: 450, w: 1320, h: 560 },
         // the torso disappears behind the table's far edge (plate y≈650)
-        pivot: { x: 677, y: 970 },
+        pivot: { x: 678, y: 970 },
         // eye level (plate y≈305), 12 plate px outside the widest hair at that
-        // height over every pose (poked reaches plate x 885, patted 589); the
+        // height over every pose (measured on the 2026-09-27 frames: poked reaches
+        // plate x 885, patted 589; the 2026-09-28 poked and patted heads span plate
+        // x 598–831 at eye level, inside both anchors); the
         // face's skin ends near plate x 812 (820 leaves the glance pose room);
         // the tag drops to the hood's shoulder line (plate y≈430)
-        beside: { left: { x: 402, y: 370 }, right: { x: 960, y: 370 }, faceRight: 820, shoulder: 587 }
+        beside: { left: { x: 403, y: 370 }, right: { x: 961, y: 370 }, faceRight: 821, shoulder: 587 }
     },
     foreground: {
         xiaoman: { src: `${T}/fg-xiaoman.webp`, box: { x: 307, y: 724, w: 907, h: 300 } }
@@ -71,7 +74,9 @@ export const STUDY_TABLE: TableRoomTemplate = {
         pivot: { x: 242.5, y: 479 }
     },
     // x: the partner's face. top: 12 px above the highest hair over every pose
-    // (patted, plate y 96), so wide screens spend their rows on table and hands
+    // (patted, plate y 96, on the 2026-09-27 frames; the 2026-09-28 patted tops out
+    // near plate y 112, so this leaves more room), so wide screens spend their rows
+    // on table and hands
     crop: { x: 735, top: 84 },
     hotspots: [
         { id: 'lamp', rect: { x: 70, y: 285, w: 230, h: 285 } }, // shade and pull chain

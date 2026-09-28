@@ -23,6 +23,8 @@ export type RigManifest = {
     poses: Record<string, { open: string; closed?: string; idle?: string; slow: boolean }>;
     /** Flow fields keyed `from-to`; both directions of a pair are always present together. */
     morphs: Record<string, string>;
+    /** The pairs whose field was guided by region boxes, not measured: they swap in the narrow window. */
+    guided?: string[];
     /** Where the canvas sits in the scene frame it was registered onto, if any. */
     placement?: { origin: [number, number]; scale: number };
 };
@@ -157,6 +159,12 @@ export function deformVertices(
 export type Timing = {
     /** A morph between two poses with flow fields. */
     morphMs: number;
+    /**
+     * A morph into or out of a pose marked `slow` (the head going down onto the arms): the shapes
+     * travel longer and the pictures swap in a shorter middle window, so the two never sit on top of
+     * each other half-seen for long.
+     */
+    slowMorphMs: number;
     /** Cover-and-fade: the incoming pose fades in above the (still opaque) outgoing one... */
     crossfadeMs: number;
     /** ...which then fades out once covered. */
@@ -168,6 +176,7 @@ export type Timing = {
 
 export const DEFAULT_TIMING: Timing = {
     morphMs: 420,
+    slowMorphMs: 900,
     crossfadeMs: 180,
     handoverMs: 120,
     slowCrossfadeMs: 400,
@@ -196,6 +205,12 @@ const smoothstep = (a: number, b: number, x: number) => {
 type Tween = { from: number; to: number; start: number; ms: number };
 
 /**
+ * The progress window in which the incoming pose appears during a morph (the pipeline simulates the
+ * same): narrow for slow poses and guided pairs, whose shapes only roughly meet.
+ */
+export const morphSwap = (narrow: boolean): [number, number] => (narrow ? [0.35, 0.65] : [0.25, 0.75]);
+
+/**
  * Pose switching without a see-through moment. Two rules carry it:
  *  1. Never two poses half-transparent at once: the scene would show through the figure (reads as a
  *     flicker). The outgoing pose stays opaque until the incoming one covers it.
@@ -204,13 +219,15 @@ type Tween = { from: number; to: number; start: number; ms: number };
 export function createSwitcher(opts: {
     morphs: Pick<RigManifest, 'morphs'>['morphs'];
     slow: (pose: string) => boolean;
+    /** Pairs that swap their pictures in the narrow window (the manifest's `guided`). */
+    narrow?: (from: string, to: string) => boolean;
     timing?: Partial<Timing>;
 }): Switcher {
     const T = { ...DEFAULT_TIMING, ...opts.timing };
     const alpha = new Map<string, number>();
     const tweens = new Map<string, Tween>();
     let handovers: { pose: string; at: number; ms: number }[] = [];
-    let morph: { from: string; to: string; start: number } | null = null;
+    let morph: { from: string; to: string; start: number; slow: boolean; narrow: boolean } | null = null;
     let current: string | null = null;
 
     const tween = (pose: string, to: number, now: number, ms: number) => {
@@ -247,7 +264,7 @@ export function createSwitcher(opts: {
                 tweens.delete(pose);
                 alpha.set(from, 1);
                 alpha.set(pose, 0);
-                morph = { from, to: pose, start: now };
+                morph = { from, to: pose, start: now, slow, narrow: slow || (opts.narrow?.(from, pose) ?? false) };
             } else {
                 if (pose) tween(pose, 1, now, animate ? (slow ? T.slowCrossfadeMs : T.crossfadeMs) : 0);
                 if (from) {
@@ -277,18 +294,19 @@ export function createSwitcher(opts: {
                 }
             }
             if (morph) {
-                const t = (now - morph.start) / T.morphMs;
+                const t = (now - morph.start) / (morph.slow ? T.slowMorphMs : T.morphMs);
                 if (t >= 1) land();
                 else {
                     const e = easeInOut(t);
+                    const [swapIn, swapOut] = morphSwap(morph.narrow);
                     // shapes travel the whole way; the pictures swap only in the middle, and whatever
-                    // the flow could not bend into the new silhouette leaves once it is covered
+                    // the field could not bend into the new silhouette leaves once it is covered
                     out.set(morph.from, {
-                        alpha: 1 - smoothstep(0.8, 1, t),
+                        alpha: 1 - smoothstep(swapOut + 0.05, 1, t),
                         shift: { field: `${morph.from}-${morph.to}`, amount: e }
                     });
                     out.set(morph.to, {
-                        alpha: smoothstep(0.25, 0.75, t),
+                        alpha: smoothstep(swapIn, swapOut, t),
                         shift: { field: `${morph.to}-${morph.from}`, amount: 1 - e }
                     });
                 }

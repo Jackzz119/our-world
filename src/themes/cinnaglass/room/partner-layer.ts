@@ -194,7 +194,8 @@ export function createPartnerLayer(
     const still: WeightMap = { cols, rows, breath: new Float32Array(cols * rows), hair: new Float32Array(cols * rows) };
     const switcher = createSwitcher({
         morphs: Object.fromEntries(Object.keys(rig.flows).map((k) => [k, k])),
-        slow: (p) => manifest.poses[p]?.slow ?? false
+        slow: (p) => manifest.poses[p]?.slow ?? false,
+        narrow: (a, b) => manifest.guided?.includes(`${a}-${b}`) ?? false
     });
     const blinker = createBlinker(random, performance.now());
     const gestures = createGesturePlayer();

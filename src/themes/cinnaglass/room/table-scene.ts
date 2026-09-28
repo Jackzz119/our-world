@@ -65,6 +65,8 @@ export type TableSceneHandle = {
     setPartnerState: (state: PartnerState) => void;
     /** The partner takes a sip, e.g. after the viewer poured them a coffee. */
     offerSip: () => void;
+    /** Debug panel: play a reaction as if it had happened (a pat is held for PAT_DEMO_MS). */
+    playReaction: (kind: 'glance' | 'poked' | 'patted') => void;
     /** CSS px around the partner's head for overhead UI, or null while the chair is empty. */
     headAnchors: () => HeadAnchors | null;
     resize: () => void;
@@ -82,6 +84,8 @@ const PARALLAX_FRONT = 10;
 const LAMP_OFF_TINT = 0xb8c0d8;
 // the lamp turns itself down while the partner sleeps (character.md 酣睡)
 const LAMP_ASLEEP = 0.55;
+// how long the debug panel's pat is held before it lets go
+const PAT_DEMO_MS = 1600;
 // a cup nobody drinks from cools over this long, down to a thin thread (effects.md 杯子蒸汽)
 const CUP_COOL_MS = 15 * 60 * 1000;
 const CUP_COLD_STEAM = 0.3;
@@ -445,6 +449,15 @@ export async function buildTableScene(
         },
         offerSip() {
             director.react('sip', performance.now());
+        },
+        playReaction(kind) {
+            const now = performance.now();
+            if (kind === 'glance') director.react('glance', now);
+            // the same path as a real tap, so the flinch and the poke event come with it
+            else if (kind === 'poked') {
+                if (director.react('poked', now)) partner.flinch();
+            } else if (director.pat(true, now))
+                window.setTimeout(() => director.pat(false, performance.now()), PAT_DEMO_MS);
         },
         headAnchors() {
             if (STATE_EMPTY.has(partnerState)) return null;

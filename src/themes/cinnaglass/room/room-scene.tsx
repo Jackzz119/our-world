@@ -17,6 +17,10 @@ import '@/themes/cinnaglass/room/room-overlays.css';
 
 const TAG = '[room][web][room-scene]';
 
+// The partner panel: always in development, and on any build with ?debug in the address
+// (a query like the app's other switches, ?enter and ?surface).
+const DEBUG_PANEL = import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug');
+
 // First iteration: her view — the viewer is 小满, 阿屿 sits across (user direction 2026-09-27).
 const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, rig: AYU_RIG };
 
@@ -255,7 +259,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     {partnerTag.status && <span>{partnerTag.status}</span>}
                 </div>
             )}
-            {import.meta.env.DEV && (
+            {DEBUG_PANEL && (
                 <div className="table-dev ui-surface" role="group" aria-label="对方状态模拟（开发用）">
                     <b>对方状态（开发模拟）</b>
                     <select
@@ -280,6 +284,15 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     </button>
                     <button type="button" onClick={() => sceneRef.current?.offerSip()}>
                         递一杯咖啡
+                    </button>
+                    <button type="button" onClick={() => sceneRef.current?.playReaction('glance')}>
+                        抬眼
+                    </button>
+                    <button type="button" onClick={() => sceneRef.current?.playReaction('poked')}>
+                        戳一下
+                    </button>
+                    <button type="button" onClick={() => sceneRef.current?.playReaction('patted')}>
+                        摸头
                     </button>
                 </div>
             )}
