@@ -107,6 +107,8 @@
 
 ## 边缘页面与公共规则
 
+网站 favicon 与 iPhone 主屏幕图标采用 **D「两半心意」**；配色、矢量与 PNG 资源、添加流程见 [网站图标规范](identity.md)。
+
 ![登录：真实书房原画与同源任务阅读底](unification-verification/login-desktop.png)
 
 ![手机登录：字段与动作自然换行，保留可读字号](unification-verification/login-mobile.png)
