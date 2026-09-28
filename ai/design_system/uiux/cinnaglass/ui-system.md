@@ -107,7 +107,7 @@
 
 ## 边缘页面与公共规则
 
-网站图标（2026-09-27 用户选定试用）：**A5「清透香槟」**，沿用原 A 厚玻璃心形与通透折射，改为香槟金、粉暖光与清蓝光，背景简化并提升整体明亮度。[当前原稿](../../../../arts/branding/amber-glass-heart.png) 由 imagegen 基于原 A 编辑；浏览器使用 [48px PNG](../../../../public/favicon-48.png) / [16、32、48px ICO](../../../../public/favicon.ico)；iPhone 使用不透明 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。入口与缓存版本 `amber-a5` 登记在 [index.html](../../../../index.html)，不另建图标文档。
+网站图标（2026-09-28 用户选定试用）：**A4「焕亮琥珀」**，沿用原 A 厚玻璃心形与通透折射，保留琥珀金与宝蓝，提亮暗部和内部透光，背景更干净。[当前原稿](../../../../arts/branding/amber-glass-heart.png) 由 imagegen 基于原 A 编辑；浏览器使用 [48px PNG](../../../../public/favicon-48.png) / [16、32、48px ICO](../../../../public/favicon.ico)；iPhone 使用不透明 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。入口与缓存版本 `amber-a4` 登记在 [index.html](../../../../index.html)，不另建图标文档。
 
 ![登录：真实书房原画与同源任务阅读底](unification-verification/login-desktop.png)
 
