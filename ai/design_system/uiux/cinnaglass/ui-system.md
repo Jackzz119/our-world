@@ -107,7 +107,7 @@
 
 ## 边缘页面与公共规则
 
-网站 favicon 与 iPhone 主屏幕图标采用 **D「两半心意」**；配色、矢量与 PNG 资源、添加流程见 [网站图标规范](identity.md)。
+网站图标（2026-09-27 用户选定）：**D「两半心意」**，玫瑰暖色与冷灰蓝爱心、Cinnaglass 深色底。浏览器使用 [SVG](../../../../public/favicon.svg)，附 [48px PNG](../../../../public/favicon-48.png) / [ICO](../../../../public/favicon.ico) 兼容资源；iPhone 使用不透明的 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角，入口登记在 [index.html](../../../../index.html)。
 
 ![登录：真实书房原画与同源任务阅读底](unification-verification/login-desktop.png)
 
