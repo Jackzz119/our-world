@@ -71,6 +71,8 @@ export type AvatarPoses = {
     poses: Record<PoseId, { open: string; closed?: string }>;
     /** Per-pose idle motion weights (scripts/build-idle-weights.py); a pose without one stays still. */
     idle?: Partial<Record<PoseId, string>>;
+    /** Morph flows between poses, keyed `from-to` (scripts/build-pose-flow.py); a missing pair cross-fades. */
+    morph?: Record<string, string>;
 };
 
 /**
