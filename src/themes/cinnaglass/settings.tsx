@@ -25,7 +25,7 @@ import {
     IUser
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
-import type { ChatAlign, Mood, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
+import type { ChatAlign, Mood, MotionPref, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
 
 const TAG = '[auth][web][settings]';
 
@@ -33,10 +33,15 @@ const TAG = '[auth][web][settings]';
 const isNetworkError = (e: { name?: string }) => e.name === 'AuthRetryableFetchError';
 
 type SegOpt = { k: string; label: string; Icon?: (p: IcoProps) => ReactNode };
-// Option sets for the three segmented controls in 主题外观.
+// Option sets for the segmented controls in 主题外观.
 const CHAT_ALIGN_OPTS: SegOpt[] = [
     { k: 'left', label: '全部靠左' },
     { k: 'sides', label: '左右分侧' }
+];
+const MOTION_OPTS: SegOpt[] = [
+    { k: 'system', label: '跟随系统' },
+    { k: 'full', label: '完整动效' },
+    { k: 'reduced', label: '低动效' }
 ];
 const MOOD_OPTS: SegOpt[] = [
     { k: 'golden', label: '黄昏', Icon: ISun },
@@ -441,6 +446,17 @@ export function SettingsScreen({
                     >
                         {t.reduceTransparency ? '已开启' : '已关闭'}
                     </button>
+                </div>
+                <div className="set-row" style={{ flexWrap: 'wrap' }}>
+                    <div className="set-body">
+                        <div className="set-t">动效</div>
+                        <div className="set-s">低动效只留淡入淡出，关掉弹跳、位移、粒子和场景微动</div>
+                    </div>
+                    <Segmented
+                        opts={MOTION_OPTS}
+                        value={t.motion}
+                        onChange={(k) => setTweak('motion', k as MotionPref)}
+                    />
                 </div>
                 <div className="set-row" style={{ flexWrap: 'wrap' }}>
                     <div className="set-body">

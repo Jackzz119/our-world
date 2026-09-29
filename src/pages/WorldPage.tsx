@@ -17,6 +17,8 @@ import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { SunlitLetter } from '@/themes/cinnaglass/shell/sunlit-letter';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
+import { WorldLoader } from '@/themes/cinnaglass/shell/world-loader';
+import { createLoadProgress } from '@/themes/cinnaglass/shell/load-progress';
 import { WorldSurfaces } from '@/themes/cinnaglass/shell/world-surfaces';
 import { useWorldChatBubble } from '@/themes/cinnaglass/shell/use-world-chat-bubble';
 import { ChannelScreen } from '@/themes/cinnaglass/chat/chat-hub';
@@ -24,6 +26,7 @@ import { useChatThreads, convsFor } from '@/themes/cinnaglass/chat/chat-data';
 import { loadJson as owLoad } from '@/lib/local-store';
 import { useTweaks } from '@/themes/cinnaglass/tweaks';
 import { useCompactUi, useUiEnvironment } from '@/themes/cinnaglass/ui/use-ui-environment';
+import { useMotionPreference } from '@/themes/cinnaglass/ui/motion-preference';
 import '@/themes/cinnaglass/ui/ui-system.css';
 import '@/themes/cinnaglass/shell/shell-layout.css';
 import '@/themes/cinnaglass/room/room-overlays.css';
@@ -84,15 +87,18 @@ const SEED_ALARMS: Alarm[] = [
 
 // ?surface=<tab> opens one SubScreen tab straight from the URL (dev/headless
 // screenshots only — gated on import.meta.env.DEV).
+type RoomLoad = 'loading' | 'ready' | 'failed';
 const DEV_SURFACE = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('surface') : null;
 
 const WorldPage = () => {
     const [t, setTweak] = useTweaks();
+    useMotionPreference(t.motion);
     const compact = useCompactUi();
     // v2 shell (concept-c): narrow rail + floating widgets. The chat card is
     // the stage-side chat surface; the covering hub stays one expand away.
     const [chatOpen, setChatOpen] = useState(false);
     const [musicOpen, setMusicOpen] = useState(false);
+    const [musicPlaying, setMusicPlaying] = useState(false);
     const [convOpen, setConvOpen] = useState<string | null>(null);
     // which surface is open, and the rail / hotspot routes that open one
     const {
@@ -218,6 +224,15 @@ const WorldPage = () => {
     const inWorld = entered && world !== null;
     const uiRef = useUiEnvironment(t.mood, inWorld);
 
+    // Entry loader: every entry gets a fresh progress store and waits for the room
+    // (render-time reset when inWorld flips; react.dev "storing information from previous renders").
+    const [room, setRoom] = useState(() => ({ progress: createLoadProgress(), state: 'loading' as RoomLoad }));
+    const [roomFor, setRoomFor] = useState(inWorld);
+    if (inWorld !== roomFor) {
+        setRoomFor(inWorld);
+        if (inWorld) setRoom({ progress: createLoadProgress(), state: 'loading' });
+    }
+
     // What the chrome displays: DB world identity first, localStorage as
     // fallback. Settings still edits the raw local profile — the write-back to
     // worlds/profiles is still open (ai/features/supabase.md).
@@ -260,6 +275,7 @@ const WorldPage = () => {
             data-chat-open={chatOpen}
             data-music-open={musicOpen}
             data-letter-visible={inWorld && unread}
+            data-world={inWorld ? room.state : undefined}
             data-glass={t.glassStyle}
             data-mood={t.mood}
             style={{ position: 'absolute', inset: 0 }}
@@ -274,14 +290,12 @@ const WorldPage = () => {
                 style={{ position: 'absolute', inset: 0 }}
             >
                 {inWorld ? (
-                    <Suspense
-                        fallback={
-                            <div className="room-scene-feedback" role="status">
-                                <div className="ui-surface">正在布置你们的小屋…</div>
-                            </div>
-                        }
-                    >
+                    // the entry loader below covers the chunk download too, so no fallback of its own
+                    <Suspense fallback={null}>
                         <RoomScene
+                            onProgress={room.progress.set}
+                            onReady={() => setRoom((r) => ({ ...r, state: 'ready' }))}
+                            onFailed={() => setRoom((r) => ({ ...r, state: 'failed' }))}
                             active={screen === null || screen === 'timeline'}
                             mood={t.mood}
                             weatherKind={weather.kind}
@@ -306,11 +320,22 @@ const WorldPage = () => {
                         onCreate={createAndEnter}
                     />
                 )}
+                {/* a failed room shows its own error card; the loader just steps aside */}
+                {inWorld && room.state !== 'failed' && (
+                    <WorldLoader
+                        active={room.state === 'loading'}
+                        progress={room.progress}
+                        mood={t.mood}
+                        rainy={weather.kind === 'rain'}
+                        partnerName={liveProfile.her}
+                    />
+                )}
                 {inWorld && (
                     <>
                         <Rail
                             chatOpen={chatOpen}
                             musicOpen={musicOpen && widgets.music !== false}
+                            musicPlaying={musicPlaying}
                             unread={unread}
                             activeRoom="study"
                             onRoom={() => {
@@ -343,6 +368,7 @@ const WorldPage = () => {
                         <MusicMini
                             spaceName={liveProfile.world}
                             visible={widgets.music !== false}
+                            onPlayingChange={setMusicPlaying}
                             open={musicOpen}
                             setOpen={(value) => {
                                 setMusicOpen(value);

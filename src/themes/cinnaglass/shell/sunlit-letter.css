@@ -25,6 +25,31 @@
     cursor: pointer;
     text-align: left;
     font: inherit;
+    transition:
+        filter var(--dur-hover) ease,
+        translate var(--dur-hover) var(--ease-out),
+        rotate var(--dur-release) var(--ease-pop),
+        scale var(--dur-release) var(--ease-pop);
+}
+/* a new letter drops in from above with a small tilt; once, never a looping glow */
+.letter-notice:not([hidden]) .sunlit-letter {
+    transform-origin: 80% 0;
+    animation: letter-in var(--dur-panel) var(--ease-spring) both;
+}
+@keyframes letter-in {
+    from {
+        opacity: 0;
+        translate: 0 calc(var(--rise) * -2.4);
+        rotate: -5deg;
+        scale: var(--enter-scale);
+    }
+}
+.sunlit-letter:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+:root[data-motion='reduced'] .letter-notice:not([hidden]) .sunlit-letter {
+    animation-name: ow-fade-in;
 }
 [data-mood='golden'] .sunlit-letter {
     --letter-paper: linear-gradient(135deg, #f7e6bd, #dfbc82);
@@ -53,9 +78,11 @@
     outline: 2px solid var(--letter-edge);
     outline-offset: 4px;
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
     .sunlit-letter:hover {
         filter: brightness(1.045);
+        translate: 0 -2px;
+        rotate: 1.2deg;
     }
 }
 .sunlit-letter:active {

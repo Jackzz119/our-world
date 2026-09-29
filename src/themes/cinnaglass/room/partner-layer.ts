@@ -102,8 +102,14 @@ async function readPixels(url: string) {
     return { w: bitmap.width, h: bitmap.height, px: g.getImageData(0, 0, bitmap.width, bitmap.height).data };
 }
 
-/** Load an exported rig. A morph field that fails to load only costs that pair its morph. */
-export async function loadPartnerRig(manifestUrl: string): Promise<PartnerRig> {
+/**
+ * Load an exported rig. A morph field that fails to load only costs that pair its morph.
+ * `onProgress` gets the share of pose frames and data maps done so far (0–1).
+ */
+export async function loadPartnerRig(
+    manifestUrl: string,
+    onProgress?: (fraction: number) => void
+): Promise<PartnerRig> {
     const response = await fetch(manifestUrl);
     if (!response.ok) throw new Error(`${manifestUrl}: ${response.status}`);
     const manifest = (await response.json()) as RigManifest;
@@ -112,30 +118,48 @@ export async function loadPartnerRig(manifestUrl: string): Promise<PartnerRig> {
     if (missing.length) throw new Error(`${manifestUrl}: no ${missing.join(', ')} pose`);
     const { cols, rows } = gridSize(manifest);
     const frames = Object.values(manifest.poses).flatMap((p) => (p.closed ? [p.open, p.closed] : [p.open]));
+    const maps = Object.values(manifest.poses).filter((p) => p.idle).length + Object.keys(manifest.morphs).length;
+    let framesDone = 0;
+    let mapsDone = 0;
+    const report = () => onProgress?.((framesDone * frames.length + mapsDone) / Math.max(1, frames.length + maps));
+    const counted = <T>(work: Promise<T>) =>
+        work.finally(() => {
+            mapsDone += 1;
+            report();
+        });
     const [textures, weightList, flowList] = await Promise.all([
-        Assets.load<Texture>(frames),
+        Assets.load<Texture>(frames, (p) => {
+            framesDone = p;
+            report();
+        }),
         Promise.all(
             Object.entries(manifest.poses).flatMap(([id, p]) =>
                 p.idle
                     ? [
-                          readPixels(p.idle).then(({ w, h, px }) => {
-                              if (w !== cols || h !== rows)
-                                  throw new Error(`${p.idle}: ${w}x${h}, not ${cols}x${rows}`);
-                              return [id, decodeWeights(px, cols, rows)] as const;
-                          })
+                          counted(
+                              readPixels(p.idle).then(({ w, h, px }) => {
+                                  if (w !== cols || h !== rows)
+                                      throw new Error(`${p.idle}: ${w}x${h}, not ${cols}x${rows}`);
+                                  return [id, decodeWeights(px, cols, rows)] as const;
+                              })
+                          )
                       ]
                     : []
             )
         ),
         Promise.all(
-            Object.entries(manifest.morphs).map(async ([key, url]) => {
-                try {
-                    const { px } = await readPixels(url);
-                    return [key, decodeFlow(px, cols, rows)] as const;
-                } catch {
-                    return null;
-                }
-            })
+            Object.entries(manifest.morphs).map(([key, url]) =>
+                counted(
+                    (async () => {
+                        try {
+                            const { px } = await readPixels(url);
+                            return [key, decodeFlow(px, cols, rows)] as const;
+                        } catch {
+                            return null;
+                        }
+                    })()
+                )
+            )
         )
     ]);
     const flows: Record<string, FlowField> = Object.fromEntries(flowList.filter((f) => f !== null));
@@ -149,7 +173,7 @@ export async function loadPartnerRig(manifestUrl: string): Promise<PartnerRig> {
 
 /**
  * Build the partner layer for `seat` from a loaded rig. `random` is the
- * scene's shared source; `reduced` (prefers-reduced-motion) stills the idle
+ * scene's shared source; `reduced` (the low-motion mode, ui/motion-preference.ts) stills the idle
  * motion, the morphs and the gestures, and keeps the blinks.
  */
 export function createPartnerLayer(

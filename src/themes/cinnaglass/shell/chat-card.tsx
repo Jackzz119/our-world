@@ -1,4 +1,6 @@
 // A scene-side conversation window; the full hub owns history and advanced message actions.
+// Desktop: a floating card beside the rail. Phone: the same content in a sheet that
+// rises over the viewer's side of the table, so the partner stays in view (ui/sheet.tsx).
 import { useEffect, useRef, useState } from 'react';
 import type { Channel } from '@/types/chat';
 import { convsFor, type Conv, type Msg } from '@/themes/cinnaglass/chat/chat-data';
@@ -6,6 +8,10 @@ import type { ChatAlign } from '@/themes/cinnaglass/tweaks';
 import '@/themes/cinnaglass/shell/chat-card.css';
 import { IClose, IExpand, ISend } from '@/themes/cinnaglass/icons';
 import { avatarSrc, PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
+import { Sheet } from '@/themes/cinnaglass/ui/sheet';
+import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
+import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
+import { burst } from '@/themes/cinnaglass/ui/feedback';
 
 // One-tap reactions; they send as ordinary messages, not as reaction rows.
 const QUICK = [
@@ -50,6 +56,10 @@ export function ChatCard({
     notice
 }: ChatCardProps) {
     const [text, setText] = useState('');
+    // bumps on every send so the paper plane takes off again
+    const [sent, setSent] = useState(0);
+    const compact = useCompactUi();
+    const card = usePresence(open && !compact, 160);
     const listRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -87,32 +97,18 @@ export function ChatCard({
         };
     }, [open, cur]);
 
-    if (!open) return null;
-
     // Send the trimmed draft and clear the box; empty input is a no-op.
     const submit = () => {
         const t = text.trim();
         if (!t || !cur) return;
         onSend(cur, t);
         setText('');
+        setSent((n) => n + 1);
     };
 
-    return (
-        <div
-            ref={cardRef}
-            className="chat-card ui-surface"
-            data-align={chatAlign}
-            role="region"
-            aria-label="聊天窗口"
-            onKeyDown={(e) => {
-                if (e.key === 'Escape') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onClose();
-                }
-            }}
-        >
-            <div className="cc-head">
+    const body = (
+        <>
+            <div className="cc-head" data-sheet-grab>
                 <span className="cc-title">悄悄话</span>
                 <button className="cc-hbtn ui-icon-button" title="展开完整聊天" onClick={onExpand}>
                     <IExpand size={14} sw={2.2} />
@@ -151,7 +147,10 @@ export function ChatCard({
                         className={`cc-q ${q.cls}`}
                         aria-label={`发送${q.emoji}`}
                         disabled={!cur}
-                        onClick={() => onSend(cur, q.emoji)}
+                        onClick={(event) => {
+                            onSend(cur, q.emoji);
+                            burst(event.currentTarget, { glyphs: [q.emoji], count: 6, size: 16, distance: 72 });
+                        }}
                     >
                         {q.emoji}
                     </button>
@@ -188,9 +187,41 @@ export function ChatCard({
                     title="发送"
                     disabled={!cur || !text.trim()}
                 >
-                    <ISend size={18} sw={2.6} />
+                    <span key={sent} className={sent ? 'cc-send-glyph flying' : 'cc-send-glyph'}>
+                        <ISend size={18} sw={2.6} />
+                    </span>
                 </button>
             </div>
+        </>
+    );
+
+    // the sheet plays its own exit, so it stays rendered while closed
+    if (compact)
+        return (
+            <Sheet open={open} onClose={onClose} label="聊天窗口" className="chat-sheet">
+                <div ref={cardRef} className="chat-sheet-body" data-align={chatAlign}>
+                    {body}
+                </div>
+            </Sheet>
+        );
+    if (!card.mounted) return null;
+    return (
+        <div
+            ref={cardRef}
+            className="chat-card ui-surface"
+            data-align={chatAlign}
+            data-state={card.closing ? 'closing' : 'open'}
+            role="region"
+            aria-label="聊天窗口"
+            onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose();
+                }
+            }}
+        >
+            {body}
         </div>
     );
 }

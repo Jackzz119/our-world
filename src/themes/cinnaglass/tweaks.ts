@@ -1,5 +1,5 @@
 // tweaks.ts — user-adjustable theme settings (mood, glass style, weather, chat
-// alignment), persisted to localStorage under ow-tweaks-v1.
+// alignment, transparency, motion), persisted to localStorage under ow-tweaks-v1.
 
 import { useCallback, useState } from 'react';
 import type { RoomMood } from '@/themes/cinnaglass/room/room-types';
@@ -16,6 +16,9 @@ export type WeatherTweak = 'auto' | 'sun' | 'cloud' | 'rain' | 'snow';
 // chat message alignment: 'left' = everyone left-aligned (Discord-style,
 // default per user decision 2026-07-12); 'sides' = own messages on the right
 export type ChatAlign = 'left' | 'sides';
+// Low-motion mode: follow the OS switch, or force full / reduced motion
+// (resolved and published by ui/motion-preference.ts).
+export type MotionPref = 'system' | 'full' | 'reduced';
 
 // Everything the ambience and settings panels can change, stored as one blob.
 export type Tweaks = {
@@ -24,6 +27,7 @@ export type Tweaks = {
     weather: WeatherTweak;
     chatAlign: ChatAlign;
     reduceTransparency: boolean;
+    motion: MotionPref;
 };
 
 // localStorage key; bump the suffix when the stored shape changes incompatibly.
@@ -35,7 +39,8 @@ export const TWEAK_DEFAULTS: Tweaks = {
     glassStyle: 'sky',
     weather: 'auto',
     chatAlign: 'left',
-    reduceTransparency: false
+    reduceTransparency: false,
+    motion: 'system'
 };
 
 // Stored tweaks merged over the defaults; a missing or unparsable blob falls

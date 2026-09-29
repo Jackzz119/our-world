@@ -71,8 +71,9 @@ export const ChannelStyles = () => (
   .chsc-notice{text-align:center;font-size:11.5px;color:var(--glass-sub);padding:2px 12px 6px;flex:0 0 auto;}
   .chsc-msgs::-webkit-scrollbar{width:6px;}
   .chsc-msgs::-webkit-scrollbar-thumb{background:var(--glass-line);border-radius:9px;}
-  .chsc-m{display:flex;flex-direction:column;max-width:68%;position:relative;}
-  .chsc-m.me{align-self:flex-end;align-items:flex-end;}
+  .chsc-m{display:flex;flex-direction:column;max-width:68%;position:relative;
+    transform-origin:left bottom;animation:ow-rise-in var(--dur-enter) var(--ease-spring) both;}
+  .chsc-m.me{align-self:flex-end;align-items:flex-end;transform-origin:right bottom;}
   .chsc-m .meta{font-size:11px;color:var(--glass-sub);margin:0 6px 3px;}
   .chsc-m .bub{position:relative;padding:9px 13px;border-radius:15px;font-size:13.5px;line-height:1.6;color:var(--glass-text);
     background:var(--glass-paper);border:1px solid var(--glass-line);overflow-wrap:anywhere;}

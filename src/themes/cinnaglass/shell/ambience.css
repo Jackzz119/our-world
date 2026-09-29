@@ -177,12 +177,10 @@
         transform: none;
     }
 }
-@media (prefers-reduced-motion: reduce) {
-    .amb-wrap *,
-    .amb-wrap *::before {
-        transition: none !important;
-        animation: none !important;
-    }
+/* Low motion (html[data-motion], resolved from the OS switch or the in-app setting). */
+:root[data-motion='reduced'] :is(.amb-wrap *, .amb-wrap *::before) {
+    transition: none !important;
+    animation: none !important;
 }
 
 /* Keep the expanded menu clear of the vertical rail on shorter desktop windows. */

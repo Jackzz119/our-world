@@ -1,0 +1,262 @@
+/* Motion system for A/B and entry UI (ai/design_system/uiux/interaction.md §6).
+   One set of curves and durations, read by every component stylesheet; the
+   in-app low-motion mode (tweaks.motion → html[data-motion], resolved by
+   motion-preference.ts) rewrites the same tokens so movement collapses into
+   short fades instead of each component inventing its own reduced rule.
+   Curves: ease-out / ease-in-out / drawer from Emil Kowalski's skills
+   (github.com/emilkowalski/skills); the linear() springs are sampled from a
+   damped spring (bounce 0.42 / 0.26) because a game room may be bouncier. */
+:root {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    /* ~10% overshoot: presses releasing, dots and bubbles popping in */
+    --ease-pop: linear(
+        0,
+        0.03 2.1%,
+        0.107 4.2%,
+        0.215 6.2%,
+        0.596 12.5%,
+        0.713 14.6%,
+        0.816 16.7%,
+        0.903 18.8%,
+        0.973 20.8%,
+        1.027 22.9%,
+        1.065 25%,
+        1.09 27.1%,
+        1.103 29.2%,
+        1.104 33.3%,
+        1.057 41.7%,
+        1.011 50%,
+        0.99 58.3%,
+        1
+    );
+    /* ~3% overshoot: panels, cards and sheets settling */
+    --ease-spring: linear(
+        0,
+        0.013 2.1%,
+        0.047 4.2%,
+        0.096 6.2%,
+        0.225 10.4%,
+        0.514 18.8%,
+        0.644 22.9%,
+        0.754 27.1%,
+        0.842 31.2%,
+        0.91 35.4%,
+        0.959 39.6%,
+        1.005 45.8%,
+        1.026 52.1%,
+        1.03 62.5%,
+        1.001 97.9%,
+        1
+    );
+    --dur-press: 90ms;
+    --dur-release: 460ms;
+    --dur-hover: 160ms;
+    --dur-enter: 260ms;
+    --dur-exit: 150ms;
+    --dur-panel: 420ms;
+    --dur-sheet: 460ms;
+    --press-scale: 0.95;
+    --press-scale-soft: 0.97;
+    --hover-lift: -1px;
+    --rise: 10px;
+    --enter-scale: 0.96;
+}
+/* Low motion keeps every state change readable (fades, colour, glow) and drops
+   movement, bounce, loops and particles. */
+:root[data-motion='reduced'] {
+    --ease-pop: ease-out;
+    --ease-spring: ease-out;
+    --dur-release: 120ms;
+    --dur-enter: 140ms;
+    --dur-exit: 100ms;
+    --dur-panel: 160ms;
+    --dur-sheet: 180ms;
+    --press-scale: 1;
+    --press-scale-soft: 1;
+    --hover-lift: 0px;
+    --rise: 0px;
+    --enter-scale: 1;
+}
+
+/* ---------- shared controls: every press answers ---------- */
+.ui-button,
+.ui-icon-button,
+.cc-q,
+.set-row.tap,
+.settings-dialog .seg button,
+.settings-dialog .btn-save,
+.modules-lobby,
+.room-card {
+    transition:
+        scale var(--dur-release) var(--ease-pop),
+        translate var(--dur-hover) var(--ease-out),
+        rotate var(--dur-release) var(--ease-pop),
+        filter var(--dur-hover) ease,
+        background-color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease,
+        color var(--dur-hover) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+    :is(.ui-button, .ui-icon-button):not(:disabled):hover {
+        translate: 0 var(--hover-lift);
+    }
+}
+:is(.ui-button, .ui-icon-button, .cc-q, .modules-lobby, .settings-dialog .btn-save):not(:disabled):active {
+    scale: var(--press-scale);
+    filter: brightness(0.92);
+    transition-duration: var(--dur-press);
+    transition-timing-function: var(--ease-out);
+}
+/* big rows and cards give a softer squeeze */
+:is(.set-row.tap, .settings-dialog .seg button, .room-card):not(:disabled):active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+    transition-timing-function: var(--ease-out);
+}
+/* the warm action lights up under the finger */
+.ui-button-primary:not(:disabled):active {
+    box-shadow:
+        0 0 0 5px rgb(241 209 154 / 0.2),
+        0 0 20px rgb(241 209 154 / 0.35);
+}
+.ui-field,
+.cc-input input {
+    transition:
+        border-color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease,
+        background-color var(--dur-hover) ease;
+}
+.ui-field:focus-visible,
+.cc-input input:focus-visible {
+    border-color: rgb(241 209 154 / 0.7);
+    box-shadow: 0 0 0 4px rgb(241 209 154 / 0.14);
+}
+:is(.ui-surface, .ui-liner) :is(button, input, select, textarea, a, [tabindex]):focus-visible {
+    transition: outline-offset var(--dur-hover) var(--ease-out);
+}
+
+/* ---------- switches: the knob springs, the track lights ---------- */
+.sw i {
+    transition:
+        transform var(--dur-release) var(--ease-pop),
+        width var(--dur-press) var(--ease-out),
+        background-color var(--dur-hover) ease;
+}
+.sw:active i {
+    width: 23px;
+}
+.sw.on:active i {
+    transform: translateX(13px);
+}
+
+/* ---------- task dialogs (B): rise in, drop out ---------- */
+.ui-dialog {
+    transition:
+        opacity var(--dur-enter) var(--ease-out),
+        scale var(--dur-panel) var(--ease-spring),
+        translate var(--dur-panel) var(--ease-spring),
+        overlay var(--dur-enter) allow-discrete,
+        display var(--dur-enter) allow-discrete;
+}
+.ui-dialog:not([open]) {
+    opacity: 0;
+    scale: var(--enter-scale);
+    translate: 0 var(--rise);
+    transition-duration: var(--dur-exit);
+    transition-timing-function: var(--ease-out);
+}
+@starting-style {
+    .ui-dialog[open] {
+        opacity: 0;
+        scale: var(--enter-scale);
+        translate: 0 calc(var(--rise) * 1.6);
+    }
+}
+.ui-dialog::backdrop {
+    transition:
+        background-color var(--dur-enter) ease,
+        backdrop-filter var(--dur-enter) ease,
+        overlay var(--dur-enter) allow-discrete,
+        display var(--dur-enter) allow-discrete;
+}
+.ui-dialog:not([open])::backdrop {
+    background-color: transparent;
+}
+@starting-style {
+    .ui-dialog[open]::backdrop {
+        background-color: transparent;
+    }
+}
+
+/* ---------- reusable one-shots ---------- */
+@keyframes ow-rise-in {
+    from {
+        opacity: 0;
+        translate: 0 var(--rise);
+        scale: var(--enter-scale);
+    }
+}
+@keyframes ow-pop-in {
+    from {
+        opacity: 0;
+        scale: calc(var(--enter-scale) - 0.16);
+    }
+}
+@keyframes ow-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+@keyframes ow-shake {
+    20%,
+    60% {
+        translate: -4px 0;
+    }
+    40%,
+    80% {
+        translate: 4px 0;
+    }
+}
+@keyframes ow-ring {
+    from {
+        opacity: 0.7;
+        scale: 1;
+    }
+    to {
+        opacity: 0;
+        scale: 2.4;
+    }
+}
+@keyframes ow-spin {
+    to {
+        rotate: 360deg;
+    }
+}
+/* failure: a small headshake, never a red flash */
+.ow-shake {
+    animation: ow-shake 320ms var(--ease-in-out);
+}
+:root[data-motion='reduced'] .ow-shake {
+    animation: none;
+}
+/* text for assistive tech while the visible copy is decorative (the odometer) */
+.ow-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+/* particle glyphs spawned by feedback.ts; they never take pointer events */
+.ow-particle {
+    position: fixed;
+    z-index: 90;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+    will-change: transform, opacity;
+}

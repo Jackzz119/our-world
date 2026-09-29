@@ -1,0 +1,103 @@
+/* Phone sheets (sheet.tsx). The sheet owns its transform (JS places it at a
+   detent), CSS owns how it travels there. Navigation (.rail-wrap, z 40) stays
+   above; the dialog top layer stays above everything. */
+.ui-sheet.ui-surface {
+    --ui-alpha: 0.74;
+    --sheet-full: calc(var(--ui-visible-height, 100dvh) - var(--ui-safe-top, 0px) - 56px);
+    position: fixed;
+    left: var(--ui-safe-left, 0px);
+    right: var(--ui-safe-right, 0px);
+    bottom: 0;
+    z-index: 36;
+    display: flex;
+    flex-direction: column;
+    max-height: var(--sheet-full);
+    /* clear the floating navigation bar that sits over the sheet's foot */
+    padding: 20px 14px calc(86px + var(--ui-safe-bottom, 0px));
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    box-shadow:
+        0 -18px 44px -18px #000b,
+        inset 0 1px 0 rgb(var(--ui-rim) / 0.2);
+    outline: none;
+    will-change: transform;
+    transition:
+        transform var(--dur-sheet) var(--ease-drawer),
+        opacity var(--dur-enter) ease;
+}
+/* going down is quicker than coming up, but a whole sheet still needs a beat to travel */
+.ui-sheet[data-state='closing'] {
+    transition-duration: calc(var(--dur-sheet) * 0.56), var(--dur-exit);
+    transition-timing-function: var(--ease-out), ease;
+    pointer-events: none;
+}
+.ui-sheet[data-dragging] {
+    transition: none;
+    cursor: grabbing;
+}
+.ui-sheet.expandable {
+    height: var(--sheet-full);
+}
+.ui-sheet-grip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 96px;
+    height: 22px;
+    translate: -50% 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 0 0 12px 12px;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+}
+.ui-sheet-grip > span {
+    width: 38px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgb(255 248 235 / 0.42);
+    transition:
+        width var(--dur-hover) var(--ease-out),
+        background-color var(--dur-hover) ease;
+}
+.ui-sheet-grip:is(:hover, :focus-visible) > span,
+.ui-sheet[data-dragging] .ui-sheet-grip > span {
+    width: 52px;
+    background: rgb(241 209 154 / 0.85);
+}
+.ui-sheet-grip:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: -4px;
+}
+.ui-sheet [data-sheet-grab] {
+    touch-action: none;
+    cursor: grab;
+}
+.ui-sheet-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+/* The viewer's side of the table dims a little under an open sheet; TA stays bright. */
+.stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    background: linear-gradient(to top, rgb(12 13 17 / 0.5), rgb(12 13 17 / 0.12) 45%, transparent 62%);
+    opacity: 0;
+    transition: opacity var(--dur-sheet) ease;
+}
+.stage:has(.ui-sheet[data-state='open'])::after {
+    opacity: 1;
+}
+/* A sheet with the keyboard up rides on the keyboard; navigation is hidden then. */
+[data-ui-keyboard='true'] .ui-sheet.ui-surface {
+    bottom: var(--ui-keyboard-inset, 0px);
+    max-height: calc(var(--ui-visible-height, 100dvh) - 12px);
+    padding-bottom: 12px;
+}

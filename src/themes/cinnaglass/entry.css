@@ -21,6 +21,53 @@
     background:
         linear-gradient(#17191f33, #17191f66),
         url('/rooms/study/plate-twilight-on.webp') center / cover;
+    animation: entry-plate-in 1400ms var(--ease-out) both;
+}
+/* the table fades up and settles, then the card rises onto it */
+@keyframes entry-plate-in {
+    from {
+        opacity: 0;
+        scale: 1.06;
+    }
+}
+:root[data-motion='reduced'] .ui-entry::before {
+    animation-name: ow-fade-in;
+}
+.ui-entry > .ui-surface {
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) 120ms both;
+}
+.ui-entry-content > * {
+    animation: ow-rise-in var(--dur-enter) var(--ease-out) both;
+}
+.ui-entry-content > :nth-child(2) {
+    animation-delay: 40ms;
+}
+.ui-entry-content > :nth-child(3) {
+    animation-delay: 80ms;
+}
+.ui-entry-content > :nth-child(4) {
+    animation-delay: 120ms;
+}
+/* waiting: a small gold arc, fast enough to feel lively */
+.ui-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    border: 2px solid #ffffff2e;
+    border-top-color: var(--ui-accent);
+    border-right-color: rgb(241 209 154 / 0.5);
+    border-radius: 50%;
+    vertical-align: -4px;
+    animation: ow-spin 800ms linear infinite;
+}
+:root[data-motion='reduced'] .ui-spinner {
+    animation: ui-spinner-breathe 1600ms ease-in-out infinite;
+}
+@keyframes ui-spinner-breathe {
+    50% {
+        opacity: 0.35;
+    }
 }
 /* The study's empty table: the lobby is the table before you sit down. */
 [data-mood='golden'] .ui-entry::before {
@@ -57,6 +104,9 @@
     margin: 0 0 18px;
     color: var(--ui-muted);
     font-size: 14px;
+}
+.ui-entry-content p:only-child {
+    margin: 0;
 }
 .ui-entry-content .ui-entry-error {
     color: var(--ui-error);

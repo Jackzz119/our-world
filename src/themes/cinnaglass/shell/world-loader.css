@@ -1,0 +1,204 @@
+/* Entry loader over the stage (world-loader.tsx). --p is the loaded share (0–1). */
+.world-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 24px;
+    background: #17181e;
+    transition: opacity 560ms ease 200ms;
+}
+.world-loader[data-state='leaving'] {
+    opacity: 0;
+    pointer-events: none;
+}
+/* the lobby's empty table; the lit plate fades in as the room loads */
+.wl-plate {
+    position: absolute;
+    inset: -2%;
+    background: center / cover no-repeat;
+    filter: brightness(0.82) saturate(0.95);
+    transform: scale(1.04);
+    transition: transform 1400ms var(--ease-out);
+}
+/* a tall screen crops the plate; keep the lamp (left third) in frame so it is seen coming on */
+@media (max-aspect-ratio: 3/4) {
+    .wl-plate {
+        background-position: 24% 50%;
+    }
+}
+.wl-plate[data-dim] {
+    filter: brightness(0.45) saturate(0.8);
+}
+.wl-lit {
+    opacity: calc(var(--p) * 0.92);
+    transition:
+        opacity 600ms ease,
+        transform 1400ms var(--ease-out);
+}
+.world-loader[data-state='leaving'] .wl-plate {
+    transform: scale(1);
+}
+.wl-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 44%, transparent 22%, rgb(10 11 15 / 0.72) 78%);
+    transition:
+        opacity 700ms ease,
+        scale 760ms var(--ease-out);
+}
+.world-loader[data-state='leaving'] .wl-vignette {
+    opacity: 0;
+    scale: 1.6;
+}
+.wl-card.ui-surface {
+    --ui-alpha: 0.58;
+    position: relative;
+    width: min(340px, 100%);
+    padding: 24px 22px 20px;
+    border-radius: 26px;
+    text-align: center;
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+    transition:
+        opacity 320ms ease,
+        translate 420ms var(--ease-out),
+        scale 420ms var(--ease-out);
+}
+.world-loader[data-state='leaving'] .wl-card {
+    opacity: 0;
+    translate: 0 calc(var(--rise) * 1.4);
+    scale: var(--enter-scale);
+}
+.wl-card h2 {
+    margin: 0;
+    color: var(--ui-text);
+    font-size: 18px;
+    font-weight: 600;
+}
+.wl-cup {
+    display: block;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 8px;
+    fill: none;
+    stroke: var(--ui-accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 10px rgb(241 209 154 / 0.35));
+}
+/* three wisps rise and thin out one after another */
+.wl-steam {
+    opacity: 0;
+    animation: wl-steam 2400ms ease-in-out infinite;
+}
+.wl-steam:nth-child(2) {
+    animation-delay: 800ms;
+}
+.wl-steam:nth-child(3) {
+    animation-delay: 1600ms;
+}
+@keyframes wl-steam {
+    0% {
+        opacity: 0;
+        translate: 0 6px;
+    }
+    35% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        translate: 0 -8px;
+    }
+}
+.wl-bar {
+    position: relative;
+    height: 6px;
+    margin: 18px 0 10px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #ffffff1f;
+}
+.wl-bar > b {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #c99a5b, var(--ui-accent) 70%, #fff1cf);
+    box-shadow: 0 0 12px rgb(241 209 154 / 0.6);
+    transform: scaleX(max(0.04, var(--p)));
+    transform-origin: left;
+    transition: transform 520ms var(--ease-out);
+}
+/* a slow sheen keeps a pause from looking frozen */
+.wl-bar > b::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, #fff8 50%, transparent 70%);
+    translate: -100% 0;
+    animation: wl-sheen 1800ms var(--ease-in-out) infinite;
+}
+@keyframes wl-sheen {
+    to {
+        translate: 100% 0;
+    }
+}
+.wl-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+.wl-tip {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    animation: ow-rise-in var(--dur-enter) var(--ease-out) both;
+}
+.wl-pct {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+}
+/* the room behind: blank until built, then it fades up and settles from slightly close */
+.room-scene > canvas {
+    transition:
+        opacity 700ms ease,
+        scale 1200ms var(--ease-spring);
+}
+.room-scene:not([data-ready]) > canvas {
+    opacity: 0;
+    scale: 1.05;
+}
+/* the chrome waits for the room, then floats in one piece after another */
+.app[data-world='loading'] :is(.rail-wrap, .amb-wrap, .moment-card, .music-wrap, .letter-notice, .chat-card) {
+    visibility: hidden;
+}
+.app[data-world='ready'] :is(.amb-wrap, .rail, .moment-card, .music-bar, .letter-notice) {
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+}
+.app[data-world='ready'] .amb-wrap {
+    animation-delay: 420ms;
+}
+.app[data-world='ready'] .rail {
+    animation-delay: 500ms;
+}
+.app[data-world='ready'] :is(.moment-card, .letter-notice) {
+    animation-delay: 580ms;
+}
+.app[data-world='ready'] .music-bar {
+    animation-delay: 660ms;
+}
+:root[data-motion='reduced'] :is(.wl-steam, .wl-bar > b::after) {
+    animation: none;
+}
+:root[data-motion='reduced'] .wl-steam {
+    opacity: 0.6;
+}
+:root[data-motion='reduced'] :is(.wl-plate, .room-scene > canvas) {
+    transform: none;
+    scale: 1;
+}

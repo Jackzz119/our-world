@@ -115,6 +115,25 @@
 .cal-cell.sel {
     border-color: var(--ui-accent);
     box-shadow: inset 0 0 0 1px var(--ui-accent);
+    scale: 1.06;
+}
+/* a day answers the finger, and the chosen one pops a little (ui/motion.css tokens) */
+.cal-cell:not(.blank) {
+    cursor: pointer;
+    transition:
+        scale var(--dur-release) var(--ease-pop),
+        background-color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease;
+}
+.cal-cell:not(.blank):active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+@media (hover: hover) and (pointer: fine) {
+    .cal-cell:not(.blank, .today, .sel):hover {
+        background: var(--ui-hover);
+    }
 }
 .cal-cell.anniv:not(.today) {
     color: #ffd4dc;

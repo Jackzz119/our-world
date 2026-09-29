@@ -11,6 +11,8 @@ type PlaybackState = {
     muted: boolean;
     volume: number;
     mode: PlayMode;
+    /** favourited track titles, kept on this device only */
+    liked: string[];
     playing: boolean;
     starting: boolean;
     error: string | null;
@@ -30,6 +32,7 @@ const initialState = (): PlaybackState => {
         muted: raw.muted === true,
         volume: finite(raw.volume, 70, 0, 100),
         mode: raw.mode === 'repeat' || raw.mode === 'shuffle' ? raw.mode : 'list',
+        liked: Array.isArray(raw.liked) ? raw.liked.filter((t): t is string => typeof t === 'string') : [],
         playing: false,
         starting: false,
         error: null
@@ -44,12 +47,12 @@ export function useMusicPlayback() {
     const request = useRef(0);
     const starting = useRef(false);
     const track = TRACKS[state.i];
-    const { i, muted, volume, mode } = state;
+    const { i, muted, volume, mode, liked } = state;
     const storedPosition = Math.floor(state.pos);
 
     useEffect(() => {
-        saveJson('ow-music-v1', { i, pos: storedPosition, muted, volume, mode });
-    }, [i, storedPosition, muted, volume, mode]);
+        saveJson('ow-music-v1', { i, pos: storedPosition, muted, volume, mode, liked });
+    }, [i, storedPosition, muted, volume, mode, liked]);
 
     useEffect(() => {
         const pad = audio.current;
@@ -169,6 +172,12 @@ export function useMusicPlayback() {
             setState((s) => ({ ...s, playing: false, pos: Math.min(track.dur, pos) }));
             return;
         }
+        await start(state.pos >= track.dur ? 0 : state.pos);
+    };
+
+    // Resume audio from `fromPos` on the current (or just selected) track.
+    const start = async (fromPos: number) => {
+        if (starting.current) return;
         const token = ++request.current;
         starting.current = true;
         setState((s) => ({ ...s, starting: true, error: null }));
@@ -177,7 +186,7 @@ export function useMusicPlayback() {
             await pad.ctx.resume();
             if (token !== request.current) return;
             if (pad.ctx.state !== 'running') throw new Error('audio-blocked');
-            anchor.current = { time: pad.ctx.currentTime, pos: state.pos >= track.dur ? 0 : state.pos };
+            anchor.current = { time: pad.ctx.currentTime, pos: fromPos };
             setState((s) => ({ ...s, playing: true, starting: false, pos: anchor.current.pos }));
         } catch {
             if (token === request.current)
@@ -217,16 +226,31 @@ export function useMusicPlayback() {
         }));
     };
 
+    // Pick a track from the list: it starts from the top, and starts playing if it was quiet.
+    const select = (index: number) => {
+        if (!TRACKS[index]) return;
+        anchor.current = { time: audio.current?.ctx.currentTime || 0, pos: 0 };
+        setState((s) => ({ ...s, i: index, pos: 0 }));
+        if (!state.playing) void start(0);
+    };
+
     return {
         ...state,
         track,
+        tracks: TRACKS,
         toggle,
+        select,
         seek,
         next: () => skip(1),
         prev: () => skip(-1),
         setMuted: () => setState((s) => ({ ...s, muted: !s.muted })),
         setVolume: (volume: number) => setState((s) => ({ ...s, volume: finite(volume, 70, 0, 100) })),
-        setMode: (mode: PlayMode) => setState((s) => ({ ...s, mode }))
+        setMode: (mode: PlayMode) => setState((s) => ({ ...s, mode })),
+        toggleLike: (title: string) =>
+            setState((s) => ({
+                ...s,
+                liked: s.liked.includes(title) ? s.liked.filter((t) => t !== title) : [...s.liked, title]
+            }))
     };
 }
 export type MusicPlayback = ReturnType<typeof useMusicPlayback>;
