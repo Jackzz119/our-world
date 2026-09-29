@@ -17,13 +17,17 @@ import {
     decodeWeights,
     deformVertices,
     DEFAULT_MOTION,
+    partFrame,
     type BlinkTiming,
     type FlowField,
     type Gesture,
     gridSize,
     type Motion,
+    type PartFrame,
+    type PoseFrame,
     type RigManifest,
     type Timing,
+    type Transition,
     type WeightMap
 } from './rig-core';
 
@@ -96,7 +100,14 @@ export type RigView = {
     container: Container;
     /** Every texture, for renderer.prepare.upload before the first pose change. */
     textures: Texture[];
-    show: (pose: string | null, animate: boolean) => void;
+    /** Change pose; `transition` is the director's step (a keyframe chain), null for the default morph. */
+    show: (pose: string | null, animate: boolean, transition?: Transition | null) => void;
+    /**
+     * Scene part `name` this frame (manifest `hides` / `holds`): draw it at `alpha`, moved from its place
+     * by (dx, dy) canvas px times this container's scale, so the mug leaves the table exactly as it
+     * appears in the hand and rides along with the hand while the two swap.
+     */
+    part: (name: string) => PartFrame;
     /** Play a computed body motion on top of the idle (GESTURES.flinchLaugh on a poke). */
     gesture: (g: Gesture) => void;
     /** Call every frame; `elapsedS` drives the idle loops. */
@@ -157,13 +168,14 @@ export function createRigView(
     });
     const blinker = createBlinker(random, performance.now(), opts.blink);
     const gestures = createGesturePlayer();
+    let drawn = new Map<string, PoseFrame>();
 
     return {
         container,
         textures: [...meshes.values()].flatMap((m) => (m.closed ? [m.open, m.closed] : [m.open])),
-        show(pose, animate) {
+        show(pose, animate, transition) {
             const now = performance.now();
-            switcher.show(pose, now, animate && !opts.reducedMotion);
+            switcher.show(pose, now, animate && !opts.reducedMotion, transition);
             const m = pose ? meshes.get(pose) : undefined;
             if (m) container.setChildIndex(m.mesh, container.children.length - 1);
             blinker.reset(now);
@@ -174,6 +186,7 @@ export function createRigView(
         update(elapsedS) {
             const now = performance.now();
             const frame = switcher.frame(now);
+            drawn = frame;
             const blinkClosed = !switcher.morphing() && blinker.closed(now);
             const pulse = gestures.sample(now);
             for (const [id, m] of meshes) {
@@ -199,6 +212,7 @@ export function createRigView(
         setTint(tint) {
             for (const m of meshes.values()) m.mesh.tint = tint;
         },
+        part: (name) => partFrame(manifest.poses, drawn, switcher.progress(), switcher.current(), name),
         current: () => switcher.current()
     };
 }

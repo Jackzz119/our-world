@@ -14,7 +14,8 @@ from PIL import Image
 
 DEFAULTS = {
     "anchor": None,  # pose every other pose is measured against (required)
-    "poses": {},  # id -> {"blink": bool, "morph": bool, "slow": bool, "probe": bool}
+    "poses": {},  # id -> {"blink", "morph", "slow", "probe", "chain", "hides", "holds", "align_to", "free", "fit_cut", ...}
+    "sequences": {},  # name -> {"frames": [...], "step_ms", "hold_ms", "back"}: keyframe chains
     "source": None,  # folder of raw generated PNGs (required)
     "source_pattern": "{pose}-{eye}.png",  # eye is "open" / "closed"
     "source_single": "{pose}.png",  # fallback for poses without a blink frame
@@ -37,16 +38,26 @@ DEFAULTS = {
     "hold": {"skin_below_chin": True, "bright_low_sat": True, "masks": {}},
     "breath": {"anchor_y": None, "masks": {}},  # anchor_y: weight 0 at/below this line (default cut_y + 60)
     "plate": None,  # optional {"path": scene frame PNG} to register the anchor pose onto
+    "placement": None,  # {"offset": [x, y], "scale": s}: a known seat (source canvas px -> scene px) instead of registering
+    "parts": {},  # name -> RGBA image in the scene frame: a scene part a pose can pick up (poses.<id>.holds)
     "thresholds": {
         "probe_warn_px": 3,
         "probe_fail_px": 8,
         "cut_fail_px": 8,
-        "blink_reject": 0.08,  # raw closed frame: share of pixels outside the eyes that changed
-        "blink_after_max": 0.02,  # after alignment
+        "blink_reject": 0.15,  # raw closed frame: share of pixels outside the eyes that changed at all
+        "blink_solid_max": 0.01,  # ...in blobs 5px or thicker: redrawn or missing, the align stage cannot move it back
+        "blink_after_max": 0.02,  # after alignment; twice this when none of it is solid (scattered speckle only)
+        "blink_solid_after_max": 0.001,  # solid share after alignment that still counts as "none"
         "morph_err": 0.12,  # mean abs colour error after warping (0..1)
         "morph_sil": 0.05,  # share of the target silhouette the warp misses
         "alpha_empty": 8,  # alpha below this is empty when trimming
         "fit_cut_max_px": 16,  # poses with "fit_cut": a torso cut this close is fitted by the align stage
+        "rigid_min_matches": 6,  # a rigid part the flow missed needs this many matches that agree
+        "rigid_missed_px": 20,  # ...each this far from where the flow put it
+        "hold_search_px": 200,  # a held part is looked for this far from its own place
+        "hold_match_min": 0.5,  # edge correlation of the drawn part with the scene's: below it, a different object
+        "hold_rms_max": 0.14,  # colour RMS (0..1) between them there: above it, the swap shows
+        "hold_rest_px": 10,  # a pose that holds a part without hiding it may move it this far off its place
     },
 }
 
@@ -70,7 +81,14 @@ class Ctx:
         if cfg["anchor"] not in cfg["poses"]:
             raise SystemExit("rig.json: 'anchor' must be one of 'poses'")
         for pid, p in cfg["poses"].items():
-            cfg["poses"][pid] = merge({"blink": False, "morph": True, "slow": False, "probe": True}, p)
+            cfg["poses"][pid] = merge({"blink": False, "morph": True, "slow": False, "probe": True, "chain": False, "hides": [], "holds": []}, p)
+            unknown = [n for n in cfg["poses"][pid]["holds"] if n not in cfg["parts"]]
+            if unknown:
+                raise SystemExit(f"rig.json: poses.{pid}.holds {unknown} are not in 'parts'")
+        for name, sq in cfg["sequences"].items():
+            missing = [f for f in sq.get("frames", []) if f not in cfg["poses"]]
+            if len(sq.get("frames", [])) < 2 or missing:
+                raise SystemExit(f"rig.json: sequence '{name}' needs two or more frames that are poses (unknown: {missing})")
         self.cfg = cfg
         self.source = Path(cfg["source"])
         self.build = Path(cfg["build"])
@@ -106,6 +124,12 @@ class Ctx:
         if not rec:
             raise SystemExit("run the assemble stage first")
         return rec["crop"]
+
+    def probe_columns(self, pose):
+        """Columns where this pose's shoulder line is measured: its own list wins over the canvas default
+        (an arm reaching for something lifts that shoulder on purpose, so only the other one is measured)."""
+        own = self.cfg["poses"][pose].get("probes_x")
+        return self.cfg["canvas"]["probes_x"] if own is None else own
 
     def cut_columns(self, pose):
         """Columns where this pose's torso cut is measured (its own list wins over the canvas default)."""
@@ -218,15 +242,36 @@ def smoothstep(e0, e1, x):
     return t * t * (3 - 2 * t)
 
 
+def as_boxes(box_or_boxes):
+    """One [x0, y0, x1, y1] box or a list of them -> a list of boxes."""
+    if len(box_or_boxes) == 4 and all(isinstance(v, (int, float, np.integer, np.floating)) for v in box_or_boxes):
+        return [list(box_or_boxes)]
+    return [list(b) for b in box_or_boxes]
+
+
 def outside_change(a, b, box):
-    """Share of solid pixels outside `box` whose premultiplied colour differs by more than 24/255."""
-    x0, y0, x1, y1 = [int(v) for v in box]
+    """Share of solid pixels outside `box` (one box or a list) whose premultiplied colour differs by more than 24/255."""
     pa = a[..., :3] * (a[..., 3:4] / 255)
     pb = b[..., :3] * (b[..., 3:4] / 255)
     d = np.abs(pa - pb).max(axis=2)
     mask = np.maximum(a[..., 3], b[..., 3]) > 128
-    mask[max(0, y0) : max(0, y1), max(0, x0) : max(0, x1)] = False
+    for x0, y0, x1, y1 in ([int(v) for v in bx] for bx in as_boxes(box)):
+        mask[max(0, y0) : max(0, y1), max(0, x0) : max(0, x1)] = False
     return float((d[mask] > 24).mean()) if mask.any() else 0.0
+
+
+def solid_change(a, b, box, width=5):
+    """Like outside_change, counting only changes at least `width` px thick: a redrawn or missing piece
+    (the T-shirt under a book gone) counts, the 1-2 px lines a generator's drift leaves along every edge
+    do not (the align stage moves those back)."""
+    pa = a[..., :3] * (a[..., 3:4] / 255)
+    pb = b[..., :3] * (b[..., 3:4] / 255)
+    mask = np.maximum(a[..., 3], b[..., 3]) > 128
+    for x0, y0, x1, y1 in ([int(v) for v in bx] for bx in as_boxes(box)):
+        mask[max(0, y0) : max(0, y1), max(0, x0) : max(0, x1)] = False
+    changed = ((np.abs(pa - pb).max(axis=2) > 24) & mask).astype(np.uint8)
+    thick = cv2.morphologyEx(changed, cv2.MORPH_OPEN, np.ones((width, width), np.uint8)) > 0
+    return float(thick[mask].mean()) if mask.any() else 0.0
 
 
 def skin_mask(rgba):

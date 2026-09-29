@@ -15,6 +15,17 @@ cannot fix. Blink candidates (--open <open frame>) are scored on how much change
 Prints the ranking (lowest score first, any FAIL last) and writes review/pick-<pose>.jpg: each
 candidate's head with the residual painted on (red = only the candidate, blue = only the anchor).
 Nothing is copied anywhere: adopting the winner into the source folder is the caller's decision.
+
+A keyframe chain is picked as a whole: a frame that looks right on its own can still jump from its
+neighbour. With --sequence, every frame of that sequence given as a --slot gets its candidates, the
+frames not given use their current source file, and the path through the candidates whose WORST
+step (silhouette miss after warping, both directions, like the morph stage) is smallest wins; among
+paths with the same worst step, the one whose steps add up to less:
+
+    python rig.py pick --config rig.json --sequence sip --slot sip-1 a.png b.png --slot sip-2 c.png d.png
+
+Each neighbouring pair is measured once, and the best path is found by dynamic programming, so a
+long chain with three candidates per frame stays cheap. Candidates that FAIL acceptance are skipped.
 """
 
 import cv2
@@ -34,6 +45,7 @@ from common import (
     outside_change,
     remap,
     save_rgb,
+    solid_change,
     tile,
 )
 
@@ -51,8 +63,8 @@ def score(ctx, pose, anchor, img, fit):
     solid = a >= 128
     out["body_alpha"] = round(float(a[solid].mean()), 1)
     p = ctx.cfg["poses"][pose]
-    if p["probe"] and ctx.cfg["canvas"]["probes_x"]:
-        d = [first_solid_y(img, x) - first_solid_y(anchor, x) for x in ctx.cfg["canvas"]["probes_x"]]
+    if p["probe"] and ctx.probe_columns(pose):
+        d = [first_solid_y(img, x) - first_solid_y(anchor, x) for x in ctx.probe_columns(pose)]
         out["shoulder_dy"] = d
         if max(abs(v) for v in d) > th["probe_fail_px"]:
             out["fail"] = True
@@ -95,7 +107,73 @@ def score(ctx, pose, anchor, img, fit):
     return out, np.concatenate([on_backdrop(img)[y0:y1, x0:x1], view[y0:y1, x0:x1]], axis=1)
 
 
+def step_miss(a, b, sigma):
+    """The worst silhouette miss of a morph a <-> b, both directions (the morph stage's `sil`)."""
+    fab = cv2.GaussianBlur(flow(a, b), (0, 0), sigma)
+    fba = cv2.GaussianBlur(flow(b, a), (0, 0), sigma)
+    worst = 0.0
+    for src, dst, back in ((a, b, fba), (b, a, fab)):
+        warped = remap(src, back)
+        solid = dst[..., 3] > 128
+        worst = max(worst, float(((warped[..., 3] > 128) ^ solid).sum() / max(solid.sum(), 1)))
+    return worst
+
+
+def run_sequence(ctx, args):
+    seq = ctx.cfg["sequences"].get(args.sequence)
+    if not seq:
+        raise SystemExit(f"no sequence '{args.sequence}' in rig.json")
+    slots = {name: files for name, *files in (args.slot or [])}
+    unknown = [n for n in slots if n not in seq["frames"]]
+    if unknown:
+        raise SystemExit(f"--slot {unknown} not frames of '{args.sequence}': {seq['frames']}")
+    anchor = load_rgba(ctx.source_file(ctx.cfg["anchor"], "open"))
+    options = []  # per frame: [(label, image)]
+    for frame in seq["frames"]:
+        if frame in slots:
+            keep = []
+            for f in slots[frame]:
+                img = load_rgba(f)
+                r, _ = score(ctx, frame, anchor, img, False) if ctx.cfg["poses"][frame]["probe"] else ({"fail": False}, None)
+                if r["fail"]:
+                    print(f"  skip {f}: {'; '.join(r['issues'])}")
+                    continue
+                keep.append((str(f), img))
+            if not keep:
+                raise SystemExit(f"every candidate for {frame} FAILs: regenerate")
+            options.append(keep)
+        else:
+            src = ctx.source_file(frame, "open")
+            if not src:
+                raise SystemExit(f"{frame} has no source file and no --slot")
+            options.append([(str(src), load_rgba(src))])
+    sigma = ctx.grid * 0.6
+    # best[i][k] = (worst step so far, sum of steps, path, steps) ending at candidate k of frame i
+    best = [[(0.0, 0.0, [k], []) for k in range(len(options[0]))]]
+    for i in range(1, len(options)):
+        row = []
+        for k, (_, img) in enumerate(options[i]):
+            cands = []
+            for j, (_, prev) in enumerate(options[i - 1]):
+                miss = step_miss(prev, img, sigma)
+                worst, total, path, steps = best[i - 1][j]
+                cands.append((max(worst, miss), total + miss, path + [k], steps + [miss]))
+            row.append(min(cands, key=lambda c: (c[0], c[1])))
+        best.append(row)
+    worst, _, path, steps = min(best[-1], key=lambda c: (c[0], c[1]))
+    chosen = [options[i][k][0] for i, k in enumerate(path)]
+    for i, frame in enumerate(seq["frames"]):
+        note = f"  (step in {steps[i - 1]:.3f})" if i else ""
+        print(f"  {frame}: {chosen[i]}{note}")
+    verdict = "every step morphs" if worst <= ctx.th["morph_sil"] else "a step is over morph_sil: that pair will cover-and-fade; regenerate it"
+    print(f"  worst step {worst:.3f}: {verdict}")
+    ctx.write_record(f"pick-{args.sequence}", {"frames": seq["frames"], "chosen": chosen, "steps": [round(s, 4) for s in steps]})
+    return "pass" if worst <= ctx.th["morph_sil"] else "warn"
+
+
 def run(ctx, args):
+    if getattr(args, "sequence", None):
+        return run_sequence(ctx, args)
     if not args.pose or not args.files:
         raise SystemExit("pick needs --pose and --files")
     if args.pose not in ctx.cfg["poses"]:
@@ -107,10 +185,13 @@ def run(ctx, args):
         if args.open:
             # a blink candidate: only the eyes may differ from its open frame
             o = load_rgba(args.open)
-            change = outside_change(o, img, eye_box(ctx, args.pose, o, build=False))
-            r = {"issues": [], "fail": change > ctx.th["blink_reject"], "outside_eye_change": round(change, 4), "score": change * 1e5}
+            box = eye_box(ctx, args.pose, o, build=False)
+            change, solid = outside_change(o, img, box), solid_change(o, img, box)
+            fail = solid > ctx.th["blink_solid_max"] or change > ctx.th["blink_reject"]
+            # what the align stage cannot move back ranks first, the drift it can second
+            r = {"issues": [], "fail": fail, "outside_eye_change": round(change, 4), "solid_change": round(solid, 4), "score": round(solid * 1e6 + change * 1e4)}
             if r["fail"]:
-                r["issues"].append(f"{change * 100:.1f}% changed outside the eyes")
+                r["issues"].append(f"{change * 100:.1f}% changed outside the eyes, {solid * 100:.2f}% in solid blobs")
             view = None
         else:
             r, view = score(ctx, args.pose, anchor, img, args.fit == "head")
@@ -120,7 +201,7 @@ def run(ctx, args):
             rows.append(label(view, f"{path.name}  score {r['score']}{'  FAIL' if r['fail'] else ''}", 0.8))
     results.sort(key=lambda r: (r["fail"], r["score"]))
     for i, r in enumerate(results):
-        keys = ("shoulder_dy", "cut_dy", "hair_extra_px", "hair_missing_px", "outside_eye_change", "head_fit", "body_alpha")
+        keys = ("shoulder_dy", "cut_dy", "hair_extra_px", "hair_missing_px", "outside_eye_change", "solid_change", "head_fit", "body_alpha")
         detail = ", ".join(f"{k} {r[k]}" for k in keys if k in r)
         print(f"  {i + 1}. {'FAIL ' if r['fail'] else ''}{r['file']}: {detail}{'; ' + '; '.join(r['issues']) if r['issues'] else ''}")
     if rows:
