@@ -21,7 +21,10 @@ export function LobbyScene({ status, hasWorld, error, busy, onEnter, onCreate }:
                 <h1>Our World</h1>
                 <div className="ui-entry-content ui-liner">
                     {status === 'loading' ? (
-                        <p role="status">正在寻找你们的小世界…</p>
+                        <p role="status">
+                            <span className="ui-spinner" aria-hidden="true" />
+                            正在寻找你们的小世界…
+                        </p>
                     ) : status === 'error' ? (
                         <>
                             <h2>暂时没能进入大厅</h2>

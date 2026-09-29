@@ -332,6 +332,21 @@ export const ISkipB = (p: IcoProps) => (
         <rect x="5.8" y="4.5" width="3.2" height="15" rx="1.2" />
     </Ico>
 );
+// Player transport: play order, list and lyrics.
+export const IRepeat = (p: IcoProps) => (
+    <Ico {...p}>
+        <path d="M17 2.5l3.5 3.5-3.5 3.5M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5 3.5 18 7 14.5M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5" />
+    </Ico>
+);
+export const IRepeatOne = (p: IcoProps) => (
+    <Ico {...p}>
+        <path d="M17 2.5l3.5 3.5-3.5 3.5M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5 3.5 18 7 14.5M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5" />
+        <path d="M11 10.5l1.5-1v5" />
+    </Ico>
+);
+export const IShuffle = (p: IcoProps) => <Ico {...p} d="M16 4h4v4M4 20 20 4M20 16v4h-4M15 15l5 5M4 4l5 5" />;
+export const IList = (p: IcoProps) => <Ico {...p} d="M9 6h11M9 12h11M9 18h7M4.5 6h.01M4.5 12h.01M4.5 18h.01" />;
+export const ILyric = (p: IcoProps) => <Ico {...p} d="M4 6.5h16M4 11h10M4 15.5h16M4 20h7" />;
 export const IMusic = (p: IcoProps) => (
     <Ico {...p}>
         <path d="M9 17.5V6.2l9-2v9.1" />

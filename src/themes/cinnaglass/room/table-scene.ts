@@ -42,6 +42,7 @@ import { createPartnerLayer, type HeadAnchors, loadPartnerRig } from '@/themes/c
 import { createPartnerDirector } from '@/themes/cinnaglass/room/partner-state';
 import { createRainLayer } from '@/themes/cinnaglass/room/rain-layer';
 import { createSteamLayer } from '@/themes/cinnaglass/room/steam-layer';
+import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
 
 /** Who sits where: the partner's pose art across the table, the viewer's sleeves in front. */
 export type TableCast = { viewer: AvatarId; partner: AvatarId; rig: AvatarRig };
@@ -51,6 +52,8 @@ export type TableSceneInit = { mood: RoomMood; weather: RoomWeather; lampOn: boo
 
 /** What the scene reports back to the React shell. */
 export type TableSceneEvents = {
+    /** share of the room's assets loaded so far (0–1), for the entry loader */
+    onProgress?: (fraction: number) => void;
     onHotspot?: (event: HotspotOpenEvent) => void;
     onLamp?: (on: boolean) => void;
     onPoke?: () => void;
@@ -122,7 +125,8 @@ export async function buildTableScene(
     events: TableSceneEvents = {}
 ): Promise<TableSceneHandle> {
     const { w: baseW, h: baseH } = room.base;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // the low-motion mode as published on <html> (it follows the OS switch unless the player chose)
+    const reduced = motionReduced();
     const random: () => number = Math.random;
 
     /* ---------- assets ---------- */
@@ -132,9 +136,19 @@ export async function buildTableScene(
     const foreground = room.foreground[cast.viewer];
     const jacket = room.traces.jacket?.[cast.partner];
     const parts = [foreground, room.traces.mug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
+    // the plates and the rig weigh about the same; each half reports its own share
+    let platesDone = 0;
+    let rigDone = 0;
+    const report = () => events.onProgress?.((platesDone + rigDone) / 2);
     const [textures, partnerRig] = await Promise.all([
-        Assets.load<Texture>([...plateUrls, ...parts.map((p) => p.src)]),
-        loadPartnerRig(cast.rig.manifest)
+        Assets.load<Texture>([...plateUrls, ...parts.map((p) => p.src)], (p) => {
+            platesDone = p;
+            report();
+        }),
+        loadPartnerRig(cast.rig.manifest, (p) => {
+            rigDone = p;
+            report();
+        })
     ]);
 
     const partSprite = (part: PlatePart) => {

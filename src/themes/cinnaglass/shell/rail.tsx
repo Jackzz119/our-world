@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react';
 import type { IcoProps } from '@/themes/cinnaglass/icons';
 import { IBag, ICalendar, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
 import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from '@/themes/cinnaglass/shell/rail-icons';
+import { Sheet } from '@/themes/cinnaglass/ui/sheet';
+import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
+import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
 import '@/themes/cinnaglass/shell/navigation-glass.css';
 import type { Widgets } from '@/themes/cinnaglass/model';
 
@@ -33,6 +36,8 @@ const MODULE_DEFS: { key: string; label: string }[] = [
 type RailProps = {
     chatOpen?: boolean;
     musicOpen?: boolean;
+    /** sound is playing: the music button carries a small equaliser */
+    musicPlaying?: boolean;
     unread: boolean;
     activeRoom: string;
     onRoom: (id: string) => void;
@@ -42,12 +47,17 @@ type RailProps = {
     onLeaveWorld: () => void;
 };
 
+// How long a popover takes to leave.
+const POP_EXIT_MS = 140;
+
 // Left navigation rail. Owns one popover at a time (rooms or modules) and closes
 // it on Escape or an outside pointer-down, both captured at window level so a
-// popover inside a modal still wins.
+// popover inside a modal still wins. On the phone layout the two popovers are
+// sheets rising behind the bar (ui/sheet.tsx), like every other A panel there.
 export function Rail({
     chatOpen = false,
     musicOpen = false,
+    musicPlaying = false,
     unread,
     activeRoom,
     onRoom,
@@ -58,6 +68,9 @@ export function Rail({
 }: RailProps) {
     const [pop, setPop] = useState<'rooms' | 'modules' | null>(null);
     const [pressed, setPressed] = useState<RailKey | null>(null);
+    const compact = useCompactUi();
+    const roomsPop = usePresence(pop === 'rooms' && !compact, POP_EXIT_MS);
+    const modulesPop = usePresence(pop === 'modules' && !compact, POP_EXIT_MS);
     useEffect(() => {
         if (!pop) return;
         const escape = (event: KeyboardEvent) => {
@@ -83,7 +96,7 @@ export function Rail({
         key: RailKey,
         Icon: (p: IcoProps) => ReactNode,
         label: string,
-        opts?: { dot?: boolean; disabled?: boolean; active?: boolean }
+        opts?: { dot?: boolean; disabled?: boolean; active?: boolean; playing?: boolean }
     ) => (
         <button
             type="button"
@@ -124,7 +137,64 @@ export function Rail({
             <Icon size={32} sw={1.15} aria-hidden="true" />
             <span className="rail-label">{label}</span>
             {opts?.dot && <span className="rail-dot" />}
+            {opts?.playing && (
+                <span className="rail-eq" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                </span>
+            )}
         </button>
+    );
+
+    // Popover bodies, shared by the desktop popovers and the phone sheets.
+    const roomCards = ROOM_DEFS.map((r) => (
+        <button
+            key={r.id}
+            className={`room-card ${activeRoom === r.id ? 'cur' : ''} ${r.locked ? 'locked' : ''}`}
+            title={r.locked ? `${r.name}（敬请期待）` : r.name}
+            onClick={() => {
+                if (r.locked) return;
+                onRoom(r.id);
+                setPop(null);
+            }}
+        >
+            <img src={r.thumb} alt={r.name} draggable={false} />
+            {r.locked && (
+                <span className="room-lock">
+                    <ILock size={15} />
+                </span>
+            )}
+            {activeRoom === r.id && <span className="room-cur-dot" />}
+        </button>
+    ));
+    const toolsBody = (
+        <>
+            <div className="rail-tool-links">
+                {btn('photos', IPhoto, '照片墙')}
+                {btn('calendar', ICalendar, '日历·纪念日')}
+                {btn('shop', IBag, '装扮（敬请期待）', { disabled: true })}
+            </div>
+            {/* phones have no floating music bar to switch off: the sheet opens from the navigation */}
+            {MODULE_DEFS.filter((m) => !(compact && m.key === 'music')).map((m) => (
+                <label key={m.key} className="module-row">
+                    <span>{m.label}</span>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-label={m.label}
+                        aria-checked={widgets[m.key] !== false}
+                        className={`sw ${widgets[m.key] !== false ? 'on' : ''}`}
+                        onClick={() => setWidget(m.key, widgets[m.key] === false)}
+                    >
+                        <i aria-hidden="true" />
+                    </button>
+                </label>
+            ))}
+            <button className="modules-lobby" onClick={onLeaveWorld}>
+                <ILogout size={13} /> 回大厅
+            </button>
+        </>
     );
 
     return (
@@ -132,62 +202,38 @@ export function Rail({
             <nav className="rail" aria-label="房间导航">
                 {btn('rooms', RailHome, '房间', { active: pop === 'rooms' })}
                 {btn('chat', RailChat, '聊天', { dot: unread, active: chatOpen })}
-                {btn('music', RailMusic, '一起听', { active: musicOpen })}
+                {btn('music', RailMusic, '一起听', { active: musicOpen, playing: musicPlaying })}
                 {btn('modules', RailTools, '工具', { active: pop === 'modules' })}
                 {btn('settings', RailSettings, '设置')}
             </nav>
 
-            {pop === 'rooms' && (
-                <div className="rail-pop rooms-pop">
-                    {ROOM_DEFS.map((r) => (
-                        <button
-                            key={r.id}
-                            className={`room-card ${activeRoom === r.id ? 'cur' : ''} ${r.locked ? 'locked' : ''}`}
-                            title={r.locked ? `${r.name}（敬请期待）` : r.name}
-                            onClick={() => {
-                                if (r.locked) return;
-                                onRoom(r.id);
-                                setPop(null);
-                            }}
-                        >
-                            <img src={r.thumb} alt={r.name} draggable={false} />
-                            {r.locked && (
-                                <span className="room-lock">
-                                    <ILock size={15} />
-                                </span>
-                            )}
-                            {activeRoom === r.id && <span className="room-cur-dot" />}
-                        </button>
-                    ))}
+            {roomsPop.mounted && (
+                <div className="rail-pop rooms-pop" data-state={roomsPop.closing ? 'closing' : 'open'}>
+                    {roomCards}
                 </div>
             )}
 
-            {pop === 'modules' && (
-                <div className="rail-pop modules-pop">
-                    <div className="rail-tool-links">
-                        {btn('photos', IPhoto, '照片墙')}
-                        {btn('calendar', ICalendar, '日历·纪念日')}
-                        {btn('shop', IBag, '装扮（敬请期待）', { disabled: true })}
-                    </div>
-                    {MODULE_DEFS.map((m) => (
-                        <label key={m.key} className="module-row">
-                            <span>{m.label}</span>
-                            <button
-                                type="button"
-                                role="switch"
-                                aria-label={m.label}
-                                aria-checked={widgets[m.key] !== false}
-                                className={`sw ${widgets[m.key] !== false ? 'on' : ''}`}
-                                onClick={() => setWidget(m.key, widgets[m.key] === false)}
-                            >
-                                <i aria-hidden="true" />
-                            </button>
-                        </label>
-                    ))}
-                    <button className="modules-lobby" onClick={onLeaveWorld}>
-                        <ILogout size={13} /> 回大厅
-                    </button>
+            {modulesPop.mounted && (
+                <div className="rail-pop modules-pop" data-state={modulesPop.closing ? 'closing' : 'open'}>
+                    {toolsBody}
                 </div>
+            )}
+
+            {compact && (
+                <>
+                    <Sheet open={pop === 'rooms'} onClose={() => setPop(null)} label="房间" className="rail-sheet">
+                        <h2 className="rail-sheet-title" data-sheet-grab>
+                            房间
+                        </h2>
+                        <div className="rail-sheet-rooms">{roomCards}</div>
+                    </Sheet>
+                    <Sheet open={pop === 'modules'} onClose={() => setPop(null)} label="工具" className="rail-sheet">
+                        <h2 className="rail-sheet-title" data-sheet-grab>
+                            工具
+                        </h2>
+                        <div className="rail-sheet-tools">{toolsBody}</div>
+                    </Sheet>
+                </>
             )}
         </div>
     );

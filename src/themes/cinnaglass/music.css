@@ -1,115 +1,655 @@
-/* Stable reading controls inside scene glass. */
+/* The player main page (music.tsx) inside the desktop dock or the phone sheet.
+   Motion uses the shared tokens (ui/motion.css); low motion stills the record,
+   the equaliser and every slide, and keeps the fades. */
 .mp {
-    width: 320px;
-    max-width: 100%;
-    padding: 14px;
-    border-radius: 24px;
+    --art: 72px;
+    --art-r: 16px;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
     color: var(--ui-text);
+}
+.mp[data-variant='dock'] {
+    --art: 112px;
+    --art-r: 20px;
+}
+.mp-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: -2px 0 2px;
+}
+.mp-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+.mp-place {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--ui-muted);
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.mp-close.ui-icon-button {
+    align-self: center;
+    background: transparent;
+    border-color: transparent;
+}
+
+/* ---------- now playing ---------- */
+.mp-now {
+    display: flex;
+    flex: none;
+    flex-direction: column;
 }
 .mp-top {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    padding-right: 2px;
 }
-.mp-cover {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+.mp-art {
+    position: relative;
     flex: none;
+    width: var(--art);
+    height: var(--art);
+}
+/* room for the record to slide out from behind the sleeve */
+.mp-top > .mp-art {
+    margin-right: calc(var(--art) * 0.34 + 4px);
+}
+.mp-disc {
+    position: absolute;
+    inset: 3%;
+    border-radius: 50%;
+    filter: drop-shadow(0 6px 10px #0009);
+    transition: translate var(--dur-panel) var(--ease-spring);
+    animation: ow-spin 5.4s linear infinite;
+    animation-play-state: paused;
+}
+.mp-art[data-playing] .mp-disc {
+    translate: 34% 0;
+    animation-play-state: running;
+}
+.mp-disc img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+/* the poster printed on the record's label turns with it */
+.mp-label {
+    position: absolute;
+    inset: 32%;
+    border-radius: 50%;
+    background: center / cover no-repeat;
+    box-shadow:
+        inset 0 0 0 1px #0006,
+        0 0 0 2px #0003;
+}
+.mp-poster {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--art-r);
+    box-shadow:
+        0 14px 30px -14px #000d,
+        0 0 0 1px #ffffff1f;
+    animation: mp-sleeve-in var(--dur-panel) var(--ease-spring) both;
+}
+@keyframes mp-sleeve-in {
+    from {
+        opacity: 0;
+        scale: calc(var(--enter-scale) - 0.08);
+        rotate: -4deg;
+    }
 }
 .mp-info {
+    flex: 1;
     min-width: 0;
 }
 .mp-title {
     margin: 0;
+    overflow: hidden;
     font-size: 17px;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    animation: ow-rise-in var(--dur-enter) var(--ease-out) both;
+}
+.mp[data-variant='dock'] .mp-title {
+    font-size: 19px;
 }
 .mp-note {
-    margin: 5px 0 0;
+    margin: 3px 0 0;
+    color: var(--ui-muted);
     font-size: 12px;
     line-height: 1.6;
-    color: var(--ui-muted);
     overflow-wrap: anywhere;
 }
-.mp-body {
-    padding: 14px;
-    border-radius: 16px;
-}
-.mp-label {
-    font-size: 13px;
+.mp-like.ui-icon-button {
+    align-self: flex-start;
+    border-color: transparent;
+    background: transparent;
     color: var(--ui-muted);
 }
+.mp-like[aria-pressed='true'] {
+    color: #f5b6c1;
+}
+.mp-like[aria-pressed='true'] svg {
+    animation: ow-pop-in var(--dur-release) var(--ease-pop);
+    filter: drop-shadow(0 0 6px #f5b6c188);
+}
+
+/* two lines of lyrics: the sung one lit, the next one waiting */
+.mp-lyric {
+    min-height: 50px;
+    margin: 12px 2px 4px;
+    overflow: hidden;
+}
+.mp-line {
+    margin: 0;
+    overflow: hidden;
+    color: rgb(255 248 235 / 0.52);
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) 60ms both;
+}
+.mp-line.on {
+    color: var(--ui-accent);
+    font-size: 15px;
+    font-weight: 600;
+    text-shadow: 0 0 14px rgb(241 209 154 / 0.33);
+    animation-delay: 0ms;
+}
+
+/* ---------- sliders ---------- */
 .mp input[type='range'] {
     display: block;
     width: 100%;
-    height: 44px;
+    height: 28px;
     margin: 0;
-    accent-color: var(--ui-accent);
+    background: transparent;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.mp input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 4px;
+    background:
+        linear-gradient(90deg, #d9b377, var(--ui-accent)) 0 0 / var(--p, 0%) 100% no-repeat,
+        #ffffff24;
+}
+.mp input[type='range']::-moz-range-track {
+    height: 4px;
+    border-radius: 4px;
+    background: #ffffff24;
+}
+.mp input[type='range']::-moz-range-progress {
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #d9b377, var(--ui-accent));
+}
+.mp input[type='range']::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff4dc;
+    box-shadow:
+        0 0 0 4px rgb(241 209 154 / 0.2),
+        0 2px 6px #0007;
+    transition:
+        transform var(--dur-release) var(--ease-pop),
+        box-shadow var(--dur-hover) ease;
+    -webkit-appearance: none;
+}
+.mp input[type='range']::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff4dc;
+    box-shadow:
+        0 0 0 4px rgb(241 209 154 / 0.2),
+        0 2px 6px #0007;
+    transition:
+        transform var(--dur-release) var(--ease-pop),
+        box-shadow var(--dur-hover) ease;
+}
+.mp input[type='range']:active::-webkit-slider-thumb {
+    transform: scale(1.3);
+    box-shadow:
+        0 0 0 7px rgb(241 209 154 / 0.22),
+        0 2px 6px #0007;
+    transition-duration: var(--dur-press);
+}
+.mp input[type='range']:active::-moz-range-thumb {
+    transform: scale(1.3);
 }
 .mp input[type='range']:focus-visible {
     outline: 2px solid var(--ui-accent);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 .mp-times {
     display: flex;
     justify-content: space-between;
+    margin-top: -2px;
+    color: var(--ui-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- transport ---------- */
+.mp-transport {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding: 0 2px;
+}
+.mp-ghost.ui-icon-button {
+    border-color: transparent;
+    background: transparent;
+}
+.mp-ghost:not(.mp-skip) {
+    color: var(--ui-muted);
+}
+.mp-skip:not(:disabled):active svg {
+    translate: 2px 0;
+    transition: translate var(--dur-press) var(--ease-out);
+}
+.mp-skip:first-of-type:not(:disabled):active svg {
+    translate: -2px 0;
+}
+.mp-swap {
+    display: flex;
+    animation: mp-swap-in var(--dur-release) var(--ease-pop) both;
+}
+@keyframes mp-swap-in {
+    from {
+        opacity: 0;
+        rotate: -120deg;
+        scale: calc(var(--enter-scale) - 0.3);
+    }
+}
+.mp-play.ui-icon-button {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    box-shadow:
+        0 8px 22px -8px rgb(241 209 154 / 0.8),
+        inset 0 1px 0 #fff6;
+}
+.mp-glyph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition:
+        opacity var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop),
+        rotate var(--dur-release) var(--ease-pop);
+}
+.mp-glyph.pause,
+.mp-play[data-playing] .mp-glyph.play {
+    opacity: 0;
+    scale: 0.4;
+    rotate: -90deg;
+}
+.mp-play[data-playing] .mp-glyph.pause {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+}
+.mp-play:disabled .mp-glyph.play {
+    opacity: 0.4;
+}
+.mp-error {
+    margin: 8px 0 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: #00000030;
+    color: #ffe2c1;
+    font-size: 12px;
+    line-height: 1.5;
+    animation: ow-rise-in var(--dur-enter) var(--ease-out) both;
+}
+
+/* ---------- tabs ---------- */
+.mp-tabs {
+    position: relative;
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(var(--n), 1fr);
+    padding: 4px;
+    border-radius: 14px;
+    background: #0000002b;
+}
+.mp-tab-pill {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc((100% - 8px) / var(--n));
+    border-radius: 10px;
+    background: var(--ui-accent);
+    box-shadow: 0 4px 14px -6px rgb(241 209 154 / 0.8);
+    translate: calc(var(--i) * 100%) 0;
+    transition: translate var(--dur-panel) var(--ease-spring);
+}
+.mp-tabs button {
+    position: relative;
+    z-index: 1;
+    min-height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ui-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: color var(--dur-hover) ease;
+}
+.mp-tabs button[aria-selected='true'] {
+    color: #2e261b;
+    font-weight: 600;
+}
+.mp-tabs button:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
+/* At half height the sheet shows now-playing and the tabs; the tab body joins at full height. */
+.music-sheet[data-detent='half'] .mp-panel {
+    opacity: 0;
+    visibility: hidden;
+}
+.mp-panel {
+    transition:
+        opacity var(--dur-enter) ease,
+        visibility var(--dur-enter) allow-discrete;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #aaa39866 transparent;
+}
+
+/* ---------- lyrics ---------- */
+.mp-lyrics {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 180px;
+    margin: 0;
+    padding: 40px 4px;
+    overflow-y: auto;
+    list-style: none;
+    scrollbar-width: none;
+    mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent);
+}
+.mp-lyrics button {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: rgb(255 248 235 / 0.55);
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    transform-origin: left center;
+    transition:
+        color var(--dur-hover) ease,
+        opacity var(--dur-hover) ease,
+        scale var(--dur-panel) var(--ease-spring),
+        background-color var(--dur-hover) ease;
+}
+.mp-lyrics button[data-past] {
+    opacity: 0.6;
+}
+.mp-lyrics button[aria-current='true'] {
+    color: var(--ui-accent);
+    font-weight: 600;
+    text-shadow: 0 0 14px rgb(241 209 154 / 0.33);
+    scale: 1.07;
+}
+@media (hover: hover) and (pointer: fine) {
+    .mp-lyrics button:hover {
+        background: var(--ui-hover);
+        color: var(--ui-text);
+    }
+}
+
+/* ---------- playlist ---------- */
+.mp-list ul {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.mp-list li {
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+    animation-delay: calc(var(--k, 0) * 28ms);
+}
+.mp-chips {
+    display: flex;
+    gap: 6px;
+    margin: 2px 0 8px;
+}
+.mp-chip {
+    min-height: 32px;
+    padding: 4px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--ui-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+        color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-chip[aria-pressed='true'] {
+    border-color: rgb(241 209 154 / 0.6);
+    background: rgb(241 209 154 / 0.1);
+    color: var(--ui-accent);
+}
+.mp-chip:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 8px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-row:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+@media (hover: hover) and (pointer: fine) {
+    .mp-row:hover {
+        background: var(--ui-hover);
+    }
+}
+.mp-row[aria-current='true'] {
+    background: rgb(241 209 154 / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(241 209 154 / 0.28);
+}
+.mp-row img {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+.mp-row-text {
+    flex: 1;
+    min-width: 0;
+}
+.mp-row-text b {
+    display: block;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.mp-row[aria-current='true'] b {
+    color: var(--ui-accent);
+}
+.mp-row-text span {
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+.mp-row-like {
+    display: flex;
+    color: #f5b6c1;
+}
+.mp-dur {
     color: var(--ui-muted);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
 }
-.mp-transport {
+.mp-eq {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    margin: 14px 0 8px;
+    align-items: flex-end;
+    gap: 2px;
+    width: 18px;
+    height: 16px;
 }
-.mp-play {
-    width: 48px;
-    height: 48px;
+.mp-eq i {
+    flex: 1;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--ui-accent);
+    transform-origin: bottom;
+    animation: mp-eq 820ms ease-in-out infinite alternate;
+}
+.mp-eq i:nth-child(2) {
+    animation-duration: 620ms;
+    animation-delay: -300ms;
+}
+.mp-eq i:nth-child(3) {
+    animation-duration: 980ms;
+    animation-delay: -520ms;
+}
+@keyframes mp-eq {
+    from {
+        scale: 1 0.25;
+    }
+    to {
+        scale: 1 1;
+    }
+}
+.mp-empty {
+    margin: 12px 4px;
+    color: var(--ui-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* ---------- sound ---------- */
+.mp-sound {
+    display: grid;
+    gap: 14px;
+    padding: 6px 2px;
 }
 .mp-volume {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 12px;
     font-variant-numeric: tabular-nums;
 }
 .mp-volume input {
-    min-width: 0;
     flex: 1;
+    min-width: 0;
 }
 .mp-volume span {
-    width: 36px;
+    width: 38px;
     text-align: right;
 }
-.mp-mode {
+.mp-modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+.mp-modes button {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 6px 0 10px;
-    font-size: 13px;
-}
-.mp-mode select {
+    justify-content: center;
+    gap: 6px;
     min-height: 44px;
-    min-width: 0;
-    width: auto;
-    font: inherit;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #00000016;
+    color: var(--ui-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition:
+        color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-modes button[aria-checked='true'] {
+    border-color: rgb(241 209 154 / 0.6);
+    background: rgb(241 209 154 / 0.12);
+    color: var(--ui-accent);
+}
+.mp-modes button:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+
+/* ---------- low motion: no turning record, no dancing bars ---------- */
+:root[data-motion='reduced'] :is(.mp-disc, .mp-eq i) {
+    animation: none;
+}
+:root[data-motion='reduced'] .mp-art[data-playing] .mp-disc {
+    translate: 22% 0;
 }
 @media (max-height: 650px) {
-    .mp-top {
-        margin-bottom: 8px;
+    .mp-lyric {
+        min-height: 26px;
+        margin-top: 6px;
     }
-    .mp-body {
-        padding: 10px;
-    }
-    .mp-transport {
-        margin: 5px 0;
+    .mp-lyric .mp-line:not(.on) {
+        display: none;
     }
 }

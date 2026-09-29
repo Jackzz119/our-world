@@ -42,6 +42,10 @@ type RoomSceneProps = {
     bubble?: { seatId: string; text: string; key: number } | null;
     /** false freezes the ticker while a full-screen surface covers the room. */
     active?: boolean;
+    /** entry loader: share of the room loaded (0–1), then ready, or failed */
+    onProgress?: (fraction: number) => void;
+    onReady?: () => void;
+    onFailed?: () => void;
 };
 
 const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
@@ -86,21 +90,34 @@ function placeBeside(anchors: HeadAnchors, width: number): Placement {
 }
 
 /** The across-the-table room: the scene, the overhead bubble on the partner, and the dev presence panel. */
-export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, active = true }: RoomSceneProps) {
+export function RoomScene({
+    mood,
+    weatherKind,
+    onHotspot,
+    presence,
+    bubble,
+    active = true,
+    onProgress,
+    onReady,
+    onFailed
+}: RoomSceneProps) {
     const holderRef = useRef<HTMLDivElement | null>(null);
     const sceneRef = useRef<TableSceneHandle | null>(null);
     const appRef = useRef<Application | null>(null);
     const [head, setHead] = useState<{ anchors: HeadAnchors | null; width: number }>({ anchors: null, width: 0 });
     const [failed, setFailed] = useState(false);
+    const [ready, setReady] = useState(false);
     const [partnerState, setPartnerState] = useState<PartnerState>('reading');
     const [lampOn, setLampOn] = useState(true);
     const onHotspotRef = useRef(onHotspot);
+    const loadRef = useRef({ onProgress, onReady, onFailed });
     const moodRef = useRef(mood);
     const weatherRef = useRef(weatherKind);
     const partnerRef = useRef(partnerState);
     // the async mount reads the latest props through these; layout effects land before it starts
     useLayoutEffect(() => {
         onHotspotRef.current = onHotspot;
+        loadRef.current = { onProgress, onReady, onFailed };
         moodRef.current = mood;
         weatherRef.current = weatherKind;
         partnerRef.current = partnerState;
@@ -125,6 +142,8 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
             let inited = false;
             try {
                 a = new Application();
+                // the chunk is in and the renderer is next: the first sliver of the loader
+                loadRef.current.onProgress?.(0.08);
                 await a.init({
                     resizeTo: holder,
                     backgroundAlpha: 0,
@@ -133,6 +152,7 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                     autoDensity: true
                 });
                 inited = true;
+                loadRef.current.onProgress?.(0.14);
                 if (disposed) {
                     a.destroy(true);
                     return;
@@ -152,6 +172,10 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                         partner: partnerRef.current
                     },
                     {
+                        // a room torn down mid-load must not feed the next entry's loader
+                        onProgress: (fraction) => {
+                            if (!disposed) loadRef.current.onProgress?.(0.14 + fraction * 0.84);
+                        },
                         onHotspot: (event) => onHotspotRef.current?.(event),
                         onLamp: setLampOn
                     }
@@ -176,10 +200,16 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
                 const syncHead = () => setHead({ anchors: scene.headAnchors(), width: holder.clientWidth });
                 syncHead();
                 headTimer = window.setInterval(syncHead, 600);
+                loadRef.current.onProgress?.(1);
+                setReady(true);
+                loadRef.current.onReady?.();
             } catch (e) {
                 Logman.error(TAG, `书房没能加载：${e instanceof Error ? e.message : String(e)}`);
                 if (a && inited) teardown(a);
-                if (!disposed) setFailed(true);
+                if (!disposed) {
+                    setFailed(true);
+                    loadRef.current.onFailed?.();
+                }
             }
         })();
 
@@ -222,7 +252,12 @@ export function RoomScene({ mood, weatherKind, onHotspot, presence, bubble, acti
     const tagAt = place && place.side !== 'edge' && partnerState !== 'asleep' ? place : null;
 
     return (
-        <div ref={holderRef} className="room-scene" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        <div
+            ref={holderRef}
+            className="room-scene"
+            data-ready={ready || undefined}
+            style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+        >
             {failed && (
                 <div className="room-scene-feedback" role="alert">
                     <div className="ui-surface">

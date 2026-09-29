@@ -9,18 +9,50 @@
     display: flex;
     flex-direction: column;
     border-radius: 22px;
+    /* rises out of the corner it lives in, next to the chat button */
+    transform-origin: left bottom;
+    animation: cc-in var(--dur-panel) var(--ease-spring) both;
+    transition:
+        opacity var(--dur-exit) ease,
+        translate var(--dur-exit) var(--ease-out),
+        scale var(--dur-exit) var(--ease-out);
+}
+@keyframes cc-in {
+    from {
+        opacity: 0;
+        translate: 0 calc(var(--rise) * 1.4);
+        scale: var(--enter-scale);
+    }
+}
+.chat-card[data-state='closing'] {
+    opacity: 0;
+    translate: 0 var(--rise);
+    scale: var(--enter-scale);
+    pointer-events: none;
+}
+/* Phone: the same conversation in a sheet over the viewer's side of the table. */
+.chat-sheet.ui-surface {
+    --ui-alpha: 0.6;
+    height: min(56dvh, var(--sheet-full));
+}
+.chat-sheet-body {
+    --cc-liner-mix: 58%;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
 }
 /* Whenever the shell falls back to a solid tint, the liner goes solid with it. */
-.ui-environment[data-reduced-transparency='true'] .chat-card {
+.ui-environment[data-reduced-transparency='true'] :is(.chat-card, .chat-sheet-body) {
     --cc-liner-mix: 100%;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .chat-card {
+    :is(.chat-card, .chat-sheet-body) {
         --cc-liner-mix: 100%;
     }
 }
 @media (prefers-reduced-transparency: reduce) {
-    .chat-card {
+    :is(.chat-card, .chat-sheet-body) {
         --cc-liner-mix: 100%;
     }
 }
@@ -40,7 +72,7 @@
     border-color: transparent;
 }
 /* Scoped to the card so it outranks .ui-liner regardless of stylesheet order. */
-.chat-card .cc-list {
+:is(.chat-card, .chat-sheet-body) .cc-list {
     min-height: 0;
     max-height: min(300px, 40dvh);
     overflow-y: auto;
@@ -62,8 +94,16 @@
     align-items: flex-start;
     gap: 8px;
 }
-.chat-card[data-align='sides'] .cc-msg.me {
+:is(.chat-card, .chat-sheet-body)[data-align='sides'] .cc-msg.me {
     flex-direction: row-reverse;
+}
+/* each message arrives with a small rise; on opening, the visible tail rises together */
+.cc-msg {
+    transform-origin: left bottom;
+    animation: ow-rise-in var(--dur-enter) var(--ease-spring) both;
+}
+.cc-msg.me {
+    transform-origin: right bottom;
 }
 .cc-ava {
     flex-shrink: 0;
@@ -128,8 +168,12 @@
     font-size: 20px;
     cursor: pointer;
 }
-.cc-q:hover {
-    background: var(--ui-hover);
+@media (hover: hover) and (pointer: fine) {
+    .cc-q:not(:disabled):hover {
+        background: var(--ui-hover);
+        translate: 0 -2px;
+        rotate: -6deg;
+    }
 }
 .cc-q:disabled {
     opacity: 0.45;
@@ -162,8 +206,37 @@
     color: var(--ui-muted);
     opacity: 1;
 }
+/* the paper plane takes off on send and a new one slides back in */
+.cc-send-glyph {
+    display: flex;
+}
+.cc-send-glyph.flying {
+    animation: cc-fly 560ms var(--ease-out) both;
+}
+@keyframes cc-fly {
+    0% {
+        translate: 0 0;
+        opacity: 1;
+    }
+    38% {
+        translate: 16px -16px;
+        opacity: 0;
+    }
+    39% {
+        translate: -12px 10px;
+        opacity: 0;
+    }
+    100% {
+        translate: 0 0;
+        opacity: 1;
+    }
+}
+:root[data-motion='reduced'] .cc-send-glyph.flying {
+    animation: none;
+}
 @media (max-width: 767px), (max-height: 599px) {
-    .cc-list {
+    .cc-list,
+    .chat-sheet-body .cc-list {
         max-height: none;
         flex: 1 1 auto;
     }

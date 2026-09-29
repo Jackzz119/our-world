@@ -27,7 +27,10 @@ const Splash = () => (
         <section className="ui-entry-card ui-surface">
             <h1>Our World</h1>
             <div className="ui-entry-content ui-liner" role="status">
-                正在回到我们的小世界…
+                <p>
+                    <span className="ui-spinner" aria-hidden="true" />
+                    正在回到我们的小世界…
+                </p>
             </div>
         </section>
     </main>

@@ -176,7 +176,8 @@ const LoginPage = () => {
 
                         {msg && (
                             <div
-                                className={`${styles.msg} ${styles[msg.type]}`}
+                                key={msg.text}
+                                className={`${styles.msg} ${styles[msg.type]} ${msg.type === 'error' ? 'ow-shake' : ''}`}
                                 role={msg.type === 'error' ? 'alert' : 'status'}
                             >
                                 {msg.text}

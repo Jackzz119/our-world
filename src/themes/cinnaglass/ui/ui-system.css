@@ -1,4 +1,5 @@
 /* Adopted A/B materials and controls. Legacy diary tokens are deliberately untouched. */
+@import './motion.css';
 .ui-environment {
     --ui-tint: 63 64 72;
     --ui-top: 192 187 185;
