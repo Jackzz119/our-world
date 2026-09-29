@@ -124,7 +124,7 @@
 
 ## 边缘页面与公共规则
 
-网站图标（2026-09-29 用户选定试用）：**H1「流光玻璃心」**，通透厚玻璃心形包裹左侧金色夕阳与海面、右侧幽蓝夜空与弯月，以流动的暖冷光连接昼夜。基于 [H1 原稿](../../../../arts/branding/amber-glass-heart.png)，由 imagegen 分别制作 [透明背景原稿](../../../../arts/branding/daynight-heart-transparent.png) 与 [暖咖啡背景原稿](../../../../arts/branding/daynight-heart-coffee.png)，保留心形内部设计与玻璃质感。浏览器使用透明背景 [48px PNG](../../../../public/favicon-48.png) / [16、32、48px ICO](../../../../public/favicon.ico)；iPhone 使用暖咖啡背景、不透明的 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。入口与缓存版本 `daynight-h1-v2` 登记在 [index.html](../../../../index.html)，不另建图标文档。
+网站图标（2026-09-29 用户选定）：**D「雾窗心迹」**，App 图标与 favicon 分开设计、同一个心形。**主屏 App 图标**是起雾雨窗上用指尖描出的心，笔画里透出蓝色城市夜景，左侧是室内暖灯的雾气；背景就是玻璃本身，不用纯色底。[1024 原稿](../../../../arts/branding/window-trace-heart.png) 由 imagegen 生成，iPhone 使用不透明 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。**Favicon** 是手写矢量的同一颗心：粗笔画、透明底，中线左暖右冷硬分，意为一颗心的两半、同一张桌子的两头；[icon.svg](../../../../public/icon.svg) 随浏览器深浅主题换色，不支持 SVG 的浏览器回落到 [16、32、48px ICO](../../../../public/favicon.ico)，ICO 用浅深标签栏都可读的中间色。入口与缓存版本 `window-trace-d1` 登记在 [index.html](../../../../index.html)；Android 安装图标（manifest 与 maskable）尚未做。选稿过程见本地 codex-visual 批次，不入库。
 
 ![登录：真实书房原画与同源任务阅读底](unification-verification/login-desktop.png)
 
