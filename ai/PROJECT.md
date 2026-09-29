@@ -2,7 +2,7 @@
 
 > 第三期「对坐」，2026-09-25 选定、09-27 定为开发方向（概念与决定见 `ai/design_system/concept/across-the-table/`）。上一期「放置陪伴小屋」的重定位依据仍在 `ai/reboot/`，美术资料在 `arts/archive/v2-companion-house/`。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-27（换期：设计系统翻新、上一期资料移档；书房第一期第一个能跑的切片上线，替换上一期书房并删除旧场景）
+> 最后更新：2026-09-29（UI 迭代：动效体系与低动效模式、手机底部托盘、音乐主页面、进入世界加载页，本地实现待看样）
 
 ## 产品定位（PRD）
 
@@ -54,6 +54,7 @@ R4 远期         自定义形象与声音名片完善、多人小桌、公开�
 
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
+- **动效**: 无动画库（2026-09-29 调研 Motion / Vaul 后不采用）。曲线与时长 token 在 `ui/motion.css`，低动效模式由 `ui/motion-preference.ts` 解析后写到 `html[data-motion]`（CSS 与 Pixi 房间都读它）；退场靠 `ui/use-presence.ts`，粒子与失败轻晃在 `ui/feedback.ts`，手机底部托盘 `ui/sheet.tsx`。规则见 `ai/design_system/uiux/interaction.md` §6
 - **场景层**: 对坐书房。PixiJS v8 合成器 `src/themes/cinnaglass/room/table-scene.ts`，吃模板 `room-types.ts` / `study-table.ts`：整幅底图 × 时辰（golden/twilight/night）× 台灯开 / 关 × 晴 / 雨，新组整组盖上再退旧组；雨层 mask 到窗格；对方姿势层（`partner-layer.ts` + 导演 `partner-state.ts`）；杯子蒸汽 `steam-layer.ts`；台灯拉绳与热点星芒（`affordance.ts`）；前景的手；活物吃 `lighting.ts` 的时辰 tint；宽屏从对方头顶往下取、窄屏以脸为中心。React 壳 `room-scene.tsx` 负责挂载、气泡与名牌落位和 dev 对方状态面板。素材由 `scripts/build-study-table.py` 装配（manifest 在 `arts/rooms/study/table-manifest.json`），细节与进度见 `ai/features/study-room/study-room.md`。上一期的水彩书房、双犬、挂钟与唱片机代码已于 2026-09-27 删除（原画源在 `arts/archive/v2-companion-house/rooms/study/`，代码在 git 历史）
 - **角色层**: 对方的半身姿势图（同一张横版透明画布、同锚点，睁 / 闭眼两帧）+ 程序呼吸 / 微摆 / 眨眼 + 状态机，吃场景光；制作方式见 `ai/design_system/character.md`；动作变多时再评估 Spine / Live2D
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
@@ -72,9 +73,9 @@ src/
 ├── types/               # feed.ts、chat.ts（一个类型对一张表）、image-slot.d.ts
 └── themes/cinnaglass/
     ├── cinnaglass.css · materials.css       # C/兼容材质与基础主题；reset 在 src/index.css
-    ├── ui/              # ui-system.css（A/B 材质与控件）· task-dialog · use-ui-environment
+    ├── ui/              # ui-system.css（A/B 材质与控件）· motion.css + motion-preference（动效 token / 低动效）· sheet（手机托盘）· use-presence · feedback · task-dialog · use-ui-environment
     ├── room/            # table-scene（Pixi 合成器入口）+ room-scene（React 壳）· room-types · study-table · partner-layer · partner-state · steam-layer · rain-layer · affordance · lighting · fade-queue · textures
-    ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条）· chat-card · world-surfaces · use-world-chat-bubble
+    ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条与停靠栏）· chat-card · world-loader + load-progress（进入世界加载）· world-surfaces · use-world-chat-bubble
     ├── journal/         # 日记本实体与翻页（C 类物件 UI，冻结）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
     ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· composer · photo-wall · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
     ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
@@ -97,6 +98,7 @@ src/
 - **环境与来信 UI**（2026-09-20）：左上角时钟/云双圆入口沿用导航材质，点击展开/收起、横拖或方向键选择；滑动透镜及真实天气状态沿原偏好与 `useWeather` 链路，较矮桌面面板向右避让导航；`SunlitLetter` 用金亮信纸提示世界未读消息，点击打开聊天并使用已有已读游标，已读后消失。时辰配色、小屏与播放器避让见 `ai/design_system/uiux/cinnaglass/ui-system.md`；暮色玫瑰金适配待用户看样，未新增通知后端。
 - **手机版 UI**（2026-09-21）：App 统一发布可见视口，A/B/入口适配安全区与软键盘；完整聊天按需展开会话、横屏播放器消除重复条。8 尺寸 × 12 页面及 4 类合成键盘回归通过，真机待验收；独立功能 `ai/features/mobile-ui.md`，图文 `ai/design_system/uiux/mobile.md`。
 - **UI 基建现状**：2026-09-20 本地 A/B 与边缘页面已统一为导航同源材料和原生 TaskDialog，音乐接真实本机 WebAudio、天气与未实现能力状态如实呈现；实现/兼容/验收边界见 `ai/features/ui-system/ui-system.md`，消费者与历史证据见同目录 `audit.md`
+- **UI 动效与手机托盘**（2026-09-29，本地实现，待用户看样）：全组件按压 / 进出场反馈与低动效模式；手机上聊天、音乐、工具、房间从底部托盘升起，对方完整可见；音乐主页面（8 首音景、概念图裁切的占位海报、歌词、歌单、本机收藏），桌面右侧停靠栏；进入世界时台灯随真实加载进度亮起。比稿与决策点 `ai/design_system/codex-visual/ui-motion/ui-motion.md`，规则 `ai/design_system/uiux/interaction.md` §6，手机回归 `ai/features/mobile-ui.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）

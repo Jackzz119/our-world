@@ -41,6 +41,8 @@ Playwright 使用既有脚本依赖加载方式，不增加产品运行时依赖
 - TypeScript 产品与样板独立检查、改动文件 ESLint、Vite 生产构建通过；构建仍有主包超过 500 kB 的体积提示，本轮不扩大到拆包。
 - 视觉：Monet 同 agent 自审，选定正式组件截图登记到 [手机版常驻规范](../design_system/uiux/mobile.md)，全局预览读取同一份登记。日记未改。
 
+2026-09-29：手机布局换成底部托盘（[sheet.tsx](../../src/themes/cinnaglass/ui/sheet.tsx)）。聊天、音乐、工具、房间从底边升起，半高停在对方书下；导航压在托盘上方；音乐可拉满，没有悬浮条；竖屏任务窗也从底边升起。回归脚本随之更新：量尺寸前先等进场动画播完（循环动画不等）；托盘打开时导航中心必须仍能点中；新增音乐托盘两档切换和工具托盘 Esc 收起；横屏安全区改为检查音乐托盘；样板新增 `?screen=enter`（进入世界的加载页）和 `?motion=reduced`。96 组布局、4 类键盘、交互、安全区与减少动态效果全部通过，页面异常 0。设计见 [UI 动效与手机托盘](../design_system/codex-visual/ui-motion/ui-motion.md)。
+
 ## 复跑入口
 
 先启动项目开发服务。测试采用 `scripts/lib/deps.mjs` 的既有依赖解析；Playwright 可来自工具运行环境，通过 `DIARY_NODE_MODULES` 指向其 node_modules，不给产品新增运行时依赖。默认 Chrome，可用 `MOBILE_UI_BROWSER` 指定已安装的兼容通道。
@@ -53,7 +55,7 @@ pnpm exec tsc -p scripts/fixtures/tsconfig.json --noEmit
 pnpm exec vite build
 ```
 
-`MOBILE_UI_OUTPUT` 可指定截图目录，默认系统临时目录 `our-world-mobile-ui`。样板位于 `/scripts/fixtures/mobile-ui.html?screen=room`，复用生产组件，外部请求在测试中阻断，操作使用本地回调；不作为产品路由或发布页面。
+`MOBILE_UI_OUTPUT` 可指定截图目录，默认系统临时目录 `our-world-mobile-ui`。没有 Chrome 的环境（如云端容器）用 `MOBILE_UI_BROWSER=chromium`，并把 `DIARY_NODE_MODULES` 指向装有 playwright 的全局 node_modules。样板位于 `/scripts/fixtures/mobile-ui.html?screen=room`，复用生产组件，外部请求在测试中阻断，操作使用本地回调；不作为产品路由或发布页面。
 
 ## 尚未完成的设备验收
 
