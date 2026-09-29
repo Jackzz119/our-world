@@ -2,7 +2,7 @@
 
 > 第三期「对坐」，2026-09-25 选定、09-27 定为开发方向（概念与决定见 `ai/design_system/concept/across-the-table/`）。上一期「放置陪伴小屋」的重定位依据仍在 `ai/reboot/`，美术资料在 `arts/archive/v2-companion-house/`。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-29（UI 迭代：动效体系与低动效模式、手机底部托盘、音乐主页面、进入世界加载页，本地实现待看样）
+> 最后更新：2026-09-29（UI 迭代：动效体系与低动效模式、手机底部托盘、音乐主页面、进入世界加载页，本地实现待看样；书房：大动作改成关键帧链，喝一口的杯子交接不再出双杯，小满入座，默认他的视角）
 
 ## 产品定位（PRD）
 
@@ -55,7 +55,7 @@ R4 远期         自定义形象与声音名片完善、多人小桌、公开�
 - **框架**: React 19 + TypeScript + Vite 7 + React Router 7；pnpm；Prettier；无单元测试、无 CI
 - **样式**: 自有 CSS（无框架），四载体契约见 `ai/design_system/uiux/cinnaglass/ui-system.md`；主题 `src/themes/cinnaglass/`
 - **动效**: 无动画库（2026-09-29 调研 Motion / Vaul 后不采用）。曲线与时长 token 在 `ui/motion.css`，低动效模式由 `ui/motion-preference.ts` 解析后写到 `html[data-motion]`（CSS 与 Pixi 房间都读它）；退场靠 `ui/use-presence.ts`，粒子与失败轻晃在 `ui/feedback.ts`，手机底部托盘 `ui/sheet.tsx`。规则见 `ai/design_system/uiux/interaction.md` §6
-- **场景层**: 对坐书房。PixiJS v8 合成器 `src/themes/cinnaglass/room/table-scene.ts`，吃模板 `room-types.ts` / `study-table.ts`：整幅底图 × 时辰（golden/twilight/night）× 台灯开 / 关 × 晴 / 雨，新组整组盖上再退旧组；雨层 mask 到窗格；对方姿势层（`partner-layer.ts` + 导演 `partner-state.ts`）；杯子蒸汽 `steam-layer.ts`；台灯拉绳与热点星芒（`affordance.ts`）；前景的手；活物吃 `lighting.ts` 的时辰 tint；宽屏从对方头顶往下取、窄屏以脸为中心。React 壳 `room-scene.tsx` 负责挂载、气泡与名牌落位和 dev 对方状态面板。素材由 `scripts/build-study-table.py` 装配（manifest 在 `arts/rooms/study/table-manifest.json`），细节与进度见 `ai/features/study-room/study-room.md`。上一期的水彩书房、双犬、挂钟与唱片机代码已于 2026-09-27 删除（原画源在 `arts/archive/v2-companion-house/rooms/study/`，代码在 git 历史）
+- **场景层**: 对坐书房。PixiJS v8 合成器 `src/themes/cinnaglass/room/table-scene.ts`，吃模板 `room-types.ts` / `study-table.ts`：整幅底图 × 时辰（golden/twilight/night）× 台灯开 / 关 × 晴 / 雨，新组整组盖上再退旧组；雨层 mask 到窗格；对方姿势层（`partner-layer.ts`；导演 `rig-director.ts`，书房的配置在 `partner-state.ts`：所有关键帧链连成图，喝一口 / 写字 / 入睡都一步步走，桌上的杯子交接时跟着手走）；杯子蒸汽 `steam-layer.ts`；台灯拉绳与热点星芒（`affordance.ts`）；前景的手；活物吃 `lighting.ts` 的时辰 tint；宽屏从对方头顶往下取、窄屏以脸为中心。React 壳 `room-scene.tsx` 负责挂载、气泡与名牌落位和 dev 对方状态面板。素材由 `scripts/build-study-table.py` 装配（manifest 在 `arts/rooms/study/table-manifest.json`），细节与进度见 `ai/features/study-room/study-room.md`。上一期的水彩书房、双犬、挂钟与唱片机代码已于 2026-09-27 删除（原画源在 `arts/archive/v2-companion-house/rooms/study/`，代码在 git 历史）
 - **角色层**: 对方的半身姿势图（同一张横版透明画布、同锚点，睁 / 闭眼两帧）+ 程序呼吸 / 微摆 / 眨眼 + 状态机，吃场景光；制作方式见 `ai/design_system/character.md`；动作变多时再评估 Spine / Live2D
 - **后端**: Supabase（auth + Postgres + Storage + Realtime Broadcast/Presence + Edge Functions）——新产品功能 100% 命中已有后端，零迁移
 - **桌面壳（R2+）**: Electron（`setIgnoreMouseEvents(..., {forward:true})` 是桌宠穿透唯一官方 API；Tauri 观望）
@@ -168,7 +168,7 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，第一个切片已上线，6 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，两个视角都已上线，7 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/across-the-table/` 当期对坐概念（77 张图、制作注记与出图 brief）；`uiux/cinnaglass/ux/ux.md` UX 参考（流程、状态、动效、录屏）；`codex-visual/` 待确认的比稿与看样页
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
