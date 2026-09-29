@@ -10,7 +10,7 @@ Review: review/check-contact.jpg (every file on a checkerboard, so fake transpar
 review/check-overlay.jpg (every file at 50% over the anchor, so drift shows as double lines).
 """
 
-from common import cut_probe, eye_box, first_solid_y, label, load_rgba, on_backdrop, on_checker, outside_change, save_rgb, shrink, tile
+from common import cut_probe, eye_box, first_solid_y, label, load_rgba, on_backdrop, on_checker, outside_change, save_rgb, shrink, solid_change, tile
 
 
 def run(ctx, args):
@@ -22,7 +22,7 @@ def run(ctx, args):
     size = tuple(cfg["canvas"]["size"] or (anchor.shape[1], anchor.shape[0]))
     probes_x = cfg["canvas"]["probes_x"]
     cut_y = cfg["canvas"]["cut_y"]
-    base_probe = {x: first_solid_y(anchor, x) for x in probes_x}
+    base_probe = {x: first_solid_y(anchor, x) for x in {x for p in cfg["poses"] for x in ctx.probe_columns(p)} | set(probes_x)}
 
     files, blinks, contact, overlay = [], {}, [], []
     worst = "pass"
@@ -63,9 +63,9 @@ def run(ctx, args):
             elif entry["body_alpha_mean"] < 245:
                 status = max(status, "warn", key=["pass", "warn", "fail"].index)
                 entry["issues"].append(f"body alpha only {entry['body_alpha_mean']}: the figure lets the scene through")
-            if p["probe"] and probes_x and fits:
+            if p["probe"] and ctx.probe_columns(pose) and fits:
                 d = {}
-                for x in probes_x:
+                for x in ctx.probe_columns(pose):
                     y, y0 = first_solid_y(img, x), base_probe[x]
                     d[x] = None if y is None or y0 is None else y - y0
                 entry["shoulder_dy"] = d
@@ -101,8 +101,9 @@ def run(ctx, args):
         if "open" in loaded and "closed" in loaded:
             box = eye_box(ctx, pose, loaded["open"], build=False)
             change = outside_change(loaded["open"], loaded["closed"], box)
-            rejected = change > th["blink_reject"]
-            blinks[pose] = {"eye_box": box, "outside_change": round(change, 4), "rejected": rejected}
+            solid = solid_change(loaded["open"], loaded["closed"], box)
+            rejected = solid > th["blink_solid_max"] or change > th["blink_reject"]
+            blinks[pose] = {"eye_box": box, "outside_change": round(change, 4), "solid_change": round(solid, 4), "rejected": rejected}
             if rejected:
                 grade("warn")
 
@@ -116,6 +117,6 @@ def run(ctx, args):
             print(f"  {e['status'].upper():4} {e['pose']}-{e['eye']}: {'; '.join(e['issues'])}")
     for pose, b in blinks.items():
         verdict = "REJECTED, ships eyes-open" if b["rejected"] else "ok"
-        print(f"  blink {pose}: {b['outside_change'] * 100:.1f}% changed outside the eyes ({verdict})")
+        print(f"  blink {pose}: {b['outside_change'] * 100:.1f}% changed outside the eyes, {b['solid_change'] * 100:.2f}% of it in solid blobs ({verdict})")
     return worst
 

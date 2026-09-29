@@ -103,6 +103,23 @@ def run(ctx, args):
         "blink_rejected": sorted(rejected),
     }
 
+    if cfg["placement"] and not cfg["plate"]:
+        # a character built for an existing seat (the second person on the same chair): no scene frame
+        # shows them yet, so the seat is given instead of measured
+        pl = cfg["placement"]
+        reg = {"offset": list(pl["offset"]), "scale": pl["scale"], "source": "rig.json placement"}
+        reg["origin"] = [round(pl["offset"][0] + x0 * pl["scale"], 2), round(pl["offset"][1] + y0 * pl["scale"], 2)]
+        record["registration"] = reg
+        edge = cfg["canvas"]["cut_plate_y"]
+        if edge is not None and cfg["canvas"]["cut_y"] is not None:
+            want = (edge - reg["offset"][1]) / reg["scale"]
+            record["cut_y_from_plate"] = round(want, 1)
+            if abs(want - cfg["canvas"]["cut_y"]) > ctx.th["cut_fail_px"]:
+                print(f"  FAIL canvas.cut_y is {cfg['canvas']['cut_y']} but the table's far edge (plate y {edge}) lands at y {want:.0f}: fix cut_y and the brief")
+                ctx.write_record("assemble", record)
+                return "fail"
+        print(f"  placed by rig.json: scale {pl['scale']}, origin {reg['origin']}")
+
     if cfg["plate"]:
         master = load_rgba(cfg["plate"]["path"])
         anchor = frames[(cfg["anchor"], "open")]

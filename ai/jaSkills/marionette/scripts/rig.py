@@ -6,6 +6,8 @@
     python rig.py all      --config rig.json --allow-fail   # keep going past a FAIL (the record keeps it)
     python rig.py pick     --config rig.json --pose <id> --files <candidates...> [--fit head] [--open <open frame>]
                                                         # best of several generated candidates (see pick.py)
+    python rig.py pick     --config rig.json --sequence <name> --slot <frame> <candidates...> ...
+                                                        # the smoothest path through a keyframe chain
 
 Stages, in order (each one owns its outputs and re-derives them from the stage before, so re-running
 anything is always safe):
@@ -49,6 +51,8 @@ def main():
     ap.add_argument("--files", type=Path, nargs="+", help="pick: candidate PNGs")
     ap.add_argument("--open", type=Path, help="pick: blink candidates are scored against this open frame")
     ap.add_argument("--fit", choices=["head", "none"], default="none", help="pick: fit the head first (poses that move it)")
+    ap.add_argument("--sequence", help="pick: choose a whole keyframe chain (see pick.py)")
+    ap.add_argument("--slot", nargs="+", action="append", metavar=("FRAME", "FILE"), help="pick --sequence: a frame and its candidates")
     args = ap.parse_args()
     try:
         ctx = Ctx(args.config)

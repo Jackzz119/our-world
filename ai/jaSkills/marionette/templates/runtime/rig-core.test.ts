@@ -5,7 +5,15 @@
 // The one that matters most is the see-through check: while the top pose is not opaque, some pose
 // under it must be. Breaking it is what makes a character flicker on a pose change.
 
-import { createBlinker, createGesturePlayer, createSwitcher, decodeFlow, GESTURES, REST_PULSE } from './rig-core.ts';
+import {
+    createBlinker,
+    createGesturePlayer,
+    createSwitcher,
+    decodeFlow,
+    GESTURES,
+    partFrame,
+    REST_PULSE
+} from './rig-core.ts';
 import { createDirector } from './rig-director.ts';
 
 let failures = 0;
@@ -175,6 +183,213 @@ const ok = (cond: boolean, msg: string) => {
     let glanced = false;
     for (let t = 11000; t < 80000; t += 100) if (d.update(t) === 'glance') glanced = true;
     ok(glanced, 'an idle glance happens within a minute');
+}
+
+// keyframe sequences: back to rest first, walked in order as one gesture, atomic, unwound on a state change
+{
+    const sip = { frames: ['reading', 'k1', 'k2', 'k3'], stepMs: 400, holdMs: 1000, back: true } as const;
+    const doze = { frames: ['reading', 'd1', 'd2', 'asleep'], stepMs: 700 } as const;
+    const d = createDirector(
+        {
+            statePose: { reading: 'reading', asleep: 'asleep', away: null },
+            enter: { asleep: doze },
+            reactions: {
+                glance: { pose: 'glance', priority: 1, seconds: 3, in: ['reading'] },
+                sip: { sequence: sip, priority: 2, in: ['reading'] },
+                poke: { pose: 'poked', priority: 3, seconds: 1.4, in: ['reading'] }
+            },
+            returnMs: 700
+        },
+        'reading',
+        () => 0.5,
+        0
+    );
+    const seen: string[] = [];
+    const track = (from: number, to: number) => {
+        for (let t = from; t <= to; t += 10) {
+            const p = String(d.update(t));
+            if (seen[seen.length - 1] !== p) seen.push(p);
+        }
+    };
+    d.update(0);
+    ok(d.react('glance', 100), 'a glance starts');
+    track(100, 500);
+    ok(d.react('sip', 500), 'a sip starts during the glance (stronger)');
+    track(500, 500 + 700 + 3 * 400 + 1000 + 3 * 400 + 100);
+    ok(
+        seen.join(' ') === 'glance reading k1 k2 k3 k2 k1 reading',
+        `the sip goes back to rest first, then out and back in order: ${seen.join(' ')}`
+    );
+    // eases: the first chain step eases in, the middle is linear, the last eases out
+    const eases: string[] = [];
+    let last = '';
+    for (let t = 5000; t <= 5000 + 3 * 400 + 50; t += 10) {
+        if (t === 5000) d.react('sip', t);
+        const p = String(d.update(t));
+        if (p !== last) {
+            eases.push(`${p}:${d.transition()?.ease}:${d.transition()?.ms}`);
+            last = p;
+        }
+    }
+    ok(eases.join(' ') === 'k1:in:400 k2:linear:400 k3:out:400', `chain eases: ${eases.join(' ')}`);
+    ok(!d.react('poke', 6300) && d.busy(), 'nothing interrupts a running sequence');
+    // a state change in the middle (holding k3) walks the sequence back first
+    d.update(6300);
+    d.setState('away', 6300);
+    const back: string[] = [];
+    for (let t = 6300; t < 8500; t += 10) {
+        const p = String(d.update(t));
+        if (back[back.length - 1] !== p) back.push(p);
+    }
+    ok(back.join(' ') === 'k2 k1 reading null', `unwound before leaving: ${back.join(' ')}`);
+    // entering and leaving a keyframed state
+    d.setState('reading', 9000);
+    d.update(9000);
+    d.setState('asleep', 10000);
+    const into: string[] = [];
+    for (let t = 10000; t < 13000; t += 10) {
+        const p = String(d.update(t));
+        if (into[into.length - 1] !== p) into.push(p);
+    }
+    ok(into.join(' ') === 'd1 d2 asleep', `falling asleep walks the frames: ${into.join(' ')}`);
+    d.setState('reading', 14000);
+    const out: string[] = [];
+    for (let t = 14000; t < 17000; t += 10) {
+        const p = String(d.update(t));
+        if (out[out.length - 1] !== p) out.push(p);
+    }
+    ok(out.join(' ') === 'd2 d1 reading', `waking walks them back: ${out.join(' ')}`);
+}
+
+// the chain map: poses the chains link walk the frames between; a held chain walks in, stays, walks out
+{
+    const write = { frames: ['reading', 'lay', 'writing'], stepMs: 400 } as const;
+    const pat = { frames: ['lay', 'patted'], stepMs: 300 } as const;
+    const sip = { frames: ['reading', 'k1', 'k2'], stepMs: 400, holdMs: 500, back: true } as const;
+    const d = createDirector(
+        {
+            statePose: { reading: 'reading', writing: 'writing', away: null },
+            enter: { writing: write },
+            reactions: {
+                sip: { sequence: sip, priority: 2, in: ['reading', 'writing'] },
+                poke: {
+                    pose: 'poked',
+                    poseIn: { writing: 'poked-writing' },
+                    priority: 3,
+                    seconds: 1,
+                    in: ['reading', 'writing']
+                },
+                pat: { sequence: pat, priority: 4, in: ['reading', 'writing'] }
+            }
+        },
+        'reading',
+        () => 0.5,
+        0
+    );
+    const seen = (from: number, to: number) => {
+        const out: string[] = [];
+        for (let t = from; t <= to; t += 10) {
+            const p = String(d.update(t));
+            if (out[out.length - 1] !== p) out.push(p);
+        }
+        return out.join(' ');
+    };
+    d.update(0);
+    d.setState('writing', 100);
+    const into = seen(100, 1000);
+    ok(into === 'lay writing', `starting to write lays the book down first: ${into}`);
+    ok(d.hold('pat', true, 1000), 'a pat lands while writing');
+    const patIn = seen(1000, 3000);
+    ok(patIn === 'lay patted', `the pat walks in through lay and stays while held: ${patIn}`);
+    d.hold('pat', false, 3000);
+    const patOut = seen(3000, 5000);
+    ok(patOut === 'patted lay writing', `released, it lingers and walks back to writing: ${patOut}`);
+    ok(d.react('poke', 5000), 'a poke lands while writing');
+    const poke = seen(5000, 6500);
+    ok(poke === 'poked-writing writing', `a poke while writing laughs over the notebook: ${poke}`);
+    ok(d.react('sip', 7000), 'a sip starts while writing');
+    const sipping = seen(7000, 10800);
+    ok(
+        sipping === 'lay reading k1 k2 k1 reading lay writing',
+        `a sip while writing goes to its first frame along the map and comes back the same way: ${sipping}`
+    );
+    ok(d.hold('pat', true, 11000), 'another pat');
+    seen(11000, 12000);
+    d.setState('reading', 12000);
+    const cut = seen(12000, 13500);
+    ok(cut === 'lay reading', `a state change walks out of a held pat before settling: ${cut}`);
+    ok(d.hold('pat', true, 14000), 'a pat while reading');
+    const fromReading = seen(14000, 15000);
+    ok(fromReading === 'lay patted', `from reading it is one step down, then the pat: ${fromReading}`);
+    d.hold('pat', false, 15000);
+    const back = seen(15000, 17000);
+    ok(back === 'patted lay reading', `and back up to reading: ${back}`);
+    // a pose the map does not know goes back to its state's pose before walking on
+    d.update(18000);
+    ok(d.react('poke', 18000), 'a poke while reading');
+    seen(18000, 18300);
+    d.setState('writing', 18300);
+    const onward = seen(18300, 20000);
+    ok(onward === 'reading lay writing', `from a laugh to writing: home first, then the chain: ${onward}`);
+}
+
+// chain easing: in and out meet a linear middle at the same speed
+{
+    const h = 1e-4;
+    const sw = createSwitcher({ morphs: { 'a-b': 'x', 'b-a': 'x' }, slow: () => false });
+    sw.show('a', 0, false);
+    sw.frame(0);
+    sw.show('b', 100, true, { ms: 1000, ease: 'in' });
+    const at = (t: number) => sw.frame(100 + t * 1000).get('a')?.shift?.amount ?? NaN;
+    const endSpeed = (at(1 - h) - at(1 - 2 * h)) / h;
+    ok(Math.abs(endSpeed - 1) < 0.01, `ease-in arrives at linear speed (${endSpeed.toFixed(3)})`);
+    ok(at(0.5) < 0.5, 'ease-in is slower than linear at the start');
+    ok(sw.frame(1150).get('b')?.alpha === 1, 'a 1000 ms transition lands after 1000 ms');
+}
+
+// a scene part the hand picks up: carried along its hold, opaque, gone only once the holding pose arrived
+{
+    const hold = (dx: number, dy: number): [number, number] => [dx, dy];
+    const poses = {
+        reach: { open: 'r', slow: false },
+        grip: { open: 'g', slow: false, holds: { mug: hold(2, -1) } },
+        lift: { open: 'l', slow: false, hides: ['mug'], holds: { mug: hold(0, -70) } },
+        drink: { open: 'd', slow: false, hides: ['mug'] },
+        wave: { open: 'w', slow: false, hides: ['mug'] }
+    };
+    const pairs = ['reach-grip', 'grip-lift', 'lift-drink'].flatMap((k) => [k, k.split('-').reverse().join('-')]);
+    const sw = createSwitcher({ morphs: Object.fromEntries(pairs.map((k) => [k, 'x'])), slow: () => false });
+    const linear = { ms: 400, ease: 'linear' } as const;
+    const mug = (t: number) => partFrame(poses, sw.frame(t), sw.progress(), sw.current(), 'mug');
+    sw.show('reach', 0, false);
+    ok(mug(0).alpha === 1 && mug(0).dx === 0 && mug(0).dy === 0, 'the mug stands on the table');
+    sw.show('grip', 100, true, linear);
+    const closing = mug(300);
+    ok(
+        closing.alpha === 1 && closing.dx === 1 && closing.dy === -0.5,
+        `closing on the mug nudges it: ${closing.dx},${closing.dy}`
+    );
+    ok(mug(600).alpha === 1 && mug(600).dx === 2, 'the grip keeps the painted mug on the drawn one');
+    sw.show('lift', 1000, true, linear);
+    let faintest = 1;
+    for (let t = 1000; t < 1000 + 400 * 0.85; t += 4) faintest = Math.min(faintest, mug(t).alpha);
+    ok(faintest === 1, 'the painted mug stays opaque while the pictures swap');
+    const halfway = mug(1200);
+    ok(halfway.dx === 1 && halfway.dy === -35.5, `it rides along the hold: ${halfway.dx},${halfway.dy}`);
+    ok(mug(1450).alpha === 0, 'gone once the lift has arrived');
+    sw.show('drink', 1500, true, linear);
+    ok(mug(1700).alpha === 0, 'both poses hold it in the hand: no painted mug');
+    mug(2000);
+    sw.show('lift', 2000, true, linear);
+    mug(2450);
+    sw.show('grip', 2500, true, linear);
+    const down = mug(2580);
+    ok(down.alpha === 1 && down.dy < -50, `put back: opaque from early on the way down (${down.alpha}, ${down.dy})`);
+    mug(2950);
+    sw.show('reach', 3000, false);
+    mug(3000);
+    sw.show('wave', 3100, true);
+    ok(Math.abs(mug(3190).alpha - 0.5) < 0.05, 'a pose that hides without holding cross-fades with the part');
 }
 
 console.log(failures ? `${failures} failures` : 'all rig-core / rig-director checks passed');

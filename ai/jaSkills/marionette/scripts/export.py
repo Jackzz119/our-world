@@ -38,6 +38,11 @@ def run(ctx, args):
         if not src.exists():
             continue
         entry = {"slow": p["slow"]}
+        if p["hides"]:
+            entry["hides"] = list(p["hides"])
+        held = ((ctx.record("align") or {}).get("holds") or {}).get(pose)
+        if held:
+            entry["holds"] = {name: v["at"] for name, v in held.items()}
         for eye in ("open", "closed"):
             f = ctx.final / f"{pose}-{eye}.png"
             if f.exists():
@@ -71,6 +76,10 @@ def run(ctx, args):
         "poses": poses,
         "morphs": morphs,
         "guided": [k for k in guided if k in morphs],
+        "sequences": {
+            name: {k: v for k, v in (("frames", sq["frames"]), ("stepMs", sq.get("step_ms", 380)), ("holdMs", sq.get("hold_ms")), ("back", sq.get("back"))) if v is not None}
+            for name, sq in cfg["sequences"].items()
+        },
     }
     if "registration" in rec:
         reg = rec["registration"]
