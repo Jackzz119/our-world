@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <style>
+        .warm { stop-color: #a3601b; }
+        .cool { stop-color: #35698c; }
+        @media (prefers-color-scheme: dark) {
+            .warm { stop-color: #f4c47a; }
+            .cool { stop-color: #9bcaea; }
+        }
+    </style>
+    <!-- Split at the midline: warm lamp half and cool window half of one traced heart -->
+    <linearGradient id="split" x1="1" y1="0" x2="31" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0.48" class="warm" />
+        <stop offset="0.52" class="cool" />
+    </linearGradient>
+    <path
+        d="M16.4 9.6C13.6 4.2 3.6 4 3.1 11.2C2.7 17 9.6 22.2 16 28C22.3 22.4 29.4 17.2 28.9 11C28.4 4.2 18.4 4.4 15.4 10.4"
+        fill="none"
+        stroke="url(#split)"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    />
+</svg>
