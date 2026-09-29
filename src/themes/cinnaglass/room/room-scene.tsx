@@ -10,7 +10,7 @@ import type { HotspotOpenEvent, PartnerState, RoomMood, RoomWeather } from '@/th
 import type { WeatherKind } from '@/themes/cinnaglass/model';
 import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes/cinnaglass/room/table-scene';
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
-import { AYU_RIG, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
+import { PARTNER_RIGS, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
@@ -21,8 +21,8 @@ const TAG = '[room][web][room-scene]';
 // (a query like the app's other switches, ?enter and ?surface).
 const DEBUG_PANEL = import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug');
 
-// First iteration: her view — the viewer is 小满, 阿屿 sits across (user direction 2026-09-27).
-const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, rig: AYU_RIG };
+// Who sits where comes from cast.ts (his view by default since 2026-09-29, `?as=` switches).
+const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, rig: PARTNER_RIGS[PARTNER] };
 
 const PARTNER_STATES: { id: PartnerState; label: string }[] = [
     { id: 'reading', label: '在线·看书' },

@@ -37,37 +37,72 @@ export const STUDY_TABLE: TableRoomTemplate = {
         ],
         glow: { x: 300, y: 0, w: 1040, h: 520 }
     },
+    // per partner: each rig's pose canvas lands on the same chair
     seat: {
-        // SIFT registration of reading-open onto master-night (marionette assemble stage):
-        // scale 0.57417, rotation 0.4° (ignored), residual median 1.7px / p90 2.5px
-        origin: { x: 345.44, y: 92.83 },
-        scale: 0.57417,
-        // pose-canvas px: the shared canvas is fixed in arts/characters/ayu/rig.json (canvas.crop,
-        // source x 85–1467, y 5–1020), so these never move when a pose is regenerated
-        head: { x: 395, y: 40, w: 485, h: 410 },
-        body: { x: 31, y: 450, w: 1320, h: 560 },
-        // the torso disappears behind the table's far edge (plate y≈650)
-        pivot: { x: 678, y: 970 },
-        // eye level (plate y≈305), 12 plate px outside the widest hair at that
-        // height over every pose (measured on the 2026-09-27 frames: poked reaches
-        // plate x 885, patted 589; the 2026-09-28 poked and patted heads span plate
-        // x 598–831 at eye level, inside both anchors); the
-        // face's skin ends near plate x 812 (820 leaves the glance pose room);
-        // the tag drops to the hood's shoulder line (plate y≈430)
-        beside: { left: { x: 403, y: 370 }, right: { x: 961, y: 370 }, faceRight: 821, shoulder: 587 }
+        ayu: {
+            // SIFT registration of reading-open onto master-night (marionette assemble stage):
+            // scale 0.57417, rotation 0.4° (ignored), residual median 1.7px / p90 2.5px
+            origin: { x: 319.61, y: 92.83 },
+            scale: 0.57417,
+            // pose-canvas px: the shared canvas is fixed in arts/characters/ayu/rig.json (canvas.crop,
+            // source x 40–1520, y 5–1024: wide enough for dozing off and lifting the mug), so these
+            // never move when a pose is regenerated
+            head: { x: 440, y: 40, w: 485, h: 410 },
+            body: { x: 76, y: 450, w: 1320, h: 560 },
+            // the torso disappears behind the table's far edge (plate y≈650)
+            pivot: { x: 723, y: 970 },
+            // eye level (plate y≈305), 12 plate px outside the widest hair at that
+            // height over every pose (measured on the 2026-09-27 frames: poked reaches
+            // plate x 885, patted 589; the 2026-09-28 poked and patted heads span plate
+            // x 598–831 at eye level, inside both anchors); the
+            // face's skin ends near plate x 812 (820 leaves the glance pose room);
+            // the tag drops to the hood's shoulder line (plate y≈430)
+            beside: { left: { x: 448, y: 370 }, right: { x: 1006, y: 370 }, faceRight: 866, shoulder: 587 }
+        },
+        xiaoman: {
+            // the same chair, placed by arts/characters/xiaoman/rig.json (placement): 阿屿's scale, and
+            // raised 10 plate px so her torso cut (source y 987) lands on the table's far edge (plate y 646)
+            origin: { x: 382.77, y: 96.52 },
+            scale: 0.57417,
+            // pose-canvas px: canvas.crop is source x 150–1450, y 30–1024. Measured on the 2026-09-29
+            // frames over the awake one-pose poses: the head from the highest hair to the nose line, the
+            // hair's extent at eye level (canvas y 301, plate y≈269), 12 plate px outside it
+            head: { x: 345, y: 21, w: 508, h: 403 },
+            body: { x: 65, y: 424, w: 1170, h: 565 },
+            pivot: { x: 626, y: 959 },
+            // faceRight: the skin at eye level (ear included); shoulder: the cardigan's shoulder line
+            // beside the hair (her shoulder probe, source y 617, plate y≈434)
+            beside: { left: { x: 324, y: 301 }, right: { x: 874, y: 301 }, faceRight: 855, shoulder: 587 }
+        }
     },
+    // per viewer: the hands around the mug in the near foreground
     foreground: {
-        xiaoman: { src: `${T}/fg-xiaoman.webp`, box: { x: 307, y: 724, w: 907, h: 300 } }
+        xiaoman: { src: `${T}/fg-xiaoman.webp`, box: { x: 307, y: 724, w: 907, h: 300 } },
+        ayu: { src: `${T}/fg-ayu.webp`, box: { x: 295, y: 720, w: 909, h: 304 } }
     },
+    // per partner: their mug and the jacket over the chair back
     traces: {
-        mug: { src: `${T}/mug-ayu.webp`, box: { x: 942, y: 582, w: 134, h: 126 } },
-        jacket: { ayu: { src: `${T}/jacket-ayu.webp`, box: { x: 451, y: 366, w: 604, h: 290 } } }
+        mug: {
+            ayu: { src: `${T}/mug-ayu.webp`, box: { x: 942, y: 582, w: 134, h: 126 } },
+            xiaoman: { src: `${T}/mug-xiaoman.webp`, box: { x: 944, y: 583, w: 133, h: 125 } }
+        },
+        jacket: {
+            ayu: { src: `${T}/jacket-ayu.webp`, box: { x: 451, y: 366, w: 604, h: 290 } },
+            xiaoman: { src: `${T}/jacket-xiaoman.webp`, box: { x: 443, y: 377, w: 620, h: 279 } }
+        }
     },
-    // rims measured on the parts' alpha: the partner's mug body spans x 944–1049
-    // from y 586; the viewer's rim ellipse opens from y 727 and is ~170 wide
+    // rims measured on the parts: the partner's mug body spans x 944–1049 from
+    // y 586 (both mugs); the viewer's outer rim ellipse spans plate y 729–772 and
+    // x 673–843 in her hands, y 732–770 and x 674–839 in his
     steam: {
-        partner: { rim: { x: 996, y: 592 }, width: 100 },
-        viewer: { rim: { x: 757, y: 748 }, width: 170 }
+        partner: {
+            ayu: { rim: { x: 996, y: 592 }, width: 100 },
+            xiaoman: { rim: { x: 998, y: 592 }, width: 100 }
+        },
+        viewer: {
+            xiaoman: { rim: { x: 757, y: 748 }, width: 170 },
+            ayu: { rim: { x: 756, y: 749 }, width: 166 }
+        }
     },
     lamp: {
         chain: { src: `${T}/lamp-chain.webp`, box: { x: 229, y: 479, w: 27, h: 80 } },
@@ -77,7 +112,7 @@ export const STUDY_TABLE: TableRoomTemplate = {
     // (patted, plate y 96, on the 2026-09-27 frames; the 2026-09-28 patted tops out
     // near plate y 112, so this leaves more room), so wide screens spend their rows
     // on table and hands
-    crop: { x: 735, top: 84 },
+    crop: { ayu: { x: 735, top: 84 }, xiaoman: { x: 751, top: 97 } },
     hotspots: [
         { id: 'lamp', rect: { x: 70, y: 285, w: 230, h: 285 } }, // shade and pull chain
         { id: 'timeline', rect: { x: 118, y: 660, w: 265, h: 130 } }, // the books → our diary
@@ -92,3 +127,9 @@ export const STUDY_TABLE: TableRoomTemplate = {
  * Which poses blink and which pairs morph is whatever that run shipped; nothing is listed here.
  */
 export const AYU_RIG: AvatarRig = { manifest: '/characters/ayu/rig.json' };
+
+/** 小满's rig, built the same way from arts/characters/xiaoman/rig.json; she sits on the same chair. */
+export const XIAOMAN_RIG: AvatarRig = { manifest: '/characters/xiaoman/rig.json' };
+
+/** The partner's rig per avatar. */
+export const PARTNER_RIGS = { ayu: AYU_RIG, xiaoman: XIAOMAN_RIG } as const;

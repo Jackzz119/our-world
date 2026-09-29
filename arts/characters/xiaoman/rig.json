@@ -1,0 +1,401 @@
+{
+    "anchor": "reading",
+    "source": "arts/characters/xiaoman/source",
+    "source_pattern": "xiaoman-{pose}-{eye}.png",
+    "source_single": "xiaoman-{pose}.png",
+    "build": "arts/characters/xiaoman/build",
+    "runtime": "public/characters/xiaoman",
+    "url_base": "/characters/xiaoman",
+    "poses": {
+        "reading": {
+            "blink": true
+        },
+        "glance": {
+            "blink": true
+        },
+        "writing": {
+            "blink": true,
+            "fit_cut": true
+        },
+        "asleep": {
+            "morph": false,
+            "slow": true,
+            "probe": false
+        },
+        "patted": {
+            "fit_cut": true,
+            "probes_x": [
+                350,
+                400
+            ]
+        },
+        "poked": {
+            "align_to": "reading"
+        },
+        "doze-1": {
+            "chain": true,
+            "probe": false
+        },
+        "doze-2": {
+            "chain": true,
+            "probe": false
+        },
+        "sip-1": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": []
+        },
+        "sip-2": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": []
+        },
+        "sip-3": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "holds": [
+                "mug"
+            ]
+        },
+        "sip-4": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ],
+            "holds": [
+                "mug"
+            ]
+        },
+        "sip-5": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-6": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-7": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-8": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-9": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "cut_probe_x": [],
+            "hides": [
+                "mug"
+            ],
+            "blink": true
+        },
+        "lay-1": {
+            "chain": true,
+            "cut_probe_x": []
+        },
+        "lay": {
+            "chain": true,
+            "cut_probe_x": []
+        },
+        "patted-writing": {
+            "fit_cut": true
+        },
+        "poked-writing": {
+            "align_to": "writing",
+            "fit_cut": true
+        }
+    },
+    "sequences": {
+        "doze": {
+            "frames": [
+                "reading",
+                "lay-1",
+                "doze-1",
+                "doze-2",
+                "asleep"
+            ],
+            "step_ms": 750
+        },
+        "sip": {
+            "frames": [
+                "reading",
+                "sip-1",
+                "sip-2",
+                "sip-3",
+                "sip-4",
+                "sip-5",
+                "sip-6",
+                "sip-7",
+                "sip-8",
+                "sip-9"
+            ],
+            "step_ms": 340,
+            "hold_ms": 1600,
+            "back": true
+        },
+        "write": {
+            "frames": [
+                "reading",
+                "lay-1",
+                "lay",
+                "writing"
+            ],
+            "step_ms": 380
+        }
+    },
+    "canvas": {
+        "cut_y": 987,
+        "cut_plate_y": 646,
+        "probes_x": [
+            350,
+            400,
+            1150,
+            1200
+        ],
+        "cut_probe_x": [
+            520,
+            600,
+            940,
+            1000
+        ],
+        "crop": [
+            150,
+            30,
+            1450,
+            1024
+        ]
+    },
+    "hair": {
+        "mode": "dark",
+        "lum_max": 0.42,
+        "by_pose": {
+            "asleep": {
+                "mode": "none"
+            }
+        }
+    },
+    "placement": {
+        "offset": [
+            296.64,
+            79.29
+        ],
+        "scale": 0.57417
+    },
+    "face": {
+        "boxes": {
+            "poked": [
+                649,
+                232,
+                932,
+                680
+            ],
+            "sip-7": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-8": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-9": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-1": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-2": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-3": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-4": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-5": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "sip-6": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "lay-1": [
+                649,
+                235,
+                932,
+                674
+            ],
+            "lay": [
+                649,
+                235,
+                932,
+                674
+            ]
+        }
+    },
+    "parts": {
+        "mug": "arts/rooms/study/source/prop-xiaoman-mug.png"
+    }
+}

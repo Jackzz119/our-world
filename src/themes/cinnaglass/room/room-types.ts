@@ -61,8 +61,11 @@ export type AvatarId = 'ayu' | 'xiaoman';
  */
 export type PartnerState = 'reading' | 'writing' | 'away' | 'offline' | 'asleep';
 
-/** Every pose an avatar ships; all share one canvas so they swap in place. */
-export type PoseId = 'reading' | 'glance' | 'writing' | 'sip' | 'asleep' | 'patted' | 'poked';
+/**
+ * The poses every avatar ships; all share one canvas so they swap in place. The keyframes between
+ * them (a sip, dozing off, laying the book down to write) come from the rig's own sequences.
+ */
+export type PoseId = 'reading' | 'glance' | 'writing' | 'asleep' | 'patted' | 'poked';
 
 /**
  * One avatar's rig: the manifest the marionette pipeline exports (ai/jaSkills/marionette), which
@@ -127,20 +130,24 @@ export type TableRoomTemplate = {
     plates: Partial<Record<RoomMood, LampPlates & { rain?: LampPlates }>>;
     moodFallback: Record<RoomMood, RoomMood>;
     window: WindowSpec;
-    seat: PartnerSeat;
+    /** Where the partner sits, per the partner's avatar (each rig's canvas lands on the same chair). */
+    seat: Partial<Record<AvatarId, PartnerSeat>>;
     /** The viewer's own hands and mug in front, per the viewer's avatar (sleeves differ). */
     foreground: Partial<Record<AvatarId, PlatePart>>;
-    /** What the partner leaves on the table when they get up: their mug stays, their jacket hangs on the chair. */
-    traces: { mug?: PlatePart; jacket?: Partial<Record<AvatarId, PlatePart>> };
-    /** Cups that steam: the partner's on the table, the viewer's in their hands. */
-    steam?: { partner?: CupRim; viewer?: CupRim };
+    /**
+     * What the partner leaves on the table, per the partner's avatar: their mug (it stays when they
+     * get up, and leaves the table while they drink) and their jacket hanging on the chair.
+     */
+    traces: { mug?: Partial<Record<AvatarId, PlatePart>>; jacket?: Partial<Record<AvatarId, PlatePart>> };
+    /** Cups that steam: the partner's on the table (per partner), the viewer's in their hands (per viewer). */
+    steam?: { partner?: Partial<Record<AvatarId, CupRim>>; viewer?: Partial<Record<AvatarId, CupRim>> };
     lamp?: LampSpec;
     /**
      * How a screen that is not 3:2 crops the plate. Narrow screens keep plate
      * column `x` centred (the partner's face); wide screens keep rows from
      * `top` down (just above the partner's head), so as much of the table and
-     * the viewer's hands as fits stays in view below.
+     * the viewer's hands as fits stays in view below. Per the partner's avatar (their face and head differ).
      */
-    crop: { x: number; top: number };
+    crop: Partial<Record<AvatarId, { x: number; top: number }>>;
     hotspots: HotspotSpec[];
 };

@@ -1,133 +1,107 @@
-// partner-state.ts — decides which pose the partner across the table shows:
-// the pose of their real state, overridden for a moment by short reactions
-// (a glance up, a sip, a poke, a pat). Pure logic with no clock or randomness
-// of its own, so a test can replay a sequence exactly. The pose layer only
-// renders what this returns.
+// partner-state.ts — what the partner across the table is doing: the pose of their real state,
+// overridden for a moment by short reactions (a glance up, a poke, a held pat) or played through
+// keyframes (a sip: reach, lift, drink, put the mug back; laying the book down to write; falling
+// asleep and waking up). The rules live in rig-director.ts (from the marionette skill); this file is
+// the study's spec for them: which reactions, how strong, in which states, and how often they happen
+// by themselves.
 
-import type { PartnerState, PoseId } from '@/themes/cinnaglass/room/room-types';
+import { createDirector, type Sequence, type Transition } from '@/themes/cinnaglass/room/rig-director';
+import type { PartnerState } from '@/themes/cinnaglass/room/room-types';
 
 /** Short reactions that override the state pose, then hand back to it. */
 export type PartnerReaction = 'glance' | 'sip' | 'poked' | 'patted';
-
-/** The pose each state rests in; away and offline leave the chair empty. */
-export const STATE_POSE: Record<PartnerState, PoseId | null> = {
-    reading: 'reading',
-    writing: 'writing',
-    asleep: 'asleep',
-    away: null,
-    offline: null
-};
-
-const REACTION_POSE: Record<PartnerReaction, PoseId> = {
-    glance: 'glance',
-    sip: 'sip',
-    poked: 'poked',
-    patted: 'patted'
-};
-
-// A reaction never interrupts a higher one: touch beats idle, a held pat beats a poke.
-const PRIORITY: Record<PartnerReaction, number> = { glance: 1, sip: 2, poked: 3, patted: 4 };
-
-// Touches only land while the partner is really at the table and awake.
-const PRESENT: readonly PartnerState[] = ['reading', 'writing'];
 
 /** Idle rhythm and reaction lengths, in seconds (ai/features/study-room/study-room.md §四). */
 export const PARTNER_TIMING = {
     glanceEvery: [20, 60] as const,
     glanceFor: [2.5, 4] as const,
     sipEvery: [90, 180] as const,
-    sipFor: 2.4,
     pokeFor: 1.4,
-    patLinger: 0.8
+    patLinger: 0.8,
+    /** A coffee handed over while something stronger plays is drunk when that ends, if within this. */
+    sipQueue: 6
 };
 
+// Touches only land while the partner is really at the table and awake.
+const PRESENT: readonly PartnerState[] = ['reading', 'writing'];
+
+/** The keyframe chains a rig ships (its manifest's `sequences`): the sip, dozing off, laying the book down to write. */
+export type PartnerSequences = { sip: Sequence<string>; doze?: Sequence<string>; write?: Sequence<string> };
+
 export type PartnerDirector = {
-    /** Switch the real state; any running reaction ends and the idle clock restarts. */
+    /** Switch the real state; a running reaction ends (keyframes walk back first) and the idle clock restarts. */
     setState: (state: PartnerState, nowMs: number) => void;
-    /** A one-shot reaction; false when the current state does not allow it. */
+    /** A one-shot reaction; false when the current state does not allow it or something stronger plays. */
     react: (kind: 'glance' | 'sip' | 'poked', nowMs: number) => boolean;
     /** A pat lasts while the stroke is held, plus a short linger after release. */
     pat: (holding: boolean, nowMs: number) => boolean;
-    /** The pose to show at `nowMs`, or null for the empty chair. */
-    update: (nowMs: number) => PoseId | null;
+    /** The pose to show at `nowMs` (a base pose or a keyframe), or null for the empty chair. */
+    update: (nowMs: number) => string | null;
+    /** How to animate to the pose `update` returned last (a keyframe step), or null for the default. */
+    transition: () => Transition | null;
     state: () => PartnerState;
 };
 
 /**
- * A director starting in `initial`. Every random draw comes from `random`
- * and every time from the `nowMs` the caller passes in.
+ * A director starting in `initial`. Every random draw comes from `random` and every time from the
+ * `nowMs` the caller passes in. `has` says which poses the rig ships: the writing variants of the
+ * touches are used when it has them. Without the doze or write chains those changes are one morph.
  */
-export function createPartnerDirector(initial: PartnerState, random: () => number, nowMs: number): PartnerDirector {
-    const between = (range: readonly [number, number]) => range[0] + random() * (range[1] - range[0]);
-    let state = initial;
-    let active: { kind: PartnerReaction; until: number } | null = null;
-    let patHeld = false;
-    let nextGlanceAt = 0;
-    let nextSipAt = 0;
-
-    // Idle reactions are timed from the last time the partner settled back.
-    const scheduleIdle = (now: number) => {
-        nextGlanceAt = now + between(PARTNER_TIMING.glanceEvery) * 1000;
-        nextSipAt = now + between(PARTNER_TIMING.sipEvery) * 1000;
-    };
-    scheduleIdle(nowMs);
-
-    // Start or extend a reaction unless a stronger one is still playing.
-    const start = (kind: PartnerReaction, now: number, ms: number): boolean => {
-        if (active && active.until > now && PRIORITY[active.kind] > PRIORITY[kind]) return false;
-        if (active && active.kind === kind) active.until = Math.max(active.until, now + ms);
-        else active = { kind, until: now + ms };
-        return true;
-    };
-
+export function createPartnerDirector(
+    initial: PartnerState,
+    random: () => number,
+    nowMs: number,
+    sequences: PartnerSequences,
+    has: (pose: string) => boolean = () => false
+): PartnerDirector {
+    // while writing, the laugh and the lean into the hand happen over the notebook, pen in hand
+    const whileWriting = (pose: string) => (has(pose) ? { writing: pose } : undefined);
+    const d = createDirector<PartnerState, PartnerReaction, string>(
+        {
+            statePose: { reading: 'reading', writing: 'writing', asleep: 'asleep', away: null, offline: null },
+            enter: {
+                ...(sequences.doze ? { asleep: sequences.doze } : {}),
+                ...(sequences.write ? { writing: sequences.write } : {})
+            },
+            reactions: {
+                // glancing up belongs to reading; writing keeps the eyes on the page
+                glance: { pose: 'glance', priority: 1, seconds: PARTNER_TIMING.glanceFor, in: ['reading'] },
+                sip: { sequence: sequences.sip, priority: 2, in: PRESENT },
+                poked: {
+                    pose: 'poked',
+                    poseIn: whileWriting('poked-writing'),
+                    priority: 3,
+                    seconds: PARTNER_TIMING.pokeFor,
+                    in: PRESENT
+                },
+                patted: { pose: 'patted', poseIn: whileWriting('patted-writing'), priority: 4, seconds: 0, in: PRESENT }
+            },
+            idle: [
+                { reaction: 'sip', every: PARTNER_TIMING.sipEvery, in: ['reading'] },
+                { reaction: 'glance', every: PARTNER_TIMING.glanceEvery, in: ['reading'] }
+            ]
+        },
+        initial,
+        random,
+        nowMs
+    );
+    let sipBy = 0;
     return {
-        setState(next, now) {
-            if (next === state) return;
-            state = next;
-            active = null;
-            patHeld = false;
-            scheduleIdle(now);
+        setState: (state, now) => {
+            sipBy = 0;
+            d.setState(state, now);
         },
         react(kind, now) {
-            if (!PRESENT.includes(state)) return false;
-            // glancing up belongs to reading; writing keeps the eyes on the page
-            if (kind === 'glance' && state !== 'reading') return false;
-            const ms =
-                kind === 'glance'
-                    ? between(PARTNER_TIMING.glanceFor) * 1000
-                    : (kind === 'sip' ? PARTNER_TIMING.sipFor : PARTNER_TIMING.pokeFor) * 1000;
-            return start(kind, now, ms);
+            const landed = d.react(kind, now);
+            if (!landed && kind === 'sip') sipBy = now + PARTNER_TIMING.sipQueue * 1000;
+            return landed;
         },
-        pat(holding, now) {
-            if (!PRESENT.includes(state)) {
-                patHeld = false;
-                return false;
-            }
-            if (holding) {
-                if (!start('patted', now, Number.POSITIVE_INFINITY)) return false;
-                patHeld = true;
-                return true;
-            }
-            patHeld = false;
-            if (active?.kind === 'patted') active.until = now + PARTNER_TIMING.patLinger * 1000;
-            return true;
-        },
+        pat: (holding, now) => d.hold('patted', holding, now, PARTNER_TIMING.patLinger),
         update(now) {
-            if (active && !patHeld && now >= active.until) {
-                active = null;
-                scheduleIdle(now);
-            }
-            if (!active && state === 'reading') {
-                if (now >= nextSipAt) {
-                    start('sip', now, PARTNER_TIMING.sipFor * 1000);
-                    nextSipAt = now + between(PARTNER_TIMING.sipEvery) * 1000;
-                } else if (now >= nextGlanceAt) {
-                    start('glance', now, between(PARTNER_TIMING.glanceFor) * 1000);
-                    nextGlanceAt = now + between(PARTNER_TIMING.glanceEvery) * 1000;
-                }
-            }
-            return active ? REACTION_POSE[active.kind] : STATE_POSE[state];
+            if (sipBy && (now > sipBy || (!d.busy() && d.react('sip', now)))) sipBy = 0;
+            return d.update(now);
         },
-        state: () => state
+        transition: d.transition,
+        state: d.state
     };
 }

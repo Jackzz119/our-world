@@ -20,7 +20,24 @@ export type RigManifest = {
     grid: number;
     flowFormat: 'rgb12';
     anchor: string;
-    poses: Record<string, { open: string; closed?: string; idle?: string; slow: boolean }>;
+    poses: Record<
+        string,
+        {
+            open: string;
+            closed?: string;
+            idle?: string;
+            slow: boolean;
+            /** Scene parts this pose stands in for while it shows (the mug is in his hand, not on the table). */
+            hides?: string[];
+            /**
+             * Scene parts this pose draws in the hand, and how far from their own place, canvas px (measured
+             * by the pipeline): the scene's part rides along while a morph runs into or out of this pose.
+             */
+            holds?: Record<string, [number, number]>;
+        }
+    >;
+    /** Keyframe chains (rig-director Sequence): each neighbouring pair of `frames` has morph fields. */
+    sequences?: Record<string, { frames: string[]; stepMs: number; holdMs?: number; back?: boolean }>;
     /** Flow fields keyed `from-to`; both directions of a pair are always present together. */
     morphs: Record<string, string>;
     /** The pairs whose field was guided by region boxes, not measured: they swap in the narrow window. */
@@ -183,20 +200,43 @@ export const DEFAULT_TIMING: Timing = {
     slowHandoverMs: 300
 };
 
+/**
+ * How one pose change is animated: its length and easing. A keyframe chain eases in on its first step,
+ * runs linear through the middle and eases out on the last, so the steps move as one gesture; a lone
+ * change eases in and out. (rig-director.ts hands these out; the shape is the same there.)
+ */
+export type Ease = 'inOut' | 'in' | 'out' | 'linear';
+export type Transition = { ms: number; ease: Ease };
+
+// in and out leave / arrive at the speed of linear (derivative 1), so they join a linear middle smoothly
+const EASE: Record<Ease, (t: number) => number> = {
+    inOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2),
+    in: (t) => t * t * (2 - t),
+    out: (t) => 1 - (1 - t) * (1 - t) * (1 + t),
+    linear: (t) => t
+};
+
 /** One visible pose this frame: its opacity, and the morph field bending it, if any. */
 export type PoseFrame = { alpha: number; shift: { field: string; amount: number } | null };
 
+/** The morph a frame drew: its two poses, raw progress `t` and eased progress `e`, both 0..1. */
+export type MorphProgress = { from: string; to: string; t: number; e: number };
+
 export type Switcher = {
-    /** Change to `pose` (null = nobody there). The adapter must draw `pose` above the others. */
-    show: (pose: string | null, nowMs: number, animate: boolean) => void;
+    /**
+     * Change to `pose` (null = nobody there). The adapter must draw `pose` above the others. With a
+     * `transition`, a morph takes its length and easing (a keyframe step); without, the defaults.
+     */
+    show: (pose: string | null, nowMs: number, animate: boolean, transition?: Transition | null) => void;
     /** Opacity and morph per pose at `nowMs`; poses not listed are invisible. */
     frame: (nowMs: number) => Map<string, PoseFrame>;
     /** True while a morph runs: hold the blink until it lands. */
     morphing: () => boolean;
+    /** The morph the last `frame()` drew, or null (a scene part carried by a hand follows it). */
+    progress: () => MorphProgress | null;
     current: () => string | null;
 };
 
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const smoothstep = (a: number, b: number, x: number) => {
     const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
     return t * t * (3 - 2 * t);
@@ -206,9 +246,14 @@ type Tween = { from: number; to: number; start: number; ms: number };
 
 /**
  * The progress window in which the incoming pose appears during a morph (the pipeline simulates the
- * same): narrow for slow poses and guided pairs, whose shapes only roughly meet.
+ * same): wide for a lone change, narrow for slow poses and guided pairs, whose shapes only roughly
+ * meet, and quick for a keyframe step: the steps are short and many, the mesh carries the motion,
+ * and whatever the field could not bend (a mug carried across the chest) shows twice only as long as
+ * the pictures take to swap.
  */
-export const morphSwap = (narrow: boolean): [number, number] => (narrow ? [0.35, 0.65] : [0.25, 0.75]);
+export type SwapWindow = 'wide' | 'narrow' | 'step';
+const SWAP: Record<SwapWindow, [number, number]> = { wide: [0.25, 0.75], narrow: [0.35, 0.65], step: [0.42, 0.58] };
+export const morphSwap = (window: SwapWindow): [number, number] => SWAP[window];
 
 /**
  * Pose switching without a see-through moment. Two rules carry it:
@@ -227,7 +272,8 @@ export function createSwitcher(opts: {
     const alpha = new Map<string, number>();
     const tweens = new Map<string, Tween>();
     let handovers: { pose: string; at: number; ms: number }[] = [];
-    let morph: { from: string; to: string; start: number; slow: boolean; narrow: boolean } | null = null;
+    let morph: { from: string; to: string; start: number; ms: number; ease: Ease; window: SwapWindow } | null = null;
+    let drawn: MorphProgress | null = null;
     let current: string | null = null;
 
     const tween = (pose: string, to: number, now: number, ms: number) => {
@@ -251,7 +297,7 @@ export function createSwitcher(opts: {
     };
 
     return {
-        show(pose, now, animate) {
+        show(pose, now, animate, transition) {
             if (pose === current) return;
             // a new change lands the running morph first; half-bent meshes never stack
             land();
@@ -264,7 +310,14 @@ export function createSwitcher(opts: {
                 tweens.delete(pose);
                 alpha.set(from, 1);
                 alpha.set(pose, 0);
-                morph = { from, to: pose, start: now, slow, narrow: slow || (opts.narrow?.(from, pose) ?? false) };
+                morph = {
+                    from,
+                    to: pose,
+                    start: now,
+                    ms: transition?.ms ?? (slow ? T.slowMorphMs : T.morphMs),
+                    ease: transition?.ease ?? 'inOut',
+                    window: slow || (opts.narrow?.(from, pose) ?? false) ? 'narrow' : transition ? 'step' : 'wide'
+                };
             } else {
                 if (pose) tween(pose, 1, now, animate ? (slow ? T.slowCrossfadeMs : T.crossfadeMs) : 0);
                 if (from) {
@@ -293,12 +346,14 @@ export function createSwitcher(opts: {
                     tweens.delete(pose);
                 }
             }
+            drawn = null;
             if (morph) {
-                const t = (now - morph.start) / (morph.slow ? T.slowMorphMs : T.morphMs);
+                const t = (now - morph.start) / morph.ms;
                 if (t >= 1) land();
                 else {
-                    const e = easeInOut(t);
-                    const [swapIn, swapOut] = morphSwap(morph.narrow);
+                    const e = EASE[morph.ease](t);
+                    drawn = { from: morph.from, to: morph.to, t, e };
+                    const [swapIn, swapOut] = morphSwap(morph.window);
                     // shapes travel the whole way; the pictures swap only in the middle, and whatever
                     // the field could not bend into the new silhouette leaves once it is covered
                     out.set(morph.from, {
@@ -319,8 +374,51 @@ export function createSwitcher(opts: {
             return out;
         },
         morphing: () => morph !== null,
+        progress: () => drawn,
         current: () => current
     };
+}
+
+/* ---------------------------------------------------------------- scene parts in the hand */
+
+/** A scene part this frame: its opacity, and how far a hand has carried it from its place, canvas px. */
+export type PartFrame = { alpha: number; dx: number; dy: number };
+
+/**
+ * Scene part `name` (the mug on the table) this frame, from the manifest's `hides` and `holds`.
+ * A pose that only hides the part cross-fades with it: the part fades as the pose appears. A pose that
+ * also holds it draws the part in the hand where the pipeline measured it, so during a morph into or
+ * out of that pose the scene's part rides along the hold, opaque and in front of the figure, and only
+ * leaves once the pose has arrived: the painted part and the drawn one lie on top of each other while
+ * the pictures swap, and a hand-off never shows two mugs. A pose that holds without hiding (the hand
+ * closing on the mug) nudges the part onto the drawn one and keeps showing it.
+ */
+export function partFrame(
+    poses: RigManifest['poses'],
+    frame: Map<string, PoseFrame>,
+    progress: MorphProgress | null,
+    current: string | null,
+    name: string
+): PartFrame {
+    const hides = (id: string | null) => (id ? (poses[id]?.hides?.includes(name) ?? false) : false);
+    const held = (id: string | null): [number, number] | undefined => (id ? poses[id]?.holds?.[name] : undefined);
+    const still: [number, number] = [0, 0];
+    if (progress) {
+        const { from, to, t, e } = progress;
+        const [fx, fy] = held(from) ?? still;
+        const [tx, ty] = held(to) ?? still;
+        const at = { dx: fx + (tx - fx) * e, dy: fy + (ty - fy) * e };
+        const taken = hides(to) && !hides(from);
+        const putBack = hides(from) && !hides(to);
+        if (!taken && !putBack) return { alpha: hides(to) ? 0 : 1, ...at };
+        // carried: gone only in the last stretch of the way in, back in the first stretch of the way out
+        if (held(taken ? to : from))
+            return { alpha: taken ? 1 - smoothstep(0.85, 1, t) : smoothstep(0, 0.15, t), ...at };
+    }
+    let covered = 0;
+    for (const [id, f] of frame) if (hides(id)) covered = Math.max(covered, f.alpha);
+    const [dx, dy] = (hides(current) ? undefined : held(current)) ?? still;
+    return { alpha: 1 - covered, dx, dy };
 }
 
 /* ---------------------------------------------------------------- blinking */

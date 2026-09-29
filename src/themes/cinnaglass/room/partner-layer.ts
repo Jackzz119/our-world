@@ -25,7 +25,11 @@ import {
     GESTURES,
     gridSize,
     type Motion,
+    type PartFrame,
+    partFrame,
+    type PoseFrame,
     type RigManifest,
+    type Transition,
     type WeightMap
 } from '@/themes/cinnaglass/room/rig-core';
 import type { PartnerSeat, PoseId, PxPoint } from '@/themes/cinnaglass/room/room-types';
@@ -64,7 +68,12 @@ export type PartnerLayer = {
     /** Scene light on the partner, as a multiply tint. */
     setTint: (tint: number) => void;
     /** Show `pose` (null = nobody in the chair): a morph or a cover-and-fade from the current one. */
-    show: (pose: PoseId | null, animate: boolean) => void;
+    show: (pose: string | null, animate: boolean, transition?: Transition | null) => void;
+    /**
+     * Scene part `name` (the mug on the table) this frame: its opacity, and how far their hand has
+     * carried it from its place, in plate px (rig-core partFrame, manifest `hides` / `holds`).
+     */
+    part: (name: string) => PartFrame;
     /** A poke landed: the flinch and laugh that play on top of the poked pose. */
     flinch: () => void;
     /** Every frame: opacity, blinking and mesh motion; `elapsed` (seconds) drives the idle loops. */
@@ -83,7 +92,11 @@ export type HeadAnchors = { left: PxPoint; right: PxPoint; faceRight: number; sh
 // The pat gesture (ai/features/study-room/study-room.md §四).
 const PAT_START_PX = 12;
 // Every pose the director can ask for; a rig missing one would leave the chair empty.
-const POSES: readonly PoseId[] = ['reading', 'glance', 'writing', 'sip', 'asleep', 'patted', 'poked'];
+const POSES: readonly PoseId[] = ['reading', 'glance', 'writing', 'asleep', 'patted', 'poked'];
+// The chains the study cannot do without: taking a sip is only ever walked, never one pose.
+const CHAINS = ['sip'] as const;
+// A keyframe frame the director may ask for must exist too: its sequences name them.
+const framesOf = (m: RigManifest) => Object.values(m.sequences ?? {}).flatMap((q) => q.frames);
 
 /** Decode a small data PNG into its RGBA bytes, with no premultiplication or colour management. */
 async function readPixels(url: string) {
@@ -114,8 +127,10 @@ export async function loadPartnerRig(
     if (!response.ok) throw new Error(`${manifestUrl}: ${response.status}`);
     const manifest = (await response.json()) as RigManifest;
     if (manifest.version !== 2 || manifest.flowFormat !== 'rgb12') throw new Error(`${manifestUrl}: unsupported rig`);
-    const missing = POSES.filter((p) => !manifest.poses[p]);
+    const missing = [...POSES, ...framesOf(manifest)].filter((p) => !manifest.poses[p]);
     if (missing.length) throw new Error(`${manifestUrl}: no ${missing.join(', ')} pose`);
+    const chainless = CHAINS.filter((c) => !manifest.sequences?.[c]);
+    if (chainless.length) throw new Error(`${manifestUrl}: no ${chainless.join(', ')} sequence`);
     const { cols, rows } = gridSize(manifest);
     const frames = Object.values(manifest.poses).flatMap((p) => (p.closed ? [p.open, p.closed] : [p.open]));
     const maps = Object.values(manifest.poses).filter((p) => p.idle).length + Object.keys(manifest.morphs).length;
@@ -198,8 +213,8 @@ export function createPartnerLayer(
     holder.scale.set(seat.scale);
     container.addChild(holder);
 
-    const poses = new Map<PoseId, Pose>();
-    for (const id of POSES) {
+    const poses = new Map<string, Pose>();
+    for (const id of Object.keys(manifest.poses)) {
         const files = manifest.poses[id];
         const mesh = new MeshPlane({ texture: rig.textures[files.open], verticesX: cols, verticesY: rows });
         // blinks swap the texture on a canvas of the same size; the grid must stay
@@ -223,6 +238,7 @@ export function createPartnerLayer(
     });
     const blinker = createBlinker(random, performance.now());
     const gestures = createGesturePlayer();
+    let drawn = new Map<string, PoseFrame>();
 
     // Plate-px rectangle of a pose-canvas rectangle.
     const toPlate = (r: { x: number; y: number; w: number; h: number }) =>
@@ -284,10 +300,10 @@ export function createPartnerLayer(
         setTint(tint) {
             for (const p of poses.values()) p.mesh.tint = tint;
         },
-        show(pose, animate) {
+        show(pose, animate, transition) {
             if (pose === switcher.current()) return;
             const now = performance.now();
-            switcher.show(pose, now, animate && !reduced);
+            switcher.show(pose, now, animate && !reduced, transition);
             const to = pose ? poses.get(pose) : undefined;
             if (to) holder.setChildIndex(to.mesh, holder.children.length - 1);
             blinker.reset(now);
@@ -303,6 +319,7 @@ export function createPartnerLayer(
             // no blink while a morph bends the mesh: the closed frame would land on a half-bent grid
             const closed = !switcher.morphing() && blinker.closed(now);
             const pulse = gestures.sample(now);
+            drawn = frame;
             const current = switcher.current();
             for (const [id, p] of poses) {
                 const f = frame.get(id);
@@ -323,6 +340,10 @@ export function createPartnerLayer(
                 );
                 p.mesh.geometry.getBuffer('aPosition').update();
             }
+        },
+        part(name) {
+            const f = partFrame(manifest.poses, drawn, switcher.progress(), switcher.current(), name);
+            return { alpha: f.alpha, dx: f.dx * seat.scale, dy: f.dy * seat.scale };
         },
         anchors() {
             const at = (p: PxPoint) => ({ x: seat.origin.x + p.x * seat.scale, y: seat.origin.y + p.y * seat.scale });
