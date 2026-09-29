@@ -22,7 +22,9 @@
 
 ![展开音乐：同源外壳与稳定阅读底；进度、播放和音量对应实际音频](unification-verification/music.png)
 
-**声音与天气真实边界**：音乐是四组 WebAudio 合成音景，没有歌曲文件，也没有双人同步。播放/暂停、进度/拖动、曲目、循环方式与音量独立于展开/隐藏，隐藏不销毁音频。天气手动模式不显示虚构温度；实况加载、成功和不可用明确区分。时间提醒只在本机保存，不发系统通知。
+**2026-09-29 音乐主页面（本地实现，待看样）**：上图是改版前的展开播放器。现在桌面迷你条展开成右侧整列的停靠栏，手机改为底部托盘；页面上半是正在播放（海报像唱片封套，播放时书房的唱片从后面滑出慢转；两行歌词、进度、传输），下半是「歌词 / 歌单 / 声音」三个标签。8 首音景，海报是当期概念图裁切的占位，收藏只存在本机。比稿与动图见 [UI 动效与手机托盘](../../codex-visual/ui-motion/ui-motion.md)。
+
+**声音与天气真实边界**：音乐是八组 WebAudio 合成音景（2026-09-29 由四组增加），没有歌曲文件，也没有双人同步。播放/暂停、进度/拖动、曲目、循环方式与音量独立于展开/隐藏，隐藏不销毁音频。天气手动模式不显示虚构温度；实况加载、成功和不可用明确区分。时间提醒只在本机保存，不发系统通知。
 
 来源：[公共材质](../../../../src/themes/cinnaglass/ui/ui-system.css)、[导航说明](../../../features/navigation-glass.md)、[环境接口](../../../../src/themes/cinnaglass/ui/use-ui-environment.ts)、[停靠布局](../../../../src/themes/cinnaglass/shell/shell-layout.css)、[天气](../../../../src/themes/cinnaglass/shell/ambience.tsx)、[聊天窄窗](../../../../src/themes/cinnaglass/shell/chat-card.tsx)、[音乐](../../../../src/themes/cinnaglass/music.tsx)、[音频生命周期](../../../../src/themes/cinnaglass/use-music-playback.ts)、[场景反馈](../../../../src/themes/cinnaglass/room/room-overlays.css)。
 

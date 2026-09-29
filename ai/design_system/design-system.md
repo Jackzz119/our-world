@@ -1,6 +1,6 @@
 # Our World · 当前设计系统
 
-> 维护：Monet；UI/UX：UI Tailor。更新：2026-09-27。**当前一期：对坐（2026-09-25 用户选定，09-27 定为开发方向）。** 本页与下面链接的常驻 Markdown 是概念与 UI 在内所有美术开发的唯一参考源；上一期资料已移到 `arts/archive/`，不在这里并存。
+> 维护：Monet；UI/UX：UI Tailor。更新：2026-09-29。**当前一期：对坐（2026-09-25 用户选定，09-27 定为开发方向）。** 本页与下面链接的常驻 Markdown 是概念与 UI 在内所有美术开发的唯一参考源；上一期资料已移到 `arts/archive/`，不在这里并存。
 
 **[打开整体风格预览](preview.html#world) · [打开 UI/UX 全局预览](preview.html#ui)**
 
@@ -48,20 +48,22 @@
 - **书房第一期：第一个能跑的切片已上线**，替换了上一期书房。她的视角：对面是阿屿，前景是她的奶油色针织袖口；三档时辰 × 晴 / 雨、台灯拉绳、五种在场状态、戳一下 / 摸头 / 喝一口的反应、两只杯子的蒸汽，桌面与手机同步。实装截图见 [场景](scene.md#实装截图) 与 [角色](character.md#在场状态)；他的视角、倒咖啡仪式和唱片机还没做，范围与进度见 [书房功能文档](../features/study-room/study-room.md)。
 - **上一期的水彩书房、双犬、挂钟与唱片机已删除**（2026-09-27）：运行时素材与代码都已移除，原画源在上一期档案里。
 - **Cinnaglass UI 是当前 UI**：导航、双圆时辰 / 天气、聊天窄卡、音乐、纪念卡、金亮信纸、任务弹窗与手机布局继续沿用；UI 文档的实装截图已重拍到新书房（少数需要账号的状态除外，见 [UI 地图](uiux/uiux.md)）；头像换成小满与阿屿。
+- **2026-09-29 一轮 UI 迭代（本地实现，待看样）**：全局动效体系与低动效模式、手机底部托盘（对方完整可见）、带海报 / 歌词 / 歌单的音乐主页面、进入世界时台灯随加载进度亮起的加载页；搜索播放与房间切换的异步加载只出设计。比稿与动图见 [UI 动效与手机托盘](codex-visual/ui-motion/ui-motion.md)。
 
 ## 实际素材位置
 
-| 内容                         | 位置                                                                                               | 状态                                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 对坐概念图                   | [concept/across-the-table/img](concept/across-the-table/img/)                                      | 当期参考，77 张全分辨率 JPG                                                                   |
-| 出图 brief 与 Codex 制作注记 | [concept/across-the-table/notes](concept/across-the-table/notes/)                                  | 画风锁、人物设定、逐图拆层与体积估算                                                          |
-| 书房与角色生产素材           | `arts/rooms/study/`、`arts/characters/ayu/`                                                        | 第一期：7 张底图 + 1 张几何母版、6 个部件、阿屿 7 个姿势（采用的原图、Codex 报告与 manifest） |
-| 运行时素材                   | [public/](../../public/)                                                                           | `rooms/study/`、`characters/ayu/`、UI 均为当前                                                |
-| 书房实装截图                 | [study-verification](study-verification/)                                                          | 2026-09-27 开发环境拍摄，隐藏开发面板                                                         |
-| UI 素材与样式                | [arts/ui](../../arts/ui/)、[public/ui](../../public/ui/)、[主题源码](../../src/themes/cinnaglass/) | 当前                                                                                          |
-| 头像                         | 生产源 `arts/ui/avatars/source/`，运行时 `public/avatars/`、`public/ui/journal/avatar-*.webp`      | 小满 / 阿屿，2026-09-28                                                                       |
-| 上一期档案                   | [arts/archive/v2-companion-house](../../arts/archive/v2-companion-house/README.md)                 | 放置陪伴小屋（2026-08-09～09-24）                                                             |
-| 方向比稿档案                 | [arts/archive/v3-direction-proposals](../../arts/archive/v3-direction-proposals/scene-concepts.md) | 并肩、灯火小楼两个落选方向与比较                                                              |
+| 内容                         | 位置                                                                                               | 状态                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 对坐概念图                   | [concept/across-the-table/img](concept/across-the-table/img/)                                      | 当期参考，77 张全分辨率 JPG                                                                       |
+| 出图 brief 与 Codex 制作注记 | [concept/across-the-table/notes](concept/across-the-table/notes/)                                  | 画风锁、人物设定、逐图拆层与体积估算                                                              |
+| 书房与角色生产素材           | `arts/rooms/study/`、`arts/characters/ayu/`                                                        | 第一期：7 张底图 + 1 张几何母版、6 个部件、阿屿 7 个姿势（采用的原图、Codex 报告与 manifest）     |
+| 运行时素材                   | [public/](../../public/)                                                                           | `rooms/study/`、`characters/ayu/`、UI 均为当前                                                    |
+| 书房实装截图                 | [study-verification](study-verification/)                                                          | 2026-09-27 开发环境拍摄，隐藏开发面板                                                             |
+| UI 素材与样式                | [arts/ui](../../arts/ui/)、[public/ui](../../public/ui/)、[主题源码](../../src/themes/cinnaglass/) | 当前                                                                                              |
+| 头像                         | 生产源 `arts/ui/avatars/source/`，运行时 `public/avatars/`、`public/ui/journal/avatar-*.webp`      | 小满 / 阿屿，2026-09-28                                                                           |
+| 歌单海报                     | 运行时 [public/music/covers/](../../public/music/covers/)（8 张 480px webp）                       | 占位：当期概念图的方形裁切（来源见 [ui-motion](codex-visual/ui-motion/ui-motion.md)），2026-09-29 |
+| 上一期档案                   | [arts/archive/v2-companion-house](../../arts/archive/v2-companion-house/README.md)                 | 放置陪伴小屋（2026-08-09～09-24）                                                                 |
+| 方向比稿档案                 | [arts/archive/v3-direction-proposals](../../arts/archive/v3-direction-proposals/scene-concepts.md) | 并肩、灯火小楼两个落选方向与比较                                                                  |
 
 ## 维护规则
 
