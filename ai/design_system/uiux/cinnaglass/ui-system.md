@@ -107,7 +107,7 @@
 
 ## 边缘页面与公共规则
 
-网站图标（2026-09-29 用户选定试用）：**H1「流光玻璃心」**，通透厚玻璃心形包裹左侧金色夕阳与海面、右侧幽蓝夜空与弯月，以流动的暖冷光连接昼夜，背景保持深蓝。[当前原稿](../../../../arts/branding/amber-glass-heart.png) 由 imagegen 生成，采用用户选定的 H1 原稿；浏览器使用 [48px PNG](../../../../public/favicon-48.png) / [16、32、48px ICO](../../../../public/favicon.ico)；iPhone 使用不透明 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。入口与缓存版本 `daynight-h1` 登记在 [index.html](../../../../index.html)，不另建图标文档。
+网站图标（2026-09-29 用户选定试用）：**H1「流光玻璃心」**，通透厚玻璃心形包裹左侧金色夕阳与海面、右侧幽蓝夜空与弯月，以流动的暖冷光连接昼夜。基于 [H1 原稿](../../../../arts/branding/amber-glass-heart.png)，由 imagegen 分别制作 [透明背景原稿](../../../../arts/branding/daynight-heart-transparent.png) 与 [暖咖啡背景原稿](../../../../arts/branding/daynight-heart-coffee.png)，保留心形内部设计与玻璃质感。浏览器使用透明背景 [48px PNG](../../../../public/favicon-48.png) / [16、32、48px ICO](../../../../public/favicon.ico)；iPhone 使用暖咖啡背景、不透明的 [180px Apple Touch PNG](../../../../public/apple-touch-icon.png)，由系统裁圆角。入口与缓存版本 `daynight-h1-v2` 登记在 [index.html](../../../../index.html)，不另建图标文档。
 
 ![登录：真实书房原画与同源任务阅读底](unification-verification/login-desktop.png)
 
