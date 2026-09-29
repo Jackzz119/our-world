@@ -12,6 +12,8 @@ import { CalendarScreen, ClockScreen } from '@/themes/cinnaglass/calendar';
 import { ChannelScreen } from '@/themes/cinnaglass/chat/chat-hub';
 import { LobbyScene } from '@/themes/cinnaglass/lobby';
 import { RoomScene } from '@/themes/cinnaglass/room/room-scene';
+import { WorldLoader } from '@/themes/cinnaglass/shell/world-loader';
+import { createLoadProgress } from '@/themes/cinnaglass/shell/load-progress';
 import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import { PhotoWall } from '@/themes/cinnaglass/surfaces/photo-wall';
 import { thumbPathOf } from '@/lib/storage';
@@ -23,6 +25,7 @@ import { useUiEnvironment, useCompactUi } from '@/themes/cinnaglass/ui/use-ui-en
 import { TWEAK_DEFAULTS } from '@/themes/cinnaglass/tweaks';
 import type { Tweaks } from '@/themes/cinnaglass/tweaks';
 import { useUiViewport } from '@/themes/cinnaglass/ui/use-ui-viewport';
+import { useMotionPreference } from '@/themes/cinnaglass/ui/motion-preference';
 import type { Channel } from '@/types/chat';
 import type { Msg } from '@/themes/cinnaglass/chat/chat-data';
 import type { Alarm, CalEvent } from '@/themes/cinnaglass/model';
@@ -112,6 +115,8 @@ export function MobileFixture() {
         mood: (query.get('mood') as Tweaks['mood']) || TWEAK_DEFAULTS.mood,
         weather: query.get('weather') === 'rain' ? 'rain' : 'sun'
     });
+    // html[data-motion] as the app publishes it (?motion=reduced forces the low-motion mode)
+    useMotionPreference(query.get('motion') === 'reduced' ? 'reduced' : t.motion);
     const ref = useUiEnvironment(t.mood, true);
     const compact = useCompactUi();
     const [chat, setChat] = useState(initial === 'compact-chat');
@@ -121,6 +126,10 @@ export function MobileFixture() {
     const [messages, setMessages] = useState(initialMessages);
     const [events, setEvents] = useState<CalEvent[]>([]);
     const [alarms, setAlarms] = useState<Alarm[]>([]);
+    // ?screen=enter: the room behind the entry loader, wired the way WorldPage wires it
+    const entering = initial === 'enter';
+    const [loadProgress] = useState(createLoadProgress);
+    const [roomState, setRoomState] = useState<'loading' | 'ready' | 'failed'>('loading');
     const close = () => setScreen('room');
     const openChat = () => {
         setChat(true);
@@ -161,6 +170,7 @@ export function MobileFixture() {
             data-chat-open={chat}
             data-music-open={music}
             data-letter-visible={letter}
+            data-world={entering ? roomState : undefined}
         >
             {/* the real scene behind every in-world screen; its dev presence panel is not part of the layout under test */}
             <style>{'.table-dev.ui-surface { display: none; }'}</style>
@@ -169,6 +179,18 @@ export function MobileFixture() {
                     mood={t.mood}
                     weatherKind={t.weather === 'rain' ? 'rain' : 'sun'}
                     presence={{ partner: { name: '阿屿', status: '' } }}
+                    onProgress={entering ? loadProgress.set : undefined}
+                    onReady={entering ? () => setRoomState('ready') : undefined}
+                    onFailed={entering ? () => setRoomState('failed') : undefined}
+                />
+            )}
+            {entering && (
+                <WorldLoader
+                    active={roomState === 'loading'}
+                    progress={loadProgress}
+                    mood={t.mood}
+                    rainy={t.weather === 'rain'}
+                    partnerName="阿屿"
                 />
             )}
             {screen === 'lobby' ? (

@@ -36,6 +36,22 @@ const screens = [
 const errors = [];
 let layouts = 0;
 
+// Entrances (dialogs rising, sheets sliding) must finish before anything is measured;
+// looping decoration (spinners, the equaliser) never finishes and is not waited for.
+async function settle(page) {
+    await page.evaluate(() =>
+        Promise.race([
+            Promise.all(
+                document
+                    .getAnimations()
+                    .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+                    .map((a) => a.finished.catch(() => {}))
+            ),
+            new Promise((resolve) => setTimeout(resolve, 2500))
+        ])
+    );
+}
+
 // Use the same fixture for measurements and screenshots; test-only controls are never rendered.
 async function visit(page, screen) {
     await page.goto(`${baseUrl()}/scripts/fixtures/mobile-ui.html?screen=${screen}`);
@@ -45,6 +61,7 @@ async function visit(page, screen) {
     if (screen === 'reset') await page.getByRole('alert').waitFor();
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(80);
+    await settle(page);
 }
 
 // Pin synthetic keyboard events to a known viewport while leaving CSS layout dimensions unchanged.
@@ -102,6 +119,14 @@ async function layout(page, label) {
                 if (r.left < rail.right && r.right > rail.left && r.top < rail.bottom && r.bottom > rail.top)
                     bad.push('active widget covers navigation');
             }
+            // phone sheets run under the bar by design; the bar must still be what a tap hits
+            const sheet = [...document.querySelectorAll('.ui-sheet')].find((el) => el.checkVisibility());
+            if (sheet && rail) {
+                const hit = document.elementFromPoint(rail.left + rail.width / 2, rail.top + rail.height / 2);
+                if (!hit?.closest('.rail')) bad.push('sheet covers navigation');
+                const r = sheet.getBoundingClientRect();
+                if (r.left < -1 || r.right > innerWidth + 1) bad.push('sheet outside viewport');
+            }
         }
         return bad;
     });
@@ -155,13 +180,28 @@ try {
     await observe(page);
     await visit(page, 'room');
     await page.locator('[data-nav-key="chat"]').tap();
-    assert.equal(await page.locator('.chat-card').isVisible(), true);
+    assert.equal(await page.locator('.chat-sheet').isVisible(), true);
     await page.locator('[data-nav-key="chat"]').tap();
-    assert.equal(await page.locator('.chat-card').count(), 0);
+    await page.locator('.chat-sheet').waitFor({ state: 'detached' });
     await page.locator('[data-nav-key="music"]').tap();
-    assert.equal(await page.locator('.music-full').isVisible(), true);
+    assert.equal(await page.locator('.music-sheet').isVisible(), true);
+    await settle(page);
+    await layout(page, 'music sheet open');
+    // the grip toggles the music sheet between half and full height
+    await page.getByRole('button', { name: '展开一起听' }).tap();
+    assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full');
+    await page.getByRole('button', { name: '收回一起听' }).tap();
+    assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'half');
     await page.locator('[data-nav-key="chat"]').tap();
     assert.equal(await page.locator('.music-wrap').isVisible(), false);
+    await page.locator('[data-nav-key="chat"]').tap();
+    // tools and rooms open as sheets behind the bar; Escape puts them away
+    await page.locator('[data-nav-key="modules"]').tap();
+    assert.equal(await page.locator('.rail-sheet').isVisible(), true);
+    await settle(page);
+    await layout(page, 'tools sheet open');
+    await page.keyboard.press('Escape');
+    await page.locator('.rail-sheet').waitFor({ state: 'detached' });
     await page.getByRole('button', { name: /天气：/ }).tap();
     await page.getByRole('radio', { name: '雨', exact: true }).tap();
     await page.getByRole('button', { name: /天气：/ }).tap();
@@ -183,10 +223,12 @@ try {
     await page.locator('.chsc-input input').fill('旋转之后还在');
     await page.setViewportSize({ width: 844, height: 390 });
     await page.waitForTimeout(100);
+    await settle(page);
     await layout(page, 'chat portrait to landscape');
     assert.equal(await page.locator('.chsc-input input').inputValue(), '旋转之后还在');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(100);
+    await settle(page);
     await layout(page, 'chat landscape to portrait');
 
     for (const screen of ['compact-chat', 'chat', 'login', 'settings']) {
@@ -253,7 +295,7 @@ try {
         document.documentElement.style.setProperty('--ui-safe-left', '44px');
         document.documentElement.style.setProperty('--ui-safe-right', '44px');
     });
-    const music = await page.locator('.music-wrap').boundingBox();
+    const music = await page.locator('.music-sheet').boundingBox();
     assert(music.x >= 44 && music.x + music.width <= 844 - 44);
     await layout(page, 'landscape side safe areas');
     await page.close();
