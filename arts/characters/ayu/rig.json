@@ -16,15 +16,6 @@
         "writing": {
             "blink": true
         },
-        "sip": {
-            "blink": true,
-            "cut_probe_x": [
-                600,
-                768,
-                950
-            ],
-            "fit_cut": true
-        },
         "asleep": {
             "morph": false,
             "slow": true,
@@ -33,14 +24,212 @@
         "patted": {},
         "poked": {
             "align_to": "reading"
+        },
+        "doze-1": {
+            "chain": true,
+            "probe": false
+        },
+        "doze-2": {
+            "chain": true,
+            "probe": false
+        },
+        "sip-1": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ]
+        },
+        "sip-2": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ]
+        },
+        "sip-3": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "holds": [
+                "mug"
+            ]
+        },
+        "sip-4": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ],
+            "holds": [
+                "mug"
+            ]
+        },
+        "sip-5": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-6": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-7": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-8": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ]
+        },
+        "sip-9": {
+            "chain": true,
+            "align_to": "reading",
+            "free": [
+                "face",
+                [
+                    0,
+                    480,
+                    1536,
+                    1024
+                ]
+            ],
+            "probes_x": [
+                350,
+                400
+            ],
+            "hides": [
+                "mug"
+            ],
+            "blink": true
+        },
+        "lay-1": {
+            "chain": true,
+            "cut_probe_x": []
+        },
+        "lay": {
+            "chain": true,
+            "cut_probe_x": []
+        },
+        "patted-writing": {},
+        "poked-writing": {
+            "align_to": "writing"
         }
     },
     "canvas": {
         "crop": [
-            85,
+            40,
             5,
-            1467,
-            1020
+            1520,
+            1024
         ],
         "probes_x": [
             350,
@@ -64,7 +253,31 @@
     },
     "face": {
         "boxes": {
-            "sip": [
+            "sip-7": [
+                650,
+                298,
+                927,
+                659
+            ],
+            "sip-8": [
+                650,
+                298,
+                927,
+                659
+            ],
+            "sip-9": [
+                650,
+                298,
+                927,
+                659
+            ],
+            "lay-1": [
+                650,
+                298,
+                927,
+                659
+            ],
+            "lay": [
                 650,
                 298,
                 927,
@@ -72,44 +285,51 @@
             ]
         }
     },
+    "sequences": {
+        "doze": {
+            "frames": [
+                "reading",
+                "lay-1",
+                "doze-1",
+                "doze-2",
+                "asleep"
+            ],
+            "step_ms": 750
+        },
+        "sip": {
+            "frames": [
+                "reading",
+                "sip-1",
+                "sip-2",
+                "sip-3",
+                "sip-4",
+                "sip-5",
+                "sip-6",
+                "sip-7",
+                "sip-8",
+                "sip-9"
+            ],
+            "step_ms": 340,
+            "hold_ms": 1600,
+            "back": true
+        },
+        "write": {
+            "frames": [
+                "reading",
+                "lay-1",
+                "lay",
+                "writing"
+            ],
+            "step_ms": 380
+        }
+    },
+    "parts": {
+        "mug": "arts/rooms/study/source/prop-ayu-mug.png"
+    },
     "regions": {
-        "hands": {
-            "reading": [
-                445,
-                691,
-                1137,
-                1001
-            ],
-            "glance": [
-                446,
-                690,
-                1140,
-                1002
-            ],
-            "writing": [
-                471,
-                780,
-                1137,
-                1005
-            ],
-            "patted": [
-                429,
-                819,
-                1154,
-                997
-            ],
-            "poked": [
-                447,
-                690,
-                1138,
-                1001
-            ],
-            "sip": [
-                513,
-                440,
-                1050,
-                736
-            ]
+        "head": {
+            "doze-2": "auto",
+            "asleep": "auto"
         }
     }
 }

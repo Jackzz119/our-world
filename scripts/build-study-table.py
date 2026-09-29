@@ -17,6 +17,7 @@ the master frame (arts/characters/ayu/build/assemble.json, "registration"):
 Inputs (codex-visual batch folders):
   --plates  one or more folders: master-night.png, plate-<mood>-<on|off>[-dry].png
   --parts   fg-her-hands.png, prop-ayu-mug.png, prop-ayu-hoodie.png,
+            fg-his-hands.png, prop-xiaoman-mug.png, prop-xiaoman-cardigan.png,
             part-tonearm.png, part-lamp-chain.png, part-vinyl.png
   --poses   (optional) ayu-<pose>-open.png / ayu-<pose>-closed.png, ayu-asleep.png, ... to adopt
 
@@ -46,6 +47,10 @@ PLATE_PARTS = {
     "prop-ayu-hoodie.png": "jacket-ayu",
     "part-tonearm.png": "tonearm",
     "part-lamp-chain.png": "lamp-chain",
+    # his view (the viewer is 阿屿, 小满 across): his hands and mug in front, her mug and cardigan across
+    "fg-his-hands.png": "fg-ayu",
+    "prop-xiaoman-mug.png": "mug-xiaoman",
+    "prop-xiaoman-cardigan.png": "jacket-xiaoman",
 }
 PAD = 2  # px kept around trimmed alpha so filtering never clips an edge
 ALPHA_MIN = 8  # alpha below this counts as empty when trimming

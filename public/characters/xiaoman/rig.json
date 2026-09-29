@@ -1,0 +1,271 @@
+{
+  "version": 2,
+  "canvas": {
+    "w": 1300,
+    "h": 994
+  },
+  "grid": 24,
+  "flowFormat": "rgb12",
+  "anchor": "reading",
+  "poses": {
+    "reading": {
+      "slow": false,
+      "open": "/characters/xiaoman/reading-open.webp",
+      "closed": "/characters/xiaoman/reading-closed.webp",
+      "idle": "/characters/xiaoman/idle-reading.png"
+    },
+    "glance": {
+      "slow": false,
+      "open": "/characters/xiaoman/glance-open.webp",
+      "closed": "/characters/xiaoman/glance-closed.webp",
+      "idle": "/characters/xiaoman/idle-glance.png"
+    },
+    "writing": {
+      "slow": false,
+      "open": "/characters/xiaoman/writing-open.webp",
+      "closed": "/characters/xiaoman/writing-closed.webp",
+      "idle": "/characters/xiaoman/idle-writing.png"
+    },
+    "asleep": {
+      "slow": true,
+      "open": "/characters/xiaoman/asleep-open.webp",
+      "idle": "/characters/xiaoman/idle-asleep.png"
+    },
+    "patted": {
+      "slow": false,
+      "open": "/characters/xiaoman/patted-open.webp",
+      "idle": "/characters/xiaoman/idle-patted.png"
+    },
+    "poked": {
+      "slow": false,
+      "open": "/characters/xiaoman/poked-open.webp",
+      "idle": "/characters/xiaoman/idle-poked.png"
+    },
+    "doze-1": {
+      "slow": false,
+      "open": "/characters/xiaoman/doze-1-open.webp",
+      "idle": "/characters/xiaoman/idle-doze-1.png"
+    },
+    "doze-2": {
+      "slow": false,
+      "open": "/characters/xiaoman/doze-2-open.webp",
+      "idle": "/characters/xiaoman/idle-doze-2.png"
+    },
+    "sip-1": {
+      "slow": false,
+      "open": "/characters/xiaoman/sip-1-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-1.png"
+    },
+    "sip-2": {
+      "slow": false,
+      "open": "/characters/xiaoman/sip-2-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-2.png"
+    },
+    "sip-3": {
+      "slow": false,
+      "holds": {
+        "mug": [
+          1,
+          1
+        ]
+      },
+      "open": "/characters/xiaoman/sip-3-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-3.png"
+    },
+    "sip-4": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "holds": {
+        "mug": [
+          3,
+          -122
+        ]
+      },
+      "open": "/characters/xiaoman/sip-4-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-4.png"
+    },
+    "sip-5": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/xiaoman/sip-5-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-5.png"
+    },
+    "sip-6": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/xiaoman/sip-6-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-6.png"
+    },
+    "sip-7": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/xiaoman/sip-7-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-7.png"
+    },
+    "sip-8": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/xiaoman/sip-8-open.webp",
+      "idle": "/characters/xiaoman/idle-sip-8.png"
+    },
+    "sip-9": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/xiaoman/sip-9-open.webp",
+      "closed": "/characters/xiaoman/sip-9-closed.webp",
+      "idle": "/characters/xiaoman/idle-sip-9.png"
+    },
+    "lay-1": {
+      "slow": false,
+      "open": "/characters/xiaoman/lay-1-open.webp",
+      "idle": "/characters/xiaoman/idle-lay-1.png"
+    },
+    "lay": {
+      "slow": false,
+      "open": "/characters/xiaoman/lay-open.webp",
+      "idle": "/characters/xiaoman/idle-lay.png"
+    },
+    "patted-writing": {
+      "slow": false,
+      "open": "/characters/xiaoman/patted-writing-open.webp",
+      "idle": "/characters/xiaoman/idle-patted-writing.png"
+    },
+    "poked-writing": {
+      "slow": false,
+      "open": "/characters/xiaoman/poked-writing-open.webp",
+      "idle": "/characters/xiaoman/idle-poked-writing.png"
+    }
+  },
+  "morphs": {
+    "asleep-doze-2": "/characters/xiaoman/morph-asleep-doze-2.png",
+    "doze-1-doze-2": "/characters/xiaoman/morph-doze-1-doze-2.png",
+    "doze-1-lay-1": "/characters/xiaoman/morph-doze-1-lay-1.png",
+    "doze-2-asleep": "/characters/xiaoman/morph-doze-2-asleep.png",
+    "doze-2-doze-1": "/characters/xiaoman/morph-doze-2-doze-1.png",
+    "glance-patted-writing": "/characters/xiaoman/morph-glance-patted-writing.png",
+    "glance-patted": "/characters/xiaoman/morph-glance-patted.png",
+    "glance-poked-writing": "/characters/xiaoman/morph-glance-poked-writing.png",
+    "glance-poked": "/characters/xiaoman/morph-glance-poked.png",
+    "glance-reading": "/characters/xiaoman/morph-glance-reading.png",
+    "glance-writing": "/characters/xiaoman/morph-glance-writing.png",
+    "lay-1-doze-1": "/characters/xiaoman/morph-lay-1-doze-1.png",
+    "lay-1-lay": "/characters/xiaoman/morph-lay-1-lay.png",
+    "lay-1-reading": "/characters/xiaoman/morph-lay-1-reading.png",
+    "lay-lay-1": "/characters/xiaoman/morph-lay-lay-1.png",
+    "lay-writing": "/characters/xiaoman/morph-lay-writing.png",
+    "patted-glance": "/characters/xiaoman/morph-patted-glance.png",
+    "patted-patted-writing": "/characters/xiaoman/morph-patted-patted-writing.png",
+    "patted-poked-writing": "/characters/xiaoman/morph-patted-poked-writing.png",
+    "patted-poked": "/characters/xiaoman/morph-patted-poked.png",
+    "patted-reading": "/characters/xiaoman/morph-patted-reading.png",
+    "patted-writing-glance": "/characters/xiaoman/morph-patted-writing-glance.png",
+    "patted-writing-patted": "/characters/xiaoman/morph-patted-writing-patted.png",
+    "patted-writing-poked-writing": "/characters/xiaoman/morph-patted-writing-poked-writing.png",
+    "patted-writing-poked": "/characters/xiaoman/morph-patted-writing-poked.png",
+    "patted-writing-reading": "/characters/xiaoman/morph-patted-writing-reading.png",
+    "patted-writing-writing": "/characters/xiaoman/morph-patted-writing-writing.png",
+    "patted-writing": "/characters/xiaoman/morph-patted-writing.png",
+    "poked-glance": "/characters/xiaoman/morph-poked-glance.png",
+    "poked-patted-writing": "/characters/xiaoman/morph-poked-patted-writing.png",
+    "poked-patted": "/characters/xiaoman/morph-poked-patted.png",
+    "poked-poked-writing": "/characters/xiaoman/morph-poked-poked-writing.png",
+    "poked-reading": "/characters/xiaoman/morph-poked-reading.png",
+    "poked-writing-glance": "/characters/xiaoman/morph-poked-writing-glance.png",
+    "poked-writing-patted-writing": "/characters/xiaoman/morph-poked-writing-patted-writing.png",
+    "poked-writing-patted": "/characters/xiaoman/morph-poked-writing-patted.png",
+    "poked-writing-poked": "/characters/xiaoman/morph-poked-writing-poked.png",
+    "poked-writing-reading": "/characters/xiaoman/morph-poked-writing-reading.png",
+    "poked-writing-writing": "/characters/xiaoman/morph-poked-writing-writing.png",
+    "poked-writing": "/characters/xiaoman/morph-poked-writing.png",
+    "reading-glance": "/characters/xiaoman/morph-reading-glance.png",
+    "reading-lay-1": "/characters/xiaoman/morph-reading-lay-1.png",
+    "reading-patted-writing": "/characters/xiaoman/morph-reading-patted-writing.png",
+    "reading-patted": "/characters/xiaoman/morph-reading-patted.png",
+    "reading-poked-writing": "/characters/xiaoman/morph-reading-poked-writing.png",
+    "reading-poked": "/characters/xiaoman/morph-reading-poked.png",
+    "reading-sip-1": "/characters/xiaoman/morph-reading-sip-1.png",
+    "reading-writing": "/characters/xiaoman/morph-reading-writing.png",
+    "sip-1-reading": "/characters/xiaoman/morph-sip-1-reading.png",
+    "sip-1-sip-2": "/characters/xiaoman/morph-sip-1-sip-2.png",
+    "sip-2-sip-1": "/characters/xiaoman/morph-sip-2-sip-1.png",
+    "sip-2-sip-3": "/characters/xiaoman/morph-sip-2-sip-3.png",
+    "sip-3-sip-2": "/characters/xiaoman/morph-sip-3-sip-2.png",
+    "sip-3-sip-4": "/characters/xiaoman/morph-sip-3-sip-4.png",
+    "sip-4-sip-3": "/characters/xiaoman/morph-sip-4-sip-3.png",
+    "sip-4-sip-5": "/characters/xiaoman/morph-sip-4-sip-5.png",
+    "sip-5-sip-4": "/characters/xiaoman/morph-sip-5-sip-4.png",
+    "sip-5-sip-6": "/characters/xiaoman/morph-sip-5-sip-6.png",
+    "sip-6-sip-5": "/characters/xiaoman/morph-sip-6-sip-5.png",
+    "sip-6-sip-7": "/characters/xiaoman/morph-sip-6-sip-7.png",
+    "sip-7-sip-6": "/characters/xiaoman/morph-sip-7-sip-6.png",
+    "sip-7-sip-8": "/characters/xiaoman/morph-sip-7-sip-8.png",
+    "sip-8-sip-7": "/characters/xiaoman/morph-sip-8-sip-7.png",
+    "sip-8-sip-9": "/characters/xiaoman/morph-sip-8-sip-9.png",
+    "sip-9-sip-8": "/characters/xiaoman/morph-sip-9-sip-8.png",
+    "writing-glance": "/characters/xiaoman/morph-writing-glance.png",
+    "writing-lay": "/characters/xiaoman/morph-writing-lay.png",
+    "writing-patted-writing": "/characters/xiaoman/morph-writing-patted-writing.png",
+    "writing-patted": "/characters/xiaoman/morph-writing-patted.png",
+    "writing-poked-writing": "/characters/xiaoman/morph-writing-poked-writing.png",
+    "writing-poked": "/characters/xiaoman/morph-writing-poked.png",
+    "writing-reading": "/characters/xiaoman/morph-writing-reading.png"
+  },
+  "guided": [],
+  "sequences": {
+    "doze": {
+      "frames": [
+        "reading",
+        "lay-1",
+        "doze-1",
+        "doze-2",
+        "asleep"
+      ],
+      "stepMs": 750
+    },
+    "sip": {
+      "frames": [
+        "reading",
+        "sip-1",
+        "sip-2",
+        "sip-3",
+        "sip-4",
+        "sip-5",
+        "sip-6",
+        "sip-7",
+        "sip-8",
+        "sip-9"
+      ],
+      "stepMs": 340,
+      "holdMs": 1600,
+      "back": true
+    },
+    "write": {
+      "frames": [
+        "reading",
+        "lay-1",
+        "lay",
+        "writing"
+      ],
+      "stepMs": 380
+    }
+  },
+  "placement": {
+    "origin": [
+      382.77,
+      96.52
+    ],
+    "scale": 0.57417
+  }
+}

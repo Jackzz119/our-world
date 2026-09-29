@@ -1,8 +1,8 @@
 {
   "version": 2,
   "canvas": {
-    "w": 1382,
-    "h": 1015
+    "w": 1480,
+    "h": 1019
   },
   "grid": 24,
   "flowFormat": "rgb12",
@@ -26,12 +26,6 @@
       "closed": "/characters/ayu/writing-closed.webp",
       "idle": "/characters/ayu/idle-writing.png"
     },
-    "sip": {
-      "slow": false,
-      "open": "/characters/ayu/sip-open.webp",
-      "closed": "/characters/ayu/sip-closed.webp",
-      "idle": "/characters/ayu/idle-sip.png"
-    },
     "asleep": {
       "slow": true,
       "open": "/characters/ayu/asleep-open.webp",
@@ -46,77 +40,230 @@
       "slow": false,
       "open": "/characters/ayu/poked-open.webp",
       "idle": "/characters/ayu/idle-poked.png"
+    },
+    "doze-1": {
+      "slow": false,
+      "open": "/characters/ayu/doze-1-open.webp",
+      "idle": "/characters/ayu/idle-doze-1.png"
+    },
+    "doze-2": {
+      "slow": false,
+      "open": "/characters/ayu/doze-2-open.webp",
+      "idle": "/characters/ayu/idle-doze-2.png"
+    },
+    "sip-1": {
+      "slow": false,
+      "open": "/characters/ayu/sip-1-open.webp",
+      "idle": "/characters/ayu/idle-sip-1.png"
+    },
+    "sip-2": {
+      "slow": false,
+      "open": "/characters/ayu/sip-2-open.webp",
+      "idle": "/characters/ayu/idle-sip-2.png"
+    },
+    "sip-3": {
+      "slow": false,
+      "holds": {
+        "mug": [
+          1,
+          0
+        ]
+      },
+      "open": "/characters/ayu/sip-3-open.webp",
+      "idle": "/characters/ayu/idle-sip-3.png"
+    },
+    "sip-4": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "holds": {
+        "mug": [
+          0,
+          -132
+        ]
+      },
+      "open": "/characters/ayu/sip-4-open.webp",
+      "idle": "/characters/ayu/idle-sip-4.png"
+    },
+    "sip-5": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/ayu/sip-5-open.webp",
+      "idle": "/characters/ayu/idle-sip-5.png"
+    },
+    "sip-6": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/ayu/sip-6-open.webp",
+      "idle": "/characters/ayu/idle-sip-6.png"
+    },
+    "sip-7": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/ayu/sip-7-open.webp",
+      "idle": "/characters/ayu/idle-sip-7.png"
+    },
+    "sip-8": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/ayu/sip-8-open.webp",
+      "idle": "/characters/ayu/idle-sip-8.png"
+    },
+    "sip-9": {
+      "slow": false,
+      "hides": [
+        "mug"
+      ],
+      "open": "/characters/ayu/sip-9-open.webp",
+      "closed": "/characters/ayu/sip-9-closed.webp",
+      "idle": "/characters/ayu/idle-sip-9.png"
+    },
+    "lay-1": {
+      "slow": false,
+      "open": "/characters/ayu/lay-1-open.webp",
+      "idle": "/characters/ayu/idle-lay-1.png"
+    },
+    "lay": {
+      "slow": false,
+      "open": "/characters/ayu/lay-open.webp",
+      "idle": "/characters/ayu/idle-lay.png"
+    },
+    "patted-writing": {
+      "slow": false,
+      "open": "/characters/ayu/patted-writing-open.webp",
+      "idle": "/characters/ayu/idle-patted-writing.png"
+    },
+    "poked-writing": {
+      "slow": false,
+      "open": "/characters/ayu/poked-writing-open.webp",
+      "idle": "/characters/ayu/idle-poked-writing.png"
     }
   },
   "morphs": {
-    "asleep-glance": "/characters/ayu/morph-asleep-glance.png",
-    "asleep-patted": "/characters/ayu/morph-asleep-patted.png",
-    "asleep-poked": "/characters/ayu/morph-asleep-poked.png",
-    "asleep-reading": "/characters/ayu/morph-asleep-reading.png",
-    "asleep-sip": "/characters/ayu/morph-asleep-sip.png",
-    "asleep-writing": "/characters/ayu/morph-asleep-writing.png",
-    "glance-asleep": "/characters/ayu/morph-glance-asleep.png",
+    "asleep-doze-2": "/characters/ayu/morph-asleep-doze-2.png",
+    "doze-1-doze-2": "/characters/ayu/morph-doze-1-doze-2.png",
+    "doze-1-lay-1": "/characters/ayu/morph-doze-1-lay-1.png",
+    "doze-2-asleep": "/characters/ayu/morph-doze-2-asleep.png",
+    "doze-2-doze-1": "/characters/ayu/morph-doze-2-doze-1.png",
+    "glance-patted-writing": "/characters/ayu/morph-glance-patted-writing.png",
     "glance-patted": "/characters/ayu/morph-glance-patted.png",
+    "glance-poked-writing": "/characters/ayu/morph-glance-poked-writing.png",
     "glance-poked": "/characters/ayu/morph-glance-poked.png",
     "glance-reading": "/characters/ayu/morph-glance-reading.png",
-    "glance-sip": "/characters/ayu/morph-glance-sip.png",
     "glance-writing": "/characters/ayu/morph-glance-writing.png",
-    "patted-asleep": "/characters/ayu/morph-patted-asleep.png",
+    "lay-1-doze-1": "/characters/ayu/morph-lay-1-doze-1.png",
+    "lay-1-lay": "/characters/ayu/morph-lay-1-lay.png",
+    "lay-1-reading": "/characters/ayu/morph-lay-1-reading.png",
+    "lay-lay-1": "/characters/ayu/morph-lay-lay-1.png",
     "patted-glance": "/characters/ayu/morph-patted-glance.png",
+    "patted-patted-writing": "/characters/ayu/morph-patted-patted-writing.png",
+    "patted-poked-writing": "/characters/ayu/morph-patted-poked-writing.png",
     "patted-poked": "/characters/ayu/morph-patted-poked.png",
     "patted-reading": "/characters/ayu/morph-patted-reading.png",
-    "patted-sip": "/characters/ayu/morph-patted-sip.png",
+    "patted-writing-glance": "/characters/ayu/morph-patted-writing-glance.png",
+    "patted-writing-patted": "/characters/ayu/morph-patted-writing-patted.png",
+    "patted-writing-poked-writing": "/characters/ayu/morph-patted-writing-poked-writing.png",
+    "patted-writing-poked": "/characters/ayu/morph-patted-writing-poked.png",
+    "patted-writing-reading": "/characters/ayu/morph-patted-writing-reading.png",
+    "patted-writing-writing": "/characters/ayu/morph-patted-writing-writing.png",
     "patted-writing": "/characters/ayu/morph-patted-writing.png",
-    "poked-asleep": "/characters/ayu/morph-poked-asleep.png",
     "poked-glance": "/characters/ayu/morph-poked-glance.png",
+    "poked-patted-writing": "/characters/ayu/morph-poked-patted-writing.png",
     "poked-patted": "/characters/ayu/morph-poked-patted.png",
+    "poked-poked-writing": "/characters/ayu/morph-poked-poked-writing.png",
     "poked-reading": "/characters/ayu/morph-poked-reading.png",
-    "poked-sip": "/characters/ayu/morph-poked-sip.png",
+    "poked-writing-glance": "/characters/ayu/morph-poked-writing-glance.png",
+    "poked-writing-patted-writing": "/characters/ayu/morph-poked-writing-patted-writing.png",
+    "poked-writing-patted": "/characters/ayu/morph-poked-writing-patted.png",
+    "poked-writing-poked": "/characters/ayu/morph-poked-writing-poked.png",
+    "poked-writing-reading": "/characters/ayu/morph-poked-writing-reading.png",
+    "poked-writing-writing": "/characters/ayu/morph-poked-writing-writing.png",
     "poked-writing": "/characters/ayu/morph-poked-writing.png",
-    "reading-asleep": "/characters/ayu/morph-reading-asleep.png",
     "reading-glance": "/characters/ayu/morph-reading-glance.png",
+    "reading-lay-1": "/characters/ayu/morph-reading-lay-1.png",
+    "reading-patted-writing": "/characters/ayu/morph-reading-patted-writing.png",
     "reading-patted": "/characters/ayu/morph-reading-patted.png",
+    "reading-poked-writing": "/characters/ayu/morph-reading-poked-writing.png",
     "reading-poked": "/characters/ayu/morph-reading-poked.png",
-    "reading-sip": "/characters/ayu/morph-reading-sip.png",
+    "reading-sip-1": "/characters/ayu/morph-reading-sip-1.png",
     "reading-writing": "/characters/ayu/morph-reading-writing.png",
-    "sip-asleep": "/characters/ayu/morph-sip-asleep.png",
-    "sip-glance": "/characters/ayu/morph-sip-glance.png",
-    "sip-patted": "/characters/ayu/morph-sip-patted.png",
-    "sip-poked": "/characters/ayu/morph-sip-poked.png",
-    "sip-reading": "/characters/ayu/morph-sip-reading.png",
-    "sip-writing": "/characters/ayu/morph-sip-writing.png",
-    "writing-asleep": "/characters/ayu/morph-writing-asleep.png",
+    "sip-1-reading": "/characters/ayu/morph-sip-1-reading.png",
+    "sip-1-sip-2": "/characters/ayu/morph-sip-1-sip-2.png",
+    "sip-2-sip-1": "/characters/ayu/morph-sip-2-sip-1.png",
+    "sip-2-sip-3": "/characters/ayu/morph-sip-2-sip-3.png",
+    "sip-3-sip-2": "/characters/ayu/morph-sip-3-sip-2.png",
+    "sip-3-sip-4": "/characters/ayu/morph-sip-3-sip-4.png",
+    "sip-4-sip-3": "/characters/ayu/morph-sip-4-sip-3.png",
+    "sip-4-sip-5": "/characters/ayu/morph-sip-4-sip-5.png",
+    "sip-5-sip-4": "/characters/ayu/morph-sip-5-sip-4.png",
+    "sip-5-sip-6": "/characters/ayu/morph-sip-5-sip-6.png",
+    "sip-6-sip-5": "/characters/ayu/morph-sip-6-sip-5.png",
+    "sip-6-sip-7": "/characters/ayu/morph-sip-6-sip-7.png",
+    "sip-7-sip-6": "/characters/ayu/morph-sip-7-sip-6.png",
+    "sip-7-sip-8": "/characters/ayu/morph-sip-7-sip-8.png",
+    "sip-8-sip-7": "/characters/ayu/morph-sip-8-sip-7.png",
+    "sip-8-sip-9": "/characters/ayu/morph-sip-8-sip-9.png",
+    "sip-9-sip-8": "/characters/ayu/morph-sip-9-sip-8.png",
     "writing-glance": "/characters/ayu/morph-writing-glance.png",
+    "writing-patted-writing": "/characters/ayu/morph-writing-patted-writing.png",
     "writing-patted": "/characters/ayu/morph-writing-patted.png",
+    "writing-poked-writing": "/characters/ayu/morph-writing-poked-writing.png",
     "writing-poked": "/characters/ayu/morph-writing-poked.png",
-    "writing-reading": "/characters/ayu/morph-writing-reading.png",
-    "writing-sip": "/characters/ayu/morph-writing-sip.png"
+    "writing-reading": "/characters/ayu/morph-writing-reading.png"
   },
   "guided": [
-    "asleep-glance",
-    "asleep-patted",
-    "asleep-poked",
-    "asleep-reading",
-    "asleep-sip",
-    "asleep-writing",
-    "glance-asleep",
-    "patted-asleep",
-    "patted-sip",
-    "poked-asleep",
-    "poked-sip",
-    "reading-asleep",
-    "reading-sip",
-    "sip-asleep",
-    "sip-patted",
-    "sip-poked",
-    "sip-reading",
-    "sip-writing",
-    "writing-asleep",
-    "writing-sip"
+    "doze-2-asleep"
   ],
+  "sequences": {
+    "doze": {
+      "frames": [
+        "reading",
+        "lay-1",
+        "doze-1",
+        "doze-2",
+        "asleep"
+      ],
+      "stepMs": 750
+    },
+    "sip": {
+      "frames": [
+        "reading",
+        "sip-1",
+        "sip-2",
+        "sip-3",
+        "sip-4",
+        "sip-5",
+        "sip-6",
+        "sip-7",
+        "sip-8",
+        "sip-9"
+      ],
+      "stepMs": 340,
+      "holdMs": 1600,
+      "back": true
+    },
+    "write": {
+      "frames": [
+        "reading",
+        "lay-1",
+        "lay",
+        "writing"
+      ],
+      "stepMs": 380
+    }
+  },
   "placement": {
     "origin": [
-      345.44,
+      319.61,
       92.83
     ],
     "scale": 0.57417

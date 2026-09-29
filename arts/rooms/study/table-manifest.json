@@ -57,6 +57,33 @@
     "vinyl": {
       "src": "/rooms/study/vinyl.webp",
       "size": 1254
+    },
+    "fg-ayu": {
+      "src": "/rooms/study/fg-ayu.webp",
+      "box": {
+        "x": 295,
+        "y": 720,
+        "w": 909,
+        "h": 304
+      }
+    },
+    "mug-xiaoman": {
+      "src": "/rooms/study/mug-xiaoman.webp",
+      "box": {
+        "x": 944,
+        "y": 583,
+        "w": 133,
+        "h": 125
+      }
+    },
+    "jacket-xiaoman": {
+      "src": "/rooms/study/jacket-xiaoman.webp",
+      "box": {
+        "x": 443,
+        "y": 377,
+        "w": 620,
+        "h": 279
+      }
     }
   },
   "alpha": [
@@ -155,6 +182,24 @@
       "alpha": true,
       "transparent_share": 0.556,
       "soft_edge_share": 0.0112
+    },
+    {
+      "file": "fg-his-hands.png",
+      "alpha": true,
+      "transparent_share": 0.912,
+      "soft_edge_share": 0.0035
+    },
+    {
+      "file": "prop-xiaoman-mug.png",
+      "alpha": true,
+      "transparent_share": 0.992,
+      "soft_edge_share": 0.0012
+    },
+    {
+      "file": "prop-xiaoman-cardigan.png",
+      "alpha": true,
+      "transparent_share": 0.917,
+      "soft_edge_share": 0.0034
     }
   ],
   "base": {

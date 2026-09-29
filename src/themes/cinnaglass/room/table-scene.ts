@@ -135,7 +135,11 @@ export async function buildTableScene(
     const plateUrls = [...new Set(lampPlates.flatMap((p) => (p.off ? [p.on, p.off] : [p.on])))];
     const foreground = room.foreground[cast.viewer];
     const jacket = room.traces.jacket?.[cast.partner];
-    const parts = [foreground, room.traces.mug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
+    const partnerMug = room.traces.mug?.[cast.partner];
+    const seat = room.seat[cast.partner];
+    const crop = room.crop[cast.partner];
+    if (!seat || !crop) throw new Error(`${room.id}: no seat for ${cast.partner}`);
+    const parts = [foreground, partnerMug, jacket, room.lamp?.chain].filter((p): p is PlatePart => !!p);
     // the plates and the rig weigh about the same; each half reports its own share
     let platesDone = 0;
     let rigDone = 0;
@@ -207,9 +211,19 @@ export async function buildTableScene(
     }
 
     const fades = createFadeQueue();
-    const director = createPartnerDirector(init.partner, random, performance.now());
+    // the rig's keyframe chains: the sip (reach, lift, drink, put it back), dozing off, and laying the
+    // book down to write; loadPartnerRig refuses a rig without the sip
+    const sequences = partnerRig.manifest.sequences ?? {};
+    const sip = sequences.sip as NonNullable<typeof sequences.sip>;
+    const director = createPartnerDirector(
+        init.partner,
+        random,
+        performance.now(),
+        { sip, doze: sequences.doze, write: sequences.write },
+        (pose) => pose in partnerRig.manifest.poses
+    );
     const partner = createPartnerLayer(
-        room.seat,
+        seat,
         partnerRig,
         random,
         {
@@ -226,9 +240,10 @@ export async function buildTableScene(
     );
     scene.addChild(partner.container);
 
-    const mugSprite = room.traces.mug ? partSprite(room.traces.mug) : null;
+    const mugSprite = partnerMug ? partSprite(partnerMug) : null;
     if (mugSprite) scene.addChild(mugSprite);
-    const partnerSteam = room.steam?.partner ? createSteamLayer(room.steam.partner, random) : null;
+    const partnerRim = room.steam?.partner?.[cast.partner];
+    const partnerSteam = partnerRim ? createSteamLayer(partnerRim, random) : null;
     if (partnerSteam) scene.addChild(partnerSteam.container);
 
     // the chain hangs from its pivot; rotating the holder swings it in place
@@ -244,7 +259,8 @@ export async function buildTableScene(
     // the viewer's own hands draw above everything painted on the plates
     const foregroundSprite = foreground ? partSprite(foreground) : null;
     if (foregroundSprite) front.addChild(foregroundSprite);
-    const viewerSteam = room.steam?.viewer ? createSteamLayer(room.steam.viewer, random) : null;
+    const viewerRim = room.steam?.viewer?.[cast.viewer];
+    const viewerSteam = viewerRim ? createSteamLayer(viewerRim, random) : null;
     if (viewerSteam) front.addChild(viewerSteam.container);
     for (const steam of [partnerSteam, viewerSteam]) if (steam && reduced) steam.container.visible = false;
 
@@ -361,15 +377,21 @@ export async function buildTableScene(
         rain.update(dt);
 
         const pose = director.update(now);
-        partner.show(pose, true);
+        partner.show(pose, true, director.transition());
         // every frame, reduced motion too: the layer owns the poses' opacity and the blinks
         partner.update(elapsed);
-        // the mug is in their hands while they sip
-        if (mugSprite) mugSprite.visible = pose !== 'sip';
+        // the mug rides along with their hand and leaves the table once it is drawn in it
+        const mug = partner.part('mug');
+        if (mugSprite && partnerMug) {
+            mugSprite.alpha = mug.alpha;
+            mugSprite.position.set(partnerMug.box.x + mug.dx, partnerMug.box.y + mug.dy);
+        }
 
         if (!reduced) {
             if (partnerSteam) {
-                partnerSteam.container.visible = pose !== 'sip';
+                // the steam goes wherever the mug goes, into the hand included
+                partnerSteam.container.alpha = mug.alpha;
+                partnerSteam.container.position.set(mug.dx, mug.dy);
                 partnerSteam.setStrength(partnerCupWarmth(now));
                 partnerSteam.update(dt);
             }
@@ -414,8 +436,8 @@ export async function buildTableScene(
         const s = Math.max((w + 2 * slackX) / baseW, (h + 2 * slackY) / baseH);
         root.scale.set(s);
         root.position.set(
-            clamp(w / 2 - room.crop.x * s, w - baseW * s + slackX, -slackX),
-            clamp(-room.crop.top * s, h - baseH * s + slackY, -slackY)
+            clamp(w / 2 - crop.x * s, w - baseW * s + slackX, -slackX),
+            clamp(-crop.top * s, h - baseH * s + slackY, -slackY)
         );
     };
     resize();
