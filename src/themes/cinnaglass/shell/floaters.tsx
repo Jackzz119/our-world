@@ -100,11 +100,15 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
     const dockRef = useRef<HTMLDivElement>(null);
     const [tab, setTab] = useState<MusicTab>('lyrics');
     const [detent, setDetent] = useState<SheetDetent>('half');
-    // opening again starts at half height (render-time adjustment, react.dev "previous renders")
+    const [immersive, setImmersive] = useState(false);
+    // opening again starts at half height on the main page (render-time adjustment, react.dev "previous renders")
     const [wasOpen, setWasOpen] = useState(open);
     if (open !== wasOpen) {
         setWasOpen(open);
-        if (open) setDetent('half');
+        if (open) {
+            setDetent('half');
+            setImmersive(false);
+        }
     }
     const dock = usePresence(open && visible && !compact, DOCK_EXIT_MS);
 
@@ -142,7 +146,11 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                     label="一起听"
                     expandable
                     detent={detent}
-                    onDetentChange={setDetent}
+                    onDetentChange={(next) => {
+                        setDetent(next);
+                        // the immersion needs the whole sheet; lowering it goes back to the main page
+                        if (next === 'half') setImmersive(false);
+                    }}
                     className="music-sheet"
                 >
                     <MusicPlayer
@@ -152,6 +160,8 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                         tab={tab}
                         onTab={setTab}
                         onNeedRoom={() => setDetent('full')}
+                        immersive={immersive}
+                        onImmersive={setImmersive}
                     />
                 </Sheet>
             ) : (
@@ -170,6 +180,8 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                                 tab={tab}
                                 onTab={setTab}
                                 onClose={closeDock}
+                                immersive={immersive}
+                                onImmersive={setImmersive}
                             />
                         </div>
                     )}

@@ -23,8 +23,10 @@
 }
 .mp-head h2 {
     margin: 0;
-    font-size: 17px;
-    font-weight: 600;
+    font-family: var(--ui-display);
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
 }
 .mp-place {
     flex: 1;
@@ -652,4 +654,156 @@
     .mp-lyric .mp-line:not(.on) {
         display: none;
     }
+}
+
+/* ---------- the lyrics preview is the door to the immersion ---------- */
+button.mp-lyric {
+    display: block;
+    width: calc(100% - 4px);
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: scale var(--dur-release) var(--ease-spring);
+}
+button.mp-lyric:disabled {
+    cursor: default;
+}
+button.mp-lyric .mp-line {
+    display: block;
+}
+button.mp-lyric:active:not(:disabled) {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+button.mp-lyric:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 3px;
+}
+.mp-lyrics-wrap {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+.mp-immerse.ui-icon-button {
+    position: absolute;
+    top: 6px;
+    right: 4px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-color: transparent;
+    background: rgb(255 255 255 / 0.06);
+}
+
+/* ---------- B3: immersive lyrics ---------- */
+.mp-immersive {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    animation: ow-fade-in var(--dur-panel) var(--ease-out) both;
+}
+/* the poster, blurred into the whole panel (the dock or the sheet is the positioned box) */
+.mp-imm-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    border-radius: 28px;
+    object-fit: cover;
+    filter: blur(38px) brightness(0.5) saturate(1.3);
+    opacity: 0.9;
+    pointer-events: none;
+    animation: mp-imm-bg 900ms var(--ease-out) both;
+}
+.music-sheet .mp-imm-bg {
+    border-radius: 28px 28px 0 0;
+}
+@keyframes mp-imm-bg {
+    from {
+        opacity: 0;
+        scale: 1.08;
+    }
+}
+.mp-imm-hd {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 2px 0 6px;
+}
+.mp-imm-art {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 8px 18px -8px #000c;
+}
+.mp-imm-hd .mp-info {
+    flex: 1;
+    min-width: 0;
+}
+.mp-imm-lines.mp-lyrics {
+    min-height: 0;
+    padding: 30vh 2px;
+    mask-image: linear-gradient(transparent, #000 18%, #000 80%, transparent);
+}
+.mp-imm-lines li {
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+}
+.mp-imm-lines button {
+    padding: 8px 10px;
+    color: rgb(255 248 235 / 0.5);
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.55;
+    transition:
+        color var(--dur-panel) ease,
+        font-size var(--dur-panel) var(--ease-out),
+        opacity var(--dur-panel) ease;
+}
+.mp-imm-lines button[data-past] {
+    opacity: 0.45;
+}
+.mp-imm-lines button[aria-current='true'] {
+    color: var(--ui-accent);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-shadow: 0 0 22px rgb(241 209 154 / 0.4);
+    scale: 1;
+}
+.mp-imm-ft {
+    padding-top: 4px;
+}
+.mp-imm-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+.mp-imm-time {
+    flex: 1;
+    color: var(--ui-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.mp-imm-time:last-child {
+    text-align: right;
+}
+.mp-immersive .mp-play {
+    width: 56px;
+    height: 56px;
+}
+:root[data-motion='reduced'] :is(.mp-imm-bg, .mp-imm-lines li) {
+    animation: ow-fade-in var(--dur-enter) ease both;
 }

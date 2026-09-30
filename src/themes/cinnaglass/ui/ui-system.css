@@ -1,5 +1,10 @@
 /* Adopted A/B materials and controls. Legacy diary tokens are deliberately untouched. */
 @import './motion.css';
+:root {
+    /* Display face for panel titles only (dialogs, docks, sheets, the entry loader); body copy stays
+       Noto Sans SC. The face has a single weight, so titles set 400: synthetic bold smears it. */
+    --ui-display: 'ZCOOL XiaoWei', 'Noto Serif SC', 'Songti SC', serif;
+}
 .ui-environment {
     --ui-tint: 63 64 72;
     --ui-top: 192 187 185;
@@ -168,8 +173,10 @@
 }
 .ui-dialog-header h2 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
+    font-family: var(--ui-display);
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
     color: var(--ui-text);
 }
 .ui-dialog .ui-dialog-header h2:focus-visible {

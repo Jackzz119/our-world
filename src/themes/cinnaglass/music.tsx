@@ -2,9 +2,13 @@
 // preview, transport), then 歌词 / 歌单 / 声音. The desktop dock and the phone
 // sheet render this same page; everything is the local generative playlist,
 // nothing here implies shared listening (ai/design_system/uiux/interaction.md §4).
+// Tapping the lyrics preview (or 沉浸 on the lyrics tab) swaps the page for the
+// immersive lyrics (concept B3): the poster blurred into the whole panel, the
+// words large, the current line lit; Esc or 退出沉浸 comes back.
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
     IClose,
+    IExpand,
     IHeart,
     IList,
     IMute,
@@ -12,6 +16,7 @@ import {
     IPlay,
     IRepeat,
     IRepeatOne,
+    IShrink,
     IShuffle,
     ISkipB,
     ISkipF,
@@ -45,14 +50,39 @@ type PlayerProps = {
     /** the phone sheet grows to full height when a tab needs the room */
     onNeedRoom?: () => void;
     onClose?: () => void;
+    /** the immersive lyrics page (B3) is showing instead of the main page */
+    immersive?: boolean;
+    onImmersive?: (open: boolean) => void;
 };
 
 // Playback controls stay independent of disclosure: closing the page never pauses.
-export function MusicPlayer({ player, spaceName, variant, tab, onTab, onNeedRoom, onClose }: PlayerProps) {
+export function MusicPlayer({
+    player,
+    spaceName,
+    variant,
+    tab,
+    onTab,
+    onNeedRoom,
+    onClose,
+    immersive = false,
+    onImmersive
+}: PlayerProps) {
     const openTab = (next: MusicTab) => {
         onTab(next);
         onNeedRoom?.();
     };
+    const immerse = onImmersive
+        ? () => {
+              onImmersive(true);
+              onNeedRoom?.();
+          }
+        : undefined;
+    if (immersive && onImmersive)
+        return (
+            <section className="mp" data-variant={variant} data-immersive aria-label="音乐播放器 · 沉浸歌词">
+                <ImmersiveLyrics player={player} onExit={() => onImmersive(false)} onClose={onClose} />
+            </section>
+        );
     return (
         <section className="mp" data-variant={variant} aria-label="音乐播放器">
             {variant === 'dock' && (
@@ -71,11 +101,11 @@ export function MusicPlayer({ player, spaceName, variant, tab, onTab, onNeedRoom
                     )}
                 </header>
             )}
-            <NowPlaying player={player} onList={() => openTab('list')} />
+            <NowPlaying player={player} onList={() => openTab('list')} onLyrics={immerse} />
             <MusicTabs tab={tab} onTab={openTab} />
             <div className="mp-panel" role="tabpanel" aria-label={TABS.find((t) => t.k === tab)?.label}>
                 {tab === 'lyrics' ? (
-                    <LyricsView player={player} />
+                    <LyricsView player={player} onImmersive={immerse} />
                 ) : tab === 'list' ? (
                     <Playlist player={player} />
                 ) : (
@@ -107,7 +137,16 @@ export function PosterArt({ player, className = '' }: { player: MusicPlayback; c
     );
 }
 
-function NowPlaying({ player, onList }: { player: MusicPlayback; onList: () => void }) {
+function NowPlaying({
+    player,
+    onList,
+    onLyrics
+}: {
+    player: MusicPlayback;
+    onList: () => void;
+    /** the preview opens the immersive lyrics */
+    onLyrics?: () => void;
+}) {
     const { track } = player;
     const line = lyricAt(track, player.pos);
     const current = track.lyrics[line];
@@ -148,16 +187,22 @@ function NowPlaying({ player, onList }: { player: MusicPlayback; onList: () => v
                     <IHeart size={20} fill={liked ? 'currentColor' : 'none'} />
                 </button>
             </div>
-            <div className="mp-lyric">
-                <p key={`${track.title}-${line}`} className="mp-line on">
+            <button
+                type="button"
+                className="mp-lyric"
+                onClick={onLyrics}
+                disabled={!onLyrics}
+                aria-label={`沉浸看歌词${current ? `：${current.text}` : ''}`}
+            >
+                <span key={`${track.title}-${line}`} className="mp-line on">
                     {current ? current.text : '♪'}
-                </p>
+                </span>
                 {next && (
-                    <p key={`${track.title}-${line}-next`} className="mp-line">
+                    <span key={`${track.title}-${line}-next`} className="mp-line">
                         {next.text}
-                    </p>
+                    </span>
                 )}
-            </div>
+            </button>
             <label className="mp-progress">
                 <span className="ow-sr">音景进度</span>
                 <input
@@ -271,9 +316,8 @@ function MusicTabs({ tab, onTab }: { tab: MusicTab; onTab: (tab: MusicTab) => vo
 }
 
 // Every line of the current track; the sung one is lit and kept in the middle, a tap jumps there.
-function LyricsView({ player }: { player: MusicPlayback }) {
-    const { track } = player;
-    const line = lyricAt(track, player.pos);
+// Keep the current line in the middle of a scrolling lyrics list.
+function useCenteredLine(line: number, title: string) {
     const listRef = useRef<HTMLOListElement>(null);
     useEffect(() => {
         const list = listRef.current;
@@ -283,23 +327,161 @@ function LyricsView({ player }: { player: MusicPlayback }) {
             top: el.offsetTop - list.clientHeight / 2 + el.clientHeight / 2,
             behavior: motionReduced() ? 'auto' : 'smooth'
         });
-    }, [line, track.title]);
+    }, [line, title]);
+    return listRef;
+}
+
+// Every line; tap one to jump there.
+function LyricLines({ player, line }: { player: MusicPlayback; line: number }) {
+    const { track } = player;
+    return track.lyrics.map((l, i) => (
+        <li key={`${track.title}-${l.t}`}>
+            <button
+                type="button"
+                aria-current={i === line || undefined}
+                data-past={i < line || undefined}
+                onClick={() => player.seek(l.t)}
+                title={`跳到 ${musicTime(l.t)}`}
+            >
+                {l.text}
+            </button>
+        </li>
+    ));
+}
+
+function LyricsView({ player, onImmersive }: { player: MusicPlayback; onImmersive?: () => void }) {
+    const { track } = player;
+    const line = lyricAt(track, player.pos);
+    const listRef = useCenteredLine(line, track.title);
     return (
-        <ol ref={listRef} className="mp-lyrics" aria-label={`${track.title} 的歌词`}>
-            {track.lyrics.map((l, i) => (
-                <li key={`${track.title}-${l.t}`}>
+        <div className="mp-lyrics-wrap">
+            <ol ref={listRef} className="mp-lyrics" aria-label={`${track.title} 的歌词`}>
+                <LyricLines player={player} line={line} />
+            </ol>
+            {onImmersive && (
+                <button
+                    type="button"
+                    className="ui-icon-button mp-immerse"
+                    aria-label="沉浸看歌词"
+                    onClick={onImmersive}
+                >
+                    <IExpand size={18} />
+                </button>
+            )}
+        </div>
+    );
+}
+
+// B3: the poster blurred into the whole panel, the words large and the current line lit,
+// a compact now-playing strip underneath. Escape leaves the immersion before the player.
+function ImmersiveLyrics({
+    player,
+    onExit,
+    onClose
+}: {
+    player: MusicPlayback;
+    onExit: () => void;
+    onClose?: () => void;
+}) {
+    const { track } = player;
+    const line = lyricAt(track, player.pos);
+    const listRef = useCenteredLine(line, track.title);
+    const pct = track.dur ? Math.min(100, (player.pos / track.dur) * 100) : 0;
+    return (
+        <div
+            className="mp-immersive"
+            data-esc-own
+            onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onExit();
+                }
+            }}
+        >
+            <img
+                key={track.title}
+                className="mp-imm-bg"
+                src={track.poster}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+            />
+            <header className="mp-imm-hd" data-sheet-grab>
+                <img className="mp-imm-art" src={track.poster} alt="" draggable={false} />
+                <div className="mp-info">
+                    <h3 key={track.title} className="mp-title">
+                        {track.title}
+                    </h3>
+                    <p className="mp-note">{track.artist} · 本机音景</p>
+                </div>
+                <button type="button" className="ui-icon-button mp-ghost" aria-label="退出沉浸" onClick={onExit}>
+                    <IShrink size={19} />
+                </button>
+                {onClose && (
+                    <button type="button" className="ui-icon-button mp-ghost" aria-label="收起播放器" onClick={onClose}>
+                        <IClose size={18} />
+                    </button>
+                )}
+            </header>
+            <ol ref={listRef} className="mp-lyrics mp-imm-lines" aria-label={`${track.title} 的歌词`}>
+                <LyricLines player={player} line={line} />
+            </ol>
+            <footer className="mp-imm-ft">
+                <label className="mp-progress">
+                    <span className="ow-sr">音景进度</span>
+                    <input
+                        type="range"
+                        min={0}
+                        max={track.dur}
+                        step={1}
+                        value={Math.floor(player.pos)}
+                        style={{ '--p': `${pct}%` } as CSSProperties}
+                        onChange={(event) => player.seek(Number(event.target.value))}
+                        aria-valuetext={`${musicTime(player.pos)}，总时长 ${musicTime(track.dur)}`}
+                    />
+                </label>
+                <div className="mp-imm-row">
+                    <span className="mp-imm-time" aria-hidden="true">
+                        {musicTime(player.pos)}
+                    </span>
                     <button
                         type="button"
-                        aria-current={i === line || undefined}
-                        data-past={i < line || undefined}
-                        onClick={() => player.seek(l.t)}
-                        title={`跳到 ${musicTime(l.t)}`}
+                        className="ui-icon-button mp-ghost mp-skip"
+                        onClick={player.prev}
+                        aria-label="上一首"
                     >
-                        {l.text}
+                        <ISkipB size={22} />
                     </button>
-                </li>
-            ))}
-        </ol>
+                    <button
+                        type="button"
+                        className="ui-icon-button ui-button-primary mp-play"
+                        data-playing={player.playing || undefined}
+                        onClick={() => void player.toggle()}
+                        disabled={player.starting}
+                        aria-label={player.starting ? '正在打开声音' : player.playing ? '暂停' : '播放'}
+                    >
+                        <span className="mp-glyph play" aria-hidden="true">
+                            <IPlay size={24} />
+                        </span>
+                        <span className="mp-glyph pause" aria-hidden="true">
+                            <IPause size={24} />
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        className="ui-icon-button mp-ghost mp-skip"
+                        onClick={player.next}
+                        aria-label="下一首"
+                    >
+                        <ISkipF size={22} />
+                    </button>
+                    <span className="mp-imm-time" aria-hidden="true">
+                        {musicTime(track.dur)}
+                    </span>
+                </div>
+            </footer>
+        </div>
     );
 }
 

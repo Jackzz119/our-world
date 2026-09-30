@@ -12,6 +12,7 @@
         "format": "pnpm exec prettier . --write"
     },
     "dependencies": {
+        "@fontsource/zcool-xiaowei": "5.3.0",
         "@supabase/supabase-js": "^2.98.0",
         "pixi-filters": "^6.1.5",
         "pixi.js": "^8.19.0",
