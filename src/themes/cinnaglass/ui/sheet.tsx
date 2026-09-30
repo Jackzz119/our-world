@@ -3,11 +3,13 @@
 // stops below the partner, so TA stays in full view; navigation stays on top of
 // it and the scene stays live (non-modal). Drag the grip or the header to
 // change height or dismiss (a flick is enough), Esc closes, focus returns to
-// the opener. Children mark their draggable header strip with data-sheet-grab.
+// the opener. Children mark their draggable header strip with data-sheet-grab,
+// and a part that handles Escape itself (an open composer) with data-esc-own.
 // Concept: ai/design_system/codex-visual/ui-motion/ui-motion.md (A1).
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { usePanelFocus } from '@/themes/cinnaglass/ui/use-panel-focus';
 import '@/themes/cinnaglass/ui/sheet.css';
 
 export type SheetDetent = 'half' | 'full';
@@ -22,6 +24,8 @@ type SheetProps = {
     /** controlled height (expandable sheets); uncontrolled starts at 'half' */
     detent?: SheetDetent;
     onDetentChange?: (detent: SheetDetent) => void;
+    /** children stay mounted (hidden) while closed, so drafts and scroll survive */
+    keepMounted?: boolean;
     className?: string;
     children: ReactNode;
 };
@@ -45,6 +49,7 @@ export function Sheet({
     expandable = false,
     detent: controlled,
     onDetentChange,
+    keepMounted = false,
     className = '',
     children
 }: SheetProps) {
@@ -92,7 +97,7 @@ export function Sheet({
     // Place the sheet: slide up from below on mount, to the detent, or away when closing.
     useLayoutEffect(() => {
         const el = ref.current;
-        if (!el) {
+        if (!el || !mounted) {
             entered.current = false;
             return;
         }
@@ -117,23 +122,9 @@ export function Sheet({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted, closing, detent, viewportTick]);
 
-    // Keyboard users land in the panel; touch users keep their place. Focus goes back on close.
-    useEffect(() => {
-        if (!open) return;
-        const opener = document.activeElement;
-        const el = ref.current;
-        if (matchMedia('(pointer: fine)').matches) el?.focus({ preventScroll: true });
-        return () => {
-            if (
-                opener instanceof HTMLElement &&
-                opener.isConnected &&
-                (document.activeElement === document.body || el?.contains(document.activeElement))
-            )
-                opener.focus({ preventScroll: true });
-        };
-    }, [open]);
+    usePanelFocus(open, ref);
 
-    if (!mounted) return null;
+    if (!mounted && !keepMounted) return null;
 
     // Drags start on the grip or any [data-sheet-grab] strip (never on a control inside it), and only
     // take the pointer once it has moved, so taps, sliders and list scrolling keep working.
@@ -214,14 +205,16 @@ export function Sheet({
             aria-modal="false"
             aria-label={label}
             tabIndex={-1}
-            data-state={closing ? 'closing' : 'open'}
+            hidden={!mounted}
+            inert={!mounted}
+            data-state={!mounted ? 'closed' : closing ? 'closing' : 'open'}
             data-detent={detent}
             onPointerDown={startDrag}
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
             onKeyDown={(event) => {
-                if (event.key === 'Escape') {
+                if (event.key === 'Escape' && !(event.target as Element).closest('[data-esc-own]')) {
                     event.preventDefault();
                     event.stopPropagation();
                     onClose();

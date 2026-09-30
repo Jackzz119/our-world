@@ -3,8 +3,8 @@
 // props. Navigation-only silhouettes live in shell/rail-icons.tsx, and no other
 // component may define an icon inline.
 // Zero-consumer exports kept on purpose (a redundant icon library is cheaper
-// than redrawing one): INote, IMapPin, IThermo, IChat, IShrink, ISmile, IGrid,
-// IWand, IBell, IDate, IMove, IUsers, IPencil, IMic, IMicOff.
+// than redrawing one): INote, IMapPin, IThermo, IChat, ISmile, IGrid,
+// IWand, IBell, IDate, IMove, IUsers, IMic, IMicOff.
 import type { ReactNode, SVGProps } from 'react';
 
 // Any <svg> prop, plus size (both dimensions), sw (stroke-width) and an optional

@@ -61,7 +61,7 @@ export function WorldSurfaces({
 }: WorldSurfacesProps) {
     return (
         <>
-            <SubScreen screen={tab} origin={origin} onClose={onClose} />
+            <SubScreen screen={tab} origin={origin} onClose={onClose} journalStyle={t.journalStyle} />
             <CalendarScreen
                 open={screen === 'calendar'}
                 onClose={onClose}

@@ -15,9 +15,8 @@ import { RoomScene } from '@/themes/cinnaglass/room/room-scene';
 import { WorldLoader } from '@/themes/cinnaglass/shell/world-loader';
 import { createLoadProgress } from '@/themes/cinnaglass/shell/load-progress';
 import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
-import { PhotoWall } from '@/themes/cinnaglass/surfaces/photo-wall';
-import { thumbPathOf } from '@/lib/storage';
-import type { FeedPost } from '@/types/feed';
+import { ObjectSurfaces } from '@/themes/cinnaglass/surfaces/object-surfaces';
+import { useFixtureFeed, fixtureThumbs } from './memory-feed';
 import '@/themes/cinnaglass/surfaces/object-surfaces.css';
 import '@/themes/cinnaglass/surfaces/collection-surfaces.css';
 import { Wishlist } from '@/themes/cinnaglass/surfaces/wishlist';
@@ -35,6 +34,8 @@ import type { World } from '@/types/feed';
 import LoginPage from '@/pages/LoginPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import '@/index.css';
+// the app loads the title face lazily from main.tsx; the fixture takes it up front so shots show it
+import '@fontsource/zcool-xiaowei/400.css';
 import '@/themes/cinnaglass/cinnaglass.css';
 import '@/themes/cinnaglass/ui/ui-system.css';
 import '@/themes/cinnaglass/shell/shell-layout.css';
@@ -80,29 +81,6 @@ const initialMessages: Msg[] = Array.from({ length: 18 }, (_, index) => ({
     kind: 'text'
 }));
 
-const photos: FeedPost[] = ['golden', 'twilight', 'night'].map((mood, index) => ({
-    post_id: `photo-${index}`,
-    world_id: 'layout-fixture',
-    author_id: 'fixture',
-    privacy: 'shared',
-    created_at: '2026-09-21T18:25:00Z',
-    updated_at: '2026-09-21T18:25:00Z',
-    unlock_cost: 0,
-    is_unlocked: true,
-    is_placeholder: false,
-    visible_content: null,
-    visible_images: [`${mood}.png`]
-}));
-// the study's empty-table plate for each hour stands in for photos
-const PLATE: Record<string, string> = {
-    golden: '/rooms/study/plate-golden-on.webp',
-    twilight: '/rooms/study/plate-twilight-on.webp',
-    night: '/rooms/study/plate-night-on-dry.webp'
-};
-const photoUrls = Object.fromEntries(
-    ['golden', 'twilight', 'night'].map((mood) => [thumbPathOf(`${mood}.png`), PLATE[mood]])
-);
-
 // Screen query selects a production surface without adding a product route or a visible test toolbar;
 // ?mood and ?weather pick the light, as for screenshots.
 export function MobileFixture() {
@@ -118,6 +96,7 @@ export function MobileFixture() {
     // html[data-motion] as the app publishes it (?motion=reduced forces the low-motion mode)
     useMotionPreference(query.get('motion') === 'reduced' ? 'reduced' : t.motion);
     const ref = useUiEnvironment(t.mood, true);
+    const memories = useFixtureFeed();
     const compact = useCompactUi();
     const [chat, setChat] = useState(initial === 'compact-chat');
     const [music, setMusic] = useState(initial === 'music');
@@ -217,6 +196,8 @@ export function MobileFixture() {
                             }
                             if (key === 'settings') setScreen('settings');
                             if (key === 'calendar') setScreen('calendar');
+                            if (key === 'journal') setScreen('journal');
+                            if (key === 'photos') setScreen('photos');
                         }}
                     />
                     <Ambience
@@ -277,18 +258,14 @@ export function MobileFixture() {
                 alarms={alarms}
                 setAlarms={setAlarms}
             />
-            {screen === 'photos' && (
-                <TaskDialog
-                    open
-                    onClose={close}
-                    title="照片墙"
-                    className="collection-task photos-task"
-                    description="把一起留下的瞬间，慢慢看。"
-                    wide
-                >
-                    <PhotoWall posts={photos} thumbUrls={photoUrls} />
-                </TaskDialog>
-            )}
+            {/* ?screen=journal | photos: the memory panel over a local feed (?journal=book: the old book) */}
+            <ObjectSurfaces
+                screen={screen === 'journal' ? 'timeline' : screen === 'photos' ? 'photos' : null}
+                onClose={close}
+                feed={memories}
+                thumbUrls={fixtureThumbs}
+                journalStyle={query.get('journal') === 'book' ? 'book' : 'scrapbook'}
+            />
             {screen === 'wishes' && (
                 <TaskDialog
                     open

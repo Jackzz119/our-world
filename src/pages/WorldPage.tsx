@@ -112,15 +112,28 @@ const WorldPage = () => {
         initialScreen: DEV_SURFACE,
         onToggleChat: () => {
             setChatOpen((open) => !open);
-            if (!chatOpen && compact) setMusicOpen(false);
+            if (!chatOpen && compact) {
+                setMusicOpen(false);
+                if (memoryOpen) closeSurface();
+            }
         },
         onToggleMusic: () => {
             const nextOpen = widgets.music === false || !musicOpen;
             setWidget('music', true);
             setMusicOpen(nextOpen);
             if (nextOpen && compact) setChatOpen(false);
+            // the player and the memory panel share the right-hand column (the bottom sheet on a phone)
+            if (nextOpen && memoryOpen) closeSurface();
+        },
+        onOpenTab: (opening) => {
+            if (opening === 'wishlist' || (opening === 'timeline' && t.journalStyle === 'book')) return;
+            setMusicOpen(false);
+            if (compact) setChatOpen(false);
         }
     });
+    // The journal and the photo wall open in the memory panel (the chestnut book in 书本 mode covers the room instead).
+    const memoryOpen = screen === 'photos' || (screen === 'timeline' && t.journalStyle !== 'book');
+    const bookOpen = screen === 'timeline' && t.journalStyle === 'book';
     // Four localStorage-backed slices; usePersistedState mirrors each one back
     // on every change (the read strategy stays per-slice — see the hook).
     const [profile, setProfile] = usePersistedState('ow-profile-v1', () => gload('ow-profile-v1', PROFILE_DEFAULT));
@@ -284,11 +297,7 @@ const WorldPage = () => {
                 chrome piece floats above it. The Discord-era sidebar/HUD
                 retired with the idle-companion pivot
                 (ai/design_system/uiux/uiux.md). */}
-            <div
-                className="stage"
-                data-reading={screen === 'timeline' || undefined}
-                style={{ position: 'absolute', inset: 0 }}
-            >
+            <div className="stage" data-reading={bookOpen || undefined} style={{ position: 'absolute', inset: 0 }}>
                 {inWorld ? (
                     // the entry loader below covers the chunk download too, so no fallback of its own
                     <Suspense fallback={null}>
@@ -296,7 +305,7 @@ const WorldPage = () => {
                             onProgress={room.progress.set}
                             onReady={() => setRoom((r) => ({ ...r, state: 'ready' }))}
                             onFailed={() => setRoom((r) => ({ ...r, state: 'failed' }))}
-                            active={screen === null || screen === 'timeline'}
+                            active={screen === null || screen === 'timeline' || memoryOpen}
                             mood={t.mood}
                             weatherKind={weather.kind}
                             onHotspot={onHotspot}
@@ -360,6 +369,7 @@ const WorldPage = () => {
                                 document.querySelector<HTMLButtonElement>('[data-nav-key="chat"]')?.focus();
                                 setChatOpen(true);
                                 if (compact) setMusicOpen(false);
+                                if (compact && memoryOpen) closeSurface();
                             }}
                         />
                         {widgets.anniv !== false && (
