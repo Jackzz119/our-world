@@ -10,6 +10,7 @@ const catalogs = {
     ],
     ui: [
         ['UI 在场景中的关系', 'uiux/uiux.md'],
+        ['UX：已采用的交互、动效与录屏', 'uiux/cinnaglass/ux/ux.md'],
         ['当前主题：导航、功能界面与日记', 'uiux/cinnaglass/ui-system.md'],
         ['手机版：竖屏、横屏与输入', 'uiux/mobile.md']
     ]
@@ -24,7 +25,8 @@ function element(tag, text, className) {
     return node;
 }
 
-// Resolve registered local images against their source document; GIFs play only on demand.
+// Resolve registered local images against their source document; GIFs and recordings
+// (a poster image linked to its .mp4, as UX documents register them) play only on demand.
 async function domain(title, file) {
     const url = new URL(file, location.href);
     const section = element('section', '', 'domain');
@@ -39,6 +41,12 @@ async function domain(title, file) {
         if (!response.ok) throw new Error('Source unavailable');
         const markdown = (await response.text()).replace(/```[\s\S]*?```/g, '');
         const images = [...markdown.matchAll(/!\[([^\]]*)\]\((?:<([^>]+)>|([^\s)]+))\)/g)];
+        const recordings = new Map(
+            [...markdown.matchAll(/\[!\[[^\]]*\]\(([^\s)]+)\)\]\(([^\s)]+\.mp4)\)/g)].map(([, poster, clip]) => [
+                new URL(poster, url).href,
+                new URL(clip, url).href
+            ])
+        );
         const gallery = element('div', '', 'gallery');
         const seen = new Set();
         for (const [, description, bracketed, plain] of images) {
@@ -58,7 +66,26 @@ async function domain(title, file) {
             link.target = '_blank';
             link.rel = 'noopener';
             link.append(image);
-            if (/\.gif$/i.test(assetUrl.pathname)) {
+            const clip = recordings.get(assetUrl.href);
+            if (clip) {
+                image.src = assetUrl.href;
+                const play = element('button', '播放录屏', 'play');
+                play.addEventListener('click', () => {
+                    const video = element('video');
+                    Object.assign(video, {
+                        src: clip,
+                        controls: true,
+                        autoplay: true,
+                        muted: true,
+                        loop: true,
+                        playsInline: true
+                    });
+                    video.style.width = '100%';
+                    holder.replaceChildren(video);
+                    video.focus();
+                });
+                holder.append(link, play);
+            } else if (/\.gif$/i.test(assetUrl.pathname)) {
                 const play = element('button', '播放已登记动图', 'play');
                 play.addEventListener('click', () => {
                     image.src = assetUrl.href;

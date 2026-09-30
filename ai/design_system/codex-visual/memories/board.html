@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>日记与照片墙比稿</title>
+        <link rel="stylesheet" href="/node_modules/@fontsource/zcool-xiaowei/400.css" />
+        <link rel="stylesheet" href="../ui-motion/board.css" />
+        <link rel="stylesheet" href="board.css" />
+    </head>
+    <body>
+        <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+            <defs>
+                <symbol id="i-home" viewBox="0 0 24 24">
+                    <path d="m2.2 10.5 9.1-8a1.1 1.1 0 0 1 1.4 0l9.1 8-2 2-1.2-1v9h-4.5v-7H9.9v7H5.4v-9l-1.2 1z" />
+                </symbol>
+                <symbol id="i-chat" viewBox="0 0 24 24">
+                    <path
+                        d="M20.4 16.8a9.7 9.7 0 0 0 1.1-4.7c0-5.6-4.2-9.6-9.5-9.6S2.5 6.4 2.5 11.8c0 2.1.7 4 1.8 5.4l-1 4.1 4.2-1.8c1.4.7 2.9 1 4.5 1 2.2 0 4-.6 5.6-1.8l4.4 1.7z"
+                    />
+                </symbol>
+                <symbol id="i-music" viewBox="0 0 24 24">
+                    <path d="M9 18V5.5L21 3v13M9 10l12-2.5" />
+                    <ellipse cx="5.5" cy="18.5" rx="3.5" ry="2.8" transform="rotate(-16 5.5 18.5)" />
+                    <ellipse cx="17.5" cy="16.5" rx="3.5" ry="2.8" transform="rotate(-16 17.5 16.5)" />
+                </symbol>
+                <symbol id="i-tools" viewBox="0 0 24 24">
+                    <path
+                        d="m13.7 3.3 4.1-1.1-3.2 4.2 3 3 4.2-3.2-1.1 4.1a6.3 6.3 0 0 1-7.7 3.4L5 21.5c-.6.6-1.5.6-2.1 0l-.4-.4c-.6-.6-.6-1.5 0-2.1l7.8-8a6.3 6.3 0 0 1 3.4-7.7Z"
+                    />
+                </symbol>
+                <symbol id="i-settings" viewBox="0 0 24 24">
+                    <path
+                        d="m10 2-.7 2.8-2 .9-2.5-.8-2 3.3 2 2.1v2.9l-2 2.1 2 3.3 2.5-.8 2 .9.7 2.8h4l.7-2.8 2-.9 2.5.8 2-3.3-2-2.1v-2.9l2-2.1-2-3.3-2.5.8-2-.9L14 2z"
+                    />
+                    <circle cx="12" cy="11.8" r="3.5" />
+                </symbol>
+                <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></symbol>
+                <symbol id="i-cal" viewBox="0 0 24 24">
+                    <rect x="4" y="5.5" width="16" height="14.5" rx="2.4" />
+                    <path d="M4 9.5h16M8.5 3.5v3.5M15.5 3.5v3.5" />
+                </symbol>
+                <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></symbol>
+                <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></symbol>
+                <symbol id="i-play" viewBox="0 0 24 24">
+                    <path d="M8 5.2c0-.6.6-.9 1.1-.6l9.4 6.2c.5.3.5 1 0 1.4l-9.4 6.2c-.5.3-1.1 0-1.1-.6V5.2z" />
+                </symbol>
+                <symbol id="i-pen" viewBox="0 0 24 24">
+                    <path d="M14.5 5.5l4 4M4 20l1-4L16 5a2 2 0 013 3L8 19l-4 1z" />
+                </symbol>
+            </defs>
+        </svg>
+
+        <h1 class="board-title">日记与照片墙比稿</h1>
+        <p class="board-note">
+            G1 手帐停靠栏与 H1 拍立得墙已实装，用实景截图展示（见
+            memories.md）；这里是没选的方向，同一张桌子、同一套玻璃和纸。
+        </p>
+
+        <div class="row">
+            <!-- G2 桌面长卷 · 底部托盘 -->
+            <figure>
+                <div class="ab desk twilight" id="G2">
+                    <div class="bg d-twilight"></div>
+                    <div class="glass amb" style="top: 24px; left: 38px">
+                        <span
+                            ><svg class="i"><use href="#i-cal" /></svg
+                        ></span>
+                    </div>
+                    <nav class="glass side-nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <section
+                        class="glass"
+                        style="
+                            left: 136px;
+                            right: 24px;
+                            bottom: 20px;
+                            height: 356px;
+                            padding: 16px 18px;
+                            --alpha: 0.72;
+                            border-radius: 28px;
+                        "
+                    >
+                        <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 18px">
+                            <div class="tabs2"><span class="on">日记</span><span>照片墙</span></div>
+                            <span class="muted" style="font-size: 12px">一起写下的 8 页 · 最近一页 9 月 28 日</span>
+                            <span style="flex: 1"></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-left" /></svg
+                            ></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-right" /></svg
+                            ></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-close" /></svg
+                            ></span>
+                        </div>
+                        <div
+                            style="
+                                position: relative;
+                                display: flex;
+                                gap: 18px;
+                                align-items: flex-start;
+                                padding: 0 4px;
+                            "
+                        >
+                            <span class="tag" style="writing-mode: vertical-rl; padding: 10px 4px; margin-top: 60px"
+                                >8 月</span
+                            >
+                            <article class="paper tape entry" style="--tape: #efc3cf; width: 230px; rotate: -0.6deg">
+                                <div class="hd">
+                                    <img src="/avatars/ayu.webp" alt="" /><b>阿屿</b><time>8.30 · 22:48</time>
+                                </div>
+                                <p class="hand" style="font-size: 15px">
+                                    今天加班到很晚，回来的时候你已经睡着了，桌上留着一杯还温着的牛奶……
+                                </p>
+                                <p class="muted" style="margin: 6px 0 0; color: var(--ink-theirs); font-size: 12px">
+                                    展开全文
+                                </p>
+                            </article>
+                            <span class="tag" style="writing-mode: vertical-rl; padding: 10px 4px; margin-top: 60px"
+                                >9 月</span
+                            >
+                            <article
+                                class="paper tape entry mine"
+                                style="--tape: #b9d3e6; width: 230px; rotate: 0.5deg"
+                            >
+                                <div class="hd">
+                                    <img src="/avatars/xiaoman.webp" alt="" /><b>我</b><time>9.12 · 20:10</time>
+                                </div>
+                                <span class="snap" style="height: 150px"
+                                    ><img src="/music/covers/lamp-radio.webp" alt=""
+                                /></span>
+                                <p class="hand" style="margin-top: 8px; font-size: 15px">
+                                    台灯换了新的灯泡，暖一点的那种。
+                                </p>
+                            </article>
+                            <article class="paper tape entry" style="--tape: #efe1b4; width: 230px; rotate: -0.4deg">
+                                <div class="hd">
+                                    <img src="/avatars/ayu.webp" alt="" /><b>阿屿</b><time>9.21 · 18:25</time>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+                                    <span class="snap" style="height: 96px"
+                                        ><img src="/rooms/study/plate-twilight-on.webp" alt=""
+                                    /></span>
+                                    <span class="snap" style="height: 96px"
+                                        ><img src="/rooms/study/plate-night-on-dry.webp" alt=""
+                                    /></span>
+                                </div>
+                                <p class="hand" style="margin-top: 8px; font-size: 15px">
+                                    今天的晚饭是你做的番茄炖牛腩，好吃到想写进日记。
+                                </p>
+                            </article>
+                            <article
+                                class="paper tape entry mine"
+                                style="--tape: #cfe2c4; width: 230px; rotate: 0.7deg"
+                            >
+                                <div class="hd">
+                                    <img src="/avatars/xiaoman.webp" alt="" /><b>我</b><time>9.28 · 22:05</time>
+                                </div>
+                                <span class="snap" style="height: 150px"
+                                    ><img src="/music/covers/first-snow.webp" alt=""
+                                /></span>
+                                <p class="hand" style="margin-top: 8px; font-size: 15px">初雪的预报说还要等很久……</p>
+                            </article>
+                            <div
+                                style="
+                                    flex: none;
+                                    width: 170px;
+                                    height: 262px;
+                                    display: grid;
+                                    place-items: center;
+                                    border: 1.5px dashed #ffffff40;
+                                    border-radius: 12px;
+                                    color: #dedbd4;
+                                    font-size: 14px;
+                                "
+                            >
+                                <span style="display: grid; justify-items: center; gap: 8px">
+                                    <svg class="i gold" style="width: 28px; height: 28px"><use href="#i-pen" /></svg
+                                    >写下一页
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+                    <span class="anno" data-n="1" style="left: 470px; top: 470px"
+                        >托盘只盖住我这边的桌面，TA 整个露在上面</span
+                    >
+                    <span class="anno" data-n="2" style="left: 900px; top: 470px"
+                        >横向长卷：滚轮横着翻，最新一页在最右</span
+                    >
+                </div>
+                <figcaption>
+                    <b>G2 桌面长卷 · 底部托盘</b
+                    >：日记像一卷手卷铺在桌上，横着往回翻；最像「摊开在桌上」。代价是长文要点开读、滚轮要横向映射，手机仍用
+                    G1 的竖向托盘。
+                </figcaption>
+            </figure>
+        </div>
+
+        <div class="row">
+            <!-- G3 日历手账 · 桌面 -->
+            <figure>
+                <div class="ab desk night" id="G3">
+                    <div class="bg d-night" style="filter: brightness(0.75)"></div>
+                    <div style="position: absolute; inset: 0; background: #0f101466"></div>
+                    <section
+                        class="glass"
+                        style="
+                            left: 50%;
+                            top: 50%;
+                            width: 1060px;
+                            height: 560px;
+                            transform: translate(-50%, -50%);
+                            padding: 22px 24px;
+                            border-radius: 28px;
+                            --alpha: 0.78;
+                            display: grid;
+                            grid-template-columns: 430px 1fr;
+                            gap: 26px;
+                        "
+                    >
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px">
+                                <span class="disp" style="font-size: 26px">2026 年 9 月</span>
+                                <span style="flex: 1"></span>
+                                <span class="btn round ghost"
+                                    ><svg class="i"><use href="#i-left" /></svg
+                                ></span>
+                                <span class="btn round ghost"
+                                    ><svg class="i"><use href="#i-right" /></svg
+                                ></span>
+                            </div>
+                            <div class="cal">
+                                <span class="wd">日</span><span class="wd">一</span><span class="wd">二</span
+                                ><span class="wd">三</span><span class="wd">四</span><span class="wd">五</span
+                                ><span class="wd">六</span> <span class="d off"><span>30</span></span
+                                ><span class="d off"><span>31</span></span> <span class="d"><span>1</span></span
+                                ><span class="d"><span>2</span></span
+                                ><span class="d"><span>3</span></span
+                                ><span class="d"><span>4</span></span
+                                ><span class="d"><span>5</span></span> <span class="d"><span>6</span></span
+                                ><span class="d"><span>7</span></span
+                                ><span class="d"><span>8</span></span
+                                ><span class="d dot"><span>9</span></span
+                                ><span class="d"><span>10</span></span
+                                ><span class="d"><span>11</span></span>
+                                <span class="d"><span>12</span><img src="/music/covers/lamp-radio.webp" alt="" /></span>
+                                <span class="d"><span>13</span></span
+                                ><span class="d"><span>14</span></span
+                                ><span class="d dot mine"><span>15</span></span
+                                ><span class="d"><span>16</span></span
+                                ><span class="d"><span>17</span></span
+                                ><span class="d"><span>18</span></span> <span class="d"><span>19</span></span
+                                ><span class="d"><span>20</span></span>
+                                <span class="d sel"
+                                    ><span>21</span><img src="/rooms/study/plate-twilight-on.webp" alt=""
+                                /></span>
+                                <span class="d"><span>22</span></span
+                                ><span class="d"><span>23</span></span
+                                ><span class="d"><span>24</span></span
+                                ><span class="d"><span>25</span></span> <span class="d"><span>26</span></span
+                                ><span class="d"><span>27</span></span>
+                                <span class="d"><span>28</span><img src="/music/covers/first-snow.webp" alt="" /></span>
+                                <span class="d"><span>29</span></span
+                                ><span class="d" style="box-shadow: inset 0 0 0 1.5px #f1d19a88"><span>30</span></span>
+                                <span class="d off"><span>1</span></span
+                                ><span class="d off"><span>2</span></span>
+                            </div>
+                            <p class="muted" style="margin: 16px 2px 0; font-size: 12px">
+                                有照片的日子直接铺成缩略图，只有字的日子一个点（蓝是我，粉是 TA）
+                            </p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; min-width: 0">
+                            <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px">
+                                <span class="disp" style="font-size: 30px">9 月 21 日</span>
+                                <span class="muted" style="font-size: 13px">星期一 · 1 篇</span>
+                                <span style="flex: 1"></span>
+                                <span class="btn primary" style="height: 40px"
+                                    ><svg class="i" style="margin-right: 6px"><use href="#i-pen" /></svg>写这一天</span
+                                >
+                                <span class="btn round ghost"
+                                    ><svg class="i"><use href="#i-close" /></svg
+                                ></span>
+                            </div>
+                            <article
+                                class="paper tape entry"
+                                style="--tape: #efc3cf; padding: 22px 22px 18px; rotate: -0.3deg"
+                            >
+                                <div class="hd">
+                                    <img src="/avatars/ayu.webp" alt="" /><b>阿屿</b><time>18:25</time>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+                                    <span class="snap" style="height: 200px"
+                                        ><img src="/rooms/study/plate-twilight-on.webp" alt=""
+                                    /></span>
+                                    <span class="snap" style="height: 200px"
+                                        ><img src="/rooms/study/plate-night-on-dry.webp" alt=""
+                                    /></span>
+                                </div>
+                                <p class="hand" style="margin-top: 14px; font-size: 18px">
+                                    今天的晚饭是你做的番茄炖牛腩，好吃到想写进日记。
+                                </p>
+                            </article>
+                            <p class="muted" style="margin: 18px 4px 0; font-size: 12px">
+                                ← 9 月 12 日　　　　　　　　　9 月 28 日 →
+                            </p>
+                        </div>
+                    </section>
+                    <span class="anno" data-n="1" style="left: 220px; top: 70px"
+                        >按日子找回忆：日历是主角，目录不再藏在按钮里</span
+                    >
+                </div>
+                <figcaption>
+                    <b>G3 日历手账</b
+                    >：左边一个月的日历，右边是那一天的纸页。适合「那天我们做了什么」的找法，也把没写的日子摆出来；代价是盖住整张桌子（读日记时看不到
+                    TA），日子稀疏时大半格子是空的。
+                </figcaption>
+            </figure>
+            <!-- G3 phone -->
+            <figure>
+                <div class="ab phone night" id="G3m">
+                    <div class="bg p-night"></div>
+                    <section class="glass sheet" style="top: 150px; padding-top: 22px">
+                        <span class="grab"></span>
+                        <div style="display: flex; align-items: center; margin: 2px 4px 12px">
+                            <span class="disp" style="font-size: 22px">2026 年 9 月</span><span style="flex: 1"></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-close" /></svg
+                            ></span>
+                        </div>
+                        <div style="display: flex; gap: 8px; overflow: hidden; margin: 0 -4px 14px; padding: 0 4px">
+                            <span
+                                class="liner"
+                                style="flex: none; width: 50px; padding: 8px 0; text-align: center; font-size: 12px"
+                                >二<br /><b style="font-size: 16px">15</b><br /><i
+                                    style="
+                                        display: inline-block;
+                                        width: 5px;
+                                        height: 5px;
+                                        border-radius: 50%;
+                                        background: #9ccbe4;
+                                    "
+                                ></i
+                            ></span>
+                            <span
+                                class="liner"
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    opacity: 0.5;
+                                "
+                                >三<br /><b style="font-size: 16px">16</b></span
+                            >
+                            <span
+                                class="liner"
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    opacity: 0.5;
+                                "
+                                >四<br /><b style="font-size: 16px">17</b></span
+                            >
+                            <span
+                                class="liner"
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    opacity: 0.5;
+                                "
+                                >五<br /><b style="font-size: 16px">18</b></span
+                            >
+                            <span
+                                class="liner"
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    opacity: 0.5;
+                                "
+                                >六<br /><b style="font-size: 16px">19</b></span
+                            >
+                            <span
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    border-radius: 14px;
+                                    background: #f1d19a;
+                                    color: #352b1e;
+                                "
+                                >一<br /><b style="font-size: 16px">21</b><br /><i
+                                    style="
+                                        display: inline-block;
+                                        width: 5px;
+                                        height: 5px;
+                                        border-radius: 50%;
+                                        background: #8f4a5e;
+                                    "
+                                ></i
+                            ></span>
+                            <span
+                                class="liner"
+                                style="
+                                    flex: none;
+                                    width: 50px;
+                                    padding: 8px 0;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    opacity: 0.5;
+                                "
+                                >二<br /><b style="font-size: 16px">22</b></span
+                            >
+                        </div>
+                        <article class="paper tape entry" style="--tape: #efc3cf; margin: 8px 4px 0">
+                            <div class="hd">
+                                <img src="/avatars/ayu.webp" alt="" /><b>阿屿</b><time>9 月 21 日 · 18:25</time>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+                                <span class="snap" style="height: 128px"
+                                    ><img src="/rooms/study/plate-twilight-on.webp" alt=""
+                                /></span>
+                                <span class="snap" style="height: 128px"
+                                    ><img src="/rooms/study/plate-night-on-dry.webp" alt=""
+                                /></span>
+                            </div>
+                            <p class="hand" style="margin-top: 10px">
+                                今天的晚饭是你做的番茄炖牛腩，好吃到想写进日记。
+                            </p>
+                        </article>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 150px; top: 206px">日期条左右滑，点一天看那天</span>
+                </div>
+                <figcaption><b>G3 手机</b>：日历收成一条可滑的日期条，下面是当天的纸页。</figcaption>
+            </figure>
+        </div>
+
+        <div class="row">
+            <!-- H2 软木板 -->
+            <figure>
+                <div class="ab desk golden" id="H2">
+                    <div class="bg d-golden" style="filter: brightness(0.7)"></div>
+                    <div style="position: absolute; inset: 0; background: #1411104d"></div>
+                    <section
+                        class="glass"
+                        style="
+                            left: 50%;
+                            top: 50%;
+                            width: 1080px;
+                            height: 690px;
+                            transform: translate(-50%, -50%);
+                            padding: 18px 20px 20px;
+                            border-radius: 28px;
+                            --alpha: 0.7;
+                        "
+                    >
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 14px">
+                            <div class="tabs2"><span>日记</span><span class="on">照片墙</span></div>
+                            <span class="muted" style="font-size: 12px">拖一拖就能摆位置 · 只在这台设备记住摆法</span>
+                            <span style="flex: 1"></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-close" /></svg
+                            ></span>
+                        </div>
+                        <div
+                            class="cork"
+                            style="position: relative; height: 586px; border-radius: 16px; overflow: hidden"
+                        >
+                            <span
+                                class="paper"
+                                style="
+                                    position: absolute;
+                                    left: 40px;
+                                    top: 34px;
+                                    padding: 6px 14px;
+                                    rotate: -3deg;
+                                    font-family: var(--display);
+                                    font-size: 20px;
+                                "
+                                >九月</span
+                            >
+                            <div class="pola" style="left: 60px; top: 110px; width: 190px; rotate: -5deg">
+                                <i class="pin"></i><img src="/music/covers/first-snow.webp" alt="" /><span
+                                    >9.28 · 初雪预报</span
+                                >
+                            </div>
+                            <div class="pola" style="left: 290px; top: 70px; width: 220px; rotate: 3deg">
+                                <i class="pin"></i><img src="/rooms/study/plate-twilight-on.webp" alt="" /><span
+                                    >9.21 · 番茄炖牛腩</span
+                                >
+                            </div>
+                            <div class="pola" style="left: 250px; top: 330px; width: 180px; rotate: -2deg">
+                                <i class="pin"></i><img src="/rooms/study/plate-night-on-dry.webp" alt="" /><span
+                                    >9.21</span
+                                >
+                            </div>
+                            <div class="pola" style="left: 540px; top: 150px; width: 200px; rotate: 6deg">
+                                <i class="pin"></i><img src="/music/covers/lamp-radio.webp" alt="" /><span
+                                    >9.12 · 新灯泡</span
+                                >
+                            </div>
+                            <span
+                                class="paper"
+                                style="
+                                    position: absolute;
+                                    left: 780px;
+                                    top: 40px;
+                                    padding: 6px 14px;
+                                    rotate: 2deg;
+                                    font-family: var(--display);
+                                    font-size: 20px;
+                                "
+                                >八月</span
+                            >
+                            <div class="pola" style="left: 790px; top: 110px; width: 190px; rotate: -4deg">
+                                <i class="pin"></i><img src="/music/covers/seaside-stars.webp" alt="" /><span
+                                    >8.14 · 海边</span
+                                >
+                            </div>
+                            <div class="pola" style="left: 770px; top: 360px; width: 170px; rotate: 4deg">
+                                <i class="pin"></i><img src="/music/covers/dawn-train.webp" alt="" /><span>8.14</span>
+                            </div>
+                            <div class="pola" style="left: 540px; top: 400px; width: 170px; rotate: -6deg">
+                                <i class="pin"></i><img src="/music/covers/record-corner.webp" alt="" /><span
+                                    >8.2 · 唱片机修好了</span
+                                >
+                            </div>
+                            <svg style="position: absolute; inset: 0; pointer-events: none" width="1040" height="586">
+                                <path
+                                    d="M155 108 C 260 60, 330 60, 400 68"
+                                    stroke="#b8342a"
+                                    stroke-width="1.6"
+                                    fill="none"
+                                    opacity=".7"
+                                />
+                                <path
+                                    d="M885 108 C 880 240, 860 300, 855 358"
+                                    stroke="#b8342a"
+                                    stroke-width="1.6"
+                                    fill="none"
+                                    opacity=".7"
+                                />
+                            </svg>
+                        </div>
+                    </section>
+                    <span class="anno" data-n="1" style="left: 440px; top: 790px">红线把同一天的照片连起来</span>
+                </div>
+                <figcaption>
+                    <b>G/H2 软木板</b
+                    >：照片按月钉在一块软木板上，可以拖着重新摆，红线串起同一天。最像「墙」、最好玩；照片一多就乱，找旧照片要平移，且摆法只在本机。
+                </figcaption>
+            </figure>
+        </div>
+
+        <div class="row">
+            <!-- H3 月历相册 phone -->
+            <figure>
+                <div class="ab phone twilight" id="H3">
+                    <div class="bg p-twilight"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 22px">
+                        <span class="grab"></span>
+                        <div style="display: flex; align-items: center; margin: 2px 4px 12px">
+                            <div class="tabs2" style="font-size: 22px">
+                                <span>日记</span><span class="on">照片墙</span>
+                            </div>
+                            <span style="flex: 1"></span>
+                            <span class="btn round ghost"
+                                ><svg class="i"><use href="#i-close" /></svg
+                            ></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 0 4px 8px">
+                            <span class="tag">9 月 · 4 张</span><span class="muted" style="font-size: 12px">2026</span>
+                        </div>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: repeat(3, minmax(0, 1fr));
+                                gap: 3px;
+                                margin: 0 2px;
+                            "
+                        >
+                            <img
+                                src="/music/covers/first-snow.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px 0 0 0"
+                                alt=""
+                            />
+                            <img
+                                src="/rooms/study/plate-twilight-on.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover"
+                                alt=""
+                            />
+                            <img
+                                src="/rooms/study/plate-night-on-dry.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0 6px 0 0"
+                                alt=""
+                            />
+                            <img
+                                src="/music/covers/lamp-radio.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0 0 0 6px"
+                                alt=""
+                            />
+                        </div>
+                        <div style="margin: 14px 4px 8px"><span class="tag">8 月 · 4 张</span></div>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: repeat(3, minmax(0, 1fr));
+                                gap: 3px;
+                                margin: 0 2px;
+                            "
+                        >
+                            <img
+                                src="/music/covers/seaside-stars.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px 0 0 0"
+                                alt=""
+                            />
+                            <img
+                                src="/music/covers/dawn-train.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover"
+                                alt=""
+                            />
+                            <img
+                                src="/music/covers/spring-walk.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0 6px 0 0"
+                                alt=""
+                            />
+                            <img
+                                src="/music/covers/record-corner.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0 0 0 6px"
+                                alt=""
+                            />
+                        </div>
+                        <div style="margin: 14px 4px 8px"><span class="tag">7 月 · 3 张</span></div>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: repeat(3, minmax(0, 1fr));
+                                gap: 3px;
+                                margin: 0 2px;
+                            "
+                        >
+                            <img
+                                src="/music/covers/afternoon-clouds.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px 0 0 6px"
+                                alt=""
+                            />
+                            <img
+                                src="/rooms/study/plate-golden-on.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover"
+                                alt=""
+                            />
+                            <img
+                                src="/music/covers/rainy-window.webp"
+                                style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0 6px 6px 0"
+                                alt=""
+                            />
+                        </div>
+                        <div
+                            class="glass"
+                            style="
+                                position: absolute;
+                                right: 6px;
+                                top: 170px;
+                                width: 30px;
+                                padding: 8px 0;
+                                border-radius: 15px;
+                                --alpha: 0.5;
+                                font-size: 10px;
+                                text-align: center;
+                                line-height: 2.2;
+                            "
+                        >
+                            9<br />8<br />7<br />6<br />5
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 196px; top: 132px">右边按住拖，跳到某个月</span>
+                </div>
+                <figcaption>
+                    <b>H3 月历相册</b
+                    >：三列方格，一屏看得多，按月跳。照片多了以后最好找；代价是没了拍立得的手作感，更像手机相册。
+                </figcaption>
+            </figure>
+            <!-- H4 放映机 -->
+            <figure>
+                <div class="ab desk night" id="H4">
+                    <div class="bg d-night" style="filter: brightness(0.45)"></div>
+                    <div
+                        style="
+                            position: absolute;
+                            inset: 0;
+                            background: radial-gradient(ellipse at 50% 40%, transparent, #0b0b0ecc 70%);
+                        "
+                    ></div>
+                    <div
+                        class="film"
+                        style="
+                            position: absolute;
+                            left: 50%;
+                            top: 60px;
+                            width: 860px;
+                            height: 560px;
+                            translate: -50% 0;
+                            padding: 26px 18px;
+                            border-radius: 8px;
+                            box-shadow: 0 30px 80px -20px #000;
+                        "
+                    >
+                        <img
+                            src="/music/covers/seaside-stars.webp"
+                            style="display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px"
+                            alt=""
+                        />
+                    </div>
+                    <div
+                        class="glass"
+                        style="
+                            left: 50%;
+                            top: 640px;
+                            width: 860px;
+                            translate: -50% 0;
+                            padding: 12px 16px;
+                            border-radius: 18px;
+                            --alpha: 0.62;
+                        "
+                    >
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px">
+                            <img
+                                src="/avatars/xiaoman.webp"
+                                style="width: 26px; height: 26px; border-radius: 50%"
+                                alt=""
+                            /><b style="color: #b9dcef">我</b><span class="muted">2026 年 8 月 14 日 · 08:30</span
+                            ><span style="flex: 1"></span
+                            ><span class="btn primary" style="height: 36px"
+                                ><svg class="i fill" style="margin-right: 6px"><use href="#i-play" /></svg>一起看 ·
+                                配《海边的星星》</span
+                            >
+                        </div>
+                        <p style="margin: 8px 0 0; font-size: 14px">
+                            早起去海边。风很大，头发一直往嘴里飘，你笑了一路。
+                        </p>
+                    </div>
+                    <div
+                        class="film"
+                        style="
+                            position: absolute;
+                            left: 50%;
+                            bottom: 26px;
+                            width: 1000px;
+                            height: 96px;
+                            translate: -50% 0;
+                            padding: 20px 14px;
+                            display: flex;
+                            gap: 8px;
+                            border-radius: 6px;
+                        "
+                    >
+                        <img
+                            src="/music/covers/first-snow.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/rooms/study/plate-twilight-on.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/rooms/study/plate-night-on-dry.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/lamp-radio.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/seaside-stars.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; outline: 2px solid #f1d19a"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/dawn-train.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/spring-walk.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/record-corner.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/afternoon-clouds.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                        <img
+                            src="/music/covers/rainy-window.webp"
+                            style="height: 56px; aspect-ratio: 4/3; object-fit: cover; opacity: 0.6"
+                            alt=""
+                        />
+                    </div>
+                    <span class="anno" data-n="1" style="left: 1010px; top: 604px"
+                        >配着正在放的歌自动翻，像一起看幻灯</span
+                    >
+                </div>
+                <figcaption>
+                    <b>H4 放映机</b>：一张大图 +
+                    底下一条胶片，能「一起看」配着音乐自动放。最有仪式感；它更像照片墙之上的一个播放模式，建议以后作为
+                    H1 灯箱里的「放映」按钮加进来，而不是替代墙。
+                </figcaption>
+            </figure>
+        </div>
+    </body>
+</html>

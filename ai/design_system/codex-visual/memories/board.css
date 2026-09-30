@@ -1,0 +1,275 @@
+/* 日记与照片墙比稿画板：静态看样，不是产品样式。玻璃、导航与画板骨架复用
+   ../ui-motion/board.css；纸、胶带、拍立得的数值抄自 src/themes/cinnaglass/surfaces/memory.css，
+   这样画板和实装是同一种纸。只在开发服务里打开（Vite 提供 /music、/rooms、/fonts 与字体包）。 */
+@font-face {
+    font-family: 'Journal WenKai';
+    src: url('/fonts/journal/LXGWWenKaiLite-Regular.woff2') format('woff2');
+    font-display: swap;
+}
+.ab {
+    --display: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    --paper: #ecdfc2;
+    --paper-deep: #dec8a0;
+    --ink: #4a3620;
+    --ink-muted: #7b6446;
+    --ink-mine: #2c5a6d;
+    --ink-theirs: #8f4a5e;
+    --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%236b4f2a' opacity='.07' filter='url(%23n)' d='M0 0h160v160H0z'/%3E%3C/svg%3E");
+}
+.disp {
+    font-family: var(--display);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+}
+.tabs2 {
+    display: flex;
+    gap: 22px;
+    align-items: flex-end;
+    font-family: var(--display);
+    font-size: 24px;
+}
+.tabs2 span {
+    position: relative;
+    opacity: 0.5;
+}
+.tabs2 span.on {
+    opacity: 1;
+}
+.tabs2 span.on::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0.1em;
+    bottom: -6px;
+    height: 4px;
+    border-radius: 4px 2px 5px 3px;
+    background: linear-gradient(90deg, #f1d19a, #f1d19a88);
+}
+.paper {
+    position: relative;
+    color: var(--ink);
+    background:
+        var(--grain), radial-gradient(120% 90% at 18% 0%, #f7eed9, transparent 58%),
+        linear-gradient(174deg, var(--paper), var(--paper-deep));
+    border-radius: 5px 9px 7px 11px / 9px 5px 11px 7px;
+    box-shadow:
+        inset 0 1px 0 #fff9,
+        0 12px 24px -14px #000d,
+        0 2px 5px -1px #0006;
+}
+.paper.tape::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 70px;
+    height: 19px;
+    translate: -50% 0;
+    rotate: 2deg;
+    background: repeating-linear-gradient(90deg, #ffffff38 0 5px, transparent 5px 11px), var(--tape, #efe1b4);
+    opacity: 0.86;
+    clip-path: polygon(
+        0 8%,
+        5% 0,
+        10% 9%,
+        15% 0,
+        85% 0,
+        90% 10%,
+        95% 0,
+        100% 8%,
+        100% 92%,
+        95% 100%,
+        90% 90%,
+        85% 100%,
+        15% 100%,
+        10% 91%,
+        5% 100%,
+        0 92%
+    );
+}
+.entry {
+    padding: 16px 14px 12px;
+}
+.entry .hd {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 9px;
+    font-size: 12px;
+}
+.entry .hd img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+        0 0 0 2px var(--paper),
+        0 0 0 3.5px var(--who, var(--ink-theirs));
+}
+.entry .hd b {
+    color: var(--who, var(--ink-theirs));
+    font-size: 13px;
+}
+.entry .hd time {
+    margin-left: auto;
+    color: var(--ink-muted);
+}
+.entry.mine {
+    --who: var(--ink-mine);
+}
+.hand {
+    margin: 0;
+    font:
+        400 16px/1.8 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.02em;
+}
+.snap {
+    display: block;
+    width: 100%;
+    padding: 4px;
+    border-radius: 3px;
+    background: #fbf7ee;
+    box-shadow:
+        0 1px 3px #0005,
+        0 8px 14px -10px #0009;
+}
+.snap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+}
+.pola {
+    position: absolute;
+    padding: 7px 7px 0;
+    background: #fcf9f1;
+    color: #6a5c49;
+    box-shadow:
+        0 2px 4px #0005,
+        0 14px 22px -14px #000c;
+}
+.pola img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+.pola span {
+    display: block;
+    padding: 6px 0 8px;
+    font:
+        400 13px/1.2 'Journal WenKai',
+        KaiTi,
+        serif;
+    text-align: center;
+}
+.pin {
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    z-index: 2;
+    width: 14px;
+    height: 14px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffb3a8, #c8483c 55%, #7a2219);
+    box-shadow: 0 3px 4px #0007;
+}
+.tag {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 1px solid rgb(213 204 192 / 0.2);
+    border-radius: 999px;
+    background: rgb(63 64 72 / 0.84);
+    color: #f1d19a;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+}
+.cork {
+    background:
+        radial-gradient(circle at 20% 30%, #0000000f 0 2px, transparent 3px) 0 0 / 23px 19px,
+        radial-gradient(circle at 70% 60%, #ffffff12 0 1.5px, transparent 2.5px) 0 0 / 17px 21px,
+        radial-gradient(120% 90% at 30% 20%, #c79a5f, #a8773f 60%, #8c5f2e);
+    box-shadow:
+        inset 0 0 0 10px #6b4524,
+        inset 0 0 0 12px #4e3119,
+        inset 0 8px 30px #0006;
+}
+.film {
+    background: #17130f;
+    background-image:
+        radial-gradient(circle at 50% 50%, #f4ead8 0 3.5px, transparent 4px),
+        radial-gradient(circle at 50% 50%, #f4ead8 0 3.5px, transparent 4px);
+    background-size: 22px 16px;
+    background-position:
+        0 4px,
+        0 calc(100% - 4px);
+    background-repeat: repeat-x;
+}
+.cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+.cal .wd {
+    color: #dedbd4;
+    font-size: 12px;
+    text-align: center;
+}
+.cal .d {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #ffffff08;
+    color: #fff8eb;
+    font-size: 12px;
+    font-weight: 600;
+}
+.cal .d span {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    z-index: 1;
+    text-shadow: 0 1px 2px #000c;
+}
+.cal .d img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+}
+.cal .d.dot::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 6px;
+    height: 6px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: #f0a9bd;
+}
+.cal .d.dot.mine::after {
+    background: #9ccbe4;
+}
+.cal .d.sel {
+    box-shadow:
+        inset 0 0 0 2px #f1d19a,
+        0 0 18px -4px #f1d19a;
+}
+.cal .d.off {
+    background: transparent;
+    color: #fff8eb44;
+}
+/* an icon + label button stays on one line */
+.btn:has(> svg + *),
+.btn:has(> svg):not(.round) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+}

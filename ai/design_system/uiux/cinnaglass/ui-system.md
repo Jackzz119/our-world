@@ -1,8 +1,8 @@
 # Cinnaglass · 当前主题规范
 
-> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) · 2026-09-20。
+> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) / [UX 参考](ux/ux.md) · 2026-09-20，2026-09-30 补回忆面板、沉浸歌词与标题字。
 
-**[打开全局实景预览](../../preview.html#ui)**。A/B 与账户、大厅已按用户批准的导航母材质完成本地迁移；下图为实际组件与真实房间素材，账号、消息、照片列表用隔离演示内容。它们展示当前实现，独立 Monet 复核不代替用户后续体验反馈。C 日记冻结，新的 UI 动画体系后置。
+**[打开全局实景预览](../../preview.html#ui)**。A/B 与账户、大厅已按用户批准的导航母材质完成本地迁移；下图为实际组件与真实房间素材，账号、消息、照片列表用隔离演示内容。它们展示当前实现，独立 Monet 复核不代替用户后续体验反馈。全局动效与低动效模式、手机底部托盘已于 2026-09-30 看样保留；每种交互的流程、状态、动效数值与录屏在 [UX 参考](ux/ux.md)，本页只写外观与组件。
 
 ## A 场景悬浮 UI
 
@@ -57,6 +57,21 @@
 
 只有世界会话内对方有效未读消息触发信纸；点击打开聊天并沿现有已读流程处理，已读后消失，新未读再次出现。删除、发送失败与待发送消息不伪造来信；读状态保存失败仍保留未读。桌面纪念卡向下避让；宽度 ≤1100px 或高度 ≤700px 且播放器展开时，两张提示卡暂时收起，未读点保留，播放器收起后恢复。小屏有来信时优先信纸。实现：[SunlitLetter](../../../../src/themes/cinnaglass/shell/sunlit-letter.tsx)、[未读判断](../../../../src/themes/cinnaglass/shell/use-world-chat-bubble.ts)、[入口编排](../../../../src/pages/WorldPage.tsx)。
 
+### 回忆面板：日记 + 照片墙（2026-09-30，实装 · 待看样）
+
+日记和照片墙合成一个 A 类面板的两个标题页签（站酷小薇、金色笔触滑过）：**纸在玻璃上**——Cinnaglass 磨砂外壳装着米色纸页（细颗粒、手裁不齐的圆角、微微歪、顶上一条和纸胶带）、霞鹜文楷手写字和白边照片；照片墙是按月两列的拍立得（白边、胶带、铅笔日期）。桌面停在右侧一列（440px，音乐停靠栏那一列），手机是可拉满的底部托盘；写一页是一张横格纸，发布后盖「记」字朱印。身份只用墨色（我是青蓝、TA 是豆沙红）、头像圈和名字，不用位置。纸、胶带是 CSS 占位，正式纸张纹理与胶带素材等 Codex 出图。
+
+| 桌面                                                                   | 手机                                                            |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![回忆面板：日记页签，纸页贴在玻璃上](ux/img/memory-journal-desk.jpg)  | ![手机回忆托盘：半高露出最新一页](ux/img/memory-half-phone.jpg) |
+| ![回忆面板：照片墙页签，按月两列拍立得](ux/img/memory-photos-desk.jpg) | ![手机照片墙](ux/img/memory-photos-phone.jpg)                   |
+
+来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-index.tsx](../../../../src/themes/cinnaglass/surfaces/journal-index.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[memory-lightbox.tsx](../../../../src/themes/cinnaglass/surfaces/memory-lightbox.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../codex-visual/memories/memories.md)。
+
+### 标题字
+
+`--ui-display`：站酷小薇（ZCOOL XiaoWei，OFL-1.1，`@fontsource/zcool-xiaowei` 按字符切片加载，[main.tsx](../../../../src/main.tsx) 引入、[ui-system.css](../../../../src/themes/cinnaglass/ui/ui-system.css) 定义）。2026-09-30 用户选定，只用在面板标题：任务窗标题、「一起听」、回忆面板页签、进入世界的加载标题、手机工具 / 房间托盘标题。只有一个字重，标题一律 400；正文、按钮、标签仍是 Noto Sans SC，日记正文是霞鹜文楷。
+
 ## B 任务与功能弹窗
 
 **连续磨砂壳 + 圆角不透明阅读内衬**。标题和页脚共享外壳，正文滚动；黄昏暖灰褐、暮色灰紫、夜晚深暖灰。照片保留拍立得纸框，表单和通用壳不再使用旧纸/苔绿底。
@@ -87,9 +102,7 @@
 
 ![窄屏时间提醒：时间输入独占一行，避免 AM/PM 被裁切](unification-verification/clock-mobile.png)
 
-![照片墙：统一任务外壳内保留纸质照片内容，可打开顶层光箱](unification-verification/photos.png)
-
-![窄屏照片墙：单列纸框与可键盘打开的光箱](unification-verification/photos-mobile.png)
+照片墙原来也用这个 B 壳（[改之前的样子](../../codex-visual/memories/img/now-photos-desk.jpg)），2026-09-30 起移进回忆面板（见上文 A）。
 
 ![心愿单：完成状态与添加入口，明确只保存在本机](unification-verification/wishes.png)
 
@@ -99,11 +112,13 @@
 
 ## C 专属物件 UI
 
+**棕皮书日记 = 设置里的「书本（旧版）」**（2026-09-30 起）。默认的日记换成了上面 A 类的回忆面板；用户要求旧日记先不删，所以原样保留，设置 → 主题外观 → 日记样式选「书本（旧版）」就回到这本书（照片墙仍在回忆面板里）。
+
 ![当前棕皮旧纸日记：真实组件、暖褐文字、照片纸角与羽毛笔](journal-room-object/book-verification/design-content-night.png)
 
 ![实际图文随纸翻过的动态示例](journal-room-object/turn-verification/live-single.gif)
 
-棕皮、旧米纸、叠页与手写风墨色，文字与图片随真实纸面一起翻动。桌面双页、小屏单页；允许遮挡角色，阅读时雨继续。拿起/收回与羽毛笔交互待做。
+棕皮、旧米纸、叠页与手写风墨色，文字与图片随真实纸面一起翻动。桌面双页、小屏单页；允许遮挡角色，阅读时雨继续。拿起/收回与羽毛笔交互不再推进（默认已是回忆面板）。
 
 [原素材](../../../../arts/ui/journal/) · [运行时素材](../../../../public/ui/journal/) · [journal-room.css](../../../../src/themes/cinnaglass/journal/room.css) · [journal-turn.css](../../../../src/themes/cinnaglass/journal/turn.css) · [功能与翻页机制](../../../features/timeline.md)。
 
@@ -123,6 +138,6 @@
 
 来源：[登录](../../../../src/pages/LoginPage.tsx)、[重置](../../../../src/pages/ResetPasswordPage.tsx)、[路由加载](../../../../src/pages/ProtectedRoute.tsx)、[大厅](../../../../src/themes/cinnaglass/lobby.tsx)、[入口样式](../../../../src/themes/cinnaglass/entry.css)。场景模块加载和失败也提供可读反馈与重新加载入口。
 
-共用米白文字、暖金操作、身份蓝/粉、明确错误/成功语义；局部兼容旧字段名时在 A/B 宿主范围重绑，避免旧 `.paper` 的棕色文字漏入新内衬。旧 `--cg-*`、无消费者面板原子、旧大厅和 LoginBackdrop 已退役；日记依赖的 `.paper/.craft`、素材和交互保持原状。
+共用米白文字、暖金操作、身份蓝/粉、明确错误/成功语义；局部兼容旧字段名时在 A/B 宿主范围重绑，避免旧 `.paper` 的棕色文字漏入新内衬。旧 `--cg-*`、无消费者面板原子、旧大厅和 LoginBackdrop 已退役；棕皮书依赖的 `.paper/.craft`、素材和交互保持原状。
 
-**验证边界**：本地浏览器验证覆盖三时辰、桌面/窄屏/矮屏、最上层关闭、焦点与主要失败恢复；演示数据不代表线上内容。真实手机软键盘、OS 缩放和低端设备性能仍需真机验收。当前已有动效保留，新动画体系另做；普通回归报告只写 session。
+**验证边界**：本地浏览器验证覆盖三时辰、桌面/窄屏/矮屏、最上层关闭、焦点与主要失败恢复；演示数据不代表线上内容。真实手机软键盘、OS 缩放和低端设备性能仍需真机验收。动效体系的规则与录屏见 [UX 参考](ux/ux.md)；普通回归报告只写 session。

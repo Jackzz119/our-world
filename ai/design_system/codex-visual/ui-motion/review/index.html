@@ -1,0 +1,1758 @@
+<!doctype html>
+<!-- 看样页（设计系统里的正本）：动效、托盘、音乐、加载、日记与照片墙的方案图、状态、实装录屏、动效试验区与决定。
+     用开发服务打开（pnpm dev 后访问 /ai/design_system/codex-visual/ui-motion/review/index.html）；
+     手机上看的发布版由同一份内容生成（路径改成同目录的 img/ 与 video/）。 -->
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Our World 动效比稿</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&family=JetBrains+Mono:wght@400;600&display=swap"
+        />
+        <style>
+            /* Layout: one narrow reading column for decisions and notes, full-width boards per group,
+       status chips say what is implemented, what is an alternative and what is design only. */
+            :root {
+                color-scheme: dark;
+                --bg: #16151a;
+                --panel: #221f26;
+                --liner: #2c2830;
+                --fg: #f6eddc;
+                --muted: #b5ab9c;
+                --line: #ffffff1f;
+                --accent: #f1d19a;
+                --accent-ink: #2e2519;
+                --cool: #b9c8ea;
+                --ok: #c4e5bb;
+                --shadow: 0 18px 40px -22px #000c;
+                --font-display: 'ZCOOL XiaoWei', 'Noto Serif SC', 'Songti SC', serif;
+                --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+                --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+                --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+                --ease-pop: linear(
+                    0,
+                    0.03 2.1%,
+                    0.107 4.2%,
+                    0.215 6.2%,
+                    0.596 12.5%,
+                    0.713 14.6%,
+                    0.816 16.7%,
+                    0.903 18.8%,
+                    0.973 20.8%,
+                    1.027 22.9%,
+                    1.065 25%,
+                    1.09 27.1%,
+                    1.103 29.2%,
+                    1.104 33.3%,
+                    1.057 41.7%,
+                    1.011 50%,
+                    0.99 58.3%,
+                    1
+                );
+                --ease-spring: linear(
+                    0,
+                    0.013 2.1%,
+                    0.047 4.2%,
+                    0.096 6.2%,
+                    0.225 10.4%,
+                    0.514 18.8%,
+                    0.644 22.9%,
+                    0.754 27.1%,
+                    0.842 31.2%,
+                    0.91 35.4%,
+                    0.959 39.6%,
+                    1.005 45.8%,
+                    1.026 52.1%,
+                    1.03 62.5%,
+                    1.001 97.9%,
+                    1
+                );
+            }
+            @media (prefers-color-scheme: light) {
+                :root:not([data-theme='dark']) {
+                    color-scheme: light;
+                    --bg: #eceef2;
+                    --panel: #f8f8fa;
+                    --liner: #e3e1e6;
+                    --fg: #25222b;
+                    --muted: #5f5a66;
+                    --line: #25222b1f;
+                    --accent: #8a5f17;
+                    --accent-ink: #fff8ea;
+                    --cool: #3f5f9e;
+                    --ok: #3d7a33;
+                    --shadow: 0 18px 40px -26px #1c1a2166;
+                }
+            }
+            :root[data-theme='light'] {
+                color-scheme: light;
+                --bg: #eceef2;
+                --panel: #f8f8fa;
+                --liner: #e3e1e6;
+                --fg: #25222b;
+                --muted: #5f5a66;
+                --line: #25222b1f;
+                --accent: #8a5f17;
+                --accent-ink: #fff8ea;
+                --cool: #3f5f9e;
+                --ok: #3d7a33;
+                --shadow: 0 18px 40px -26px #1c1a2166;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--fg);
+                font-family: var(--font-body);
+                font-size: 15px;
+                line-height: 1.7;
+            }
+            .page {
+                max-width: 1180px;
+                margin: 0 auto;
+                padding-inline: 18px;
+                padding-block: 28px 64px;
+                display: grid;
+                gap: 56px;
+            }
+            h1,
+            h2 {
+                margin: 0;
+                font-family: var(--font-display);
+                font-weight: 400;
+                text-wrap: balance;
+                letter-spacing: 0.02em;
+            }
+            h1 {
+                font-size: clamp(34px, 7vw, 52px);
+                line-height: 1.15;
+            }
+            h2 {
+                font-size: clamp(24px, 4.4vw, 32px);
+                line-height: 1.25;
+            }
+            h3 {
+                margin: 0;
+                font-size: 15px;
+                font-weight: 700;
+            }
+            p {
+                margin: 0;
+            }
+            .read {
+                max-width: 42em;
+                display: grid;
+                gap: 12px;
+            }
+            .eyebrow {
+                color: var(--accent);
+                font-size: 12px;
+                letter-spacing: 0.16em;
+            }
+            .muted {
+                color: var(--muted);
+            }
+            header {
+                display: grid;
+                gap: 16px;
+            }
+            .legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 2px 10px;
+                border: 1px solid var(--line);
+                border-radius: 99px;
+                color: var(--muted);
+                font-size: 12px;
+                line-height: 1.8;
+                white-space: nowrap;
+            }
+            .chip.done {
+                border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+                color: var(--accent);
+            }
+            .chip.no {
+                opacity: 0.75;
+                text-decoration: line-through;
+            }
+            .chip.design {
+                border-color: color-mix(in srgb, var(--cool) 55%, transparent);
+                color: var(--cool);
+            }
+            .chip.done::before,
+            .chip.design::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: currentColor;
+            }
+            section {
+                display: grid;
+                gap: 18px;
+            }
+            .decided-title {
+                margin-top: 22px;
+                color: var(--muted);
+            }
+            .decide.decided li {
+                opacity: 0.85;
+            }
+            .decide {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                display: grid;
+                gap: 10px;
+                counter-reset: q;
+            }
+            .decide li {
+                counter-increment: q;
+                display: grid;
+                grid-template-columns: 2em 1fr;
+                gap: 4px 10px;
+                padding: 12px 14px;
+                border-radius: 14px;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .decide li::before {
+                content: counter(q);
+                grid-row: span 2;
+                display: grid;
+                place-items: center;
+                width: 1.8em;
+                height: 1.8em;
+                border-radius: 50%;
+                background: var(--accent);
+                color: var(--accent-ink);
+                font-size: 13px;
+                font-weight: 700;
+            }
+            .decide b {
+                font-weight: 700;
+            }
+            .decide span {
+                color: var(--muted);
+                font-size: 13px;
+                min-width: 0;
+            }
+            .grid {
+                display: grid;
+                gap: 18px 14px;
+            }
+            .grid.phones {
+                grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr));
+            }
+            .grid.wide {
+                grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+            }
+            .card {
+                display: grid;
+                align-content: start;
+                gap: 8px;
+                min-width: 0;
+            }
+            .shot {
+                display: block;
+                width: 100%;
+                padding: 0;
+                border: 0;
+                border-radius: 16px;
+                overflow: hidden;
+                background: var(--liner);
+                box-shadow: var(--shadow);
+                cursor: zoom-in;
+                transition: scale 460ms var(--ease-pop);
+            }
+            .shot:active {
+                scale: 0.97;
+                transition-duration: 90ms;
+                transition-timing-function: var(--ease-out);
+            }
+            .shot:focus-visible {
+                outline: 2px solid var(--accent);
+                outline-offset: 3px;
+            }
+            .shot img,
+            .shot video {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
+            .card-head {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px 8px;
+            }
+            .card p {
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.65;
+            }
+            .note {
+                padding: 14px 16px;
+                border-radius: 14px;
+                background: var(--panel);
+                font-size: 14px;
+                max-width: 60em;
+            }
+            .note b {
+                color: var(--accent);
+                font-weight: 700;
+            }
+            .videos {
+                display: grid;
+                gap: 16px 14px;
+                grid-template-columns: repeat(auto-fill, minmax(min(46%, 180px), 1fr));
+            }
+            .videos .desk {
+                grid-column: span 2;
+            }
+            .videos figure {
+                margin: 0;
+                display: grid;
+                gap: 6px;
+                min-width: 0;
+            }
+            .videos video {
+                display: block;
+                width: 100%;
+                height: auto;
+                border-radius: 14px;
+                background: var(--liner);
+                box-shadow: var(--shadow);
+            }
+            .videos figcaption {
+                color: var(--muted);
+                font-size: 12.5px;
+                line-height: 1.6;
+            }
+            .table-wrap {
+                overflow-x: auto;
+                border-radius: 14px;
+                background: var(--panel);
+            }
+            table {
+                width: 100%;
+                min-width: 560px;
+                border-collapse: collapse;
+                font-size: 13.5px;
+            }
+            th,
+            td {
+                padding: 10px 14px;
+                border-bottom: 1px solid var(--line);
+                text-align: left;
+                vertical-align: top;
+            }
+            th {
+                color: var(--muted);
+                font-weight: 500;
+                font-size: 12px;
+                letter-spacing: 0.08em;
+            }
+            tr:last-child td {
+                border-bottom: 0;
+            }
+            code,
+            .mono {
+                font-family: var(--font-mono);
+                font-size: 12px;
+                color: var(--accent);
+                font-variant-numeric: tabular-nums;
+            }
+            /* ---------- the feel, live ---------- */
+            .lab {
+                display: grid;
+                gap: 14px;
+                padding: 18px;
+                border-radius: 20px;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .lab-row {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 14px 18px;
+            }
+            .lab-press {
+                min-height: 46px;
+                padding: 0 22px;
+                border: 0;
+                border-radius: 14px;
+                background: var(--accent);
+                color: var(--accent-ink);
+                font: inherit;
+                font-weight: 700;
+                cursor: pointer;
+                transition:
+                    scale 460ms var(--ease-pop),
+                    box-shadow 160ms ease;
+            }
+            .lab-press:active {
+                scale: 0.95;
+                box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
+                transition-duration: 90ms;
+                transition-timing-function: var(--ease-out);
+            }
+            .lab-switch {
+                position: relative;
+                width: 52px;
+                height: 30px;
+                padding: 0;
+                border: 1px solid var(--line);
+                border-radius: 99px;
+                background: var(--liner);
+                cursor: pointer;
+                transition: background-color 200ms ease;
+            }
+            .lab-switch[aria-checked='true'] {
+                background: color-mix(in srgb, var(--accent) 45%, var(--liner));
+            }
+            .lab-switch i {
+                position: absolute;
+                top: 3px;
+                left: 3px;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                background: var(--fg);
+                transition:
+                    translate 460ms var(--ease-pop),
+                    width 90ms var(--ease-out);
+            }
+            .lab-switch:active i {
+                width: 27px;
+            }
+            .lab-switch[aria-checked='true'] i {
+                translate: 22px 0;
+            }
+            .lab-switch[aria-checked='true']:active i {
+                translate: 17px 0;
+            }
+            .lab-tabs {
+                position: relative;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                min-width: min(100%, 280px);
+                padding: 4px;
+                border-radius: 14px;
+                background: var(--liner);
+            }
+            .lab-tabs em {
+                position: absolute;
+                top: 4px;
+                bottom: 4px;
+                left: 4px;
+                width: calc((100% - 8px) / 3);
+                border-radius: 10px;
+                background: var(--accent);
+                translate: calc(var(--i, 0) * 100%) 0;
+                transition: translate 420ms var(--ease-spring);
+            }
+            .lab-tabs button {
+                position: relative;
+                min-height: 36px;
+                border: 0;
+                background: transparent;
+                color: var(--muted);
+                font: inherit;
+                font-size: 13px;
+                cursor: pointer;
+            }
+            .lab-tabs button[aria-selected='true'] {
+                color: var(--accent-ink);
+                font-weight: 700;
+            }
+            .lab-heart {
+                width: 46px;
+                height: 46px;
+                border: 1px solid var(--line);
+                border-radius: 50%;
+                background: transparent;
+                font-size: 20px;
+                cursor: pointer;
+                transition: scale 460ms var(--ease-pop);
+            }
+            .lab-heart:active {
+                scale: 0.9;
+                transition-duration: 90ms;
+            }
+            .particle {
+                position: fixed;
+                z-index: 9;
+                pointer-events: none;
+                line-height: 1;
+            }
+            .lab.reduced * {
+                transition-duration: 1ms !important;
+            }
+            .lab.reduced :is(.lab-press, .lab-heart):active {
+                scale: 1;
+            }
+            .lab-reduced {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--muted);
+                font-size: 13px;
+            }
+            footer {
+                color: var(--muted);
+                font-size: 13px;
+                display: grid;
+                gap: 6px;
+            }
+            /* ---------- lightbox ---------- */
+            dialog.lightbox {
+                width: min(96vw, 1200px);
+                max-height: 94vh;
+                padding: 0;
+                border: 0;
+                border-radius: 18px;
+                background: var(--panel);
+                color: var(--fg);
+                overflow: auto;
+            }
+            dialog.lightbox::backdrop {
+                background: #0b0a0dcc;
+            }
+            dialog.lightbox img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
+            dialog.lightbox .lb-bar {
+                position: sticky;
+                top: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 14px;
+                background: var(--panel);
+                font-size: 14px;
+            }
+            dialog.lightbox button {
+                min-width: 44px;
+                min-height: 36px;
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                background: transparent;
+                color: var(--fg);
+                font: inherit;
+                cursor: pointer;
+            }
+            dialog.lightbox.tall img {
+                width: min(100%, 520px);
+                margin: 0 auto;
+            }
+            @media (min-width: 900px) {
+                .page {
+                    padding-inline: 32px;
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    transition-duration: 1ms !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page">
+            <header>
+                <span class="eyebrow">对坐 · 第三期 · 2026-09-29 出稿 · 09-30 第二轮</span>
+                <h1>动效、托盘与回忆 · 看样</h1>
+                <div class="read">
+                    <p>
+                        第一轮做了全项目的交互动效（设置里可切低动效）、手机上从底部升起的功能托盘（对方人物始终完整可见）、能选曲
+                        / 看海报 /
+                        看歌词的音乐主页面和进入世界的加载动画。你看完后定了几件事，第二轮照着做完：沉浸歌词、标题字，以及日记和照片墙的桌面版、手机版统一迭代（旧的棕皮书留在设置里）。
+                    </p>
+                    <p class="muted">
+                        方案图用开发环境里拍的真实书房做背景，玻璃和纸的数值和线上一致；图上金色虚线标签是设计注记。点任意一张看大图。没有生成任何美术图：纸、胶带、软木都是
+                        CSS，需要正式美术时先占位，等 Codex 装好再出图。
+                    </p>
+                </div>
+                <div class="legend" aria-label="状态说明">
+                    <span class="chip done">推荐 · 已实现</span>
+                    <span class="chip">备选</span>
+                    <span class="chip design">只出设计</span>
+                    <span class="chip no">不采用</span>
+                </div>
+            </header>
+
+            <section aria-labelledby="decide-title">
+                <h2 id="decide-title">还需要你决定</h2>
+                <ol class="decide">
+                    <li>
+                        <b>日记</b
+                        ><span
+                            >保持 G1 手帐长卷（已实现），或换 G2 桌面长卷 / G3
+                            日历手账；旧棕皮书要不要一直留在设置里。</span
+                        >
+                    </li>
+                    <li>
+                        <b>照片墙</b
+                        ><span
+                            >保持 H1 拍立得墙（已实现），或换 H2 软木板 / H3 月历相册；H4
+                            放映要不要以后做成灯箱里的「放映」按钮。</span
+                        >
+                    </li>
+                    <li>
+                        <b>纸、胶带和空状态</b
+                        ><span
+                            >现在是 CSS 占位，要不要等 Codex
+                            装好后出正式的纸张纹理、胶带和空状态插画；歌单海报同理。</span
+                        >
+                    </li>
+                </ol>
+                <h3 class="decided-title">你 9 月 30 日定下的</h3>
+                <ol class="decide decided">
+                    <li>
+                        <b>看样页</b
+                        ><span
+                            >同步进设计系统；Monet 和 UI Tailor 加了规则：以后都这样展示 UX，UX
+                            是设计系统参考的重要一环，不只用 token 表达（新建了 UX 参考页）。</span
+                        >
+                    </li>
+                    <li><b>标题字</b><span>这一页标题用的站酷小薇加入项目，只用在面板标题。</span></li>
+                    <li><b>音乐主页</b><span>B3 沉浸歌词要（已实现）；B6 三栏不要；海报和歌词先占位。</span></li>
+                    <li><b>手机任务窗</b><span>从下面升起的样子保留。</span></li>
+                    <li>
+                        <b>Emil 的技能</b
+                        ><span>装了 10 个适用的（Swift、Expo、Sonner 三个不装），登记在 JASKILL。</span>
+                    </li>
+                    <li><b>美术图</b><span>不自己生成，先占位，之后在你的机器上装 Codex 生成。</span></li>
+                    <li><b>其余推荐</b><span>A1 托盘、B5 停靠栏、D1 + D2 加载没有另外改选，按已实现保留。</span></li>
+                </ol>
+            </section>
+
+            <section aria-labelledby="live-title">
+                <h2 id="live-title">实装录屏</h2>
+                <p class="muted read">
+                    正式组件在隔离样板里操作录下来的。这台云端容器没有
+                    GPU，场景是软件渲染，录制时暂停了场景，所以阿屿是静止的；真机上他会呼吸、眨眼。
+                </p>
+                <div class="videos">
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-journal.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-journal.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>手机日记（G1）：托盘半高露出最新一页，拉满往回翻，写一页，收起</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-publish.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-publish.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>写一页：横格纸升起，「记下这一刻」后新页落下，角上盖「记」字印章</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-photos.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-photos.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>照片墙（H1）：照片从拍立得里长出来，左右滑，往下拉关闭</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-lyrics.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-lyrics.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>沉浸歌词（B3）：点歌词进入，点一句跳过去，退出</figcaption>
+                    </figure>
+                    <figure class="desk">
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/desk-journal.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-journal.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>桌面回忆面板：停在右侧一列，灯箱、目录跳转、写一页、照片墙、在日记里看</figcaption>
+                    </figure>
+                    <figure class="desk">
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/desk-lyrics.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-lyrics.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>桌面沉浸歌词：海报糊成整列底色，当前句放大，Esc 退出</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-music.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-music.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>手机音乐托盘：升起、播放时唱片转出、拉满看歌单、换歌、歌词、收藏、收起</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-enter.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-enter.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>进入世界：台灯随真实加载进度亮起，揭幕后界面依次浮上来</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-tools.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-tools.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>工具托盘：开关弹簧拨片；房间托盘</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-chat.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-chat.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>聊天托盘：快捷表情迸粒子、发送纸飞机、新消息浮入</figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-settings.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-settings.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>设置从底边升起，主题外观里新的「动效」三档</figcaption>
+                    </figure>
+                    <figure class="desk">
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/desk-music.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-music.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>桌面：迷你条展开成右侧停靠栏，对方在中间不被挡</figcaption>
+                    </figure>
+                    <figure class="desk">
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/desk-enter.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-enter.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>桌面进入世界：灭灯的房间随进度亮起台灯</figcaption>
+                    </figure>
+                    <figure class="desk">
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/desk-chat.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-chat.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>桌面聊天：窄卡升起、表情粒子、发送、打开设置</figcaption>
+                    </figure>
+                </div>
+            </section>
+
+            <section aria-labelledby="g-title">
+                <h2 id="g-title">G · 日记</h2>
+                <p class="read muted">
+                    你的要求：日记和照片墙的桌面版、手机版也要统一迭代，旧日记先不删。改之前棕皮书在桌面居中盖住
+                    TA，手机上整屏都是书；这次按「TA 始终可见」的规则重做，旧书留在设置 → 日记样式「书本（旧版）」。
+                </p>
+                <div class="grid wide">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-journal-desk.jpg"
+                            aria-label="放大 G1 手帐长卷"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-journal-desk.jpg"
+                                alt="G1 桌面：日记停在右侧一列，TA 完整可见"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 手帐长卷</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>
+                            每页是一张贴在玻璃上的纸（胶带、微微歪、手写字），从旧到新往下排，打开停在最新一页；桌面停在音乐停靠栏那一列，音乐照常放。谁写的看墨色、头像圈和名字，不看左右。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/G2.jpg"
+                            aria-label="放大 G2 桌面长卷 · 底部托盘"
+                        >
+                            <img
+                                src="../../memories/img/G2.jpg"
+                                alt="G2 桌面长卷：底部托盘里的横向手卷"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G2 桌面长卷 · 底部托盘</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>
+                            托盘只盖住我这边的桌面，日记像一卷手卷横着往回翻，最像「摊在桌上」；长文要点开读，滚轮要横着映射。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/G3.jpg"
+                            aria-label="放大 G3 日历手账"
+                        >
+                            <img
+                                src="../../memories/img/G3.jpg"
+                                alt="G3 日历手账：左边日历，右边那天的纸页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G3 日历手账</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>
+                            按日子找回忆最顺手，没写的日子也摆出来；但要盖住整张桌子，日子稀疏时大半是空格。「按日子找」已收进
+                            G1 的目录。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/journal-book-desk.jpg"
+                            aria-label="放大 G4 棕皮书"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/journal-book-desk.jpg"
+                                alt="G4 原来的棕皮书"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G4 棕皮书</h3>
+                            <span class="chip done">保留 · 设置里可选</span>
+                        </div>
+                        <p>
+                            原来的书，翻页、目录、写一页都照旧；代码原样留着，设置 → 日记样式选「书本（旧版）」就回来。
+                        </p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-half-phone.jpg"
+                            aria-label="放大 G1 手机半高"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-half-phone.jpg"
+                                alt="G1 手机半高：最新一页和写一页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 手机半高</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>托盘半高正好露出最新一页和「写一页」，TA 在上面完整可见。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-full-phone.jpg"
+                            aria-label="放大 G1 拉满往回翻"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-full-phone.jpg"
+                                alt="G1 手机拉满"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 拉满往回翻</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>上拉到全高读长文，月份标签吸顶，往上滚到顶自动翻出更早的回忆。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-compose-phone.jpg"
+                            aria-label="放大 G1 写一页"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-compose-phone.jpg"
+                                alt="G1 手机写一页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 写一页</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>横格纸从下面升起，托盘自动拉满；点外面只收起，草稿留着。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/G3m.jpg"
+                            aria-label="放大 G3 手机"
+                        >
+                            <img src="../../memories/img/G3m.jpg" alt="G3 手机：日期条与当天纸页" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>G3 手机</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>日历收成一条可以左右滑的日期条，下面是当天的纸页。</p>
+                    </div>
+                </div>
+                <div class="grid wide">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-index-desk.jpg"
+                            aria-label="放大 G1 目录"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-index-desk.jpg"
+                                alt="G1 目录：当月日历，写过的日子带墨点"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 目录</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>右上日历图标：写过的日子带墨点（蓝是我、粉是 TA），点一天把那一页滚到中间并亮一圈。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-compose-desk.jpg"
+                            aria-label="放大 G1 写一页（桌面）"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-compose-desk.jpg"
+                                alt="G1 桌面写一页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 写一页（桌面）</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            拖图进来或选文件，最多 9 张；「记下这一刻」后新页落下，角上盖一个「记」字印章并溅几点墨星。
+                        </p>
+                    </div>
+                </div>
+                <p class="note">
+                    <b>改之前</b>：<a href="../../memories/img/now-book-desk.jpg">桌面书本</a> ·
+                    <a href="../../memories/img/now-book-phone.jpg">手机书本</a> ·
+                    <a href="../../memories/img/now-photos-phone.jpg">手机照片墙</a
+                    >。低动效下全部改成淡入淡出，印章直接出现、不溅墨星。
+                </p>
+            </section>
+
+            <section aria-labelledby="h-title">
+                <h2 id="h-title">H · 照片墙</h2>
+                <div class="grid wide">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-photos-desk.jpg"
+                            aria-label="放大 H1 拍立得墙"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-photos-desk.jpg"
+                                alt="H1 桌面：同一面板里的拍立得墙"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H1 拍立得墙</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>和日记同一个面板、两个标题页签；日记里所有照片按月贴成两列拍立得，打开时逐张钉上墙。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/H2.jpg"
+                            aria-label="放大 H2 软木板"
+                        >
+                            <img src="../../memories/img/H2.jpg" alt="H2 软木板" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>H2 软木板</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>照片按月钉在软木板上，可以拖着摆，红线串起同一天；最好玩，照片一多就乱，摆法只在本机。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/H4.jpg"
+                            aria-label="放大 H4 放映机"
+                        >
+                            <img src="../../memories/img/H4.jpg" alt="H4 放映机" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>H4 放映机</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>一张大图加一条胶片，配着正在放的歌自动翻；建议以后做成灯箱里的「放映」按钮，不替代墙。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-lightbox-desk.jpg"
+                            aria-label="放大 灯箱（桌面）"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-lightbox-desk.jpg"
+                                alt="灯箱：照片长出、说明条、在日记里看"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>灯箱（桌面）</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            照片从缩略图里长出来；← → 翻页，Esc
+                            或点暗处缩回原位；说明条写谁、哪天、那页的字，可以「在日记里看」。
+                        </p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-photos-phone.jpg"
+                            aria-label="放大 H1 手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-photos-phone.jpg"
+                                alt="H1 手机照片墙"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H1 手机</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>同一个托盘，标题页签切过来就是照片墙。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-lightbox-phone.jpg"
+                            aria-label="放大 灯箱（手机）"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-lightbox-phone.jpg"
+                                alt="手机灯箱"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>灯箱（手机）</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>左右滑翻页，到头有阻力；说明条贴在底部。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-pull-phone.jpg"
+                            aria-label="放大 往下拉关闭"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-pull-phone.jpg"
+                                alt="手机灯箱往下拉"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>往下拉关闭</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>照片跟着手指往下走，背后的暗慢慢褪掉，松手后缩回拍立得。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/H3.jpg"
+                            aria-label="放大 H3 月历相册"
+                        >
+                            <img src="../../memories/img/H3.jpg" alt="H3 月历相册" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>H3 月历相册</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>三列方格、按月跳，一屏看得多；照片多了以后最好找，但没了拍立得的手作感。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="a-title">
+                <h2 id="a-title">A · 手机功能托盘</h2>
+                <p class="read muted">
+                    你的想法：手机上音乐不要悬浮条，点开从下往上弹出，盖住场景里我这边（手和杯子），对方人物完整可见；其他功能同理。
+                </p>
+                <div class="grid phones">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A1.jpg" aria-label="放大 A1 半桌托盘">
+                            <img
+                                src="../img/A1.jpg"
+                                alt="A1 半桌托盘：托盘停在对方书下，底导航浮在上面"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>A1 半桌托盘</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>顶边停在对方书下，底导航浮在托盘上当标签栏；点当前图标、下拉或甩一下收起。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A2.jpg" aria-label="放大 A2 整页播放器">
+                            <img src="../img/A2.jpg" alt="A2 整页播放器" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A2 整页播放器</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>你说的第一种：直接进整页，最沉浸，但看不到对面，只靠顶部胶囊保留在场感。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A3.jpg" aria-label="放大 A3 镜头上抬">
+                            <img src="../img/A3.jpg" alt="A3 镜头上抬" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A3 镜头上抬</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>托盘更高，场景整体上挪、缩一点再压暗，对方的脸移到上半屏；空间大，但场景会动。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A4.jpg" aria-label="放大 A4 浮卡托盘">
+                            <img src="../img/A4.jpg" alt="A4 浮卡托盘" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A4 浮卡托盘</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>离边 12px 的轻玻璃浮卡，最像现状；高度有限，只放得下精简播放。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A5.jpg" aria-label="放大 A5 拉满看歌词">
+                            <img src="../img/A5.jpg" alt="A5 拉满看歌词" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A5 拉满看歌词</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>A1 的第二档：上拉到全高读歌词、翻歌单，顶部胶囊继续显示 TA 的状态。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A6.jpg" aria-label="放大 A6 聊天托盘">
+                            <img src="../img/A6.jpg" alt="A6 聊天托盘" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A6 聊天</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>窄卡改成同一个托盘，边聊边看 TA；展开钮进完整聊天。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A7.jpg" aria-label="放大 A7 工具托盘">
+                            <img src="../img/A7.jpg" alt="A7 工具托盘" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A7 工具</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>工具小菜单变成托盘，图块更好点，开关也有空间。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A8.jpg" aria-label="放大 A8 房间托盘">
+                            <img src="../img/A8.jpg" alt="A8 房间托盘" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A8 房间</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>高度随内容，房间卡横向滑动；未开放的房间只是概念占位，现在只有书房。</p>
+                    </div>
+                </div>
+                <div class="grid wide">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/A9.jpg" aria-label="放大 A9 横屏">
+                            <img src="../img/A9.jpg" alt="A9 横屏右侧一列" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>A9 横屏</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>矮屏里托盘改成右侧一列，停在导航上方，对方留在左中。</p>
+                    </div>
+                </div>
+                <p class="note">
+                    <b>已实现的托盘</b>：半高是可见高度的一半（至少 340px）。拖手柄或标题条改高度，甩一下（超过 0.11
+                    px/ms）就收起，拉过顶部有阻尼；Esc
+                    收起，焦点回到入口。托盘不挡导航，也不挡场景：打开时仍能戳对方、摸头。我这边的桌面会轻轻压暗，对方保持明亮。
+                </p>
+            </section>
+
+            <section aria-labelledby="b-title">
+                <h2 id="b-title">B · 音乐主页面</h2>
+                <div class="grid phones">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B1.jpg" aria-label="放大 B1">
+                            <img src="../img/B1.jpg" alt="B1 海报与歌词" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B1 海报 + 歌词</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>正在播放给海报最大的位置，下面三行歌词；「歌词 / 歌单」标签的金色滑块滑过去。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B2.jpg" aria-label="放大 B2">
+                            <img src="../img/B2.jpg" alt="B2 唱片机" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B2 唱片机</h3>
+                            <span class="chip done">已并入 B1</span>
+                        </div>
+                        <p>用书房唱片机的真唱片：播放时从封套后滑出慢转，标签印着海报，暂停收回去。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B3.jpg" aria-label="放大 B3">
+                            <img src="../img/B3.jpg" alt="B3 歌词沉浸" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B3 歌词沉浸</h3>
+                            <span class="chip done">已实现 · 9-30 定</span>
+                        </div>
+                        <p>
+                            海报糊成整页底色，歌词大字滚动，当前句放大；点一句跳过去。点正在播放的歌词或歌词页的「沉浸」进入，Esc
+                            退出。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B4.jpg" aria-label="放大 B4">
+                            <img src="../img/B4.jpg" alt="B4 歌单" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B4 歌单</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>带海报缩略图的列表，正在播放的一行发金光、有音柱；可筛「收藏」。</p>
+                    </div>
+                </div>
+                <div class="grid wide">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B5.jpg" aria-label="放大 B5">
+                            <img src="../img/B5.jpg" alt="B5 桌面右侧停靠" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B5 桌面右侧停靠</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>展开的播放器停在右边整列，对方在画面中间不被挡；收起回到迷你条。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/B6.jpg" aria-label="放大 B6">
+                            <img src="../img/B6.jpg" alt="B6 桌面中央三栏" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>B6 桌面中央三栏</h3>
+                            <span class="chip no">不采用 · 9-30</span>
+                        </div>
+                        <p>歌单 / 海报 / 歌词三栏最完整，但会盖住对方，适合专心选歌。</p>
+                    </div>
+                </div>
+                <p class="note">
+                    <b>已实现</b>：9 月 30 日加上 B3 沉浸歌词。8 首本机合成音景（新增 4
+                    首），每首有海报和随时间高亮的歌词；点歌单任一行直接播放，收藏只存在这台设备。桌面迷你条展开成右侧停靠栏；手机没有悬浮条，出声时导航的音乐图标带三根小音柱。音乐仍然是本机播放，不与对方同步。
+                </p>
+            </section>
+
+            <section aria-labelledby="c-title">
+                <h2 id="c-title">C · 搜索播放</h2>
+                <div class="grid phones">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/C1.jpg" aria-label="放大 C1">
+                            <img src="../img/C1.jpg" alt="C1 找歌" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>C1 找歌</h3>
+                            <span class="chip design">只出设计</span>
+                        </div>
+                        <p>
+                            第三个标签换成「找歌」：本地歌单命中排最前，在线结果标来源和试听限制，「+」加入我们的歌单。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/C2.jpg" aria-label="放大 C2">
+                            <img src="../img/C2.jpg" alt="C2 一起听" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>C2 一起听</h3>
+                            <span class="chip design">只出设计 · 远期</span>
+                        </div>
+                        <p>接了在线曲库后的共享听歌：托盘顶上显示对方也在听，谁暂停两边一起停。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/C3.jpg" aria-label="放大 C3">
+                            <img src="../img/C3.jpg" alt="C3 未连接与最近搜索" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>C3 未连接</h3>
+                            <span class="chip design">只出设计</span>
+                        </div>
+                        <p>空状态说清楚为什么搜不到、下一步是什么；最近搜索做成胶囊一点即搜。</p>
+                    </div>
+                </div>
+                <p class="note">音乐来源（哪个平台、版权、怎么登录）你定了之后再细化这一组。</p>
+            </section>
+
+            <section aria-labelledby="d-title">
+                <h2 id="d-title">D · 进入世界的加载</h2>
+                <div class="grid wide">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/D1.jpg" aria-label="放大 D1">
+                            <img src="../img/D1.jpg" alt="D1 热气进度条" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>D1 热气进度条</h3>
+                            <span class="chip done">推荐 · 已实现</span>
+                        </div>
+                        <p>大厅的空桌做底，玻璃卡上是冒热气的杯子、金色进度条、真实百分比和轮换的小提示。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/D2.jpg" aria-label="放大 D2">
+                            <img src="../img/D2.jpg" alt="D2 台灯渐亮" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>D2 台灯渐亮</h3>
+                            <span class="chip done">已并入 D1</span>
+                        </div>
+                        <p>用书房的灭灯 / 亮灯两张底图，加载进度就是台灯亮的程度。</p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/D3.jpg" aria-label="放大 D3">
+                            <img src="../img/D3.jpg" alt="D3 简约转圈" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>D3 简约转圈</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>最省：一颗玻璃胶囊里转金色弧线，没有进度。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/D4.jpg" aria-label="放大 D4">
+                            <img src="../img/D4.jpg" alt="D4 拉绳开灯" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>D4 拉绳开灯</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>加载时灯绳当等待动画，好了以后拉一下灯亮进屋；多一步，但很好玩。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/D5.jpg" aria-label="放大 D5">
+                            <img src="../img/D5.jpg" alt="D5 进屋揭幕" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>D5 进屋揭幕</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>收尾：暗角从中间张开，画面轻轻推近归位，界面随后依次浮上来。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="e-title">
+                <h2 id="e-title">E · 房间切换的异步加载</h2>
+                <div class="grid wide">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/E1.jpg" aria-label="放大 E1">
+                            <img src="../img/E1.jpg" alt="E1 胶囊进度" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>E1 胶囊进度</h3>
+                            <span class="chip design">只出设计</span>
+                        </div>
+                        <p>当前房间糊掉压暗，顶部胶囊显示去哪、进度多少，可以「留在书房」取消。</p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/E2.jpg" aria-label="放大 E2">
+                            <img src="../img/E2.jpg" alt="E2 卡片进度环" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>E2 卡片进度环</h3>
+                            <span class="chip design">只出设计 · 建议</span>
+                        </div>
+                        <p>点房间卡后原地加载，卡角一圈进度，人还在当前房间；好了自动横移过去。</p>
+                    </div>
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/E3.jpg" aria-label="放大 E3">
+                            <img src="../img/E3.jpg" alt="E3 低清先到" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>E3 低清先到</h3>
+                            <span class="chip design">只出设计 · 建议</span>
+                        </div>
+                        <p>切过去立刻有画面：缩略图糊着放大，一道光扫过，高清到了渐变清晰。</p>
+                    </div>
+                </div>
+                <p class="note">
+                    建议以后用 E2 + E3，网络慢（超过约 1.5 秒）时再叠 E1 的胶囊；进度源直接复用这次加载页的那一套。
+                </p>
+            </section>
+
+            <section aria-labelledby="f-title">
+                <h2 id="f-title">F · 交互反馈</h2>
+                <div class="grid wide">
+                    <div class="card">
+                        <button class="shot" type="button" data-full="../img/F1.jpg" aria-label="放大 F1">
+                            <img src="../img/F1.jpg" alt="F1 反馈语言" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>F1 反馈语言</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            按下、悬停、导航选中、开关、弹层进出、小红点、快捷表情、气泡、成功、失败、数字滚动和低动效。
+                        </p>
+                    </div>
+                </div>
+                <div class="lab" id="lab">
+                    <div class="lab-row">
+                        <h3>按一下试试</h3>
+                        <label class="lab-reduced" for="lab-reduced"
+                            ><input id="lab-reduced" type="checkbox" /> 预览低动效</label
+                        >
+                    </div>
+                    <div class="lab-row">
+                        <button class="lab-press" type="button" id="lab-press">进入世界</button>
+                        <button
+                            class="lab-switch"
+                            type="button"
+                            role="switch"
+                            aria-checked="true"
+                            aria-label="示例开关"
+                            id="lab-switch"
+                        >
+                            <i></i>
+                        </button>
+                        <div class="lab-tabs" role="tablist" aria-label="示例标签" id="lab-tabs">
+                            <em aria-hidden="true"></em>
+                            <button type="button" role="tab" aria-selected="true" data-i="0">歌词</button>
+                            <button type="button" role="tab" aria-selected="false" data-i="1">歌单</button>
+                            <button type="button" role="tab" aria-selected="false" data-i="2">声音</button>
+                        </div>
+                        <button class="lab-heart" type="button" id="lab-heart" aria-label="发送爱心">❤️</button>
+                    </div>
+                    <p class="muted" style="font-size: 13px">
+                        和应用里同一组曲线：按下 90ms 缩到 0.95、放开 460ms 回弹（约 10%）；标签滑块 420ms 弹簧（约
+                        3%）。低动效只留颜色变化，不动、不弹、不出粒子。
+                    </p>
+                </div>
+            </section>
+
+            <section aria-labelledby="motion-title">
+                <h2 id="motion-title">动效规范与调研</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>数值</th>
+                                <th>用在哪</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ease-out</td>
+                                <td><code>cubic-bezier(0.23, 1, 0.32, 1)</code></td>
+                                <td>进场、退场、按下</td>
+                            </tr>
+                            <tr>
+                                <td>ease-in-out</td>
+                                <td><code>cubic-bezier(0.77, 0, 0.175, 1)</code></td>
+                                <td>屏上移动、失败轻晃</td>
+                            </tr>
+                            <tr>
+                                <td>ease-drawer</td>
+                                <td><code>cubic-bezier(0.32, 0.72, 0, 1)</code></td>
+                                <td>托盘升降</td>
+                            </tr>
+                            <tr>
+                                <td>ease-pop</td>
+                                <td><code>linear()</code> 弹簧 · 回弹约 10%</td>
+                                <td>放开按钮、小红点、气泡、换图标</td>
+                            </tr>
+                            <tr>
+                                <td>ease-spring</td>
+                                <td><code>linear()</code> 弹簧 · 回弹约 3%</td>
+                                <td>弹窗、面板、列表逐项、标签滑块</td>
+                            </tr>
+                            <tr>
+                                <td>时长</td>
+                                <td class="mono">90 / 460 / 160 / 260 / 150 / 420 / 460 ms</td>
+                                <td>按下 / 放开 / 悬停 / 进场 / 退场 / 面板 / 托盘</td>
+                            </tr>
+                            <tr>
+                                <td>低动效</td>
+                                <td>设置 → 动效：跟随系统 / 完整动效 / 低动效</td>
+                                <td>位移、缩放、回弹归零，只留淡入；循环、粒子、场景视差和微动停下</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>候选</th>
+                                <th>结论</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Emil Kowalski 的 skills（13 个，MIT）</td>
+                                <td>
+                                    动效判断写得最好：何时该动、曲线、时长、按压幅度、弹层从触发点长出、甩动收起阈值、减少动态效果怎么做。适合当动效评审标准；本轮按它的数值做，并按「俏皮的产品可以更有弹性」放宽了回弹。还没装进项目技能库，等你决定。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Motion（motion@13.4）</td>
+                                <td>
+                                    好用，支持 React 19，但要 29–43
+                                    KB（gzip）；位移简写跑在主线程，会和一直在跑的书房场景抢帧。本轮不引入。
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Vaul</td>
+                                <td>Emil 的底部抽屉库，仓库已标注不再维护。</td>
+                            </tr>
+                            <tr>
+                                <td>Base UI Drawer</td>
+                                <td>无样式、带吸附点和非模态的抽屉，以后想换成成熟组件时的首选。</td>
+                            </tr>
+                            <tr>
+                                <td>本轮做法</td>
+                                <td>CSS 优先加一个自写的小托盘，没有新增依赖；JS 增加约 9 KB、CSS 约 6 KB（gzip）。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer>
+                <p>
+                    仓库里的比稿文档：ai/design_system/codex-visual/ui-motion/ui-motion.md（画板源文件 board.html
+                    在同一目录）。
+                </p>
+                <p>
+                    分支 claude/ui-animation-design-nmh9d4 · 手机回归 96 组布局全部通过 · 真机手感与 Safari 退场还没验。
+                </p>
+            </footer>
+        </div>
+
+        <dialog class="lightbox" id="lightbox" aria-label="大图">
+            <div class="lb-bar"><span id="lb-title"></span><button type="button" id="lb-close">关闭</button></div>
+            <img id="lb-img" alt="" />
+        </dialog>
+
+        <script>
+            (() => {
+                const reducedOS = matchMedia('(prefers-reduced-motion: reduce)');
+                // videos: autoplay muted unless the viewer asked for less motion
+                for (const v of document.querySelectorAll('video')) {
+                    if (reducedOS.matches) {
+                        v.removeAttribute('autoplay');
+                        v.controls = true;
+                        v.pause();
+                    }
+                }
+                // lightbox
+                const box = document.getElementById('lightbox');
+                const img = document.getElementById('lb-img');
+                const title = document.getElementById('lb-title');
+                for (const shot of document.querySelectorAll('.shot')) {
+                    shot.addEventListener('click', () => {
+                        img.src = shot.dataset.full;
+                        img.alt = shot.querySelector('img')?.alt ?? '';
+                        title.textContent = shot.closest('.card')?.querySelector('h3')?.textContent ?? '';
+                        const inner = shot.querySelector('img');
+                        box.classList.toggle('tall', !!inner && inner.naturalHeight > inner.naturalWidth);
+                        box.showModal();
+                    });
+                }
+                document.getElementById('lb-close').addEventListener('click', () => box.close());
+                box.addEventListener('click', (e) => {
+                    if (e.target === box) box.close();
+                });
+                // the lab
+                const lab = document.getElementById('lab');
+                const reducedBox = document.getElementById('lab-reduced');
+                reducedBox.checked = reducedOS.matches;
+                const syncReduced = () => lab.classList.toggle('reduced', reducedBox.checked);
+                reducedBox.addEventListener('change', syncReduced);
+                syncReduced();
+                const sw = document.getElementById('lab-switch');
+                sw.addEventListener('click', () =>
+                    sw.setAttribute('aria-checked', String(sw.getAttribute('aria-checked') !== 'true'))
+                );
+                const tabs = document.getElementById('lab-tabs');
+                tabs.addEventListener('click', (e) => {
+                    const b = e.target.closest('button[data-i]');
+                    if (!b) return;
+                    tabs.style.setProperty('--i', b.dataset.i);
+                    for (const t of tabs.querySelectorAll('button')) t.setAttribute('aria-selected', String(t === b));
+                });
+                document.getElementById('lab-heart').addEventListener('click', (e) => {
+                    if (reducedBox.checked) return;
+                    const r = e.currentTarget.getBoundingClientRect();
+                    for (let i = 0; i < 7; i++) {
+                        const p = document.createElement('span');
+                        p.className = 'particle';
+                        p.textContent = i % 3 === 2 ? '✦' : '❤️';
+                        p.style.left = r.left + r.width / 2 + 'px';
+                        p.style.top = r.top + r.height / 2 + 'px';
+                        p.style.fontSize = 11 + Math.random() * 8 + 'px';
+                        document.body.appendChild(p);
+                        const a = ((-90 + (Math.random() - 0.5) * 110) * Math.PI) / 180;
+                        const d = 50 + Math.random() * 40;
+                        const dx = Math.cos(a) * d;
+                        const dy = Math.sin(a) * d;
+                        const anim = p.animate(
+                            [
+                                { transform: 'translate(-50%,-50%) scale(.4)', opacity: 0 },
+                                {
+                                    transform: `translate(calc(-50% + ${dx * 0.4}px), calc(-50% + ${dy * 0.4}px)) scale(1.1)`,
+                                    opacity: 1,
+                                    offset: 0.28
+                                },
+                                {
+                                    transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.75)`,
+                                    opacity: 0
+                                }
+                            ],
+                            {
+                                duration: 700 + Math.random() * 250,
+                                delay: i * 16,
+                                easing: 'cubic-bezier(0.23, 1, 0.32, 1)'
+                            }
+                        );
+                        anim.onfinish = () => p.remove();
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>
