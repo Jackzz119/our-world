@@ -31,3 +31,6 @@ ai/jaSkills/
 ai/jaAgents/
 ai/JASKILL.md
 .shelf.json
+
+# Published artifact copies: kept identical to the version that was published
+ai/features/music/proposal.html
