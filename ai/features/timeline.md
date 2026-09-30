@@ -1,15 +1,20 @@
 # Timeline · 回忆存储接后端 系统设计文档
 
 > 🟢 **在役活文档**。回忆链路（时间线/日记本 + 照片墙 + Composer + Storage）的功能细节唯一载体，PROJECT.md 只留摘要 + 本文引用。
-> 最后更新：2026-09-07（棕皮旧纸竖直翻页、连续翻阅、阅读时雨不停播接入本地；拿起/收回与羽毛笔交互仍待办，数据链路未动）
+> 最后更新：2026-09-30（日记与照片墙合成回忆面板，旧棕皮书改为设置里的「书本（旧版）」；数据链路未动，Composer 的写入抽成 `publishMemory` 并允许宿主替换）
 > 路线图位置：① 回忆存储（核心）——见 `ai/PROJECT.md` / `ai/TODO.md`
-> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`、`src/lib/worlds.ts`、`src/lib/profiles.ts`、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/surfaces/object-surfaces.tsx`、`journal/room-book.tsx`、`journal/layout.ts`、`journal/turn.ts`、`journal/turn-controller.ts`、`journal/room.css`、`journal/turn.css`、`journal/diary.css`
+> 关联代码：`src/lib/posts.ts`、`src/lib/storage.ts`、`src/lib/worlds.ts`、`src/lib/profiles.ts`、`src/hooks/useFeed.ts`、`src/types/feed.ts`、`src/themes/cinnaglass/surfaces/object-surfaces.tsx`、`surfaces/memory-surface.tsx`、`surfaces/journal-stream.tsx`、`surfaces/journal-index.tsx`、`surfaces/photo-wall.tsx`、`surfaces/memory-lightbox.tsx`、`surfaces/memory-photos.ts`、`surfaces/memory.css`、`surfaces/composer.tsx`；旧书本 `journal/room-book.tsx`、`journal/layout.ts`、`journal/turn.ts`、`journal/turn-controller.ts`、`journal/room.css`、`journal/turn.css`、`journal/diary.css`
 >
 > ⚠️ **术语映射（2026-07-04 完成迁移）**：`couples` → `rooms` → **`worlds`**。历史 ST 条目与已归档的实现报告里写的 `rooms` / `Room` / `getMyRoom` / `room_id` / `roomId`（更早写 `couple*`），线上与代码均已是 `worlds` / `World` / `getMyWorld`（`src/lib/worlds.ts`）/ `world_id` / `worldId`。表结构与 RPC 现状真源见 [`ai/PROJECT.md`「数据库」章](../PROJECT.md)。本文一至六章已按当前命名改写，下方「实现计划」的历史条目保留原始措辞不回溯改写。
 
-## 当前形态（视觉与交互，2026-09-07）
+## 当前形态（视觉与交互，2026-09-30）
 
-日记打开的是**桌上同一本棕皮旧纸书**：居中双页、手写风墨色、真实日期/页码/照片与旧纸纹理同属一张纸面；羽毛笔是静态装饰图片。翻页用 24 条相接纸片的三维变换（单张 980ms；连续时 470ms/张、行程 38% 接续、最多 3 张在空中），已加载的中间页显示真实清晰内容、不伪造页码或正文，未加载的历史继续通过日期目录按游标取。读日记时场景与雨保持运行，不重置播放与聊天状态。
+**回忆面板**（默认）：日记与照片墙是同一个 A 类面板的两个标题页签，桌面停在右侧一列、手机是底部托盘，TA 始终可见（2026-09-30 用户要求日记与照片墙统一迭代）。日记是纸页贴在玻璃上的长卷：从旧到新往下排、打开停在最新一页、月份标签吸顶、滚到顶自动按游标载入更早的回忆（阅读顺序旧→新、身份不用位置区分这两条旧裁决继续有效）；「写一页」是底部的横格纸，发布后新页落下并盖「记」字印章；「目录」是当月日历。照片墙把所有 `visible_images` 按月贴成拍立得；日记照片与照片墙共用一个灯箱（从缩略图长出、左右滑、下拉关闭、原图渐进换入、可跳回日记那一页）。流程、状态、动效与录屏：[UX 参考 §4](../design_system/uiux/cinnaglass/ux/ux.md)；比稿与未选方向：[日记与照片墙](../design_system/codex-visual/memories/memories.md)。
+
+- 数据链路不变：仍是 `useFeed`（懒加载、游标、`reload`）+ `useSignedThumbs` 共用一份缩略图签名；面板关着时两页都挂载、隐藏，草稿与滚动保留（§七.2 的意图）。`UseFeed.publish` 是给隔离样板的可选写入口，线上不提供，Composer 走自己的 `publishMemory`（逐张上传 → 写帖 → 失败回收已传文件）。
+- **书本（旧版）**：设置 → 主题外观 → 日记样式选「书本」时，日记仍是下面这本棕皮书（代码原样保留，照片墙仍在回忆面板里）。
+
+**棕皮书（书本模式）**：日记打开的是**桌上同一本棕皮旧纸书**：居中双页、手写风墨色、真实日期/页码/照片与旧纸纹理同属一张纸面；羽毛笔是静态装饰图片。翻页用 24 条相接纸片的三维变换（单张 980ms；连续时 470ms/张、行程 38% 接续、最多 3 张在空中），已加载的中间页显示真实清晰内容、不伪造页码或正文，未加载的历史继续通过日期目录按游标取。读日记时场景与雨保持运行，不重置播放与聊天状态。
 
 - 实装、GIF 证据与边界：[竖直翻页实装](../design_system/uiux/cinnaglass/journal-room-object/turn-implementation.md)
 - 静态美术（书本几何、纸色、双页排版、资产/字体、未覆盖项）：[棕皮旧纸静态实装](../design_system/uiux/cinnaglass/journal-room-object/book-implementation.md)

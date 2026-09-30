@@ -1,6 +1,6 @@
 # 移动端 UI 自适应
 
-> 2026-09-21 · 实现与浏览器回归完成；真机验收待做。任务状态归 [TODO](../TODO.md)，视觉遵循 [当前主题](../design_system/uiux/cinnaglass/ui-system.md)。独立于全局动画体系；日记 C 类保持冻结。
+> 2026-09-21 · 实现与浏览器回归完成；真机验收待做。任务状态归 [TODO](../TODO.md)，视觉遵循 [当前主题](../design_system/uiux/cinnaglass/ui-system.md)，交互与录屏见 [UX 参考](../design_system/uiux/cinnaglass/ux/ux.md)。
 
 ## 目标与范围
 
@@ -37,11 +37,13 @@ Playwright 使用既有脚本依赖加载方式，不增加产品运行时依赖
 
 - Playwright：12 个页面 × 8 种尺寸 = 96 组布局通过，另验触屏 toggle、天气选择、表情/会话 Esc 分层、旋转保留草稿、顶部/底部/左右安全区和 reduced-motion；页面异常为 0。
 - 4 类合成键盘收缩：聊天窄窗、完整聊天、登录、设置改密。收缩后输入仍可达，恢复后保留聊天草稿；双指缩放信号不误判为键盘。
-- 页面参数：`room`、`compact-chat`、`music`、`chat`、`settings`、`calendar`、`clock`、`photos`、`wishes`、`login`、`reset`、`lobby`。重置密码只覆盖无恢复会话的提示态，不包含有效恢复会话的提交验证。
+- 页面参数：`room`、`compact-chat`、`music`、`chat`、`settings`、`calendar`、`clock`、`journal`、`photos`、`wishes`、`login`、`reset`、`lobby`（`journal` / `photos` 打开回忆面板，用 [本地假数据](../../scripts/fixtures/memory-feed.ts)，`&journal=book` 换回棕皮书）。重置密码只覆盖无恢复会话的提示态，不包含有效恢复会话的提交验证。
 - TypeScript 产品与样板独立检查、改动文件 ESLint、Vite 生产构建通过；构建仍有主包超过 500 kB 的体积提示，本轮不扩大到拆包。
 - 视觉：Monet 同 agent 自审，选定正式组件截图登记到 [手机版常驻规范](../design_system/uiux/mobile.md)，全局预览读取同一份登记。日记未改。
 
 2026-09-29：手机布局换成底部托盘（[sheet.tsx](../../src/themes/cinnaglass/ui/sheet.tsx)）。聊天、音乐、工具、房间从底边升起，半高停在对方书下；导航压在托盘上方；音乐可拉满，没有悬浮条；竖屏任务窗也从底边升起。回归脚本随之更新：量尺寸前先等进场动画播完（循环动画不等）；托盘打开时导航中心必须仍能点中；新增音乐托盘两档切换和工具托盘 Esc 收起；横屏安全区改为检查音乐托盘；样板新增 `?screen=enter`（进入世界的加载页）和 `?motion=reduced`。96 组布局、4 类键盘、交互、安全区与减少动态效果全部通过，页面异常 0。设计见 [UI 动效与手机托盘](../design_system/codex-visual/ui-motion/ui-motion.md)。
+
+2026-09-30：加上回忆面板（日记 + 照片墙）两页，13 页 × 8 尺寸 104 组布局；新增交互：回忆托盘半高 / 拉满、灯箱 Esc 只关照片不关托盘、日记草稿收起再从工具菜单打开还在、照片墙拍立得打开灯箱、先开照片墙再切日记仍停在最新一页。全部通过，页面异常 0。设计见 [日记与照片墙](../design_system/codex-visual/memories/memories.md)。
 
 ## 复跑入口
 
