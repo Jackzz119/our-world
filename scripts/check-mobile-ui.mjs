@@ -27,6 +27,7 @@ const screens = [
     'settings',
     'calendar',
     'clock',
+    'journal',
     'photos',
     'wishes',
     'login',
@@ -56,8 +57,10 @@ async function settle(page) {
 async function visit(page, screen) {
     await page.goto(`${baseUrl()}/scripts/fixtures/mobile-ui.html?screen=${screen}`);
     await page.locator('.ui-environment').first().waitFor();
-    if (['chat', 'settings', 'calendar', 'clock', 'photos', 'wishes'].includes(screen))
+    if (['chat', 'settings', 'calendar', 'clock', 'wishes'].includes(screen))
         await page.locator('dialog[open]').waitFor();
+    // the journal and the photo wall open the memory panel (desktop dock, phone sheet), not a dialog
+    if (['journal', 'photos'].includes(screen)) await page.locator('.memory-panel[data-state="open"]').waitFor();
     if (screen === 'reset') await page.getByRole('alert').waitFor();
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(80);
@@ -94,7 +97,7 @@ async function layout(page, label) {
         const dialog = document.querySelector('dialog[open]');
         const selectors = dialog
             ? '.ui-dialog[open],.ui-dialog[open] .ui-dialog-header,.ui-dialog[open] .chsc-input'
-            : '.rail,.amb-dock,.chat-card,.cc-input,.music-wrap';
+            : '.rail,.amb-dock,.chat-card,.cc-input,.music-wrap,.memory-dock,.mem-head,.mem-compose';
         const bad = [];
         for (const el of document.querySelectorAll(selectors)) {
             if (!el.checkVisibility()) continue;
@@ -103,7 +106,7 @@ async function layout(page, label) {
                 bad.push(`${el.className}: outside viewport`);
         }
         for (const el of document.querySelectorAll(
-            '.ui-dialog[open] .ui-dialog-content,.cc-list,.chsc-main,.ui-entry'
+            '.ui-dialog[open] .ui-dialog-content,.cc-list,.chsc-main,.ui-entry,.mem-scroll'
         )) {
             if (el.checkVisibility() && el.scrollWidth > el.clientWidth + 2)
                 bad.push(`${el.className}: horizontal overflow`);
@@ -113,7 +116,7 @@ async function layout(page, label) {
         if (input && list && list.getBoundingClientRect().height < 65) bad.push('chat has no usable reading area');
         if (!dialog) {
             const rail = document.querySelector('.rail')?.getBoundingClientRect();
-            for (const el of document.querySelectorAll('.chat-card,.music-wrap')) {
+            for (const el of document.querySelectorAll('.chat-card,.music-wrap,.memory-dock')) {
                 if (!el.checkVisibility() || !rail) continue;
                 const r = el.getBoundingClientRect();
                 if (r.left < rail.right && r.right > rail.left && r.top < rail.bottom && r.bottom > rail.top)
@@ -161,7 +164,12 @@ try {
                 await page.locator('.chsc-input button[type="submit"]').click();
                 assert.equal(await page.locator('.chsc-msgs').getByText('手机回归测试', { exact: true }).count(), 1);
             }
-            if (['settings', 'calendar', 'clock', 'photos', 'wishes'].includes(screen)) {
+            if (['journal', 'photos'].includes(screen)) {
+                await page.locator('.mem-close').click();
+                await page.locator('.memory-panel[hidden]').waitFor({ state: 'attached' });
+                await visit(page, screen);
+            }
+            if (['settings', 'calendar', 'clock', 'wishes'].includes(screen)) {
                 await page.locator('dialog[open] .ui-dialog-content').evaluate((e) => {
                     e.scrollTop = e.scrollHeight;
                 });
@@ -202,6 +210,47 @@ try {
     await layout(page, 'tools sheet open');
     await page.keyboard.press('Escape');
     await page.locator('.rail-sheet').waitFor({ state: 'detached' });
+
+    // the journal rises as a sheet over the viewer's side; the lightbox's Escape closes only the photo
+    await visit(page, 'journal');
+    assert.equal(await page.locator('.memory-sheet').getAttribute('data-detent'), 'half');
+    await page.getByRole('button', { name: '展开我们的日记' }).tap();
+    assert.equal(await page.locator('.memory-sheet').getAttribute('data-detent'), 'full');
+    await settle(page);
+    await layout(page, 'journal sheet full');
+    await page.locator('.mem-journal .mem-photo').last().tap();
+    await page.locator('dialog.mem-lightbox[open]').waitFor();
+    await page.keyboard.press('Escape');
+    await page.locator('dialog.mem-lightbox').waitFor({ state: 'detached' });
+    assert.equal(await page.locator('.memory-sheet[data-state="open"]').count(), 1, 'lightbox Escape keeps the sheet');
+    // a draft survives putting the journal away and taking it out again from the tools
+    await page.locator('.mem-compose .compose-collapsed').tap();
+    await page.locator('.mem-compose textarea').fill('收起再打开，草稿还在');
+    await page.locator('.mem-close').tap();
+    await page.locator('.memory-panel[hidden]').waitFor({ state: 'attached' });
+    await page.locator('[data-nav-key="modules"]').tap();
+    await page.locator('.rail-sheet [data-nav-key="journal"]').tap();
+    await page.locator('.memory-sheet[data-state="open"]').waitFor();
+    assert.equal(await page.locator('.compose-collapsed.draft').count(), 1, 'journal draft kept');
+    // the photo wall tab, and a polaroid opening the lightbox
+    await page.locator('#mem-tab-photos').tap();
+    await page.locator('.mem-pola').first().tap();
+    await page.locator('dialog.mem-lightbox[open]').waitFor();
+    await page.getByRole('button', { name: '关闭照片' }).tap();
+    await page.locator('dialog.mem-lightbox').waitFor({ state: 'detached' });
+    // opened on the photo wall first, the journal still lands on its newest page
+    await visit(page, 'room');
+    await page.locator('[data-nav-key="modules"]').tap();
+    await page.locator('.rail-sheet [data-nav-key="photos"]').tap();
+    await page.locator('.memory-sheet[data-state="open"]').waitFor();
+    await page.locator('#mem-tab-journal').tap();
+    await settle(page);
+    const unread = await page
+        .locator('.mem-journal .mem-scroll')
+        .evaluate((e) => e.scrollHeight - e.scrollTop - e.clientHeight);
+    assert(unread < 4, 'journal opens at the newest page');
+
+    await visit(page, 'room');
     await page.getByRole('button', { name: /天气：/ }).tap();
     await page.getByRole('radio', { name: '雨', exact: true }).tap();
     await page.getByRole('button', { name: /天气：/ }).tap();
