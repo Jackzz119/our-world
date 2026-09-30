@@ -18,9 +18,11 @@ type SurfaceRouterOptions = {
      *  own open flags in WorldPage, so the rail/hotspot routes call back out. */
     onToggleChat: () => void;
     onToggleMusic: () => void;
+    /** a SubScreen tab is opening: the memory panel takes the column the player and chat use */
+    onOpenTab?: (tab: TabKey) => void;
 };
 
-export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic }: SurfaceRouterOptions) {
+export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic, onOpenTab }: SurfaceRouterOptions) {
     const [screen, setScreen] = useState<string | null>(() =>
         initialScreen && MODAL_TABS.includes(initialScreen as TabKey) ? initialScreen : null
     );
@@ -29,8 +31,10 @@ export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic }:
     // Open a surface. SubScreen tabs additionally record where the click came
     // from, so the modal can grow out of that point; other screens ignore origin.
     const open = (k: string, origin?: SurfaceOrigin) => {
-        if (MODAL_TABS.includes(k as TabKey))
+        if (MODAL_TABS.includes(k as TabKey)) {
             setSurfaceOrigin(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2, source: 'keyboard' });
+            onOpenTab?.(k as TabKey);
+        }
         setScreen(k);
     };
     const close = () => setScreen(null);
@@ -38,6 +42,7 @@ export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic }:
     // rail actions → surfaces (both entry channels open the same surface)
     const onRail = (k: RailKey, origin: { x: number; y: number; source: 'rail' }) => {
         if (k === 'chat') onToggleChat();
+        else if (k === 'journal') open('timeline', origin);
         else if (k === 'photos') open('photos', origin);
         else if (k === 'calendar') open('calendar');
         else if (k === 'music') onToggleMusic();

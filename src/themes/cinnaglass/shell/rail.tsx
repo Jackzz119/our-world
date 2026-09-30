@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import type { IcoProps } from '@/themes/cinnaglass/icons';
-import { IBag, ICalendar, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
+import { IBag, IBook, ICalendar, ILock, ILogout, IPhoto } from '@/themes/cinnaglass/icons';
 import { RailHome, RailChat, RailMusic, RailTools, RailSettings } from '@/themes/cinnaglass/shell/rail-icons';
 import { Sheet } from '@/themes/cinnaglass/ui/sheet';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
@@ -14,7 +14,7 @@ import type { Widgets } from '@/themes/cinnaglass/model';
 
 // Rail actions. 'rooms' and 'modules' toggle a popover in place; every other
 // key is forwarded to onAction.
-export type RailKey = 'rooms' | 'chat' | 'photos' | 'calendar' | 'music' | 'modules' | 'shop' | 'settings';
+export type RailKey = 'rooms' | 'chat' | 'journal' | 'photos' | 'calendar' | 'music' | 'modules' | 'shop' | 'settings';
 
 type RoomDef = {
     id: string;
@@ -171,6 +171,7 @@ export function Rail({
     const toolsBody = (
         <>
             <div className="rail-tool-links">
+                {btn('journal', IBook, '日记')}
                 {btn('photos', IPhoto, '照片墙')}
                 {btn('calendar', ICalendar, '日历·纪念日')}
                 {btn('shop', IBag, '装扮（敬请期待）', { disabled: true })}

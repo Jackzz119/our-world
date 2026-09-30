@@ -25,7 +25,7 @@ import {
     IUser
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
-import type { ChatAlign, Mood, MotionPref, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
+import type { ChatAlign, JournalStyle, Mood, MotionPref, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
 
 const TAG = '[auth][web][settings]';
 
@@ -42,6 +42,10 @@ const MOTION_OPTS: SegOpt[] = [
     { k: 'system', label: '跟随系统' },
     { k: 'full', label: '完整动效' },
     { k: 'reduced', label: '低动效' }
+];
+const JOURNAL_OPTS: SegOpt[] = [
+    { k: 'scrapbook', label: '手帐' },
+    { k: 'book', label: '书本（旧版）' }
 ];
 const MOOD_OPTS: SegOpt[] = [
     { k: 'golden', label: '黄昏', Icon: ISun },
@@ -464,6 +468,17 @@ export function SettingsScreen({
                         <div className="set-s">一天里的光与氛围</div>
                     </div>
                     <Segmented opts={MOOD_OPTS} value={t.mood} onChange={(k) => setTweak('mood', k as Mood)} withIcon />
+                </div>
+                <div className="set-row" style={{ flexWrap: 'wrap' }}>
+                    <div className="set-body">
+                        <div className="set-t">日记样式</div>
+                        <div className="set-s">手帐和照片墙在同一个面板里；书本是之前那本棕皮日记</div>
+                    </div>
+                    <Segmented
+                        opts={JOURNAL_OPTS}
+                        value={t.journalStyle}
+                        onChange={(k) => setTweak('journalStyle', k as JournalStyle)}
+                    />
                 </div>
                 <div className="set-row">
                     <div className="set-body">

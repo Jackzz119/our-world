@@ -101,3 +101,7 @@
     max-height: calc(var(--ui-visible-height, 100dvh) - 12px);
     padding-bottom: 12px;
 }
+/* keepMounted sheets stay in the DOM while closed; the display above would override [hidden] */
+.ui-sheet[hidden] {
+    display: none;
+}

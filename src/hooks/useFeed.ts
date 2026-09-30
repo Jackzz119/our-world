@@ -27,6 +27,9 @@ export type UseFeed = {
     loadOlder: () => void;
     error: string | null;
     reload: () => void;
+    /** a host that keeps memories elsewhere (the layout fixture) writes new pages here;
+     *  absent = the composer's own Storage upload + posts insert */
+    publish?: (content: string, files: File[]) => Promise<void>;
 };
 
 // Profiles for everyone who appears in the feed (not just the world's two

@@ -1,17 +1,18 @@
-// screens.tsx — the three room-object surfaces: journal, photo wall, wishlist.
-// All three stay mounted so scroll, lightbox and composer drafts survive
-// closing one object and opening another. The journal's own paging lives in
-// journal-room-book.tsx; this file owns the modal shell, focus trap and the
-// photo-wall + wishlist bodies.
+// object-surfaces.tsx — the room-object surfaces: the memory panel (journal +
+// photo wall, memory-surface.tsx), the wishlist, and — in the 书本 setting — the
+// chestnut book the journal used to be (journal/room-book.tsx, kept on request
+// 2026-09-30). Everything stays mounted so scroll, lightbox and composer drafts
+// survive closing one object and opening another.
 import { TaskDialog } from '@/themes/cinnaglass/ui/task-dialog';
 import '@/themes/cinnaglass/surfaces/collection-surfaces.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFeed, type UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
+import type { JournalStyle } from '@/themes/cinnaglass/tweaks';
 import { IClose } from '@/themes/cinnaglass/icons';
 import { toneOf } from '@/themes/cinnaglass/surfaces/author-tone';
 import { useSignedThumbs } from '@/themes/cinnaglass/surfaces/use-signed-thumbs';
-import { PhotoWall } from '@/themes/cinnaglass/surfaces/photo-wall';
+import { MemorySurface, type MemoryView } from '@/themes/cinnaglass/surfaces/memory-surface';
 import { PostDetail } from '@/themes/cinnaglass/surfaces/post-detail';
 import { Wishlist } from '@/themes/cinnaglass/surfaces/wishlist';
 import '@/themes/cinnaglass/journal/diary.css';
@@ -22,18 +23,10 @@ import '@/themes/cinnaglass/surfaces/object-surfaces.css';
 
 // Which room object is open. 'timeline' is the journal.
 type TabKey = 'timeline' | 'photos' | 'wishlist';
-// Where the open gesture came from, so the sheet can fly out of the clicked
-// furniture instead of the screen centre.
+// Where the open gesture came from (furniture, rail or keyboard).
 export type SurfaceOrigin = { x: number; y: number; source: 'object' | 'rail' | 'keyboard' };
 
-// The three surfaces, in mount order. All stay mounted; screen picks one.
-const SURFACES: { k: TabKey; title: string; kicker: string }[] = [
-    { k: 'timeline', title: '我们的日记', kicker: 'MEMORY DIARY' },
-    { k: 'photos', title: '照片墙', kicker: 'PHOTO WALL' },
-    { k: 'wishlist', title: '心愿单', kicker: 'OUR WISHES' }
-];
-
-// Journal + its detail overlay. Nothing else: the book owns its own paging.
+// The chestnut book + its detail overlay (book mode). The book owns its own paging.
 function TimelineBody({
     feed,
     thumbUrls,
@@ -62,59 +55,107 @@ function TimelineBody({
     );
 }
 
-// The room-object modal shell. All three surfaces stay mounted and are shown
-// one at a time, so state survives closing one object and opening another.
-// Owns: the open-from-furniture transform, the layered Escape order
-// (detail/lightbox → composer → surface) and the Tab trap.
+// Feeds the surfaces. Lazy: the feed fetch fires on the first object open, not at page load.
 export function SubScreen({
     screen,
     origin,
-    onClose
+    onClose,
+    journalStyle = 'scrapbook'
 }: {
     screen: TabKey | null;
     origin?: SurfaceOrigin | null;
     onClose: () => void;
+    journalStyle?: JournalStyle;
 }) {
-    const show = !!screen;
-    const [visibleScreen, setVisibleScreen] = useState<TabKey | null>(null);
-    const surfaceRefs = useRef<Partial<Record<TabKey, HTMLElement | null>>>({});
+    const feed = useFeed(!!screen);
+    const thumbUrls = useSignedThumbs(feed.posts);
+    return (
+        <ObjectSurfaces
+            screen={screen}
+            origin={origin}
+            onClose={onClose}
+            feed={feed}
+            thumbUrls={thumbUrls}
+            journalStyle={journalStyle}
+        />
+    );
+}
+
+// The surfaces themselves, fed from outside (SubScreen, or a layout fixture's local feed).
+export function ObjectSurfaces({
+    screen,
+    onClose,
+    feed,
+    thumbUrls,
+    journalStyle = 'scrapbook'
+}: {
+    screen: TabKey | null;
+    origin?: SurfaceOrigin | null;
+    onClose: () => void;
+    feed: UseFeed;
+    thumbUrls: Record<string, string>;
+    journalStyle?: JournalStyle;
+}) {
+    const book = journalStyle === 'book';
+    const memory: MemoryView | null =
+        screen === 'photos' ? 'photos' : screen === 'timeline' && !book ? 'journal' : null;
+    return (
+        <>
+            <MemorySurface requested={memory} onClose={onClose} feed={feed} thumbUrls={thumbUrls} journal={!book} />
+            {book && <BookSurface open={screen === 'timeline'} onClose={onClose} feed={feed} thumbUrls={thumbUrls} />}
+            <TaskDialog
+                open={screen === 'wishlist'}
+                onClose={onClose}
+                title="心愿单"
+                className="collection-task wishlist-task"
+                description="心愿仅保存在当前浏览器，不会同步给对方。"
+            >
+                <Wishlist />
+            </TaskDialog>
+        </>
+    );
+}
+
+// The chestnut book as it was (book mode): a centred modal over a light scrim with its own
+// layered Escape (detail → composer → book) and Tab trap; focus returns to the opener.
+function BookSurface({
+    open,
+    onClose,
+    feed,
+    thumbUrls
+}: {
+    open: boolean;
+    onClose: () => void;
+    feed: UseFeed;
+    thumbUrls: Record<string, string>;
+}) {
+    const [visible, setVisible] = useState(false);
+    const panelRef = useRef<HTMLElement | null>(null);
     const restoreFocusRef = useRef<HTMLElement | null>(null);
     const closeRef = useRef(onClose);
-    // Lazy: the feed fetch fires on first object open, not at page load. All
-    // three surfaces stay mounted so scroll, lightbox and composer draft state
-    // survive closing one object and visiting another.
-    const feed = useFeed(show);
-    const thumbUrls = useSignedThumbs(feed.posts);
 
     useEffect(() => {
         closeRef.current = onClose;
     }, [onClose]);
 
-    // Let the hidden sheet paint once at the latest object-origin transform,
-    // then reveal it on the next frame. Applying origin + .show in one render
-    // would make the browser animate from the old center instead of the item.
+    // Reveal on the frame after mounting, so the sheet animates in instead of popping.
     useEffect(() => {
-        const frame = window.requestAnimationFrame(() => setVisibleScreen(screen));
+        const frame = window.requestAnimationFrame(() => setVisible(open));
         return () => window.cancelAnimationFrame(frame);
-    }, [screen]);
+    }, [open]);
 
-    // One Escape closes one layer: detail/lightbox first, then composer, then
-    // the object surface. Tab is trapped inside the active sheet and focus is
-    // returned to the rail button when that was the opener.
     useEffect(() => {
-        if (!screen) {
+        if (!open) {
             const previous = restoreFocusRef.current;
             restoreFocusRef.current = null;
             if (previous) window.setTimeout(() => previous.focus(), 0);
             return;
         }
-        // Collections use native task dialogs; the frozen journal keeps its own trap.
-        if (screen !== 'timeline') return;
         restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-        const panel = surfaceRefs.current[screen];
+        const panel = panelRef.current;
         window.requestAnimationFrame(() => panel?.querySelector<HTMLElement>('.object-x')?.focus());
         const onKey = (event: KeyboardEvent) => {
-            const activePanel = surfaceRefs.current[screen];
+            const activePanel = panelRef.current;
             if (!activePanel) return;
             if (event.key === 'Escape') {
                 if (activePanel.querySelector('.pd,.lb,.compose-open')) return;
@@ -141,88 +182,34 @@ export function SubScreen({
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [screen]);
-
-    // Clamp the open-from origin to ±46% of the viewport so a click near an edge
-    // still flies from a visible point. The journal opts out: its art is centred.
-    const originStyle = (key: TabKey): React.CSSProperties => {
-        if (screen !== key || !origin) return {};
-        // Static book art is centered; the new take-from-desk motion is deferred.
-        if (key === 'timeline') return {};
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const dx = Math.max(-window.innerWidth * 0.46, Math.min(window.innerWidth * 0.46, origin.x - centerX));
-        const dy = Math.max(-window.innerHeight * 0.46, Math.min(window.innerHeight * 0.46, origin.y - centerY));
-        return {
-            '--object-open-x': `${Math.round(dx)}px`,
-            '--object-open-y': `${Math.round(dy)}px`,
-            '--object-open-r': `${dx < 0 ? -1.5 : 1.5}deg`
-        } as React.CSSProperties;
-    };
+    }, [open]);
 
     return (
         <>
-            <div
-                className={`modal-scrim object-scrim ${screen === 'timeline' ? 'diary-scrim' : ''} ${screen === 'timeline' ? 'show' : ''}`}
-                onClick={onClose}
-            />
-            {SURFACES.map((surface) => {
-                const active = visibleScreen === surface.k;
-                const diary = surface.k === 'timeline';
-                if (!diary) {
-                    return (
-                        <TaskDialog
-                            key={surface.k}
-                            open={screen === surface.k}
-                            onClose={onClose}
-                            title={surface.title}
-                            className={`collection-task ${surface.k}-task`}
-                            wide={surface.k === 'photos'}
-                            description={
-                                surface.k === 'photos'
-                                    ? '把一起留下的瞬间，慢慢看。'
-                                    : '心愿仅保存在当前浏览器，不会同步给对方。'
-                            }
-                        >
-                            {surface.k === 'photos' && (
-                                <PhotoWall posts={feed.posts} thumbUrls={thumbUrls} active={screen === 'photos'} />
-                            )}
-                            {surface.k === 'wishlist' && <Wishlist />}
-                        </TaskDialog>
-                    );
-                }
-                return (
-                    <section
-                        key={surface.k}
-                        ref={(node) => {
-                            surfaceRefs.current[surface.k] = node;
-                        }}
-                        className={`object-surface ${diary ? 'diary-surface' : 'paper collection-surface'} ${active ? 'show' : ''}`}
-                        data-surface={surface.k}
-                        style={originStyle(surface.k)}
-                        aria-hidden={!active}
-                        inert={!active}
-                        role="dialog"
-                        aria-modal={active ? true : undefined}
-                        aria-labelledby={`${surface.k}-surface-title`}
-                    >
-                        <header className="object-hd">
-                            <div>
-                                <div className="object-kicker">{surface.kicker}</div>
-                                <h2 id={`${surface.k}-surface-title`}>{surface.title}</h2>
-                            </div>
-                            <button className="modal-x object-x" onClick={onClose} aria-label={`关闭${surface.title}`}>
-                                <IClose size={17} />
-                            </button>
-                        </header>
-                        <div className={diary ? 'object-body tl-host' : 'object-body'}>
-                            {surface.k === 'timeline' && (
-                                <TimelineBody feed={feed} thumbUrls={thumbUrls} active={active} />
-                            )}
-                        </div>
-                    </section>
-                );
-            })}
+            <div className={`modal-scrim object-scrim diary-scrim ${open ? 'show' : ''}`} onClick={onClose} />
+            <section
+                ref={panelRef}
+                className={`object-surface diary-surface ${visible ? 'show' : ''}`}
+                data-surface="timeline"
+                aria-hidden={!visible}
+                inert={!visible}
+                role="dialog"
+                aria-modal={visible ? true : undefined}
+                aria-labelledby="timeline-surface-title"
+            >
+                <header className="object-hd">
+                    <div>
+                        <div className="object-kicker">MEMORY DIARY</div>
+                        <h2 id="timeline-surface-title">我们的日记</h2>
+                    </div>
+                    <button className="modal-x object-x" onClick={onClose} aria-label="关闭我们的日记">
+                        <IClose size={17} />
+                    </button>
+                </header>
+                <div className="object-body tl-host">
+                    <TimelineBody feed={feed} thumbUrls={thumbUrls} active={visible} />
+                </div>
+            </section>
         </>
     );
 }

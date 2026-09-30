@@ -1,0 +1,1000 @@
+/* The memory panel (memory-surface.tsx): the journal as paper cards and the photo
+   wall as polaroids, laid on the Cinnaglass glass. Desktop docks it in the music
+   player's right-hand column; a phone raises it as an expandable sheet
+   (ui/sheet.css). Paper carries the words, glass carries the controls.
+   Concept: ai/design_system/codex-visual/memories/memories.md (G1 + H1). */
+
+/* The journal hand (also declared by journal/room.css for the book; same file). */
+@font-face {
+    font-family: 'Journal WenKai';
+    src: url('/fonts/journal/LXGWWenKaiLite-Regular.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+.memory-panel {
+    --paper: #ecdfc2;
+    --paper-deep: #dec8a0;
+    --paper-ink: #4a3620;
+    --paper-muted: #7b6446;
+    --paper-rule: rgb(110 83 47 / 0.16);
+    --ink-mine: #2c5a6d;
+    --ink-theirs: #8f4a5e;
+    --stamp: #b3542f;
+    --paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%236b4f2a' opacity='.07' filter='url(%23n)' d='M0 0h160v160H0z'/%3E%3C/svg%3E");
+}
+
+/* ---------- desktop dock ---------- */
+.memory-dock.ui-surface {
+    --ui-alpha: 0.74;
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    bottom: 24px;
+    z-index: 37;
+    display: flex;
+    flex-direction: column;
+    width: min(440px, calc(100vw - 180px));
+    padding: 18px 12px 12px;
+    border-radius: 28px;
+    outline: none;
+    transition:
+        opacity var(--dur-enter) var(--ease-out),
+        translate var(--dur-panel) var(--ease-spring),
+        scale var(--dur-panel) var(--ease-spring);
+}
+.memory-dock[hidden] {
+    display: none;
+}
+@starting-style {
+    .memory-dock.ui-surface {
+        opacity: 0;
+        translate: calc(var(--rise) * 3.2) 0;
+        scale: var(--enter-scale);
+    }
+}
+.memory-dock[data-state='closing'] {
+    opacity: 0;
+    translate: calc(var(--rise) * 2.4) 0;
+    transition-duration: var(--dur-exit);
+    transition-timing-function: var(--ease-out);
+    pointer-events: none;
+}
+/* the panel takes the right-hand column (the bottom sheet on a phone): the music bar and the
+   corner cards step aside, as they do for the open player */
+.app.ui-environment:has(.memory-panel[data-state='open']) :is(.music-wrap, .moment-card, .letter-notice) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity var(--dur-exit) ease,
+        visibility 0s linear var(--dur-exit);
+}
+
+/* ---------- phone sheet ---------- */
+.memory-sheet.ui-sheet.ui-surface {
+    --ui-alpha: 0.72;
+    padding-inline: 8px;
+}
+.memory-sheet .mem-head {
+    padding-top: 2px;
+}
+/* At half height only the sheet's top half is on screen (it rests translated down), so the views
+   stop where the screen does: the newest page and the doorway to write stay in sight. */
+.memory-sheet {
+    --sheet-half: min(var(--sheet-full), max(340px, calc(var(--ui-visible-height, 100dvh) * 0.5)));
+}
+.memory-sheet .mem-views {
+    transition: margin-bottom var(--dur-sheet) var(--ease-drawer);
+}
+.memory-sheet[data-detent='half'] .mem-views {
+    margin-bottom: calc(var(--sheet-full) - var(--sheet-half));
+}
+.memory-sheet[data-detent='half'] .mem-sub {
+    display: none;
+}
+
+/* ---------- header: two title tabs ---------- */
+.mem-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    column-gap: 2px;
+    padding: 0 4px 10px 8px;
+}
+.mem-tabs {
+    --tab: 3.9em;
+    position: relative;
+    display: grid;
+    grid-auto-columns: var(--tab);
+    grid-auto-flow: column;
+    justify-content: start;
+    font-family: var(--ui-display);
+    font-size: 25px;
+}
+.mem-tab,
+.mem-title {
+    margin: 0;
+    padding: 0 0 7px;
+    border: 0;
+    background: none;
+    color: var(--ui-text);
+    font: inherit;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1.25;
+    text-align: left;
+    white-space: nowrap;
+}
+.mem-title {
+    font-family: var(--ui-display);
+    font-size: 25px;
+}
+.mem-tab {
+    cursor: pointer;
+    opacity: 0.5;
+    transition:
+        opacity var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-spring);
+    transform-origin: left center;
+}
+.mem-tab:hover {
+    opacity: 0.8;
+}
+.mem-tab:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.mem-tab[aria-selected='true'] {
+    opacity: 1;
+}
+.mem-tab:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+/* a brush of accent ink under the open tab, sliding between them */
+.mem-tab-ink {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: calc(2.05em + var(--at) * 1em);
+    height: 4px;
+    border-radius: 4px 2px 5px 3px;
+    background: linear-gradient(90deg, var(--ui-accent), rgb(241 209 154 / 0.55));
+    translate: calc(var(--at) * var(--tab)) 0;
+    pointer-events: none;
+    transition:
+        translate var(--dur-panel) var(--ease-spring),
+        width var(--dur-panel) var(--ease-spring);
+}
+.mem-head .ui-icon-button {
+    background: transparent;
+    border-color: transparent;
+}
+.mem-index-btn.on {
+    background: rgb(241 209 154 / 0.16);
+    color: var(--ui-accent);
+}
+.mem-sub {
+    grid-column: 1 / -1;
+    margin: 2px 0 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- the two views ---------- */
+.mem-views {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+.mem-view {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    animation: mem-view-in var(--dur-enter) var(--ease-out) both;
+}
+.mem-view[hidden] {
+    display: none;
+}
+@keyframes mem-view-in {
+    from {
+        opacity: 0;
+        translate: 0 var(--rise);
+    }
+}
+.mem-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 8px 10px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #ffffff30 transparent;
+    mask-image: linear-gradient(transparent, #000 12px, #000 calc(100% - 16px), transparent);
+}
+.mem-month + .mem-month {
+    margin-top: 6px;
+}
+.mem-month-tag {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    margin: 0 0 14px;
+    pointer-events: none;
+}
+.mem-month-tag span {
+    padding: 3px 12px;
+    border: 1px solid rgb(var(--ui-rim) / 0.2);
+    border-radius: 999px;
+    background: rgb(var(--ui-tint) / 0.84);
+    color: var(--ui-accent);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    box-shadow: 0 6px 14px -8px #000c;
+    backdrop-filter: blur(8px);
+}
+.mem-older,
+.mem-first {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 4px 0 18px;
+    color: var(--ui-muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+}
+.mem-older {
+    min-height: 36px;
+    border: 1px dashed rgb(var(--ui-rim) / 0.3);
+    border-radius: 12px;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition:
+        color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease;
+}
+.mem-older:hover:not(:disabled) {
+    border-color: var(--ui-accent);
+    color: var(--ui-text);
+}
+
+/* ---------- paper ---------- */
+.mem-paper {
+    position: relative;
+    color: var(--paper-ink);
+    background:
+        var(--paper-grain), radial-gradient(120% 90% at 18% 0%, #f7eed9, transparent 58%),
+        linear-gradient(174deg, var(--paper), var(--paper-deep));
+    border-radius: 5px 9px 7px 11px / 9px 5px 11px 7px;
+    box-shadow:
+        inset 0 1px 0 #fff9,
+        inset 0 -1px 0 #0000000f,
+        0 12px 24px -14px #000d,
+        0 2px 5px -1px #0006;
+}
+.mem-entry {
+    --who: var(--ink-theirs);
+    margin: 0 6px 20px;
+    padding: 18px 16px 14px;
+    rotate: var(--tilt);
+    transition:
+        rotate var(--dur-release) var(--ease-spring),
+        translate var(--dur-release) var(--ease-spring),
+        box-shadow var(--dur-hover) ease;
+}
+.mem-entry[data-author='mine'] {
+    --who: var(--ink-mine);
+}
+/* a strip of washi tape holding the page to the glass */
+.mem-entry::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 76px;
+    height: 20px;
+    translate: -50% 0;
+    rotate: calc(var(--tilt) * -3 + 1.5deg);
+    background: repeating-linear-gradient(90deg, #ffffff38 0 5px, transparent 5px 11px), var(--tape, #efe1b4);
+    opacity: 0.86;
+    clip-path: polygon(
+        0 8%,
+        5% 0,
+        10% 9%,
+        15% 0,
+        85% 0,
+        90% 10%,
+        95% 0,
+        100% 8%,
+        100% 92%,
+        95% 100%,
+        90% 90%,
+        85% 100%,
+        15% 100%,
+        10% 91%,
+        5% 100%,
+        0 92%
+    );
+    box-shadow: 0 1px 2px #0002;
+    pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+    .mem-entry:hover {
+        rotate: 0deg;
+        translate: 0 var(--hover-lift);
+        box-shadow:
+            inset 0 1px 0 #fff9,
+            0 18px 32px -16px #000e,
+            0 3px 8px -2px #0006;
+    }
+}
+.mem-entry-hd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.mem-ava {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow:
+        0 0 0 2px var(--paper),
+        0 0 0 3.5px var(--who);
+}
+.mem-who {
+    color: var(--who);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+.mem-entry-hd time {
+    margin-left: auto;
+    color: var(--paper-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+.mem-text {
+    margin: 0;
+    color: var(--paper-ink);
+    font:
+        400 17px/1.85 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.02em;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+.mem-text[data-folded] {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    mask-image: linear-gradient(#000 55%, transparent);
+}
+.mem-more {
+    display: inline-flex;
+    margin-top: 4px;
+    padding: 6px 2px;
+    border: 0;
+    background: none;
+    color: var(--who);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline wavy rgb(0 0 0 / 0.18);
+    text-underline-offset: 5px;
+    cursor: pointer;
+    transition: scale var(--dur-release) var(--ease-spring);
+}
+.mem-more:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mem-photos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 2px 0 12px;
+}
+.mem-photos[data-count='1'] {
+    grid-template-columns: minmax(0, 1fr);
+}
+.mem-photos:is([data-count='5'], [data-count='6']) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mem-photo {
+    position: relative;
+    aspect-ratio: 1;
+    padding: 4px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 3px;
+    background: #fbf7ee;
+    box-shadow:
+        0 1px 3px #0005,
+        0 8px 14px -10px #0009;
+    cursor: zoom-in;
+    transition:
+        scale var(--dur-release) var(--ease-spring),
+        rotate var(--dur-release) var(--ease-spring);
+}
+.mem-photos[data-count='1'] .mem-photo {
+    aspect-ratio: 4 / 3;
+}
+.mem-photos[data-count='3'] .mem-photo:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 9;
+}
+.mem-photo img,
+.mem-photo-wait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    /* a still-loading photo reads as an empty photo slot, not a white card */
+    background: #e6dcc6;
+    object-fit: cover;
+    transition: scale var(--dur-panel) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+    .mem-photo:hover img {
+        scale: 1.05;
+    }
+}
+.mem-photo:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.mem-photo:focus-visible,
+.mem-pola:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
+.mem-photo-more {
+    position: absolute;
+    inset: 4px;
+    display: grid;
+    place-items: center;
+    border-radius: 2px;
+    background: rgb(30 22 14 / 0.55);
+    color: #fff8eb;
+    font-size: 19px;
+    font-weight: 600;
+}
+.mem-photo-wait {
+    background: linear-gradient(100deg, #e6d8bb 30%, #f4ead6 50%, #e6d8bb 70%) 0 0 / 220% 100%;
+    animation: mem-shimmer 1.4s linear infinite;
+}
+@keyframes mem-shimmer {
+    to {
+        background-position: -220% 0;
+    }
+}
+
+/* our new page lands on the stream with a seal pressed into its corner */
+.mem-entry[data-fresh] {
+    animation: mem-land 620ms var(--ease-pop) both;
+}
+@keyframes mem-land {
+    from {
+        opacity: 0;
+        translate: 0 28px;
+        scale: 0.94;
+        rotate: calc(var(--tilt) + 3deg);
+    }
+}
+/* pressed over the card's corner, so it never sits on the words */
+.mem-stamp {
+    position: absolute;
+    right: -8px;
+    bottom: -14px;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 2.5px solid var(--stamp);
+    border-radius: 50%;
+    color: var(--stamp);
+    font:
+        400 22px/1 var(--ui-display),
+        serif;
+    rotate: -14deg;
+    opacity: 0.78;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    animation: mem-stamp 560ms var(--ease-pop) 300ms both;
+}
+@keyframes mem-stamp {
+    from {
+        opacity: 0;
+        scale: 2.3;
+        rotate: -32deg;
+    }
+    55% {
+        opacity: 0.95;
+    }
+}
+
+/* ---------- notes: empty, error, loading ---------- */
+.mem-note {
+    margin: 26px 10px;
+    padding: 22px 20px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.7;
+}
+.mem-note p {
+    margin: 0;
+    color: var(--paper-muted);
+}
+.mem-note .mem-note-title {
+    margin-bottom: 4px;
+    color: var(--paper-ink);
+    font:
+        400 22px/1.4 'Journal WenKai',
+        KaiTi,
+        serif;
+}
+.mem-note-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    margin-top: 14px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--paper-ink);
+    color: #f6ecd6;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: scale var(--dur-release) var(--ease-spring);
+}
+.mem-note-btn:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mem-skeleton {
+    display: grid;
+    gap: 18px;
+    padding: 6px;
+}
+.mem-skeleton i {
+    display: block;
+    height: 150px;
+    border-radius: 8px;
+    background: linear-gradient(100deg, #ffffff0c 30%, #ffffff1c 50%, #ffffff0c 70%) 0 0 / 220% 100%;
+    animation: mem-shimmer 1.4s linear infinite;
+}
+.mem-skeleton i:nth-child(2) {
+    height: 96px;
+}
+
+/* ---------- the page being written ---------- */
+.mem-compose {
+    position: relative;
+    flex: none;
+    padding: 8px 8px 0;
+}
+.memory-panel .compose {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+}
+.memory-panel .compose-collapsed {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 1px dashed rgb(var(--ui-rim) / 0.36);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.04);
+    color: var(--ui-muted);
+    font: inherit;
+    text-align: left;
+    cursor: text;
+    transition:
+        border-color var(--dur-hover) ease,
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-spring);
+}
+.memory-panel .compose-collapsed:not(.draft)::before {
+    content: '✎';
+    color: var(--ui-accent);
+    font-size: 17px;
+}
+.memory-panel .compose-collapsed:hover {
+    border-color: rgb(241 209 154 / 0.7);
+    background: rgb(241 209 154 / 0.08);
+    box-shadow: none;
+}
+.memory-panel .compose-collapsed:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.memory-panel .compose-collapsed .ph {
+    color: var(--ui-muted);
+    font-size: 14px;
+}
+.memory-panel .compose-collapsed.draft {
+    border-style: solid;
+    border-color: rgb(241 209 154 / 0.55);
+}
+.memory-panel .compose-collapsed.draft .ph {
+    color: var(--ui-text);
+}
+.memory-panel .draft-chip {
+    border: 0;
+    background: var(--ui-accent);
+    color: #3a2c18;
+}
+.memory-panel .draft-imgs,
+.memory-panel .compose-collapsed .go {
+    color: var(--ui-accent);
+}
+/* open, the draft is a sheet of paper rising over the bottom of the stream */
+.memory-panel .compose.is-open {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    left: 8px;
+    z-index: 6;
+}
+.memory-panel .compose-open {
+    position: relative;
+    gap: 12px;
+    max-height: min(480px, 70vh);
+    padding: 16px 16px 14px;
+    overflow-y: auto;
+    color: var(--paper-ink);
+    background:
+        var(--paper-grain),
+        repeating-linear-gradient(transparent 0 30px, var(--paper-rule) 30px 31px) 0 14px / 100% 31px no-repeat,
+        linear-gradient(174deg, #f3e8cf, var(--paper-deep));
+    background-size:
+        auto,
+        100% calc(31px * 5),
+        auto;
+    border-radius: 8px 12px 10px 14px / 12px 8px 14px 10px;
+    box-shadow:
+        inset 0 1px 0 #fffb,
+        0 -18px 40px -20px #000c,
+        0 4px 10px -4px #0008;
+    animation: mem-compose-in var(--dur-panel) var(--ease-spring) both;
+}
+@keyframes mem-compose-in {
+    from {
+        opacity: 0;
+        translate: 0 24px;
+        scale: 0.97;
+    }
+}
+.memory-panel .compose textarea {
+    min-height: 124px;
+    color: var(--paper-ink);
+    font:
+        400 17px/31px 'Journal WenKai',
+        KaiTi,
+        serif;
+}
+/* the caret on ruled paper is focus enough; no glass focus ring on the page itself */
+.memory-panel .compose textarea:is(:focus, :focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+.memory-panel .compose textarea::placeholder {
+    color: rgb(123 100 70 / 0.7);
+}
+.memory-panel .pk-strip {
+    height: 64px;
+    border: 1.5px dashed rgb(110 83 47 / 0.35);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.28);
+    color: var(--paper-muted);
+    font: inherit;
+    font-size: 13px;
+}
+.memory-panel .pk-strip:hover,
+.memory-panel .compose.dropping .pk-strip {
+    border-color: var(--paper-ink);
+    background: rgb(255 255 255 / 0.45);
+}
+.memory-panel .pk-add {
+    border-color: rgb(110 83 47 / 0.4);
+    background: rgb(255 255 255 / 0.3);
+    color: var(--paper-ink);
+}
+.memory-panel .pk {
+    border: 3px solid #fbf7ee;
+    border-radius: 3px;
+    box-shadow: 0 3px 8px -3px #0007;
+}
+.memory-panel .pk-cnt {
+    color: var(--paper-muted);
+}
+.memory-panel .compose-actions .btn-ghost {
+    border: 1px solid rgb(110 83 47 / 0.3);
+    background: transparent;
+    color: var(--paper-muted);
+}
+.memory-panel .compose-actions .btn-ghost:hover {
+    color: var(--paper-ink);
+}
+.memory-panel .btn-pub {
+    border: 0;
+    border-radius: 999px;
+    background: var(--paper-ink);
+    color: #f7edd8;
+    font: inherit;
+    font-weight: 600;
+    box-shadow: 0 8px 18px -8px #3a2710;
+    cursor: pointer;
+    transition:
+        scale var(--dur-release) var(--ease-spring),
+        box-shadow var(--dur-hover) ease;
+}
+.memory-panel .btn-pub:hover:not(:disabled) {
+    box-shadow: 0 12px 22px -8px #3a2710;
+}
+.memory-panel .btn-pub:active:not(:disabled) {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.memory-panel .btn-pub:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.memory-panel .compose .empty-hint {
+    color: #9b3b2b;
+    font-size: 12.5px;
+}
+
+/* ---------- 目录: the journal's calendar ---------- */
+.mem-index.ui-surface {
+    --ui-alpha: 0.9;
+    position: absolute;
+    top: 0;
+    right: 8px;
+    z-index: 8;
+    width: min(300px, calc(100% - 16px));
+    padding: 12px;
+    border-radius: 18px;
+    outline: none;
+    transform-origin: 90% 0;
+    animation: ow-pop-in var(--dur-panel) var(--ease-pop) both;
+}
+.mem-index-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.mem-index-hd b {
+    font-family: var(--ui-display);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+.mem-index-hd .ui-icon-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: transparent;
+    border-color: transparent;
+}
+.mem-index-hd .ui-icon-button:disabled {
+    opacity: 0.3;
+}
+.mem-cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    animation: ow-fade-in var(--dur-enter) ease both;
+}
+.mem-cal-wd {
+    padding: 2px 0 6px;
+    color: var(--ui-muted);
+    font-size: 11px;
+    text-align: center;
+}
+.mem-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+.mem-day.empty {
+    color: rgb(255 248 235 / 0.34);
+}
+button.mem-day {
+    background: rgb(241 209 154 / 0.1);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-spring);
+}
+button.mem-day:hover {
+    background: rgb(241 209 154 / 0.24);
+}
+button.mem-day:active {
+    scale: 0.9;
+    transition-duration: var(--dur-press);
+}
+.mem-day[data-today] {
+    box-shadow: inset 0 0 0 1.5px var(--ui-accent);
+}
+.mem-day-ink {
+    position: absolute;
+    bottom: 4px;
+    display: flex;
+    gap: 3px;
+}
+:is(.mem-day-ink, .mem-index-ft) i {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+}
+:is(.mem-day-ink, .mem-index-ft) i[data-author='mine'] {
+    background: #9ccbe4;
+}
+:is(.mem-day-ink, .mem-index-ft) i[data-author='theirs'] {
+    background: #f0a9bd;
+}
+.mem-index-ft {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+    color: var(--ui-muted);
+    font-size: 11.5px;
+}
+.mem-index-ft span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.mem-index-ft span i + i {
+    margin-left: 6px;
+}
+.mem-index-link {
+    min-height: 30px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ui-accent);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+.mem-index-link:hover:not(:disabled) {
+    background: rgb(241 209 154 / 0.12);
+}
+
+/* ---------- the photo wall ---------- */
+.mem-wall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+    padding: 6px 6px 8px;
+}
+.mem-pola {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 7px 7px 0;
+    border: 0;
+    border-radius: 2px;
+    background: #fcf9f1;
+    color: #6a5c49;
+    font: inherit;
+    rotate: var(--tilt);
+    box-shadow:
+        0 2px 4px #0005,
+        0 14px 22px -14px #000c;
+    cursor: zoom-in;
+    animation: mem-pin 520ms var(--ease-pop) calc(var(--order) * 45ms) both;
+    transition:
+        rotate var(--dur-release) var(--ease-spring),
+        translate var(--dur-release) var(--ease-spring),
+        scale var(--dur-release) var(--ease-spring),
+        box-shadow var(--dur-hover) ease;
+}
+.mem-pola::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    z-index: 1;
+    width: 54px;
+    height: 17px;
+    translate: -50% 0;
+    rotate: calc(var(--tilt) * -1.6);
+    background: repeating-linear-gradient(90deg, #ffffff40 0 4px, transparent 4px 9px), var(--tape);
+    opacity: 0.85;
+    clip-path: polygon(0 10%, 6% 0, 94% 0, 100% 10%, 100% 90%, 94% 100%, 6% 100%, 0 90%);
+}
+@keyframes mem-pin {
+    from {
+        opacity: 0;
+        translate: 0 -12px;
+        rotate: calc(var(--tilt) + 5deg);
+        scale: 1.04;
+    }
+}
+@media (hover: hover) and (pointer: fine) {
+    .mem-pola:hover {
+        z-index: 2;
+        rotate: 0deg;
+        translate: 0 -3px;
+        scale: 1.03;
+        box-shadow:
+            0 3px 6px #0005,
+            0 22px 30px -16px #000d;
+    }
+}
+.mem-pola:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.mem-pola-pic {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #e8e1d2;
+}
+.mem-pola-pic img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.mem-pola-cap {
+    padding: 7px 2px 9px;
+    font:
+        400 14px/1.2 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.05em;
+    text-align: center;
+}
+
+/* ---------- low motion: fades only (the tilt is decoration and stays) ---------- */
+:root[data-motion='reduced'] :is(.mem-pola, .mem-entry[data-fresh], .memory-panel .compose-open, .mem-view) {
+    animation-name: ow-fade-in;
+}
+:root[data-motion='reduced'] .mem-stamp {
+    animation: ow-fade-in var(--dur-enter) ease both;
+}
+:root[data-motion='reduced'] :is(.mem-photo-wait, .mem-skeleton i) {
+    animation: none;
+}

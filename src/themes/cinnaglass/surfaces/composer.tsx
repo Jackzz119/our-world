@@ -12,12 +12,54 @@ import { IPhoto, ISparkle } from '@/themes/cinnaglass/icons';
 type Picked = { file: File; url: string };
 const MAX_IMGS = 9;
 
+// Uploads run sequentially; the post row is written only after every image
+// lands. On failure whatever already reached the bucket is removed again —
+// nothing references it, and a retry uploads afresh — so a half-published
+// post never leaves orphans behind.
+async function publishMemory(worldId: string, content: string, files: File[]): Promise<void> {
+    const uploaded: string[] = [];
+    try {
+        for (const file of files) {
+            const { originalPath } = await uploadMemoryImage(worldId, file);
+            uploaded.push(originalPath);
+        }
+        await createPost({ worldId, content, images: uploaded });
+    } catch (e) {
+        void removeMemoryImages(uploaded);
+        throw e;
+    }
+}
+
 // The write path. Collapsed it is a one-line doorway; open it is a textarea +
 // image row. Publishing uploads every picked file to Storage first, then
 // inserts one post, then calls onPublished (the caller reloads the feed).
 // Clicking outside or Esc only collapses — the draft survives; only 取消 clears.
-export function Composer({ worldId, onPublished }: { worldId: string | null; onPublished: () => void }) {
-    const [open, setOpen] = useState(false);
+// onOpenChange lets a host make room (the phone sheet goes full height to write);
+// a new openSignal value opens it from outside (an empty journal's 写下第一页);
+// submit replaces the Storage + posts write for a host that keeps memories elsewhere.
+export function Composer({
+    worldId,
+    onPublished,
+    onOpenChange,
+    openSignal = 0,
+    submit
+}: {
+    worldId: string | null;
+    onPublished: () => void;
+    onOpenChange?: (open: boolean) => void;
+    openSignal?: number;
+    submit?: (content: string, files: File[]) => Promise<void>;
+}) {
+    const [open, setOpenState] = useState(false);
+    const [signal, setSignal] = useState(openSignal);
+    if (openSignal !== signal) {
+        setSignal(openSignal);
+        setOpenState(true);
+    }
+    const setOpen = (next: boolean) => {
+        setOpenState(next);
+        onOpenChange?.(next);
+    };
     const [text, setText] = useState('');
     const [picked, setPicked] = useState<Picked[]>([]);
     const [busy, setBusy] = useState(false);
@@ -30,16 +72,20 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
     // Implicit dismissal never destroys content: clicking anywhere outside the
     // composer (or Esc) just collapses it — text and picked images stay as a
     // draft. Only the explicit 取消 button clears.
+    const collapseRef = useRef(() => setOpen(false));
+    useLayoutEffect(() => {
+        collapseRef.current = () => setOpen(false);
+    });
     useEffect(() => {
         if (!open) return;
         const onDown = (e: PointerEvent) => {
-            if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+            if (rootRef.current && !rootRef.current.contains(e.target as Node)) collapseRef.current();
         };
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 e.preventDefault();
                 e.stopPropagation(); // Do not also dismiss the diary at window level.
-                setOpen(false);
+                collapseRef.current();
             }
         };
         document.addEventListener('pointerdown', onDown);
@@ -108,28 +154,20 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
         }
     };
 
-    // Uploads run sequentially; the post row is written only after every image
-    // lands. On failure the draft stays, and whatever already reached the
-    // bucket is removed again — nothing references it, and a retry uploads
-    // afresh — so a half-published post never leaves orphans behind.
+    // On failure the draft stays (text and picked images) for a retry.
     const publish = async () => {
         const v = text.trim();
         if ((!v && picked.length === 0) || !worldId || busy) return;
         setBusy(true);
         setErr(null);
-        const uploaded: string[] = [];
         try {
-            for (const p of picked) {
-                const { originalPath } = await uploadMemoryImage(worldId, p.file);
-                uploaded.push(originalPath);
-            }
-            await createPost({ worldId, content: v, images: uploaded });
+            const files = picked.map((p) => p.file);
+            await (submit ? submit(v, files) : publishMemory(worldId, v, files));
             setText('');
             setOpen(false);
             clearPicked();
             onPublished();
         } catch (e) {
-            void removeMemoryImages(uploaded);
             setErr(`发布失败：${e instanceof Error ? e.message : String(e)}`);
         } finally {
             setBusy(false);
@@ -166,7 +204,7 @@ export function Composer({ worldId, onPublished }: { worldId: string | null; onP
         );
     }
     return (
-        <div className={`compose is-open${over ? ' dropping' : ''}`} ref={rootRef}>
+        <div className={`compose is-open${over ? ' dropping' : ''}`} ref={rootRef} data-esc-own>
             <div className="compose-open" {...dropProps}>
                 <textarea
                     ref={taRef}
