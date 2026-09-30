@@ -1,0 +1,2184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Local copy of the published proposal (https://claude.ai/artifact/FgMvGftKN7Lhbd7w7WccFK). Voting and comments only work in the published version; here picks stay in this browser. -->
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Our World 音乐方案书</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap">
+<style>
+/* Layout: a proposal binder — a sticky contents rail beside one reading column; decisions sit inline as cards you can vote on, and the app's own dark-glass screens illustrate the UI directions. */
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --sunk: #e8eaee;
+  --ink: #1d2740;
+  --ink-2: #465068;
+  --ink-3: #626c82;
+  --line: rgba(29, 39, 64, 0.12);
+  --line-2: rgba(29, 39, 64, 0.22);
+  --accent: #1b6a95;
+  --accent-soft: rgba(27, 106, 149, 0.1);
+  --on-accent: #ffffff;
+  --gold: #85570e;
+  --gold-soft: rgba(185, 131, 40, 0.13);
+  --good: #2b7549;
+  --warn: #8a5b00;
+  --bad: #ad2a22;
+  /* Mockup screens always wear the app's own dark glass (Cinnaglass A-class liner), in both page themes. */
+  --scr: #2e2d34;
+  --scr-2: #3b3942;
+  --scr-ink: #fff8eb;
+  --scr-mute: #cbc6bc;
+  --scr-gold: #f1d19a;
+  --scr-line: rgba(255, 248, 235, 0.14);
+  --f-display: 'ZCOOL XiaoWei', 'Songti SC', 'STSong', serif;
+  --f-body: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --radius: 14px;
+  --radius-sm: 9px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1c1b20;
+    --surface: #26252b;
+    --sunk: #302e36;
+    --ink: #f5efe3;
+    --ink-2: #d3cdc1;
+    --ink-3: #aaa498;
+    --line: rgba(245, 239, 227, 0.11);
+    --line-2: rgba(245, 239, 227, 0.21);
+    --accent: #8ccdee;
+    --accent-soft: rgba(140, 205, 238, 0.12);
+    --on-accent: #16222c;
+    --gold: #f1d19a;
+    --gold-soft: rgba(241, 209, 154, 0.11);
+    --good: #9dd1aa;
+    --warn: #eec27a;
+    --bad: #ffb0a8;
+    --scr: #353340;
+    --scr-2: #423f4b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1c1b20;
+  --surface: #26252b;
+  --sunk: #302e36;
+  --ink: #f5efe3;
+  --ink-2: #d3cdc1;
+  --ink-3: #aaa498;
+  --line: rgba(245, 239, 227, 0.11);
+  --line-2: rgba(245, 239, 227, 0.21);
+  --accent: #8ccdee;
+  --accent-soft: rgba(140, 205, 238, 0.12);
+  --on-accent: #16222c;
+  --gold: #f1d19a;
+  --gold-soft: rgba(241, 209, 154, 0.11);
+  --good: #9dd1aa;
+  --warn: #eec27a;
+  --bad: #ffb0a8;
+  --scr: #353340;
+  --scr-2: #423f4b;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/1.8 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+p, ul, ol, figure, pre, h1, h2, h3, h4 { margin: 0; }
+ul, ol { padding-left: 1.3em; display: grid; gap: 6px; }
+strong { font-weight: 700; }
+code { font: 0.86em/1.4 var(--f-mono); background: var(--sunk); padding: 0.12em 0.4em; border-radius: 5px; overflow-wrap: anywhere; }
+pre { font: 13px/1.65 var(--f-mono); background: var(--sunk); border-radius: var(--radius-sm); padding: 14px 16px; overflow-x: auto; tab-size: 2; }
+pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.num, .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.small { font-size: 14px; line-height: 1.7; }
+
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  max-width: 75rem;
+  margin: 0 auto;
+  padding-inline: 18px;
+  padding-block: 28px 96px;
+}
+@media (min-width: 1120px) {
+  .wrap { grid-template-columns: 14.5rem minmax(0, 1fr); gap: 64px; padding-inline: 32px; }
+}
+main { min-width: 0; max-width: 50rem; display: grid; gap: 0; }
+
+/* Contents */
+.toc { display: none; }
+@media (min-width: 1120px) {
+  .toc {
+    display: block;
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 28px);
+    align-self: start;
+    max-height: calc(100vh - 56px);
+    overflow: auto;
+    padding-block: 8px;
+  }
+}
+.toc-title { font: 600 12px/1 var(--f-mono); letter-spacing: 0.12em; color: var(--ink-3); padding: 0 10px 10px; }
+.toc ol { list-style: none; padding: 0; gap: 1px; }
+.toc a {
+  display: grid;
+  grid-template-columns: 2.4em 1fr;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.toc a span:first-child { font: 12px/1.7 var(--f-mono); color: var(--ink-3); }
+.toc a:hover { background: var(--sunk); }
+.toc a.on { background: var(--accent-soft); color: var(--accent); }
+.toc a.on span:first-child { color: var(--accent); }
+.toc-m { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.toc-m summary { cursor: pointer; padding: 12px 14px; font-weight: 500; list-style-position: inside; }
+.toc-m ol { list-style: none; padding: 0 8px 10px; gap: 0; }
+.toc-m a { display: block; padding: 7px 8px; color: var(--ink-2); text-decoration: none; font-size: 15px; border-radius: 6px; }
+.toc-m a span { font: 12px var(--f-mono); color: var(--ink-3); margin-right: 8px; }
+@media (min-width: 1120px) { .toc-m { display: none; } }
+
+/* Header */
+.head { display: grid; gap: 14px; padding-bottom: 28px; }
+.eyebrow { font: 600 12px/1.4 var(--f-mono); letter-spacing: 0.14em; color: var(--ink-3); text-transform: uppercase; }
+h1 { font: 400 clamp(2.1rem, 1.5rem + 2.2vw, 2.9rem)/1.15 var(--f-display); letter-spacing: 0.02em; text-wrap: balance; }
+.lede { font-size: 17.5px; line-height: 1.85; color: var(--ink-2); max-width: 44rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--ink-3); }
+.meta b { font-weight: 500; color: var(--ink-2); }
+
+/* Sections */
+main > section { display: grid; gap: 18px; padding-block: 44px; border-top: 1px solid var(--line); scroll-margin-top: 12px; }
+.sec-head { display: grid; gap: 6px; }
+.sec-head .eyebrow { letter-spacing: 0.1em; }
+h2 { font: 400 clamp(1.6rem, 1.35rem + 0.9vw, 1.95rem)/1.3 var(--f-display); letter-spacing: 0.02em; text-wrap: balance; }
+h3 { font: 700 18px/1.5 var(--f-body); text-wrap: balance; padding-top: 8px; }
+h4 { font: 700 15.5px/1.5 var(--f-body); }
+.sub { display: grid; gap: 12px; }
+
+/* Summary */
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: grid; gap: 18px; }
+.summary h2 { font-size: 1.5rem; }
+.route { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+.route a { display: grid; grid-template-columns: 2.6em 1fr; gap: 2px 8px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 14.5px; line-height: 1.5; }
+.route a:hover { border-color: var(--line-2); }
+.route b { font: 600 13px/1.6 var(--f-mono); color: var(--accent); grid-row: span 2; }
+.route small { color: var(--ink-3); font-size: 13px; }
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+.stat { display: grid; gap: 2px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--sunk); }
+.stat b { font: 600 20px/1.3 var(--f-mono); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.qlist { counter-reset: q; list-style: none; padding: 0; gap: 8px; }
+.qlist li { counter-increment: q; display: grid; grid-template-columns: 2.2em 1fr; gap: 6px; font-size: 15px; line-height: 1.7; }
+.qlist li::before { content: "Q" counter(q); font: 600 13px/1.9 var(--f-mono); color: var(--gold); }
+
+/* Principles */
+.rules { display: grid; gap: 10px; }
+.rule { display: grid; grid-template-columns: 2.4rem 1fr; gap: 4px 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); }
+.rule > b { font: 400 26px/1.1 var(--f-display); color: var(--gold); grid-row: span 2; }
+.rule h4 { font-size: 16px; }
+.rule p { font-size: 14.5px; line-height: 1.75; color: var(--ink-2); }
+
+/* Decision cards */
+.decision { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: grid; gap: 16px; scroll-margin-top: 12px; }
+.decision-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.decision-head h3 { padding: 0; flex: 1 1 14rem; }
+.dtag { font: 600 12px/1 var(--f-mono); letter-spacing: 0.06em; color: var(--accent); background: var(--accent-soft); padding: 6px 8px; border-radius: 6px; }
+.talk { font: 500 13px/1 var(--f-body); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: 999px; padding: 8px 12px; cursor: pointer; min-height: 34px; }
+.talk:hover { color: var(--accent); border-color: var(--accent); }
+.decision > p { color: var(--ink-2); font-size: 15px; }
+.opts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.opts.four { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.opt { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; display: grid; gap: 8px; align-content: start; background: var(--bg); min-width: 0; }
+.opt.rec { border-color: color-mix(in srgb, var(--gold) 50%, transparent); background: var(--gold-soft); }
+.opt h4 { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; }
+.opt h4 .k { font: 600 13px/1 var(--f-mono); color: var(--ink-3); }
+.opt > p { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.tag-rec { font: 500 12px/1.2 var(--f-body); color: var(--gold); border: 1px solid currentColor; border-radius: 999px; padding: 2px 8px; }
+.pc { list-style: none; padding: 0; gap: 4px; font-size: 13.5px; line-height: 1.65; }
+.pc li { position: relative; padding-left: 1.15em; }
+.pc li::before { position: absolute; left: 0; font-weight: 700; }
+.pc .pro::before { content: "+"; color: var(--good); }
+.pc .con::before { content: "−"; color: var(--bad); }
+.effort { font: 12px/1.5 var(--f-mono); color: var(--ink-3); }
+.verdict { font-size: 14.5px; line-height: 1.75; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--sunk); }
+.verdict b { color: var(--gold); }
+.vote { display: grid; gap: 10px; border-top: 1px dashed var(--line-2); padding-top: 14px; }
+.vote-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.vote-row > span { font-size: 13px; color: var(--ink-3); margin-right: 4px; }
+.vote button {
+  font: 500 14px/1.2 var(--f-body);
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 36px;
+  transition: background-color 0.16s, border-color 0.16s, color 0.16s;
+}
+.vote button:hover { border-color: var(--accent); }
+.vote button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.who { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.who:empty { display: none; }
+.who .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 999px; background: var(--sunk); }
+.who img { width: 20px; height: 20px; border-radius: 50%; }
+
+/* Tables */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.6; }
+table.wide { min-width: 46rem; }
+table.xwide { min-width: 60rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+thead th { font-weight: 600; font-size: 13px; color: var(--ink-2); background: var(--sunk); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody th { font-weight: 600; white-space: nowrap; }
+td.y { color: var(--good); }
+td.n { color: var(--bad); }
+td.p { color: var(--warn); }
+.tbl-note { font-size: 13px; color: var(--ink-3); }
+
+/* Figures */
+figure { display: grid; gap: 10px; }
+.fig { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 16px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 40rem; color: var(--ink); }
+.fig svg.fit { min-width: 0; }
+figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
+.svg-accent { color: var(--accent); }
+.svg-gold { color: var(--gold); }
+.svg-bad { color: var(--bad); }
+
+/* Steps and milestones */
+.steps { list-style: none; padding: 0; counter-reset: s; gap: 10px; }
+.steps > li { counter-increment: s; display: grid; grid-template-columns: 2.2rem 1fr; gap: 2px 12px; }
+.steps > li::before { content: counter(s); font: 600 13px/1 var(--f-mono); width: 1.9rem; height: 1.9rem; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); grid-row: span 2; }
+.steps > li b { font-weight: 700; }
+.steps > li p, .steps > li ul { grid-column: 2; font-size: 14.5px; color: var(--ink-2); line-height: 1.75; }
+.ms { display: grid; gap: 12px; }
+.m { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 16px; display: grid; gap: 10px; }
+.m-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.m-head b { font: 600 13px/1 var(--f-mono); color: var(--accent); }
+.m-head h4 { flex: 1 1 12rem; }
+.m-head span { font: 12.5px/1.4 var(--f-mono); color: var(--ink-3); }
+.m ul { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.m .acc { font-size: 13.5px; line-height: 1.7; padding: 10px 12px; border-radius: 8px; background: var(--sunk); color: var(--ink-2); }
+.m .acc b { color: var(--good); font-weight: 600; }
+.gantt-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 14px; }
+.gantt { display: grid; gap: 7px; min-width: 36rem; font-size: 12.5px; }
+.g-row { display: grid; grid-template-columns: 8rem repeat(25, minmax(0, 1fr)); column-gap: 2px; align-items: center; }
+.g-row .lbl { grid-column: 1; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
+.g-row .bar { height: 16px; border-radius: 5px; background: var(--accent); opacity: 0.85; }
+.g-row .bar.opt { background: repeating-linear-gradient(135deg, var(--gold) 0 5px, transparent 5px 9px); border: 1px solid var(--gold); opacity: 1; }
+.g-row .wk { font: 11px/1.4 var(--f-mono); color: var(--ink-3); border-left: 1px solid var(--line-2); padding-left: 4px; }
+.g-row.ruler { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+
+/* Callouts */
+.note { padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); font-size: 14.5px; line-height: 1.75; display: grid; gap: 6px; }
+.note.warn { border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.note > b:first-child { font-size: 13px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.04em; }
+.two { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.two > * { min-width: 0; }
+.two.quad { grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+.card { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.card h4 { font-size: 15px; }
+.card p, .card ul { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+
+/* Mockups: dark-glass screens in the app's own style */
+.mocks { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr)); }
+.mock { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.mock h4 { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.mock h4 .k { font: 600 13px/1 var(--f-mono); color: var(--ink-3); }
+.mock p { font-size: 13.5px; line-height: 1.7; color: var(--ink-2); }
+.screen {
+  position: relative;
+  max-width: 100%;
+  aspect-ratio: 9 / 16.5;
+  border-radius: 24px;
+  background: var(--scr);
+  color: var(--scr-ink);
+  padding: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 12px 28px rgba(12, 10, 20, 0.22);
+  width: 100%;
+  max-width: 17rem;
+}
+.screen .grab { width: 34px; height: 4px; border-radius: 3px; background: var(--scr-line); margin: 0 auto 2px; flex: none; }
+.screen .t { font-size: 13.5px; font-weight: 700; color: var(--scr-ink); }
+.screen .s { color: var(--scr-mute); }
+.screen .g { color: var(--scr-gold); }
+.screen .hr { height: 1px; background: var(--scr-line); flex: none; }
+.poster { border-radius: 9px; background: var(--p); flex: none; }
+.p-rain { --p: linear-gradient(145deg, #bfd0f2, #8c9ddb); }
+.p-cloud { --p: linear-gradient(145deg, #fce3b0, #f5b774); }
+.p-lamp { --p: linear-gradient(145deg, #e7c4f0, #b68fd9); }
+.p-walk { --p: linear-gradient(145deg, #bfe8d2, #86c9a6); }
+.p-rec { --p: linear-gradient(145deg, #f3c0a8, #d98579); }
+.p-sea { --p: linear-gradient(145deg, #a9c9e8, #5d7fb8); }
+.qb { display: inline-flex; align-items: center; gap: 4px; font: 600 9.5px/1 var(--f-mono); letter-spacing: 0.04em; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(241, 209, 154, 0.55); color: var(--scr-gold); white-space: nowrap; }
+.qb.plain { border-color: var(--scr-line); color: var(--scr-mute); }
+.bar-p { height: 3px; border-radius: 2px; background: var(--scr-line); position: relative; flex: none; }
+.bar-p i { position: absolute; inset: 0 auto 0 0; width: var(--w, 40%); border-radius: 2px; background: var(--scr-gold); }
+.ctrl { display: flex; justify-content: space-around; align-items: center; font-size: 15px; color: var(--scr-ink); flex: none; }
+.ctrl .play { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--scr-ink); color: var(--scr); font-size: 12px; }
+.tabs { display: flex; gap: 14px; font-size: 11.5px; color: var(--scr-mute); flex: none; }
+.tabs .on { color: var(--scr-ink); border-bottom: 2px solid var(--scr-gold); padding-bottom: 3px; }
+.row { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; }
+.row .poster { width: 30px; height: 30px; border-radius: 5px; }
+.row b { font-weight: 600; display: block; color: var(--scr-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row span { color: var(--scr-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.row > div { min-width: 0; }
+.sleeve { position: relative; width: 62%; aspect-ratio: 1; margin: 2px 0 0 4px; flex: none; }
+.sleeve .poster { position: absolute; inset: 0; z-index: 1; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35); }
+.vinyl { position: absolute; top: 5%; left: 34%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #f1d19a 0 13%, #1b1a1f 14% 16%, #26252b 17% 40%, #1b1a1f 41% 43%, #26252b 44% 70%, #1b1a1f 71%); }
+@media (prefers-reduced-motion: no-preference) { .vinyl { animation: spin 7s linear infinite; } }
+@keyframes spin { to { transform: rotate(1turn); } }
+.crate { display: flex; gap: 6px; }
+.crate .poster { width: 23%; aspect-ratio: 1; border-radius: 4px; }
+.lyr { display: grid; gap: 6px; }
+.lyr .cur { font-size: 16px; font-weight: 700; color: var(--scr-ink); line-height: 1.35; }
+.lyr .cur em { font-style: normal; color: var(--scr-gold); }
+.lyr .dim { color: rgba(255, 248, 235, 0.42); font-size: 13px; }
+.lyr .tr { color: var(--scr-mute); font-size: 11px; }
+.blur-bg { position: absolute; inset: -20%; background: var(--p); filter: blur(28px) saturate(1.15); opacity: 0.55; }
+.screen > .layer { position: relative; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
+.search { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 9px; background: var(--scr-2); color: var(--scr-mute); flex: none; }
+.chips { display: flex; gap: 5px; flex-wrap: wrap; flex: none; }
+.chips span { padding: 3px 8px; border-radius: 999px; border: 1px solid var(--scr-line); color: var(--scr-mute); font-size: 10.5px; }
+.chips span.on { background: var(--scr-ink); color: var(--scr); border-color: var(--scr-ink); }
+.mini { margin-top: auto; display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; padding: 8px; border-radius: 12px; background: var(--scr-2); flex: none; }
+.mini .poster { width: 30px; height: 30px; border-radius: 6px; }
+.drop { border: 1.5px dashed rgba(241, 209, 154, 0.5); border-radius: 12px; padding: 14px 10px; text-align: center; color: var(--scr-mute); flex: none; }
+.up { display: grid; grid-template-columns: 34px 1fr; gap: 4px 8px; padding: 8px; border-radius: 10px; background: var(--scr-2); flex: none; }
+.up .poster { width: 34px; height: 34px; border-radius: 6px; grid-row: span 2; }
+.up b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.up .st { display: flex; gap: 6px; align-items: center; color: var(--scr-mute); flex-wrap: wrap; }
+.up .st .ok { color: #b9e3c4; }
+.up .st .dup { color: #f3c98b; }
+.path { display: grid; gap: 7px; }
+.path > div { display: grid; grid-template-columns: 58px 1fr; gap: 8px; align-items: baseline; }
+.path > div > span:first-child { color: var(--scr-mute); }
+.path .ok { color: #b9e3c4; }
+
+.foot { font-size: 13px; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 24px; display: grid; gap: 6px; }
+.copyfb { width: 100%; min-height: 9rem; font: 13px/1.6 var(--f-mono); padding: 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); }
+.btn { font: 600 14.5px/1 var(--f-body); padding: 11px 16px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); cursor: pointer; min-height: 40px; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.board { display: grid; gap: 8px; }
+.board-row { display: grid; grid-template-columns: 3rem 1fr auto; gap: 10px; align-items: baseline; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); font-size: 14.5px; }
+.board-row b { font: 600 13px/1.6 var(--f-mono); color: var(--accent); }
+.board-row em { font-style: normal; color: var(--ink-3); font-size: 13.5px; text-align: right; }
+.board-row em.set { color: var(--ink); font-weight: 500; }
+.board-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.board-status { font-size: 13.5px; color: var(--ink-3); }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <div class="toc-title">目录</div>
+    <ol id="toc-list">
+      <li><a href="#summary"><span>0</span><span>一页结论</span></a></li>
+      <li><a href="#s1"><span>1</span><span>现状与目标</span></a></li>
+      <li><a href="#s2"><span>2</span><span>音质原则</span></a></li>
+      <li><a href="#s3"><span>3</span><span>业界怎么做</span></a></li>
+      <li><a href="#s4"><span>4</span><span>总体架构 · D1</span></a></li>
+      <li><a href="#s5"><span>5</span><span>播放引擎 · D2</span></a></li>
+      <li><a href="#s6"><span>6</span><span>上传与入库 · D3</span></a></li>
+      <li><a href="#s7"><span>7</span><span>歌词与海报 · D4</span></a></li>
+      <li><a href="#s8"><span>8</span><span>曲库与数据 · D5</span></a></li>
+      <li><a href="#s9"><span>9</span><span>存储与分发 · D6</span></a></li>
+      <li><a href="#s10"><span>10</span><span>界面方向 · D7</span></a></li>
+      <li><a href="#s11"><span>11</span><span>在线曲库 · D8</span></a></li>
+      <li><a href="#s12"><span>12</span><span>实施步骤</span></a></li>
+      <li><a href="#s13"><span>13</span><span>风险与成本</span></a></li>
+      <li><a href="#s14"><span>14</span><span>我的选择</span></a></li>
+      <li><a href="#refs"><span>附</span><span>调研来源</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="head" id="top">
+      <span class="eyebrow">Our World · 音乐模块 · 方案书 v1</span>
+      <h1>让唱片机放你们自己的歌</h1>
+      <p class="lede">这一期做本地音乐上传：歌、歌词、海报一起传上来，自动进入曲库，原件一个比特都不改地保存和播放。下一期接在线曲库。本文给出音质原则、每个关键决定的几套方案和推荐组合、数据模型和实施步骤；每个决定下面都可以直接投票，选好后回到对话告诉我。</p>
+      <div class="meta"><span><b>日期</b> 2026-09-30</span><span><b>状态</b> 待讨论</span><span><b>范围</b> 书房唱片机 · 桌面停靠栏 · 手机托盘</span><span><b>调研</b> 4 路并行，来源见文末</span></div>
+      <details class="toc-m">
+        <summary>目录</summary>
+        <ol id="toc-m-list">
+          <li><a href="#summary"><span>0</span>一页结论</a></li>
+          <li><a href="#s1"><span>1</span>现状与目标</a></li>
+          <li><a href="#s2"><span>2</span>音质原则</a></li>
+          <li><a href="#s3"><span>3</span>业界怎么做</a></li>
+          <li><a href="#s4"><span>4</span>总体架构 · D1</a></li>
+          <li><a href="#s5"><span>5</span>播放引擎 · D2</a></li>
+          <li><a href="#s6"><span>6</span>上传与入库 · D3</a></li>
+          <li><a href="#s7"><span>7</span>歌词与海报 · D4</a></li>
+          <li><a href="#s8"><span>8</span>曲库与数据 · D5</a></li>
+          <li><a href="#s9"><span>9</span>存储与分发 · D6</a></li>
+          <li><a href="#s10"><span>10</span>界面方向 · D7</a></li>
+          <li><a href="#s11"><span>11</span>在线曲库 · D8</a></li>
+          <li><a href="#s12"><span>12</span>实施步骤</a></li>
+          <li><a href="#s13"><span>13</span>风险与成本</a></li>
+          <li><a href="#s14"><span>14</span>我的选择</a></li>
+          <li><a href="#refs"><span>附</span>调研来源</a></li>
+        </ol>
+      </details>
+    </header>
+
+    <section class="summary" id="summary">
+      <h2>一页结论</h2>
+      <p>推荐组合：一期不加服务器，浏览器解析、Supabase 存原件、原件直出播放；数据模型从第一天按「原件 / 串流版 / 副本」三层设计，第二步加媒体 Worker 时不用返工。每个决定点开有三四套方案可以比较和投票。</p>
+      <div class="route">
+        <a href="#d1"><b>D1</b>A 起步、随后加 B<small>一期零服务器，按流水线设计</small></a>
+        <a href="#d2"><b>D2</b>E1 + E2<small>默认纯净直出，增强模式可选</small></a>
+        <a href="#d3"><b>D3</b>Q2<small>原件 + AAC 256 副本（Worker 上线后）</small></a>
+        <a href="#d4"><b>D4</b>R1<small>自研歌词渲染（AMLL 是 AGPL）</small></a>
+        <a href="#d5"><b>D5</b>L3<small>默认两人共享，单首可设私有</small></a>
+        <a href="#d6"><b>D6</b>S1<small>Supabase Pro 起步，可平移到 R2</small></a>
+        <a href="#d7"><b>D7</b>V1 + V3<small>封套做正在播放，列表做曲库</small></a>
+        <a href="#d8"><b>D8</b>O1 → O2<small>先自托管来源，再接一个官方会员来源</small></a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>≈ 4 周</b><span>核心开发（一人配合 Claude）</span></div>
+        <div class="stat"><b>+ 1 周</b><span>媒体 Worker（可选）</span></div>
+        <div class="stat"><b>25–35 美元</b><span>每月（主要是 Supabase Pro）</span></div>
+        <div class="stat"><b>0 → 1</b><span>新服务：一期不加，第二步加一个 Worker</span></div>
+      </div>
+      <div class="note warn">
+        <b>开工第一天先验证三件事</b>
+        <span>① iPhone Safari 能否播放 Supabase 签名 URL 上的音频（有一条未解决的报告说不能）；② iPhone 能否直接放 24/192 FLAC；③ 存储有没有给音频返回 CORS 头（增强模式要用）。第一条不通过，D6 就改选 R2。</span>
+      </div>
+      <h3>需要你们先回答的问题</h3>
+      <ol class="qlist">
+        <li>主要在国内还是海外用？（决定存储放哪、在线曲库接谁）</li>
+        <li>Supabase 现在是 Free 还是 Pro？Free 单文件 50 MB，Hi-Res 传不上去。</li>
+        <li>大概多少首、多大？主要是 FLAC，还是有很多 APE + CUE、DSD？（决定 Worker 要不要一开始就上）</li>
+        <li>有没有常开的 NAS 或电脑？（决定 Worker 放哪、要不要做自托管来源）</li>
+        <li>你们有哪家会员：Apple Music、Spotify、网易云、QQ 音乐？（决定在线曲库先接谁）</li>
+        <li>曲库两个人共享，还是各管各的？（D5）</li>
+        <li>要不要离线下载，手机没网也能听？</li>
+        <li>公开发行大概什么时候？（决定版权和歌词授权要投入多少）</li>
+      </ol>
+    </section>
+
+    <section id="s1">
+      <div class="sec-head"><span class="eyebrow">第 1 节</span><h2>现状与这一期的目标</h2></div>
+      <div class="two">
+        <div class="card">
+          <h4>已经有的</h4>
+          <ul>
+            <li>音乐主页面（2026-09-30 定稿）：海报当唱片封套，播放时唱片滑出慢转；两行歌词预览；歌词 / 歌单 / 声音三个页签；沉浸歌词；桌面右侧停靠栏、手机底部托盘</li>
+            <li>书房桌上的唱片机是音乐入口</li>
+            <li>Supabase 全家桶：Auth、Postgres + RLS、私有桶 <code>memories</code>、Realtime、Edge Function（<code>emotes</code> 在用）</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>还缺的</h4>
+          <ul>
+            <li>没有真实音频：8 首「歌」是 <code>use-music-playback.ts</code> 用振荡器合成的和弦音景，海报和歌词是占位</li>
+            <li>没有队列、预加载、锁屏控制（Media Session）和续播</li>
+            <li>存储只收图片：<code>memories</code> 桶只放行 png / jpeg / webp / avif、单文件 25 MB（声音名片也卡在这里）</li>
+            <li>没有自己的服务器；线上表结构没有迁移历史</li>
+          </ul>
+        </div>
+      </div>
+      <h3>这一期要做到</h3>
+      <ul>
+        <li><strong>上传即入库</strong>：拖进文件或整个文件夹（手机从「文件」里选），标签、封面、歌词自动识别，确认后上传，传完就在曲库里，点了就能放。</li>
+        <li><strong>音质</strong>：原件逐比特保存；无损源从存储到解码全程没有有损环节；界面如实显示格式和实际输出。</li>
+        <li><strong>歌词和海报</strong>：内嵌、同名 .lrc 与封面图、手动粘贴或上传、自动匹配四种来源，识别后都能改。</li>
+        <li><strong>顺滑</strong>：点歌很快出声，拖进度不卡，锁屏能切歌，断网能续传，关掉页面再开能接着放。</li>
+        <li><strong>给下一期留口子</strong>：播放器按「来源」取歌，队列和播放状态可序列化，在线曲库和一起听接进来不用重写。</li>
+      </ul>
+      <div class="note">
+        <b>这一期不做</b>
+        <span>在线曲库、一起听、评论与推荐、公开分享链接、桌面壳的独占输出。继续遵守现行设计：音乐是 A 类悬浮 UI（桌面停靠栏 / 手机托盘，对方始终可见）；没有共享播放就不显示「一起听」（只翻译真实状态）。</span>
+      </div>
+      <h3>验收线</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>指标</th><th>目标</th><th>怎么测</th></tr></thead>
+          <tbody>
+            <tr><th>原件完整</th><td>取回的文件与本地文件 SHA-256 一致，100%</td><td>上传后回读比对；FLAC 另跑 STREAMINFO MD5 校验</td></tr>
+            <tr><th>首次出声</th><td>Wi-Fi 下 FLAC 16/44.1 &lt; 1.5 s，Hi-Res &lt; 2.5 s</td><td>点击到 <code>playing</code> 事件的耗时，真机各测 20 次取中位数</td></tr>
+            <tr><th>拖动进度</th><td>&lt; 0.5 s 恢复出声</td><td><code>seeking</code> 到 <code>playing</code></td></tr>
+            <tr><th>锁屏连播</th><td>iPhone 锁屏 60 分钟、切歌 10 次不断</td><td>真机，Wi-Fi 与蜂窝各一次</td></tr>
+            <tr><th>上传</th><td>100 首混合格式一次走通；断网恢复后只补传未完成分片</td><td>测试曲集 + 手动断网</td></tr>
+            <tr><th>歌词识别</th><td>内嵌与同名 .lrc 100% 识别；GBK 乱码自动修复</td><td>测试曲集（含老 MP3、APE+CUE）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="sec-head"><span class="eyebrow">第 2 节</span><h2>音质原则</h2></div>
+      <p>「保证音质」落到工程上是五条规矩。后面每个方案都按这五条检查，违反任何一条的做法都不进推荐。</p>
+      <div class="rules">
+        <div class="rule"><b>1</b><h4>原件不动</h4><p>上传的文件逐比特保存，用 SHA-256 校验（FLAC 另验 STREAMINFO 里的 MD5）。改标题、歌词、海报只改数据库，永远不回写文件。</p></div>
+        <div class="rule"><b>2</b><h4>无损链路</h4><p>无损源只做无损到无损的转换（ALAC / APE / WAV → FLAC），转换前后解码出的 PCM 做 MD5 比对，必须完全一致。有损副本只是省流选项，永远不替换原件，也不从有损再转一次有损。</p></div>
+        <div class="rule"><b>3</b><h4>默认纯净</h4><p>默认不做任何处理：不均衡、不限幅、不额外重采样。响度均衡、交叉淡化是可选的「增强」，开启时全程 32 位浮点、预留余量并做峰值保护。</p></div>
+        <div class="rule"><b>4</b><h4>如实标注</h4><p>界面显示来源格式（如 FLAC 24/96）和实际输出（如「系统以 48 kHz 输出」）。网页做不到比特完美，就不说比特完美。</p></div>
+        <div class="rule"><b>5</b><h4>可以验证</h4><p>每一段链路都有能复现的检查方法：哈希、PCM MD5、网络请求里的类型和大小、无缝测试曲、响度对照值。</p></div>
+      </div>
+
+      <h3>一首歌从文件到耳朵经过什么</h3>
+      <figure>
+        <div class="fig">
+          <svg viewBox="0 0 760 262" role="img" aria-label="三条播放链路：网页纯净直出与增强模式都会在系统混音器重采样，桌面壳独占输出可以跳过混音器；三条都没有有损压缩">
+            <defs>
+              <marker id="sp-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker>
+            </defs>
+            <g font-size="12" fill="currentColor">
+              <text x="0" y="40" font-weight="700">网页 · 纯净直出</text>
+              <text x="0" y="56" font-size="10.5" opacity="0.7">默认</text>
+              <text x="0" y="126" font-weight="700">网页 · 增强模式</text>
+              <text x="0" y="142" font-size="10.5" opacity="0.7">响度 / 淡化 / 均衡</text>
+              <text x="0" y="212" font-weight="700">桌面壳 · 独占输出</text>
+              <text x="0" y="228" font-size="10.5" opacity="0.7">R2 以后</text>
+            </g>
+            <g fill="none" stroke="currentColor" stroke-width="1.2">
+              <rect x="140" y="20" width="104" height="48" rx="7"/>
+              <rect x="266" y="20" width="104" height="48" rx="7"/>
+              <rect x="518" y="20" width="104" height="48" rx="7"/>
+              <rect x="644" y="20" width="104" height="48" rx="7"/>
+              <rect x="140" y="106" width="104" height="48" rx="7"/>
+              <rect x="266" y="106" width="104" height="48" rx="7"/>
+              <rect x="644" y="106" width="104" height="48" rx="7"/>
+              <rect x="140" y="192" width="104" height="48" rx="7"/>
+              <rect x="266" y="192" width="104" height="48" rx="7"/>
+              <rect x="644" y="192" width="104" height="48" rx="7"/>
+            </g>
+            <g class="svg-gold" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="518" y="20" width="104" height="48" rx="7"/>
+              <rect x="518" y="106" width="104" height="48" rx="7"/>
+            </g>
+            <g class="svg-accent" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="392" y="106" width="104" height="48" rx="7"/>
+              <rect x="392" y="192" width="230" height="48" rx="7"/>
+            </g>
+            <g font-size="12" fill="currentColor" text-anchor="middle">
+              <text x="192" y="41" font-weight="700">原件</text><text x="192" y="57" font-size="10.5" opacity="0.75">FLAC 24/96</text>
+              <text x="318" y="41" font-weight="700">浏览器解码</text><text x="318" y="57" font-size="10.5" opacity="0.75">无损 → PCM</text>
+              <text x="444" y="36" font-size="10.5" opacity="0.6">不经处理</text>
+              <text x="570" y="41" font-weight="700">重采样 + 混音</text><text x="570" y="57" font-size="10.5" opacity="0.75">到设备采样率</text>
+              <text x="696" y="41" font-weight="700">DAC / 耳机</text>
+              <text x="192" y="127" font-weight="700">原件</text><text x="192" y="143" font-size="10.5" opacity="0.75">FLAC 24/96</text>
+              <text x="318" y="127" font-weight="700">浏览器解码</text><text x="318" y="143" font-size="10.5" opacity="0.75">无损 → PCM</text>
+              <text x="444" y="127" font-weight="700">Web Audio</text><text x="444" y="143" font-size="10.5" opacity="0.75">32 位浮点处理</text>
+              <text x="570" y="127" font-weight="700">重采样 + 混音</text><text x="570" y="143" font-size="10.5" opacity="0.75">到设备采样率</text>
+              <text x="696" y="127" font-weight="700">DAC / 耳机</text>
+              <text x="192" y="213" font-weight="700">原件</text><text x="192" y="229" font-size="10.5" opacity="0.75">FLAC 24/96</text>
+              <text x="318" y="213" font-weight="700">原生解码</text><text x="318" y="229" font-size="10.5" opacity="0.75">FFmpeg / libmpv</text>
+              <text x="507" y="213" font-weight="700">独占输出</text><text x="507" y="229" font-size="10.5" opacity="0.75">绕过混音器，按曲目切到 96 kHz</text>
+              <text x="696" y="213" font-weight="700">DAC / 耳机</text>
+            </g>
+            <g stroke="currentColor" stroke-width="1.2" marker-end="url(#sp-ah)" fill="none">
+              <line x1="244" y1="44" x2="264" y2="44"/>
+              <line x1="370" y1="44" x2="516" y2="44"/>
+              <line x1="622" y1="44" x2="642" y2="44"/>
+              <line x1="244" y1="130" x2="264" y2="130"/>
+              <line x1="370" y1="130" x2="390" y2="130"/>
+              <line x1="496" y1="130" x2="516" y2="130"/>
+              <line x1="622" y1="130" x2="642" y2="130"/>
+              <line x1="244" y1="216" x2="264" y2="216"/>
+              <line x1="370" y1="216" x2="390" y2="216"/>
+              <line x1="622" y1="216" x2="642" y2="216"/>
+            </g>
+          </svg>
+        </div>
+        <figcaption>原件经 Range 请求按字节原样传到播放端，三条路都没有有损压缩。金框是网页绕不开的一步：声音要重采样到设备的采样率（常见 48 kHz）再进系统混音。Chrome 在浏览器里用高质量的 sinc 重采样器做这一步，Firefox 按文件原采样率打开输出、交给系统做；手机上安卓的混音器固定 48 kHz。蓝框是可选的处理：增强模式在 32 位浮点里做响度和淡化（24 bit 音频放进 32 位浮点不丢精度）；桌面壳（R2）用独占输出绕过混音器，按曲目切换设备采样率，做到比特完美。</figcaption>
+      </figure>
+
+      <h3>浏览器能直接放什么</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>格式</th><th>Chrome / Edge</th><th>Firefox</th><th>Safari（Mac）</th><th>iPhone / iPad</th><th>安卓 Chrome</th></tr></thead>
+          <tbody>
+            <tr><th>FLAC（含 24/96、24/192）</th><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td></tr>
+            <tr><th>WAV（16 / 24 / 32 bit，含浮点）</th><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td></tr>
+            <tr><th>MP3 · AAC（M4A）</th><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td><td class="y">支持</td></tr>
+            <tr><th>ALAC（M4A）</th><td class="n">不支持</td><td class="n">不支持</td><td class="y">支持</td><td class="y">支持</td><td class="n">不支持</td></tr>
+            <tr><th>AIFF</th><td class="n">不支持</td><td class="n">不支持</td><td class="y">支持</td><td class="y">支持</td><td class="n">不支持</td></tr>
+            <tr><th>Opus</th><td class="y">支持</td><td class="y">支持</td><td class="p">WebM 17.4+，Ogg 18.4+</td><td class="p">WebM 17.4+，Ogg 18.4+</td><td class="y">支持</td></tr>
+            <tr><th>Vorbis（OGG）</th><td class="y">支持</td><td class="y">支持</td><td class="p">Ogg 18.4+</td><td class="p">Ogg 18.4+</td><td class="y">支持</td></tr>
+            <tr><th>APE · WavPack · DSD（DSF / DFF）</th><td class="n">不支持</td><td class="n">不支持</td><td class="n">不支持</td><td class="n">不支持</td><td class="n">不支持</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tbl-note">来源：Chromium / Firefox / WebKit 源码与 MDN 兼容性数据（2026-09）。Chrome 能解码到 768 kHz、32 bit，但都会重采样到设备采样率；iPhone 上 176.4 / 192 kHz FLAC 能否直接放还要真机确认。</p>
+
+      <h3>音质徽章怎么标</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>徽章</th><th>条件（描述的是文件本身）</th><th>例子</th></tr></thead>
+          <tbody>
+            <tr><th>Hi-Res</th><td>无损，采样率高于 48 kHz（沿用 Apple 的口径）</td><td class="mono">FLAC 24/96 · ALAC 24/192 · DSD 转换的 FLAC 24/176.4</td></tr>
+            <tr><th>无损</th><td>无损，44.1 或 48 kHz，16 或 24 bit</td><td class="mono">FLAC 16/44.1 · WAV 24/48</td></tr>
+            <tr><th>不显示徽章</th><td>有损文件；点开信号路径能看到具体格式和码率</td><td class="mono">AAC 256 · MP3 320 · Opus 160</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">徽章是时间旁边一个单色小标，按实际在播的文件标：蜂窝网络下改放省流副本，徽章就消失。平台里「超清母带」「沉浸环绕声」这类档位多是算法处理出来的效果，不代表更好的母带，我们不做这种档位。以后有媒体 Worker 时可以加「疑似升频」提示：标着 24/96、但 22 kHz 以上几乎没有内容的文件，多半是 CD 音源升上去的。</p>
+    </section>
+
+    <section id="s3">
+      <div class="sec-head"><span class="eyebrow">第 3 节</span><h2>业界怎么做</h2></div>
+      <p>对照了网易云、YouTube Music、Apple Music、Spotify、TIDAL 这些大平台，Plexamp、Roon、Doppler 这些以体验或音质出名的播放器，还有 Koel、Navidrome 这些「自己传歌」的开源项目。</p>
+      <div class="tbl">
+        <table class="xwide">
+          <thead><tr><th>产品</th><th>值得学</th><th>不学</th></tr></thead>
+          <tbody>
+            <tr><th>网易云音乐</th><td>黑胶播放页就是品牌（多种唱机样式、动态封面）；逐字歌词加人工翻译开关；歌词海报（长按选句、选模板、分享）；一对一「一起听」，进度和切歌同步</td><td>皮肤市场和评论流；「高清臻音」「沉浸环绕声」「超清母带」这类由算法处理出来的档位</td></tr>
+            <tr><th>YouTube Music</th><td>网页上传个人音乐：最多 10 万首，收 FLAC / M4A / MP3 / OGG / WMA，拖进页面任意位置就开始；进度条按住变粗</td><td>一年几次大改版；免费用户每月只能看 5 次歌词</td></tr>
+            <tr><th>Apple Music</th><td>封面是唯一的色彩来源，文字只用黑或白；逐字歌词、对唱左右分、和声、iOS 26 的逐行翻译和发音；「无损 / Hi-Res 无损」两级徽章点开看参数；同步资料库给每首歌标状态（已匹配、已上传、重复、不符合、出错）；玻璃只用在控件层，不盖内容</td><td>—</td></tr>
+            <tr><th>Spotify</th><td>封面下面直接给歌词预览（官方说测试后互动提升）；Jam 显示每首是谁加的；2025 年起 App 内有无损（FLAC 24/44.1），网页仍是 AAC 256</td><td>接入条款禁止交叉淡化、禁止复刻 Jam，接它时受限</td></tr>
+            <tr><th>TIDAL 网页版</th><td>网页里放 FLAC 到 24/192（Shaka + DASH）；两个播放器之间用 250 ms 微淡化代替无缝；响度均衡只调小（ReplayGain 加 4 dB，但不超过原音量）</td><td>对第三方开发者只给 30 秒试听</td></tr>
+            <tr><th>Plexamp · Roon</th><td>Plexamp 用海报里提取的颜色做「烟熏玻璃」底色，每张专辑一个样子；响度均衡、真无缝、Sweet Fades；Roon 用一个彩点概括信号路径，点开看全链路</td><td>Plexamp 在同一张专辑里也交叉淡化，用户很反感</td></tr>
+            <tr><th>Doppler · Albums · Marvis</th><td>本地曲库播放器的设计标杆：界面随音乐变色、扫码用 Wi-Fi 传歌、专辑级进度条、自定义首页分区</td><td>—</td></tr>
+            <tr><th>Koel · Funkwhale · Navidrome · beets</th><td>按文件哈希查重（不看标签）、支持拖文件夹；每个上传文件单独的状态；服务端扫描、转码、ReplayGain；自动匹配给出候选和相似度，由人确认后才写入</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>对我们最有用的三条</h3>
+      <ul>
+        <li><strong>网页里的无损只能靠自己。</strong>大平台里只有 TIDAL、Qobuz 自己的网页播放器放无损，而且不对第三方开放。我们保留原件、直出原件，在网页里就是第一梯队的音质。</li>
+        <li><strong>音质标注要描述文件，点开看链路。</strong>Apple 的两级徽章和 Roon 的信号路径是对的做法；发明更高的档位不是。</li>
+        <li><strong>两个人的社交只做小事。</strong>谁加的歌、回应、送一首歌（Apple 协作歌单、Spotify Jam 的做法），不做评论流和匹配度百分比。</li>
+      </ul>
+    </section>
+
+    <section id="s4">
+      <div class="sec-head"><span class="eyebrow">第 4 节 · D1</span><h2>总体架构：谁来干重活</h2></div>
+      <p>四种搭法的差别在于解析、转码、响度扫描这些重活放在哪里：用户自己的浏览器、一个后台媒体 Worker、一台自托管的音乐服务器，还是整套流媒体分发。下图蓝色是每种方案在现有系统上多出来的部分。</p>
+      <figure>
+        <div class="two quad">
+          <div class="fig">
+            <svg class="fit" viewBox="0 0 300 236" role="img" aria-label="方案 A：浏览器直接把原件传进 Supabase Storage、写入 Postgres，播放时从 Storage 按 Range 串流，没有任何服务器">
+              <defs><marker id="a1-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker></defs>
+              <text x="12" y="18" font-size="13" font-weight="700" fill="currentColor">A 轻量直连</text>
+              <g fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="12" y="30" width="276" height="36" rx="7"/>
+                <rect x="12" y="118" width="120" height="36" rx="7"/>
+                <rect x="168" y="118" width="120" height="36" rx="7"/>
+                <rect x="12" y="192" width="276" height="32" rx="7" stroke-dasharray="4 4" opacity="0.45"/>
+              </g>
+              <g font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="150" y="52">浏览器：解析 · 哈希 · 上传 · 播放</text>
+                <text x="72" y="140">Postgres 曲库</text>
+                <text x="228" y="140">Storage 原件</text>
+                <text x="150" y="212" opacity="0.5">没有服务器</text>
+              </g>
+              <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#a1-ah)">
+                <line x1="60" y1="66" x2="60" y2="116"/>
+                <line x1="206" y1="66" x2="206" y2="116"/>
+                <line x1="258" y1="118" x2="258" y2="68"/>
+              </g>
+              <g font-size="10.5" fill="currentColor">
+                <text x="66" y="95">入库</text>
+                <text x="170" y="95" text-anchor="middle">上传</text>
+                <text x="264" y="95">播放</text>
+              </g>
+            </svg>
+          </div>
+          <div class="fig">
+            <svg class="fit" viewBox="0 0 300 236" role="img" aria-label="方案 B：在 A 的基础上加一个媒体 Worker，从 Postgres 取任务，读原件、写派生文件，处理完回写并通知浏览器">
+              <defs><marker id="b1-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker><marker id="b1-ahx" class="svg-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker></defs>
+              <text x="12" y="18" font-size="13" font-weight="700" fill="currentColor">B 媒体流水线</text>
+              <g fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="12" y="30" width="276" height="36" rx="7"/>
+                <rect x="12" y="118" width="120" height="36" rx="7"/>
+                <rect x="168" y="118" width="120" height="36" rx="7"/>
+              </g>
+              <g class="svg-accent"><rect x="12" y="192" width="276" height="32" rx="7" fill="none" stroke="currentColor" stroke-width="1.8"/></g>
+              <g font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="150" y="52">浏览器：解析 · 上传 · 播放</text>
+                <text x="72" y="140">Postgres 曲库</text>
+                <text x="228" y="140">Storage 原件 + 派生</text>
+              </g>
+              <text class="svg-accent" x="150" y="212" font-size="11.5" text-anchor="middle" fill="currentColor">媒体 Worker：FFmpeg · 响度 · 指纹 · 波形</text>
+              <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#b1-ah)">
+                <line x1="60" y1="66" x2="60" y2="116"/>
+                <line x1="206" y1="66" x2="206" y2="116"/>
+                <line x1="258" y1="118" x2="258" y2="68"/>
+              </g>
+              <g class="svg-accent" stroke="currentColor" stroke-width="1.4" fill="none" marker-end="url(#b1-ahx)">
+                <line x1="44" y1="154" x2="44" y2="190"/>
+                <line x1="100" y1="190" x2="100" y2="156"/>
+                <line x1="228" y1="190" x2="228" y2="156"/>
+              </g>
+              <g font-size="10.5" fill="currentColor">
+                <text x="66" y="95">入库</text>
+                <text x="170" y="95" text-anchor="middle">上传</text>
+                <text x="264" y="95">播放</text>
+              </g>
+              <g class="svg-accent" font-size="10.5" fill="currentColor">
+                <text x="48" y="177">任务</text>
+                <text x="104" y="177">回写</text>
+                <text x="222" y="177" text-anchor="end">读原件 / 写派生</text>
+              </g>
+            </svg>
+          </div>
+          <div class="fig">
+            <svg class="fit" viewBox="0 0 300 236" role="img" aria-label="方案 C：曲库和音频交给自托管的音乐服务器与它的磁盘，浏览器用 Subsonic 接口播放，Supabase 只管登录和应用数据">
+              <defs><marker id="c1-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker><marker id="c1-ahx" class="svg-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker></defs>
+              <text x="12" y="18" font-size="13" font-weight="700" fill="currentColor">C 自托管音乐服务器</text>
+              <g fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="12" y="30" width="276" height="36" rx="7"/>
+                <rect x="12" y="118" width="120" height="36" rx="7"/>
+              </g>
+              <g class="svg-accent" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="168" y="118" width="120" height="36" rx="7"/>
+                <rect x="168" y="192" width="120" height="32" rx="7"/>
+              </g>
+              <g font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="150" y="52">浏览器：界面 · 上传桥 · 播放</text>
+                <text x="72" y="134">Supabase</text>
+                <text x="72" y="148" font-size="10">只管登录与应用数据</text>
+              </g>
+              <g class="svg-accent" font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="228" y="140">Navidrome 服务器</text>
+                <text x="228" y="212">NAS / VPS 磁盘</text>
+              </g>
+              <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#c1-ah)">
+                <line x1="60" y1="66" x2="60" y2="116"/>
+              </g>
+              <g class="svg-accent" stroke="currentColor" stroke-width="1.4" fill="none" marker-end="url(#c1-ahx)">
+                <line x1="206" y1="66" x2="206" y2="116"/>
+                <line x1="258" y1="118" x2="258" y2="68"/>
+                <line x1="228" y1="154" x2="228" y2="190"/>
+              </g>
+              <g font-size="10.5" fill="currentColor">
+                <text x="66" y="95">登录</text>
+              </g>
+              <g class="svg-accent" font-size="10.5" fill="currentColor">
+                <text x="170" y="95" text-anchor="middle">上传</text>
+                <text x="264" y="95">播放</text>
+                <text x="234" y="177">扫描</text>
+              </g>
+            </svg>
+          </div>
+          <div class="fig">
+            <svg class="fit" viewBox="0 0 300 236" role="img" aria-label="方案 D：在 B 的基础上把音频打包成多码率分片，经 CDN 以 HLS 或 DASH 分发，播放器用 MSE 拼接">
+              <defs><marker id="d1-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker><marker id="d1-ahx" class="svg-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker></defs>
+              <text x="12" y="18" font-size="13" font-weight="700" fill="currentColor">D 流媒体级</text>
+              <g fill="none" stroke="currentColor" stroke-width="1.2">
+                <rect x="12" y="30" width="276" height="36" rx="7"/>
+                <rect x="12" y="118" width="120" height="36" rx="7"/>
+              </g>
+              <g class="svg-accent" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="168" y="118" width="120" height="36" rx="7"/>
+                <rect x="12" y="192" width="276" height="32" rx="7"/>
+              </g>
+              <g font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="150" y="52">浏览器：MSE 播放器（Shaka 等）</text>
+                <text x="72" y="140">Postgres 曲库</text>
+              </g>
+              <g class="svg-accent" font-size="11.5" fill="currentColor" text-anchor="middle">
+                <text x="228" y="134">CDN</text>
+                <text x="228" y="148" font-size="10">分片 + 清单</text>
+                <text x="150" y="212">Worker + 打包：多码率 fMP4 分片</text>
+              </g>
+              <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#d1-ah)">
+                <line x1="60" y1="66" x2="60" y2="116"/>
+                <line x1="44" y1="154" x2="44" y2="190"/>
+              </g>
+              <g class="svg-accent" stroke="currentColor" stroke-width="1.4" fill="none" marker-end="url(#d1-ahx)">
+                <line x1="258" y1="118" x2="258" y2="68"/>
+                <line x1="228" y1="190" x2="228" y2="156"/>
+              </g>
+              <g font-size="10.5" fill="currentColor">
+                <text x="66" y="95">入库 / 上传</text>
+                <text x="48" y="177">任务</text>
+              </g>
+              <g class="svg-accent" font-size="10.5" fill="currentColor">
+                <text x="252" y="95" text-anchor="end">HLS / DASH</text>
+                <text x="234" y="177">发布分片</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <figcaption>A 和 B 的唯一差别是底下那一层：B 多了一个从 Postgres 取任务、读写 Storage 的 Worker，浏览器那一侧完全不变，所以可以先做 A、以后加 B 而不返工。C 把曲库和音频整个挪出 Supabase；D 把「一个文件一个 URL」换成分片和清单。</figcaption>
+      </figure>
+
+      <div class="decision" data-d="D1" id="d1">
+        <div class="decision-head"><span class="dtag">D1</span><h3>总体架构怎么搭？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <div class="opts four">
+          <div class="opt rec">
+            <h4><span class="k">A</span>轻量直连<span class="tag-rec">先做这个</span></h4>
+            <p>浏览器的 Web Worker 解析标签、封面、歌词并算哈希；Supabase Storage 存原件；播放直接串流原件（签名 URL + Range 请求）。</p>
+            <ul class="pc">
+              <li class="pro">不加任何服务器，最快能用；原件直出，音质链路最短</li>
+              <li class="pro">和现有照片墙同一个模式（浏览器处理 + 私有桶 + RLS）</li>
+              <li class="con">浏览器放不了的格式（Chrome / Firefox 上的 ALAC、APE、DSD、WavPack）只能提示，或在浏览器里慢慢转</li>
+              <li class="con">响度扫描、指纹匹配要在用户设备上跑，大文件费电</li>
+            </ul>
+            <span class="effort">工作量 ≈ 4 周（M0–M6、M8）</span>
+          </div>
+          <div class="opt rec">
+            <h4><span class="k">B</span>媒体流水线<span class="tag-rec">随后加上</span></h4>
+            <p>在 A 上加一个小容器（FFmpeg 等），上传后在后台做格式归一、响度、指纹、波形和省流副本，完成后回写并通知前端。</p>
+            <ul class="pc">
+              <li class="pro">什么格式都能收，手机不用干重活</li>
+              <li class="pro">可重放、幂等、有记录，是生产级做法</li>
+              <li class="con">多一个服务要部署和看管（成本见第 13 节）</li>
+              <li class="con">Supabase Edge Functions 每次请求只有 2 秒 CPU、256 MB 内存，跑不了 FFmpeg，要另找地方跑（每月约 0–5 美元）</li>
+            </ul>
+            <span class="effort">工作量 ≈ A + 1 周（M7）</span>
+          </div>
+          <div class="opt">
+            <h4><span class="k">C</span>自托管音乐服务器</h4>
+            <p>让成熟的开源音乐服务器（Navidrome，OpenSubsonic 接口）管曲库、转码、响度和歌词，我们只做界面和上传桥。</p>
+            <ul class="pc">
+              <li class="pro">扫描、转码、歌词都是现成的；第三方客户端也能连</li>
+              <li class="con">要一台常开的机器和磁盘；账号是两套，要做桥接</li>
+              <li class="con">没有网页上传，权限模型和「世界」对不上</li>
+            </ul>
+            <span class="effort">工作量 ≈ 2–3 周 + 长期运维</span>
+          </div>
+          <div class="opt">
+            <h4><span class="k">D</span>流媒体级</h4>
+            <p>像 TIDAL、Apple Music：多码率分片 + CDN，播放器用 MSE 拼接。</p>
+            <ul class="pc">
+              <li class="pro">采样级无缝、弱网自适应、以后可以加 DRM</li>
+              <li class="con">打包流水线、清单、MSE 播放器全要做；两个人用是大材小用</li>
+            </ul>
+            <span class="effort">工作量 ≈ 6–8 周</span>
+          </div>
+        </div>
+        <div class="verdict"><b>推荐「A 起步、按 B 设计」。</b>一期不引入服务器，但数据模型从第一天就有「原件 / 串流版 / 副本」三种文件角色和处理状态；等需要收 ALAC、APE、DSD，或要响度扫描、省流副本时加上 Worker（M7），前端和表都不用改。D 留给公开发行；C 只在你们本来就有 NAS、也想用第三方客户端时考虑，而且更适合作为下一期的一个「在线来源」接进来（第 11 节）。</div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="A">A 轻量直连</button><button type="button" data-k="A→B">A 起步、随后加 B</button><button type="button" data-k="B">一开始就上 B</button><button type="button" data-k="C">C 自托管服务器</button><button type="button" data-k="D">D 流媒体级</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s5">
+      <div class="sec-head"><span class="eyebrow">第 5 节 · D2</span><h2>播放引擎</h2></div>
+      <p>播放器是这一期最核心的代码，要同时做到三件事：音质不打折；手机上稳（锁屏、后台、来电打断后能恢复）；以后接在线来源和一起听时不用重写。三种引擎的取舍主要在「处理能力」和「手机后台稳定性」之间。</p>
+
+      <h3>手机网页的几条硬限制</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>限制</th><th>影响</th><th>对策</th></tr></thead>
+          <tbody>
+            <tr><th>iPhone 上脚本改不了 <code>&lt;audio&gt;</code> 的音量（iPad 可以）</th><td>纯净直出时 iPhone 做不了响度均衡和淡入淡出，App 里的音量滑块也没用</td><td>iPhone 上隐藏音量滑块，用实体音量键；要均衡或淡化就走增强模式</td></tr>
+            <tr><th>iOS 上单独的 Web Audio 会被静音键静音，切后台就停</th><td>增强模式在 iPhone 上可能锁屏断播</td><td>创建前声明 <code>navigator.audioSession.type = "playback"</code>，并要求 iOS 17.5 以上（修好后台暂停的版本）；更低版本不开放增强</td></tr>
+            <tr><th>Safari 只能把普通文件播放接进 Web Audio</th><td>MSE 和 WebM 流接进去后增益、均衡都不起作用</td><td>增强模式只处理普通文件（FLAC / M4A / MP3 / WAV）</td></tr>
+            <tr><th>Web Audio 开着时 iOS 改用很小的音频缓冲</th><td>更费电</td><td>手机默认纯净，增强是选项</td></tr>
+            <tr><th>锁定模式（Lockdown Mode）禁用 Web Audio</th><td>增强模式不可用</td><td>播放器任何时候都能退回纯净直出</td></tr>
+            <tr><th>第一次出声必须由用户点击触发</th><td>预加载用的第二个播放元素没解锁就放不出来</td><td>第一次点播放时两个元素一起解锁（TIDAL 网页版也这么做）</td></tr>
+            <tr><th>跨域音频接进 Web Audio 必须有 CORS</th><td>没有 CORS 头只会输出静音</td><td>元素加 <code>crossorigin="anonymous"</code>；M0 里确认存储的 CORS 头</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="decision" data-d="D2" id="d2">
+        <div class="decision-head"><span class="dtag">D2</span><h3>播放引擎用哪种？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <div class="opts four">
+          <div class="opt">
+            <h4><span class="k">E1</span>纯净直出</h4>
+            <p><code>&lt;audio&gt;</code> 元素直接播放原件，配合 Media Session 做锁屏控制。</p>
+            <ul class="pc">
+              <li class="pro">链路最短，手机锁屏与后台最稳，最省电</li>
+              <li class="con">没有正增益：响度均衡只能调小；iPhone 上网页不能改音量，连调小都做不到</li>
+              <li class="con">曲间有几十毫秒的空隙，不能交叉淡化、均衡</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">E2</span>Web Audio 增强</h4>
+            <p><code>&lt;audio&gt;</code> 接进 Web Audio：响度增益 → 峰值保护 →（均衡）→ 输出；两个播放槽做交叉淡化。</p>
+            <ul class="pc">
+              <li class="pro">响度均衡可以调大也可以调小，交叉淡化、均衡、频谱都能做</li>
+              <li class="con">多一段 32 位浮点处理；音频请求必须带 CORS</li>
+              <li class="con">iPhone 要 iOS 17.5 以上并声明播放类音频会话，否则锁屏断播、被静音键静音；Safari 里 MSE / WebM 流接不进来</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">E3</span>MSE 流式</h4>
+            <p>把音频切成分片，用 MediaSource 自己拼接（YouTube Music、Spotify 网页版的做法）。</p>
+            <ul class="pc">
+              <li class="pro">采样级无缝，可以按网速切码率</li>
+              <li class="con">要额外生成分片或 fMP4 重封装；iPhone 只有 ManagedMediaSource（iOS 17.1+）；实现和调试成本最高</li>
+            </ul>
+          </div>
+          <div class="opt rec">
+            <h4><span class="k">E1+E2</span>纯净为主，增强可选<span class="tag-rec">推荐</span></h4>
+            <p>默认纯净直出；设置里可以打开「增强模式」（完整响度均衡、交叉淡化），iPhone 需 iOS 17.5 以上。手机默认纯净，保证锁屏连播。E3 只用在「同专辑无缝」这一件事上，放到 M6 之后。</p>
+            <ul class="pc">
+              <li class="pro">默认就是最短、最稳的无损链路</li>
+              <li class="pro">两种输出共用一个状态机和队列，切换不打断播放</li>
+              <li class="con">两套输出都要测</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="E1">E1 纯净直出</button><button type="button" data-k="E2">E2 Web Audio 增强</button><button type="button" data-k="E3">E3 MSE 流式</button><button type="button" data-k="E1+E2">E1 + E2 混合</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+
+      <h3>引擎内部怎么设计</h3>
+      <div class="two">
+        <div class="card">
+          <h4>状态与队列</h4>
+          <ul>
+            <li>一个与框架无关的 <code>Player</code> 类，React 用 <code>useSyncExternalStore</code> 订阅；停靠栏、托盘、锁屏共用一份状态。</li>
+            <li>状态：空闲 → 加载中 → 播放 ⇄ 暂停；缓冲中；播完 → 下一首；出错 → 恢复。</li>
+            <li>队列 = 播放来源（专辑、歌单、搜索结果）+ 用户插进来的「下一首播放」+ 历史。随机用洗牌顺序，上一首沿历史往回走；单曲 / 列表循环。</li>
+            <li>队列和进度可序列化，下一期一起听就是把它同步给对方。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>无缝分三档</h4>
+          <ul>
+            <li><strong>CUE 整轨</strong>：同一个文件按采样点切成虚拟分轨，真正无缝，锁屏也稳。这一期就有。</li>
+            <li><strong>同专辑连播</strong>（M6 之后）：Worker 另存一份 FLAC 的 fMP4 重封装（同样的 FLAC 帧，无损），用 MSE 顺序拼接，采样级无缝；iPhone 用 ManagedMediaSource。</li>
+            <li><strong>其他</strong>：剩 30 秒时签好下一首，第二个元素预先缓冲；能改音量的平台用 250 ms 微淡化接上（TIDAL 网页版的做法），iPhone 上接受几十毫秒空隙。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>音量与响度</h4>
+          <ul>
+            <li>响度均衡默认关（原则 3）。打开后连续播放同一张专辑时按专辑增益，随机播放时按单曲增益，基准是 ReplayGain 2.0 的 −18 LUFS。</li>
+            <li>「只调小」：用元素音量衰减，不需要 Web Audio（桌面、安卓、iPad），增益取 10^(G/20) 和 1/峰值中较小的那个，保证不削波。</li>
+            <li>「完整」：可以调大，走增强模式；iPhone 上任何均衡都要走增强。</li>
+            <li>响度值来自文件标签，缺的由 Worker 用 rsgain 扫描，只存数据库，绝不改音频。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>出错时自己恢复</h4>
+          <ul>
+            <li>签名 URL 过期或网络中断：重新签名，从当前位置接着放，最多重试 3 次，间隔递增。</li>
+            <li>解码失败：自动改放无损串流版或副本，并在信号路径里写明。</li>
+            <li>来电、别的 App 抢占声音：显示「已暂停」，由用户点播放恢复（浏览器不允许自动恢复）。</li>
+            <li>输出设备：Chrome、Edge、桌面 Firefox、Safari 18.4+ 可以选外接 DAC；安卓上隐藏这个选项。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>锁屏、续播、记录</h4>
+          <ul>
+            <li>Media Session：封面（96 / 256 / 512）、歌名、进度；播放、暂停、上下首、拖动、快进快退都接上，每次拖动都更新位置。</li>
+            <li>每 5 秒和离开页面时保存队列与进度，重开后停在原处，不自动播放（沿用现在的约定）。</li>
+            <li>播放满 30 秒记一次播放记录，用于最近播放和以后的年度回顾。</li>
+            <li>唱片机的灯随节拍呼吸：用 Worker 预先算好的能量曲线按进度驱动，不碰音频链路，纯净模式也能用。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>给桌面壳留好接口</h4>
+          <ul>
+            <li>现在就把输出抽象成三种：纯净（<code>&lt;audio&gt;</code>）、增强（Web Audio）、原生。</li>
+            <li>Electron 里的原生输出用 libmpv：独占输出（暂停时释放设备）、按曲目切换采样率、ReplayGain、DSD 走 DoP。Feishin、Supersonic 都是这么做的，TIDAL 桌面版也是「同一套界面 + 原生播放器」。</li>
+            <li>到那时信号路径才能写「比特完美」。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="s6">
+      <div class="sec-head"><span class="eyebrow">第 6 节 · D3</span><h2>上传与入库</h2></div>
+      <p>上传分八步。前四步全在浏览器里完成，不花流量，几百首也能先看清楚再传；中间是断点续传；最后的重活可以交给媒体 Worker。</p>
+      <figure>
+        <div class="fig">
+          <svg viewBox="0 0 780 276" role="img" aria-label="上传流程：浏览器里选择、解析、查重、确认、断点续传；Supabase 里存原件并入库；可选的媒体 Worker 取任务处理后回写，前端收到通知后显示就绪">
+            <defs>
+              <marker id="up-ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker>
+              <marker id="up-ahx" class="svg-accent" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 8 4 0 8z" fill="currentColor"/></marker>
+            </defs>
+            <g fill="currentColor" fill-opacity="0.045">
+              <rect x="76" y="28" width="704" height="76" rx="8"/>
+              <rect x="76" y="124" width="704" height="66" rx="8"/>
+              <rect x="76" y="202" width="704" height="66" rx="8"/>
+            </g>
+            <g font-size="12" fill="currentColor" font-weight="700">
+              <text x="0" y="70">浏览器</text>
+              <text x="0" y="161">Supabase</text>
+              <text x="0" y="234">媒体 Worker</text>
+            </g>
+            <text x="0" y="250" font-size="10.5" fill="currentColor" opacity="0.7">可选（D1-B）</text>
+            <g fill="none" stroke="currentColor" stroke-width="1.2">
+              <rect x="84" y="40" width="88" height="52" rx="7"/>
+              <rect x="190" y="40" width="104" height="52" rx="7"/>
+              <rect x="312" y="40" width="88" height="52" rx="7"/>
+              <rect x="418" y="40" width="88" height="52" rx="7"/>
+              <rect x="524" y="40" width="100" height="52" rx="7"/>
+              <rect x="672" y="40" width="100" height="52" rx="7"/>
+              <rect x="524" y="134" width="100" height="46" rx="7"/>
+              <rect x="672" y="134" width="100" height="46" rx="7"/>
+            </g>
+            <g class="svg-accent"><rect x="524" y="212" width="248" height="46" rx="7" fill="none" stroke="currentColor" stroke-width="1.8"/></g>
+            <g font-size="12" fill="currentColor" text-anchor="middle">
+              <text x="128" y="62" font-weight="700">选择</text><text x="128" y="79" font-size="10.5" opacity="0.75">文件 · 文件夹</text>
+              <text x="242" y="62" font-weight="700">解析</text><text x="242" y="79" font-size="10.5" opacity="0.75">标签 · 封面 · 歌词</text>
+              <text x="356" y="62" font-weight="700">查重</text><text x="356" y="79" font-size="10.5" opacity="0.75">SHA-256</text>
+              <text x="462" y="62" font-weight="700">确认</text><text x="462" y="79" font-size="10.5" opacity="0.75">逐首可改</text>
+              <text x="574" y="62" font-weight="700">上传</text><text x="574" y="79" font-size="10.5" opacity="0.75">断点续传</text>
+              <text x="722" y="62" font-weight="700">就绪</text><text x="722" y="79" font-size="10.5" opacity="0.75">曲库里出现</text>
+              <text x="574" y="154" font-weight="700">Storage</text><text x="574" y="170" font-size="10.5" opacity="0.75">原件（字节不动）</text>
+              <text x="722" y="154" font-weight="700">Postgres</text><text x="722" y="170" font-size="10.5" opacity="0.75">曲目 · 文件 · 歌词</text>
+            </g>
+            <g class="svg-accent" font-size="12" fill="currentColor" text-anchor="middle">
+              <text x="648" y="232" font-weight="700">后处理</text><text x="648" y="248" font-size="10.5">格式归一 · 响度 · 指纹 · 波形 · 副本</text>
+            </g>
+            <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#up-ah)">
+              <line x1="172" y1="66" x2="188" y2="66"/>
+              <line x1="294" y1="66" x2="310" y2="66"/>
+              <line x1="400" y1="66" x2="416" y2="66"/>
+              <line x1="506" y1="66" x2="522" y2="66"/>
+              <line x1="560" y1="92" x2="560" y2="132"/>
+              <polyline points="624,84 648,84 648,150 670,150"/>
+              <line x1="740" y1="134" x2="740" y2="94"/>
+            </g>
+            <g class="svg-accent" stroke="currentColor" stroke-width="1.4" fill="none" marker-end="url(#up-ahx)">
+              <line x1="700" y1="180" x2="700" y2="210"/>
+              <line x1="752" y1="212" x2="752" y2="182"/>
+              <line x1="590" y1="212" x2="590" y2="182"/>
+            </g>
+            <g font-size="10.5" fill="currentColor">
+              <text x="554" y="116" text-anchor="end">分片</text>
+              <text x="654" y="124">入库</text>
+              <text x="746" y="118">通知</text>
+            </g>
+            <g class="svg-accent" font-size="10.5" fill="currentColor">
+              <text x="694" y="201" text-anchor="end">任务</text>
+              <text x="758" y="201">回写</text>
+              <text x="596" y="201">派生文件</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption>浏览器能直接放的格式，入库那一刻就是「就绪」；需要转换的先显示「处理中」，等 Worker 回写后经 Realtime 通知变成「就绪」。解析和哈希跑在 Web Worker 里，不卡界面。</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li><b>选择</b><p>桌面拖进文件或整个文件夹；手机从「文件」App 里选（iPhone 需要 iOS 18.4 以上才能选整个文件夹；「音乐」App 里的歌拿不到，Apple Music 下载的歌也有 DRM）。一次可以几百首。</p></li>
+        <li><b>解析</b><p>读标题、艺人、专辑、音轨号、年份、时长、编码参数（采样率、位深、码率）、内嵌封面、内嵌歌词、ReplayGain 和 MusicBrainz ID。同名的 .lrc 和 cover.jpg / folder.jpg 自动配对。老 MP3 和 CUE 里的 GBK / Big5 乱码自动识别转码，卡片上标「已修复编码」，可以撤回。</p></li>
+        <li><b>查重</b><p>流式计算 SHA-256（不把整个文件读进内存）。同一个世界里已经有这个原件，就跳过上传，只提示「曲库里已有」。</p></li>
+        <li><b>确认</b><p>按专辑分组预览，能改标题、艺人、专辑、海报、歌词，也能整张专辑一起改；上传前就能直接试听本地文件。浏览器放不了的格式在这一步就标出来，不等传完才发现。</p></li>
+        <li><b>上传</b><p>断点续传：6 MB 一片，3 首并发，可暂停、继续、失败自动重试；进度存在本地数据库里，刷新页面或换了网络也能接着传。手机锁屏时浏览器会挂起上传，回来后自动继续；大批量上传时申请屏幕常亮（iOS 18.4 起支持），并提示先别关页面。蜂窝网络下传大文件前先提醒。</p></li>
+        <li><b>入库</b><p>传完调用一次入库 RPC，在一个事务里写曲目、文件、歌词、海报。</p></li>
+        <li><b>后处理（可选）</b><p>Worker 按任务做无损转换、CUE 切轨、响度扫描、指纹匹配补标签、波形、省流副本，回写后通知前端。</p></li>
+        <li><b>就绪</b><p>唱片落进曲库，马上能放，能加进「我们的歌单」。</p></li>
+      </ol>
+
+      <h3>各种格式怎么处理</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>格式</th><th>浏览器直接放</th><th>一期（不加 Worker）</th><th>加上 Worker 以后</th></tr></thead>
+          <tbody>
+            <tr><th>FLAC（到 24/192）</th><td class="y">全部</td><td>原件直出</td><td>原件直出；另生成省流副本</td></tr>
+            <tr><th>MP3 · AAC（M4A）</th><td class="y">全部</td><td>原件直出</td><td>同左</td></tr>
+            <tr><th>WAV</th><td class="y">全部（文件大）</td><td>原件直出</td><td>整数 PCM 另存 FLAC 串流版（体积约减半，PCM 一致）；浮点 WAV 保持原样</td></tr>
+            <tr><th>ALAC（M4A）· AIFF</th><td class="p">只有 Safari</td><td>Safari 上直出；其他浏览器标「需转换」</td><td>无损转 FLAC 串流版</td></tr>
+            <tr><th>Opus · Vorbis（OGG / WebM）</th><td class="p">Safari 要 17.4 / 18.4 以上</td><td>原件直出；老 Safari 标注</td><td>另生成 AAC 副本</td></tr>
+            <tr><th>APE · WavPack · TAK · TTA</th><td class="n">都不行</td><td>标「需转换」；桌面浏览器可用 ffmpeg.wasm 本地转（约为原生速度的 1/25，可选）</td><td>无损转 FLAC 串流版</td></tr>
+            <tr><th>DSD（DSF / DFF）</th><td class="n">都不行</td><td>标「需转换」</td><td>转 FLAC 24/176.4（或 24/88.2），标「由 DSD 转换」：DSD 转 PCM 做不到逐比特，原件照样保留</td></tr>
+            <tr><th>整轨 + CUE</th><td class="p">取决于音频格式</td><td>解析 CUE 成虚拟分轨：同一个文件按采样点切（CUE 的 1/75 秒一帧在常见采样率下都是整数个采样点），曲间天然无缝</td><td>可选切成独立 FLAC，切完所有分轨拼起来的 PCM 必须与整轨一致</td></tr>
+            <tr><th>带 DRM 的 .m4p、网易 .ncm、QQ .qmc</th><td class="n">不支持</td><td colspan="2">直接拒收并说明原因；这类加密文件不做解密（法律风险，见第 11 节）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tbl-note">每次无损转换都要验证：两边解码后用 <code>ffmpeg -i X -map 0:a -c:a pcm_s32le -f hash -hash md5 -</code> 算哈希，必须完全一致。不加 <code>pcm_s32le</code> 时 FFmpeg 默认转成 16 bit 再算，会把 24 bit 的差异藏掉。</p>
+
+      <div class="two">
+        <div class="card">
+          <h4>歌词从哪来（优先级从高到低）</h4>
+          <ol>
+            <li>手动编辑过的</li>
+            <li>同名 .lrc 文件</li>
+            <li>内嵌的同步歌词（带时间轴）</li>
+            <li>内嵌的纯文本歌词</li>
+            <li>自动匹配（按标题、艺人、专辑、时长 ±2 秒）</li>
+          </ol>
+          <p>自动匹配的结果先给候选，确认了才写入；永远不覆盖手动改过的歌词。</p>
+        </div>
+        <div class="card">
+          <h4>海报从哪来（优先级从高到低）</h4>
+          <ol>
+            <li>手动上传的</li>
+            <li>同一文件夹里的 cover / folder 图</li>
+            <li>文件内嵌的封面</li>
+            <li>自动匹配（按专辑查封面库）</li>
+            <li>生成的默认海报：用标题和主色排版，不留空白</li>
+          </ol>
+          <p>同一张专辑共用一张海报，单曲可以单独换。自动匹配先按 MusicBrainz 找到专辑，再去 Cover Art Archive 取封面；国内访问不通时用 Deezer 的公开接口兜底（最大 1000 px），公开发行前再核对条款。</p>
+        </div>
+      </div>
+
+      <div class="decision" data-d="D3" id="d3">
+        <div class="decision-head"><span class="dtag">D3</span><h3>存几档音质？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <p>原件一定存。问题是要不要再存一份小的，给蜂窝网络和弱网用。按码率算，一首 4 分钟的歌：FLAC 16/44.1 约 25–35 MB，FLAC 24/96 约 80–120 MB，AAC 256 kbps 约 8 MB。</p>
+        <div class="opts">
+          <div class="opt">
+            <h4><span class="k">Q1</span>只存原件</h4>
+            <p>永远播放原件（浏览器放不了的格式存一份无损串流版）。</p>
+            <ul class="pc"><li class="pro">最简单，永远最好的音质</li><li class="con">蜂窝网络下 Hi-Res 一首上百 MB，费流量，弱网会卡</li></ul>
+          </div>
+          <div class="opt rec">
+            <h4><span class="k">Q2</span>原件 + 一档高品质副本<span class="tag-rec">推荐</span></h4>
+            <p>Worker 额外生成 AAC-LC 256 kbps 副本（MP4 封装，所有设备都能放，Safari 里还能接进增强模式）。Wi-Fi 默认放原件，蜂窝网络默认「高品质」，设置里可改成始终原件。Worker 上线前先按 Q1 跑。</p>
+            <ul class="pc"><li class="pro">蜂窝流量降到原来的 1/4 到 1/12</li><li class="pro">副本不替换原件，随时切回无损</li><li class="con">需要 Worker；存储多约 10–25%</li></ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">Q3</span>完整阶梯</h4>
+            <p>原件、无损 16/44.1、高品质 256k、省流 96k，配合分片按网速自动切换。</p>
+            <ul class="pc"><li class="pro">弱网体验最好</li><li class="con">要配 D1-D 的流媒体架构，工作量大</li></ul>
+          </div>
+        </div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="Q1">Q1 只存原件</button><button type="button" data-k="Q2">Q2 原件 + 副本</button><button type="button" data-k="Q3">Q3 完整阶梯</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s7">
+      <div class="sec-head"><span class="eyebrow">第 7 节 · D4</span><h2>歌词与海报</h2></div>
+      <h3>歌词：存原文，渲染时再解析</h3>
+      <p>数据库里原样保存歌词文本（LRC 或 TTML）和一个整体偏移量，客户端解析成统一结构：每行有开始、结束时间，可选的逐字时间，以及翻译、音译和演唱者（对唱时分左右）。这样导入格式可以越加越多，渲染器只认一种结构。</p>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>格式</th><th>精度</th><th>一期</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><th>纯文本</th><td>无时间轴</td><td class="y">支持</td><td>只能整页显示，不滚动高亮</td></tr>
+            <tr><th>LRC</th><td>逐句</td><td class="y">支持</td><td>最常见；支持一行多个时间戳、<code>[offset:]</code>、同时间戳两行视为「原文 + 翻译」（国内双语 LRC 的惯例）</td></tr>
+            <tr><th>逐字 LRC</th><td>逐字</td><td class="y">支持</td><td>行内 <code>&lt;mm:ss.xx&gt;</code> 标记每个字的时间</td></tr>
+            <tr><th>TTML</th><td>逐字 + 对唱 + 和声</td><td class="p">预留</td><td>Apple Music 用的格式，能标演唱者和背景和声</td></tr>
+            <tr><th>网易 YRC / QQ QRC / 酷狗 KRC</th><td>逐字</td><td class="p">导入时转换</td><td>各平台私有格式，只做导入转换，不作为存储格式</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="two">
+        <div class="card">
+          <h4>歌词编辑器</h4>
+          <ul>
+            <li>粘贴或导入 .lrc；纯文本也能先存</li>
+            <li>打拍子对时：边听边在每句开始时按一下（空格或点屏幕），自动生成逐句时间轴</li>
+            <li>整体偏移 ±0.1 秒微调，只改偏移量，不动原文</li>
+            <li>两个人都能改，保留最后修改人</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>自动匹配</h4>
+          <ul>
+            <li>用 LRCLIB：开放的同步歌词库，不需要 key，浏览器可以直接请求；按标题、艺人、专辑和时长查，时长差 2 秒以内才算命中</li>
+            <li>结果先作为候选给你确认，确认了才写入，永远不覆盖手动改过的歌词</li>
+            <li>边界：LRCLIB 的代码是 MIT，但歌词版权属于版权方，数据本身没有声明许可。两个人私用没问题；公开发行时换成有授权的歌词服务（Musixmatch、LyricFind）</li>
+            <li>不用各平台的非官方歌词接口</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="decision" data-d="D4" id="d4">
+        <div class="decision-head"><span class="dtag">D4</span><h3>歌词怎么渲染？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <p>目标效果是 Apple Music 那种：当前句放大、逐字点亮、远处的句子渐隐，对唱分左右，和声小一号。开源里做得最像的是 AMLL（applemusic-like-lyrics），但它不适合直接用。</p>
+        <div class="opts">
+          <div class="opt rec">
+            <h4><span class="k">R1</span>自研渲染器<span class="tag-rec">推荐</span></h4>
+            <p>在现有沉浸歌词上扩展：逐字用 <code>background-clip: text</code> 或渐变遮罩按时间填充，行间用一个阻尼弹簧错开 30–50 ms 上移，距离模糊只在桌面开；对唱右对齐，和声 0.65 倍字号，间奏超过 4 秒显示呼吸点。</p>
+            <ul class="pc">
+              <li class="pro">约 500–800 行，不加依赖，和项目「CSS 优先、不引动画库」的做法一致</li>
+              <li class="pro">许可证干净；低动效、减少透明效果都能接现有设置</li>
+              <li class="con">要自己打磨手感；写的人不看 AMLL 源码（净室实现），参考 MIT / Apache 许可的项目</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">R2</span>直接用 AMLL</h4>
+            <p>功能最全：逐字、翻译、音译、对唱、和声、弹簧动画、流体背景，自带 LRC / YRC / QRC / TTML 解析。</p>
+            <ul class="pc">
+              <li class="pro">效果现成，最接近 Apple Music</li>
+              <li class="con">所有 npm 包都是 AGPL-3.0：打包进网页就等于前端也要按 AGPL 向用户提供源码，以后没法闭源发行</li>
+              <li class="con">依赖 Pixi v7，项目用的是 pixi.js 8.19，要多背一套 Pixi 和一个 WebGL 上下文；README 自己写着不要直接用于生产</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">R3</span>先逐句，逐字以后做</h4>
+            <p>这一期只把现有沉浸歌词接上真实的逐句歌词，逐字、对唱、和声放到下一期。</p>
+            <ul class="pc">
+              <li class="pro">M4 能省 1–2 天</li>
+              <li class="con">带逐字时间轴的歌词先按逐句显示</li>
+            </ul>
+          </div>
+        </div>
+        <div class="verdict"><b>推荐 R1。</b>时间紧就在 R1 内部分两步：先逐句，再逐字（也就是 R3 的节奏），但数据结构一开始就按逐字设计。</div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="R1">R1 自研</button><button type="button" data-k="R2">R2 用 AMLL</button><button type="button" data-k="R3">R3 先逐句，逐字后做</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+
+      <h3>海报</h3>
+      <ul>
+        <li><strong>四档尺寸</strong>：96（列表）、320（网格）、640（正在播放）、1280（沉浸歌词和分享卡），WebP，在浏览器的 Worker 线程里生成，原图另存。</li>
+        <li><strong>主色</strong>：从海报取 2–3 个主色，校验文字对比度后存下来，驱动播放页的底色和光晕（现在 <code>music-tracks.ts</code> 里手写的 <code>tint</code> 就换成它）。</li>
+        <li><strong>占位</strong>：存一个 ThumbHash（二三十个字节），图片没到之前先显示同色模糊图，不闪白。</li>
+        <li><strong>动态海报</strong>（以后）：可传一段 10 秒内的静音循环视频当封面，低动效模式下显示静态图。</li>
+        <li><strong>歌词海报</strong>（以后）：选一到四句歌词，配海报生成分享卡，存进回忆或发到聊天。「这句想念你」比一张截图更像你们。</li>
+      </ul>
+    </section>
+
+    <section id="s8">
+      <div class="sec-head"><span class="eyebrow">第 8 节 · D5</span><h2>曲库与数据模型</h2></div>
+      <p>一首歌拆成三层：<strong>文件</strong>是你传上来的东西（音频、CUE、.lrc、封面图，按内容哈希存一次，字节不动）；<strong>曲目</strong>是曲库里的那一行（标题、艺人、歌词、海报，CUE 整轨切出来的多首歌指向同一个文件的不同片段）；<strong>播放版本</strong>是真正拿去播放的东西（默认就是原件，必要时加无损串流版和省流副本）。改标签只改数据库，原件永远不回写；你手动改过的字段会被锁住，自动匹配不会覆盖。</p>
+
+      <div class="decision" data-d="D5" id="d5">
+        <div class="decision-head"><span class="dtag">D5</span><h3>曲库归谁？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <div class="opts">
+          <div class="opt">
+            <h4><span class="k">L1</span>各自一个曲库</h4>
+            <p>谁传的歌只在谁的曲库，另有一张「我们的歌单」两人都能往里放。</p>
+            <ul class="pc"><li class="pro">边界清楚</li><li class="con">想听对方的歌得先被放进共享歌单</li></ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">L2</span>世界共享一个曲库</h4>
+            <p>像照片墙：谁传的都进同一个曲库，两人一样能改能删。</p>
+            <ul class="pc"><li class="pro">最简单，和回忆的权限一致</li><li class="con">没有「只给自己听」的歌</li></ul>
+          </div>
+          <div class="opt rec">
+            <h4><span class="k">L3</span>默认共享，可设私有<span class="tag-rec">推荐</span></h4>
+            <p>上传者拥有这首歌，默认对 TA 可见；单首可设为「仅自己」。歌词和海报两人都能改，删除和可见性只有上传者能动。</p>
+            <ul class="pc"><li class="pro">默认像 L2 一样省事，又留了私人空间</li><li class="con">多一个可见性字段和一条存储策略</li></ul>
+          </div>
+        </div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="L1">L1 各自曲库</button><button type="button" data-k="L2">L2 世界共享</button><button type="button" data-k="L3">L3 默认共享可私有</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+
+      <h3>表结构（按 L3 写）</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>表</th><th>存什么</th><th>关键字段</th></tr></thead>
+          <tbody>
+            <tr><th><code>music_files</code></th><td>上传的原始文件</td><td>world_id · owner_id · sha256（同一世界唯一）· role（audio / cue / lyrics / image）· path · 原文件名与相对路径 · codec · sample_rate · bit_depth · channels · duration_samples · audio_md5（FLAC 自带或解码后算）· text_encoding · status（上传中 / 已校验 / 损坏 / 回收站）</td></tr>
+            <tr><th><code>music_tracks</code></th><td>曲库里的一首歌</td><td>visibility · status（处理中 / 就绪 / 失败）· title · album_id · disc/track_no · source_file_id + start_sample / end_sample（CUE 片段，精确到采样点）· duration_ms · isrc · mbid · 响度（track / album gain、峰值、LUFS）· tags（整理后）· tags_raw（原始标签）· locked_fields（手动改过的字段）· deleted_at</td></tr>
+            <tr><th><code>music_renditions</code></th><td>播放版本</td><td>track_id · kind（original / lossless / lossy）· path · storage_backend（supabase / r2，将来可平移）· codec · sample_rate · bit_depth · bitrate · bytes · audio_md5</td></tr>
+            <tr><th><code>music_albums</code> / <code>music_artists</code></th><td>专辑、艺人</td><td>专辑用 album_key 归并（MusicBrainz ID，或 专辑艺人 + 专辑名 + 发行日期），同一世界唯一；艺人与曲目多对多，带角色（演唱 / 合作 / 作词 / 作曲）</td></tr>
+            <tr><th><code>music_artworks</code></th><td>海报与封面</td><td>sha256 · source（内嵌 / 文件夹 / 上传 / 匹配）· 尺寸 · variants（三档路径）· palette（主色，已校对比度）· thumbhash</td></tr>
+            <tr><th><code>music_lyrics</code></th><td>歌词（原文 / 翻译 / 音译）</td><td>track_id · kind · lang · format（plain / lrc / lrc_word / ttml …）· synced · offset_ms · raw_text（原文照存）· doc（解析后的结构，采用 OpenSubsonic songLyrics v2 的形状：行、逐字、演唱者）· source · is_preferred</td></tr>
+            <tr><th><code>music_playlists</code> / <code>_items</code></th><td>歌单与「我们的歌单」</td><td>kind（ours / personal）· position（分数索引，拖动只改一行）· added_by · note（赠曲便签）· 回应（每人一个）</td></tr>
+            <tr><th><code>music_likes</code> / <code>music_plays</code></th><td>收藏、播放记录</td><td>播放满 30 秒记一次，用于最近播放、续播和以后的年度回顾</td></tr>
+            <tr><th><code>music_jobs</code></th><td>后处理任务（D1-B）</td><td>stage · status（排队 / 进行中 / 完成 / 失败 / 待确认）· attempts · progress · error；实际排队用 Supabase Queues（pgmq）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code>-- 节选（完整 DDL 与 RLS 进仓库的迁移文件）
+create table music_files (
+  id               uuid primary key default gen_random_uuid(),
+  world_id         uuid not null references worlds(id) on delete cascade,
+  owner_id         uuid not null references auth.users(id),
+  sha256           bytea not null,
+  role             text not null check (role in ('audio','cue','lyrics','image')),
+  path             text not null unique,            -- &lt;world&gt;/orig/&lt;sha256&gt;.&lt;ext&gt;，只增不改
+  codec            text, sample_rate integer, bit_depth smallint, channels smallint,
+  duration_samples bigint,
+  audio_md5        bytea,                           -- 无损转换、CUE 切轨前后都要比对
+  status           text not null default 'uploading'
+                   check (status in ('uploading','verified','corrupt','trashed')),
+  unique (world_id, sha256)                         -- 上传前按哈希查，命中就不传
+);
+
+create table music_tracks (
+  id             uuid primary key default gen_random_uuid(),
+  world_id       uuid not null references worlds(id) on delete cascade,
+  owner_id       uuid not null references auth.users(id),
+  visibility     text not null default 'world' check (visibility in ('world','private')),
+  status         text not null default 'processing' check (status in ('processing','ready','failed')),
+  title          text not null,
+  album_id       uuid references music_albums(id) on delete set null,
+  source_file_id uuid not null references music_files(id),
+  start_sample   bigint, end_sample bigint,         -- CUE 虚拟分轨；整首时为空
+  duration_ms    integer not null,
+  gain           jsonb,                             -- {track_db, track_peak, album_db, album_peak, lufs}
+  tags           jsonb not null default '{}',
+  tags_raw       jsonb not null default '{}',
+  locked_fields  text[] not null default '{}',
+  search_text    text not null default '',          -- 标题 / 艺人 / 专辑 + 全拼 + 首字母
+  deleted_at     timestamptz
+);</code></pre>
+
+      <h3>权限与存储路径</h3>
+      <ul>
+        <li><strong>读</strong>：曲目所在世界是我的世界，并且 <code>visibility = 'world'</code> 或我是上传者。文件、播放版本、歌词、海报跟随曲目。</li>
+        <li><strong>写</strong>：新增只能以自己为 owner；删除和改可见性只有上传者；歌词、海报、专辑信息两人都能改（记录修改人）。</li>
+        <li><strong>「我们的歌单」</strong>：两人都能加、删、排序；个人歌单只有自己能动。</li>
+        <li><strong>存储</strong>：新建私有桶 <code>music</code>，沿用 <code>memories</code> 的规则（路径第一段 = world_id 判成员）；设为私有的曲目，文件移到 <code>&lt;world&gt;/p/&lt;owner&gt;/</code> 下，只有本人能读。播放一律用签名 URL。</li>
+        <li><strong>原件保护</strong>：前端不能直接删 <code>orig/</code> 下的文件，删除走「回收站」RPC，30 天后由定时任务清理。Supabase 的数据库备份不含 Storage 里的文件、也没有版本历史，所以可以每周把新增原件复制一份到 NAS 或另一家对象存储。</li>
+      </ul>
+      <pre><code>music/                                          私有桶；全局单文件上限设到约 5 GB
+  &lt;world&gt;/orig/&lt;sha256&gt;.&lt;ext&gt;                     原件：音频、CUE、.lrc、封面，字节不动、只增不改
+  &lt;world&gt;/r/&lt;track_id&gt;/flac-v1.flac               无损串流版（仅当原件浏览器放不了）
+  &lt;world&gt;/r/&lt;track_id&gt;/aac256-v1.m4a              省流副本（D3-Q2）
+  &lt;world&gt;/r/&lt;track_id&gt;/peaks-v1.json              波形与能量曲线
+  &lt;world&gt;/art/&lt;sha256&gt;/{256,512,1200}.webp        海报三档（iPhone 上生成时为 .jpg）
+  &lt;world&gt;/p/&lt;owner&gt;/…                             设为私有的曲目</code></pre>
+      <p class="small muted">要改文件就写一个新版本名，不覆盖旧文件（CDN 缓存更新慢）。桶不设 MIME 白名单：浏览器给 .ape、.dsf、.cue、.lrc 报不出类型，改为读文件头判断格式，上传时显式带上类型。</p>
+      <p class="small muted">迁移管理：仓库新增 <code>supabase/migrations/</code>，这次的表、索引、RLS、桶配置都以迁移文件入库，结束「线上直接改表、仓库没有历史」的状态（和 TODO 里的 Supabase 审计遗留一起做）。</p>
+    </section>
+
+    <section id="s9">
+      <div class="sec-head"><span class="eyebrow">第 9 节 · D6</span><h2>存储与分发</h2></div>
+      <p>文件放哪决定三件事：每月花多少钱、在国内起播快不快、权限好不好做。先看现有的 Supabase 能不能装下无损曲库：</p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th></th><th>Free</th><th>Pro</th></tr></thead>
+          <tbody>
+            <tr><th>价格</th><td class="mono">0</td><td class="mono">25 美元 / 月</td></tr>
+            <tr><th>单文件上限</th><td class="n">50 MB：一首 24/192 就超</td><td class="y">最高 500 GB（全局设置）</td></tr>
+            <tr><th>含存储</th><td class="mono">1 GB</td><td class="mono">100 GB，超出 0.0213 美元 / GB·月</td></tr>
+            <tr><th>含流量</th><td class="mono">5 GB</td><td class="mono">未缓存 250 GB + 缓存 250 GB，超出 0.09 / 0.03 美元 / GB</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">按码率算流量：CD 音质 FLAC 约 0.4 GB / 小时，24/96 约 1.4 GB / 小时。两个人每天各听 3 小时，CD 音质每月约 73 GB，全听 Hi-Res 约 250 GB，都在 Pro 的额度附近。</p>
+
+      <div class="decision" data-d="D6" id="d6">
+        <div class="decision-head"><span class="dtag">D6</span><h3>文件放哪？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <div class="opts four">
+          <div class="opt rec">
+            <h4><span class="k">S1</span>Supabase Storage（Pro）<span class="tag-rec">推荐</span></h4>
+            <p>新建私有桶 <code>music</code>，权限直接复用 RLS，和照片墙同一套；断点续传、Range 请求都支持。</p>
+            <ul class="pc">
+              <li class="pro">一家供应商，最少的新东西</li>
+              <li class="con">必须升 Pro；Pro 默认开「花费上限」，额度用完后上传会失败到下个账期</li>
+              <li class="con">数据库备份不含 Storage 文件，也没有版本历史</li>
+              <li class="con">有一条 2025 年未解决的报告说 iPhone 放不了 Supabase 上的音频，开工第一天先测</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">S2</span>Cloudflare R2</h4>
+            <p>存储 0.015 美元 / GB·月，出口流量免费；一个 Worker（5 美元 / 月）验证 Supabase 的登录令牌后按 Range 出流。</p>
+            <ul class="pc">
+              <li class="pro">曲库大、听得多时最省钱</li>
+              <li class="con">两家供应商；上传签名和权限要自己写</li>
+              <li class="con">预签名链接只能用 R2 的 S3 域名</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">S3</span>国内对象存储</h4>
+            <p>阿里云 OSS 或腾讯 COS 加 CDN。</p>
+            <ul class="pc">
+              <li class="pro">在国内起播最快</li>
+              <li class="con">自定义域名必须 ICP 备案（境外主体不能备案）；2025-03-20 起 OSS 新用户在大陆地域不能用默认公网域名调数据接口</li>
+              <li class="con">权限体系要自己搭</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">S4</span>自己的 NAS</h4>
+            <p>放在家里的硬盘上，配合 D1-C 或第 11 节的自托管来源。</p>
+            <ul class="pc">
+              <li class="pro">几乎零成本，容量大</li>
+              <li class="con">家宽上行慢、常没有公网入站；家里断电就听不了</li>
+              <li class="con">更适合做备份</li>
+            </ul>
+          </div>
+        </div>
+        <div class="verdict"><b>推荐 S1 起步。</b>播放版本表里记 <code>storage_backend</code>，曲库超过 1 TB 或流量费明显上来时，把播放版本平移到 R2（1 TB 时 R2 约 15 美元 / 月，Supabase 超出部分约 19 美元，外加流量费）。在国内实测起播太慢、又能备案，再考虑 S3。不管选哪家，每周把新增原件备份一份到 NAS 或另一家对象存储。</div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="S1">S1 Supabase</button><button type="button" data-k="S2">S2 Cloudflare R2</button><button type="button" data-k="S3">S3 国内对象存储</button><button type="button" data-k="S4">S4 自己的 NAS</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+
+      <h3>上传、签名与缓存的细节</h3>
+      <ul>
+        <li><strong>上传</strong>：TUS 断点续传直连 <code>&lt;项目&gt;.storage.supabase.co</code>，分片必须是 6 MB，上传地址最长 24 小时有效；也可以由服务端签一个只能写某个路径的上传令牌（2 小时有效）。</li>
+        <li><strong>播放签名</strong>：音频签名 URL 给 6–12 小时；同一个播放版本复用同一个签名，才能命中 CDN 缓存（每个不同的签名都是一条独立缓存），缓存流量只要 0.03 美元 / GB。</li>
+        <li><strong>过期与撤销</strong>：签名过期由播放器自动重签续播；撤销签名不会清掉 CDN 上的缓存，删除文件才会。</li>
+        <li><strong>海报</strong>：Supabase 的图片处理每月只含 100 张原图、之后按量收费，我们自己在浏览器或 Worker 里生成三档尺寸更便宜。</li>
+        <li><strong>密钥</strong>：Supabase 计划在 2026 年底前用 <code>sb_publishable_</code> / <code>sb_secret_</code> 取代 anon / service_role 密钥，项目的 <code>VITE_SUPABASE_ANON_KEY</code> 可以在 M0 顺手换掉。</li>
+      </ul>
+    </section>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <symbol id="i-prev" viewBox="0 0 16 16"><path d="M3 3h2v10H3zM13 3v10L6 8z" fill="currentColor"/></symbol>
+      <symbol id="i-next" viewBox="0 0 16 16"><path d="M11 3h2v10h-2zM3 3v10l7-5z" fill="currentColor"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 16 16"><path d="M4 3h3v10H4zM9 3h3v10H9z" fill="currentColor"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 16 16"><path d="M8 14s-5.5-3.3-5.5-7.2A3 3 0 0 1 8 5a3 3 0 0 1 5.5 1.8C13.5 10.7 8 14 8 14z" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="i-loop" viewBox="0 0 16 16"><path d="M3 7V6a2 2 0 0 1 2-2h7M10 2l2 2-2 2M13 9v1a2 2 0 0 1-2 2H4M6 14l-2-2 2-2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5"/></symbol>
+    </svg>
+    <section id="s10">
+      <div class="sec-head"><span class="eyebrow">第 10 节 · D7</span><h2>界面方向：三种精简的样子</h2></div>
+      <p>三种方向都沿用已定稿的骨架（桌面右侧停靠栏、手机托盘半高 / 拉满、对方始终可见）和 Cinnaglass 暗色玻璃，区别在于「什么是主角」：唱片、歌词，还是曲库本身。下面是手机托盘里的样子，桌面停靠栏是同一页放在右侧一列。海报用色块占位，正式图等 Codex 出。</p>
+      <div class="mocks">
+        <div class="mock">
+          <h4><span class="k">V1</span>唱片封套</h4>
+          <div class="screen" role="img" aria-label="V1 唱片封套：封套与唱片为主角，下方两行歌词和唱片箱">
+            <div class="grab"></div>
+            <div class="sleeve"><div class="vinyl"></div><div class="poster p-rain"></div></div>
+            <div><div class="t">雨天的窗边</div><div class="s">Lo-fi 时光</div></div>
+            <div class="chips"><span class="qb">HI-RES · FLAC 24/96</span></div>
+            <div class="lyr"><div class="cur">杯子里的热气<em>慢慢变细</em></div><div class="dim">你说今天的雨好适合发呆</div></div>
+            <div class="bar-p" style="--w: 38%"><i></i></div>
+            <div class="ctrl"><svg width="13" height="13"><use href="#i-loop"/></svg><svg width="14" height="14"><use href="#i-prev"/></svg><span class="play"><svg width="12" height="12"><use href="#i-pause"/></svg></span><svg width="14" height="14"><use href="#i-next"/></svg><svg width="14" height="14"><use href="#i-heart"/></svg></div>
+            <div class="tabs"><span class="on">歌词</span><span>队列</span><span>唱片箱</span></div>
+            <div class="crate"><div class="poster p-cloud"></div><div class="poster p-lamp"></div><div class="poster p-walk"></div><div class="poster p-rec"></div></div>
+          </div>
+          <p>延续定稿的 B1：海报是封套，唱片滑出慢转；曲库做成「唱片箱」，专辑一张张翻。和书房唱片机、以后的唱片角是同一个比喻。</p>
+          <ul class="pc"><li class="pro">身份感最强，和房间物件呼应</li><li class="pro">已有实现，改动最小</li><li class="con">大曲库里按封套翻找慢，要配搜索</li></ul>
+        </div>
+        <div class="mock">
+          <h4><span class="k">V2</span>歌词为主</h4>
+          <div class="screen" role="img" aria-label="V2 歌词为主：海报糊成流动底色，大字逐字歌词占满">
+            <div class="blur-bg p-rain"></div>
+            <div class="layer">
+              <div class="grab"></div>
+              <div class="row"><div class="poster p-rain"></div><div><b>雨天的窗边</b><span>Lo-fi 时光</span></div><span class="qb">HI-RES</span></div>
+              <div class="lyr" style="margin-top: 14px; gap: 12px">
+                <div class="dim">窗外的灯一盏一盏亮起来</div>
+                <div class="cur" style="font-size: 19px">杯子里的热气<em>慢慢</em>变细</div>
+                <div class="dim">你说今天的雨好适合发呆</div>
+                <div class="dim" style="opacity: 0.6">雨一直敲着玻璃</div>
+                <div class="dim" style="opacity: 0.35">像在替我们数心跳</div>
+              </div>
+              <div style="margin-top: auto; display: grid; gap: 10px">
+                <div class="bar-p" style="--w: 38%"><i></i></div>
+                <div class="ctrl"><svg width="14" height="14"><use href="#i-prev"/></svg><span class="play"><svg width="12" height="12"><use href="#i-pause"/></svg></span><svg width="14" height="14"><use href="#i-next"/></svg></div>
+              </div>
+            </div>
+          </div>
+          <p>把已定稿的沉浸歌词（B3）升成默认页：海报主色做流动底色，逐字点亮，远的句子渐隐。曲库退到一个简洁列表。</p>
+          <ul class="pc"><li class="pro">情绪最浓，截图最好看</li><li class="pro">逐字 / 对唱 / 翻译有地方放</li><li class="con">没歌词的歌（纯音乐、老歌）页面发空</li><li class="con">流动背景在老手机上耗电</li></ul>
+        </div>
+        <div class="mock">
+          <h4><span class="k">V3</span>安静列表</h4>
+          <div class="screen" role="img" aria-label="V3 安静列表：搜索与筛选在上，歌曲列表带格式标记，底部迷你播放条">
+            <div class="grab"></div>
+            <div class="search"><svg width="12" height="12"><use href="#i-search"/></svg>搜索歌名、艺人或拼音</div>
+            <div class="chips"><span class="on">歌曲</span><span>专辑</span><span>艺人</span><span>歌单</span><span>无损</span></div>
+            <div class="row"><div class="poster p-rain"></div><div><b>雨天的窗边</b><span>Lo-fi 时光 · FLAC 24/96</span></div><span class="s mono">3:18</span></div>
+            <div class="row"><div class="poster p-cloud"></div><div><b>云朵上的下午</b><span>小满 &amp; 知夏 · FLAC 16/44.1</span></div><span class="s mono">3:34</span></div>
+            <div class="row"><div class="poster p-lamp"></div><div><b>暖灯电台</b><span>夜晚频率 · MP3 320</span></div><span class="s mono">3:56</span></div>
+            <div class="row"><div class="poster p-walk"></div><div><b>一起散步</b><span>周末 · ALAC 16/44.1</span></div><span class="s mono">3:08</span></div>
+            <div class="row"><div class="poster p-rec"></div><div><b>落针的唱片角</b><span>唱片角 · FLAC 24/48</span></div><span class="s mono">3:25</span></div>
+            <div class="row"><div class="poster p-sea"></div><div><b>海边的星星</b><span>潮汐 · AAC 256</span></div><span class="s mono">3:42</span></div>
+            <div class="mini"><div class="poster p-rain"></div><div class="row" style="display: block"><b>雨天的窗边</b><span>杯子里的热气慢慢变细</span></div><svg width="13" height="13"><use href="#i-pause"/></svg></div>
+          </div>
+          <p>曲库是主角：搜索（支持拼音首字母）和筛选在上，列表带格式标记，正在播放缩成底部迷你条，点开才是封套页。</p>
+          <ul class="pc"><li class="pro">几千首也好找，操作最快</li><li class="pro">最省性能，老手机友好</li><li class="con">最像工具，房间的氛围感最弱</li></ul>
+        </div>
+      </div>
+
+      <h3>三种方向共用的两块界面</h3>
+      <div class="mocks">
+        <div class="mock">
+          <h4>上传托盘</h4>
+          <div class="screen" role="img" aria-label="上传托盘：拖放区与逐首状态卡片">
+            <div class="grab"></div>
+            <div class="t">上传音乐</div>
+            <div class="drop">拖进文件或文件夹<br><span style="font-size: 10px">FLAC · ALAC · APE+CUE · WAV · DSD · MP3 · AAC</span></div>
+            <div class="up"><div class="poster p-rain"></div><b>雨天的窗边</b><div class="st"><span class="qb">FLAC 24/96</span><span>歌词·内嵌</span><span>上传中 62%</span></div></div>
+            <div class="up"><div class="poster p-lamp"></div><b>暖灯电台</b><div class="st"><span class="qb plain">MP3 320</span><span>歌词·同名 .lrc</span><span class="ok">已入库</span></div></div>
+            <div class="up"><div class="poster p-walk"></div><b>一起散步</b><div class="st"><span class="qb">ALAC 16/44.1</span><span>转成 FLAC 后可在所有浏览器放</span></div></div>
+            <div class="up"><div class="poster p-cloud"></div><b>云朵上的下午</b><div class="st"><span class="dup">曲库里已有，跳过上传</span></div></div>
+            <div class="chips" style="margin-top: auto"><span>批量编辑</span><span class="on">全部开始</span></div>
+          </div>
+          <p>每首一张卡：封面、格式、歌词来源、状态（解析中 · 待确认 · 上传中 · 处理中 · 已入库 · 重复 · 失败可重试）。传完的卡打个勾，像唱片落进唱片箱。</p>
+        </div>
+        <div class="mock">
+          <h4>音质徽章 → 信号路径</h4>
+          <div class="screen" role="img" aria-label="信号路径面板：来源、解码、处理、输出四段如实显示">
+            <div class="grab"></div>
+            <div class="row"><div class="poster p-rain"></div><div><b>雨天的窗边</b><span>Lo-fi 时光</span></div><span class="qb">HI-RES</span></div>
+            <div class="hr"></div>
+            <div class="t">信号路径</div>
+            <div class="path">
+              <div><span>来源</span><span>FLAC · 24 bit · 96 kHz · 3.1 Mbps · 原件</span></div>
+              <div><span>解码</span><span>浏览器（无损解码）</span></div>
+              <div><span>处理</span><span>无 · 纯净直出</span></div>
+              <div><span>输出</span><span>系统混音器 48 kHz（由系统重采样）</span></div>
+            </div>
+            <div class="hr"></div>
+            <div class="path"><div><span>结论</span><span class="ok">无损播放：全程没有有损环节</span></div></div>
+            <div class="s" style="margin-top: auto; font-size: 10.5px">网页受系统混音器限制，做不到比特完美；桌面版（独占输出）可以。</div>
+          </div>
+          <p>平时只显示一个小徽章（Hi-Res / 无损 / 高品质 / 标准），点开才看细节。说得出每一段发生了什么，也不夸大。</p>
+        </div>
+      </div>
+
+      <h3>曲库怎么组织（按 1,000–10,000 首设计）</h3>
+      <div class="two">
+        <div class="card">
+          <h4>结构</h4>
+          <ul>
+            <li>四个页签：歌曲 · 专辑 · 歌手 · 歌单。「最近添加」是默认排序，不单独占页签。</li>
+            <li>归属是筛选，不是另一棵树：每个列表顶上都有「我的 / TA 的 / 我们的」小标签。</li>
+            <li>筛选：收藏、无损、Hi-Res、有逐字歌词，以及「缺封面 / 缺歌词」，当作待整理清单。</li>
+            <li>右侧按拼音首字母的索引条；专辑页整张海报铺满，渐变进它的主色，只用黑或白字。</li>
+            <li>空列表本身就是拖放区。「我们的歌单」空着时写一句：放第一首你想让 TA 听的歌。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>搜索与长列表</h4>
+          <ul>
+            <li>一万首以内用前端索引就够（MiniSearch），中文分词用浏览器自带的 <code>Intl.Segmenter</code>。</li>
+            <li><code>pinyin-pro</code> 支持首字母（「ytdcb」）、全拼和混输，搜「雨天」「yutian」「yt」都能命中。</li>
+            <li>结果按歌曲、专辑、歌手、歌词片段分组。</li>
+            <li>长列表虚拟滚动（<code>@tanstack/react-virtual</code>）；手机长按进入多选，底部一条「加入我们的歌单 · 编辑 · 删除」；批量编辑时值不一样的字段显示「多个值」。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>两个人的小事</h3>
+      <p>社交功能只做贴着「两个人」的几件，不做评论流、匹配度百分比、连续打卡这类东西（也违反陪伴设计铁律里的「只做正反馈」）。</p>
+      <ul>
+        <li><strong>谁加的</strong>：「我们的歌单」每一行有个小圆点，是加歌那个人的头像颜色。</li>
+        <li><strong>回应</strong>：每人每首歌一个回应（一颗心或一个表情），两个人都点了心就叠成两个圆点，可以筛「我们都喜欢」。</li>
+        <li><strong>送一首歌</strong>：选一首歌、一句歌词、写一句不超过 60 字的话，用现有的金亮信纸送到对方那边，打开从那句歌词开始放。它和唱片角的「为你选一张」是同一个仪式。</li>
+        <li><strong>在听什么</strong>：「TA 在听《雨天的窗边》」只在真的在听时显示，设置里可以开「悄悄听」不公开。</li>
+      </ul>
+
+      <h3>让它显得高级的细节</h3>
+      <ul>
+        <li><strong>没有爆音</strong>：播放、暂停、拖动时音量在 120–200 ms 里淡入淡出。同一张专辑连续播放不做交叉淡化（Plexamp 的用户最烦这一点），只在随机播放时淡化。</li>
+        <li><strong>换歌</strong>：封套里滑出新唱片；海报从列表行飞到播放页；背景色在 OKLCH 色彩空间里用约 700 ms 过渡到新海报的主色。</li>
+        <li><strong>流动底色用提取的颜色，不用糊掉的海报</strong>：海报上的字和边框糊开会脏（Plexamp 的经验）。底色在低分辨率上画、最多 30 帧，暂停、面板收起、切到后台时停，低动效和「减少透明效果」时静止。</li>
+        <li><strong>进度条</strong>：按住变粗，拇指上方跟一个时间气泡和那个位置的歌词。</li>
+        <li><strong>滑动切歌</strong>：在封套上左右滑，带回弹，下一张封面从边上露出来。</li>
+        <li><strong>逐字歌词</strong>：字的填充边缘带羽化；自己上下翻歌词时暂停跟随，停 3 秒出现「回到当前句」。低动效模式改为整句高亮。</li>
+        <li><strong>入库</strong>：上传卡片先显示模糊封面，读完变清晰；完成打勾，复用现有的按压回弹与粒子（<code>ui/feedback.ts</code>）。</li>
+        <li><strong>锁屏</strong>：Media Session 带封面、歌名、进度，每次拖动都更新位置，锁屏和耳机按键都能切歌。</li>
+        <li><strong>断网</strong>：顶部一条细提示「网络不稳，正在重连」，已缓冲的部分照常放。</li>
+        <li><strong>键盘</strong>（桌面）：空格播放暂停，← → 快退快进 10 秒，↑ ↓ 音量，Shift + ← → 上下首，M 静音，/ 搜索，? 看全部快捷键；输入框里不响应。</li>
+        <li><strong>读屏</strong>：歌词不逐行播报（会盖住音乐），当前句标 <code>aria-current</code>；进度条的读数改成「3 分 20 秒，共 4 分 3 秒」，现在代码里读出来是「3:20」。</li>
+      </ul>
+
+      <div class="decision" data-d="D7" id="d7">
+        <div class="decision-head"><span class="dtag">D7</span><h3>界面走哪个方向？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <p>三种可以按页面组合：正在播放、沉浸歌词、曲库各选各的。</p>
+        <div class="verdict"><b>推荐 V1 + V3。</b>正在播放继续用定稿的封套与唱片（和唱片机同一个比喻，已有实现）；曲库和上传用 V3 的安静列表，几千首也好找；V2 的逐字点亮和流动底色升级进现有的沉浸歌词，不做默认页。上面「两个人的小事」三件（谁加的、回应、送一首歌）放进「我们的歌单」，不管选哪个方向都做。</div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="V1">V1 唱片封套</button><button type="button" data-k="V2">V2 歌词为主</button><button type="button" data-k="V3">V3 安静列表</button><button type="button" data-k="V1+V3">V1 + V3 组合</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s11">
+      <div class="sec-head"><span class="eyebrow">第 11 节 · D8</span><h2>在线曲库：下一期怎么接</h2></div>
+      <p>这一期不接，但架构要为它留好位置。调研里最重要的结论有两条：</p>
+      <ul>
+        <li><strong>没有一家主流平台给网页应用无损音频。</strong>Spotify 的网页 SDK 约 AAC 256 kbps，Apple Music 的 MusicKit JS 最高 AAC 256 kbps，YouTube 只能嵌一个看得见的有损视频窗，TIDAL 对第三方只放 30 秒试听，Qobuz 只对合作方开放。</li>
+        <li><strong>大平台的完整播放都要用户自己有会员，音频走它们的加密播放器</strong>，不经过我们的音频链路：响度均衡、无缝、均衡器、信号路径在这些来源上都用不了，有的条款还明确禁止交叉淡化。</li>
+      </ul>
+      <p>所以「保证音质」最稳的路始终是自己可控的来源：自己上传的曲库、自己的 NAS 音乐服务器、在 Bandcamp 或 Qobuz 这类商店买的无损下载。</p>
+
+      <div class="tbl">
+        <table class="xwide">
+          <thead><tr><th>来源</th><th>完整播放</th><th>网页里最高音质</th><th>需要什么</th><th>国内</th><th>两人私用</th><th>公开产品</th><th>建议</th></tr></thead>
+          <tbody>
+            <tr><th>自己上传的曲库</th><td class="y">是</td><td>原件，FLAC 最高 24/192（系统重采样）</td><td>我们自己的账号</td><td class="y">可用</td><td class="y">可以</td><td class="p">可以，要有授权与下架流程</td><td><strong>核心，这一期</strong></td></tr>
+            <tr><th>Navidrome 等 OpenSubsonic 服务器</th><td class="y">是</td><td>原件或服务器转码</td><td>自己的服务器 + API key</td><td class="p">可用；家宽常没有公网入站，需要隧道</td><td class="y">可以</td><td class="y">可以（用户自带服务器）</td><td><strong>第一个在线来源</strong></td></tr>
+            <tr><th>Jellyfin</th><td class="y">是</td><td>原件或转码</td><td>自己的服务器 token</td><td class="y">可用</td><td class="y">可以</td><td class="y">可以</td><td>同一类适配器，第二个</td></tr>
+            <tr><th>Apple Music（MusicKit JS）</th><td class="p">会员可以</td><td>AAC 256，网页没有无损</td><td>开发者计划 99 美元 / 年 + 每人的会员</td><td class="p">服务在国内运营；网页播放未验证</td><td class="y">可以</td><td class="y">合规前提下可以</td><td>官方全曲库的首选</td></tr>
+            <tr><th>Spotify（Web Playback SDK）</th><td class="p">Premium 可以</td><td>约 AAC 256，无损不在网页</td><td>开发模式：最多 5 人，开发者和用户都要 Premium</td><td class="n">没有服务</td><td class="p">技术上可以，不能做一起听</td><td class="n">不行：扩展额度只给注册企业且月活 ≥ 25 万</td><td>可选，只限私用</td></tr>
+            <tr><th>YouTube / YouTube Music</th><td class="p">只能是看得见的视频窗</td><td>有损</td><td>Data API key；没有官方 YT Music 接口</td><td class="n">被墙</td><td class="p">只能当视频面板，不能锁屏放</td><td class="p">只能当视频嵌入</td><td>不当音乐来源</td></tr>
+            <tr><th>TIDAL</th><td class="n">否，第三方只有 30 秒试听</td><td>试听</td><td>Client ID</td><td class="n">没有服务</td><td class="n">没意义</td><td class="n">不行</td><td>观望</td></tr>
+            <tr><th>Qobuz</th><td class="p">只对合作方</td><td>FLAC 24/192，无 DRM</td><td>邮件申请 app_id</td><td class="n">没有服务</td><td class="p">批准才行</td><td class="p">批准才行</td><td>以后可以申请；绝不盗用 app_id</td></tr>
+            <tr><th>Deezer · Amazon Music</th><td class="n">否（新应用关闭 / 内测）</td><td>30 秒试听</td><td>—</td><td>—</td><td class="p">只拿封面</td><td class="n">—</td><td>Deezer 的公开接口可作封面兜底</td></tr>
+            <tr><th>SoundCloud</th><td class="p">审批通过可以</td><td>AAC 160（HLS）</td><td>申请应用 + OAuth</td><td class="n">据称被墙</td><td class="p">批准后可以</td><td class="p">有风险：条款禁止做替代性内容服务</td><td>可选</td></tr>
+            <tr><th>Audius</th><td class="y">是</td><td>MP3 320</td><td>不需要 key</td><td class="p">未验证</td><td class="y">可以</td><td class="y">可以</td><td>可选的发现来源</td></tr>
+            <tr><th>Jamendo</th><td class="y">是</td><td>MP3 约 192k；部分可下 FLAC</td><td>client_id，非商用免费</td><td class="p">未验证</td><td class="y">可以</td><td class="p">要商务协议</td><td>可选</td></tr>
+            <tr><th>Internet Archive 现场录音</th><td class="y">是</td><td>FLAC 原件</td><td>不需要 key</td><td class="n">据称被墙</td><td class="y">可以</td><td class="p">逐条看授权</td><td>小众（现场录音）</td></tr>
+            <tr><th>Bandcamp</th><td class="p">买了下载</td><td>FLAC / ALAC / WAV 下载</td><td>账号</td><td class="p">未验证</td><td class="y">买了再上传</td><td class="y">可以</td><td><strong>推荐为「买无损」的正路</strong></td></tr>
+            <tr><th>网易云官方开放平台</th><td class="p">部分，按渠道授权</td><td>有授权的歌可到无损（未验证）</td><td>appId + 私钥，每个用户自己登录；2026 年起有个人开发者通道</td><td class="y">可用</td><td class="p">可以先做技术验证</td><td class="p">要企业合同</td><td>国内方向先试</td></tr>
+            <tr><th>QQ 音乐 / 腾讯音乐、酷狗、酷我</th><td class="p">只对合作方</td><td>按合同</td><td>企业合同</td><td class="y">可用</td><td class="n">没找到个人通道</td><td class="p">有合同才行</td><td>真在国内上线时再谈</td></tr>
+            <tr><th>非官方接口（网易云 API 分支、洛雪音源、MusicFree 插件、Listen1）</th><td class="p">灰色</td><td>最高无损</td><td>你的 VIP Cookie</td><td class="y">可用</td><td class="n">能用，但违约、会封号、有法律风险</td><td class="n">绝不</td><td class="n">不进代码</td></tr>
+            <tr><th>YouTube 抓流（yt-dlp、ytmusicapi）</th><td class="p">灰色</td><td>有损</td><td>Cookie</td><td class="n">被墙</td><td class="n">不建议</td><td class="n">绝不</td><td class="n">不进代码</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tbl-note">政策以 2026-09-30 调研时为准（Spotify 2026 年 2–3 月收紧开发模式；TIDAL 在 2026-09-29 再次确认第三方只有试听）。「未验证」表示没能从一手来源确认。</p>
+
+      <div class="note warn">
+        <b>国内平台的红线</b>
+        <span>网易云非官方接口项目 NeteaseCloudMusicApi 在 2024 年收到律师函后清空归档；洛雪音乐在 2023 年收到腾讯的警告函后移除内置音源。已有判例：网易诉科大讯飞「发条」App 聚合曲库，二审判赔 80 万元；重庆一起破解付费歌曲并分发的案子判了三年缓刑并罚金 55 万元。修订后的《反不正当竞争法》2025-10-15 起施行，明确禁止绕过技术措施获取他人数据。结论：非官方接口、音源插件、<code>.ncm</code> / <code>.qmc</code> 解密，一律不进代码。</span>
+      </div>
+
+      <h3>来源适配器：一个接口接所有来源</h3>
+      <p>播放器不直接认识「网易云」或「本地曲库」，只认识「来源」。每个来源声明自己的能力和条款限制，播放器据此决定能不能做响度均衡、交叉淡化、一起听。「我们的歌单」存的是规范化的曲目（ISRC、MusicBrainz ID、时长），两个人各自解析到自己有权播放的来源。</p>
+      <pre><code>// src/lib/music/sources.ts
+type EngineKind = 'owned' | 'drm-sdk' | 'visible-embed';  // 自己播放 / 平台加密播放器 / 必须可见的视频窗
+
+export interface MusicSource {
+  id: 'library' | 'subsonic' | 'jellyfin' | 'apple' | 'spotify' | 'netease';
+  caps: {
+    playback: 'none' | 'preview' | 'full';
+    engine: EngineKind;
+    dsp: boolean;             // 能否接进我们的 Web Audio（响度、淡化、均衡）
+    maxQuality: { codec: string; lossless: boolean; bitDepth?: number; sampleRateHz?: number };
+    lyrics: 'word' | 'line' | 'plain' | 'none';
+    policy: { noCrossfade?: boolean; userMustStart?: boolean; listenTogether: 'ok' | 'same-source' | 'forbidden' };
+  };
+  connect?(): Promise&lt;void&gt;;                              // OAuth，或填自托管服务器地址
+  search(q: string): Promise&lt;SourceItem[]&gt;;
+  match?(t: CanonicalTrack): Promise&lt;TrackRef[]&gt;;           // 先按 ISRC 跨来源匹配
+  getSource(ref: TrackRef, prefs: QualityPrefs): Promise&lt;Playable&gt;;
+  lyrics?(ref: TrackRef): Promise&lt;LyricsDoc | null&gt;;
+}
+
+export type Playable =
+  | { kind: 'url'; url: string; mime: string; lossless: boolean; expiresAt?: number }   // 走我们的链路
+  | { kind: 'sdk'; engine: 'musickit' | 'spotify'; uri: string }                       // 平台加密播放
+  | { kind: 'embed'; engine: 'youtube'; videoId: string };</code></pre>
+      <p class="small muted">同一时刻只有一个引擎在出声；在「自己的链路」和「平台播放器」之间切换会有 0.1–1 秒的空隙。平台来源的音质徽章写「AAC 256 · 平台提供」，不按我们的标准标无损。</p>
+
+      <h3>一起听怎么做（下一期）</h3>
+      <ul>
+        <li><strong>同步什么</strong>：队列、当前曲目、播放 / 暂停、位置与对应的服务器时间。走 Supabase Realtime 的私有频道 <code>world:{id}</code>（聊天已经在用同一套）。</li>
+        <li><strong>时钟对齐</strong>：进房时来回 ping 8–16 次，取往返最短的那次估出两端时钟差（NTP 的做法），每 30–60 秒和页面回到前台时重对一次；之后用「参考时间 + 位置」换算本地应在的位置。开始播放时约定 0.4–0.8 秒后的同一时刻起播，两端先缓冲好。</li>
+        <li><strong>纠偏</strong>：每 1–2 秒比一次。偏差小于 40 ms 不管；40 ms 到 1 秒之间用最多 ±3% 的播放速率慢慢追（保持音高，听不出来）；超过 1 秒或卡顿之后直接跳到正确位置。蓝牙耳机另给一个手动延迟补偿。</li>
+        <li><strong>谁说了算</strong>：谁最后操作谁是主导，另一端跟随；对方离开时自动退出一起听，界面上如实显示（只翻译真实状态）。</li>
+        <li><strong>前提</strong>：两人都要能播同一首歌。自己的曲库天然满足，精度能做到几十毫秒。平台来源只能靠跳转纠偏（误差几百毫秒），而且条款不友好：Spotify 禁止复刻「Jam」这类核心功能，Apple 要求每个人自己点开始。所以一起听只做自己的曲库和自托管来源。</li>
+      </ul>
+
+      <div class="decision" data-d="D8" id="d8">
+        <div class="decision-head"><span class="dtag">D8</span><h3>在线曲库先接谁？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
+        <div class="opts four">
+          <div class="opt rec">
+            <h4><span class="k">O1</span>自托管服务器<span class="tag-rec">先做这个</span></h4>
+            <p>写 OpenSubsonic 适配器（Navidrome，随后 Jellyfin）；反过来也把我们的曲库按 OpenSubsonic 接口开放，音流、Symfonium、Amperfy 这些现成客户端就能离线听、上车载。</p>
+            <ul class="pc">
+              <li class="pro">无损，走我们自己的链路：响度、无缝、信号路径、一起听全都能用</li>
+              <li class="pro">条款干净；Navidrome 已支持逐字歌词和 ReplayGain</li>
+              <li class="con">要有人常开一台 NAS 或 VPS；国内家宽常没有公网入站</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">O2</span>官方会员 SDK</h4>
+            <p>Apple Music（MusicKit JS）做官方全曲库：国内外都有服务，要开发者计划（99 美元 / 年）和每人的会员。Spotify 只限私用（开发模式最多 5 人、都要 Premium）。</p>
+            <ul class="pc">
+              <li class="pro">曲库最全，合法</li>
+              <li class="con">网页里只有 AAC 256，没有无损；加密音频不经过我们的链路</li>
+              <li class="con">条款多：Apple 要求从它的 CDN 加载脚本、用户自己点播放；Spotify 禁止交叉淡化和复刻 Jam</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">O3</span>开放曲库</h4>
+            <p>Jamendo、Audius、Internet Archive、SoundCloud：免费、合规的独立音乐和现场录音，适合做「找新歌」。</p>
+            <ul class="pc">
+              <li class="pro">不要会员；Internet Archive 有 FLAC 原件</li>
+              <li class="con">基本没有你们平时听的流行歌</li>
+            </ul>
+          </div>
+          <div class="opt">
+            <h4><span class="k">O4</span>国内平台合作</h4>
+            <p>先对网易云 2026 年开放的个人开发者通道做一次技术验证；QQ 音乐、酷狗只对企业合作方开放。</p>
+            <ul class="pc">
+              <li class="pro">是你们平时真正在听的曲库</li>
+              <li class="con">开放渠道的版权是官方 App 的子集：实测一位会员收藏的 30 首里有 18 首拿不到播放地址</li>
+              <li class="con">每个用户要自己注册凭证；企业合作要公司主体和相关资质</li>
+            </ul>
+          </div>
+        </div>
+        <div class="verdict"><b>推荐「O1 起步，再接一个 O2」。</b>先做自托管适配器，并把自己的曲库开放成 OpenSubsonic（顺带解决离线和车载）；第二步看你们有哪家会员（Q5）：有 Apple Music 就接 MusicKit，在国内且主要听网易云，就先做网易云官方通道的验证。想要无损又想合规，最好的办法是在 Bandcamp、Qobuz 这类商店买无损下载，再传进自己的曲库。</div>
+        <div class="vote">
+          <div class="vote-row"><span>我选</span><button type="button" data-k="O1">O1 自托管服务器</button><button type="button" data-k="O2">O2 官方会员 SDK</button><button type="button" data-k="O3">O3 开放曲库</button><button type="button" data-k="O4">O4 国内平台合作</button><button type="button" data-k="O1→O2">O1 起步，再接一个 O2</button></div>
+          <div class="who"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s12">
+      <div class="sec-head"><span class="eyebrow">第 12 节</span><h2>实施步骤</h2></div>
+      <p>按推荐组合估算，一个人配合 Claude 开发：核心约 4 周，媒体 Worker 另约 1 周。选 D1-B 时 M7 挪到 M2 之后做。每个里程碑独立可验收、可回退，分批提交。</p>
+      <div class="gantt-wrap">
+        <div class="gantt" role="img" aria-label="排期：M0 到 M6 与 M8 共约 20 个工作日，M7 媒体 Worker 为可选的第 5 周">
+          <div class="g-row ruler"><span class="lbl muted">工作日</span><span class="wk" style="grid-column: 2 / span 5">第 1 周</span><span class="wk" style="grid-column: 7 / span 5">第 2 周</span><span class="wk" style="grid-column: 12 / span 5">第 3 周</span><span class="wk" style="grid-column: 17 / span 5">第 4 周</span><span class="wk" style="grid-column: 22 / span 5">第 5 周</span></div>
+          <div class="g-row"><span class="lbl">M0 决策与准备</span><span class="bar" style="grid-column: 2 / span 1"></span></div>
+          <div class="g-row"><span class="lbl">M1 数据层</span><span class="bar" style="grid-column: 3 / span 2"></span></div>
+          <div class="g-row"><span class="lbl">M2 上传入库</span><span class="bar" style="grid-column: 5 / span 5"></span></div>
+          <div class="g-row"><span class="lbl">M3 播放引擎</span><span class="bar" style="grid-column: 8 / span 4"></span></div>
+          <div class="g-row"><span class="lbl">M4 歌词与海报</span><span class="bar" style="grid-column: 12 / span 3"></span></div>
+          <div class="g-row"><span class="lbl">M5 曲库界面</span><span class="bar" style="grid-column: 13 / span 5"></span></div>
+          <div class="g-row"><span class="lbl">M6 音质增强</span><span class="bar" style="grid-column: 18 / span 2"></span></div>
+          <div class="g-row"><span class="lbl">M8 验收收尾</span><span class="bar" style="grid-column: 20 / span 2"></span></div>
+          <div class="g-row"><span class="lbl">M7 媒体 Worker</span><span class="bar opt" style="grid-column: 22 / span 5"></span></div>
+        </div>
+      </div>
+      <p class="tbl-note">实心为核心路径，斜纹为可选（D1 选 B 时并入核心路径）。</p>
+
+      <div class="ms">
+        <div class="m">
+          <div class="m-head"><b>M0</b><h4>决策与准备</h4><span>0.5–1 天</span></div>
+          <ul>
+            <li><strong>第一天先验证</strong>：iPhone Safari 播放 Supabase 签名 URL 上的 FLAC / M4A / MP3（含锁屏、拖动）；iPhone 直接放 24/192 FLAC；存储是否给音频返回 CORS 头。任何一项不过，先调整 D6 再往下做</li>
+            <li>拍板 D1–D8；升 Pro 并设好用量提醒；换一个有效的 <code>SUPABASE_ACCESS_TOKEN</code>（TODO 里记录它已失效，跑迁移要用），顺手换成新的 publishable key</li>
+            <li>新建 <code>supabase/migrations/</code>，写 <code>music</code> 桶、表、索引、RLS 的迁移</li>
+            <li>准备测试曲集：FLAC 16/44.1、24/96、24/192，ALAC，WAV 24 bit，APE + CUE（GBK 编码），DSF，MP3 320（ID3v2.3 GBK 标签），AAC 256，Opus；内嵌歌词、同名 .lrc、双语 LRC、逐字 LRC 各一</li>
+          </ul>
+          <div class="acc"><b>验收</b>　三项真机验证有结论；迁移在空库可重复执行；用两个账号（<code>pnpm dev2</code>）验证越权读写全部被拒。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M1</b><h4>数据层</h4><span>1–2 天</span></div>
+          <ul>
+            <li><code>src/types/music.ts</code>（一张表一个类型）；<code>src/lib/music/library.ts</code>：分页、搜索、编辑，零 React（遵守 CONVENTIONS 的分层方向）</li>
+            <li>入库 RPC <code>music_ingest</code>：一个事务写曲目、文件、歌词、海报</li>
+            <li>音频签名 URL：TTL 按时长给足，过期由播放器自动续签</li>
+          </ul>
+          <div class="acc"><b>验收</b>　<code>tsc -b</code> 零错误；RLS 用例全过。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M2</b><h4>上传入库</h4><span>4–5 天</span></div>
+          <ul>
+            <li><code>ingest.worker.ts</code>（Web Worker，不卡界面）：读文件头判断格式、解析标签 / 时长 / 格式参数、流式 SHA-256、封面三档（Safari 不能编码 WebP，iPhone 上出 JPEG）+ 主色 + ThumbHash、歌词识别（内嵌与同名 .lrc）、GBK 乱码修复（整张专辑一起判断编码，可撤回）、CUE 解析成按采样点的虚拟分轨</li>
+            <li><code>upload.ts</code>：TUS 断点续传（6 MB 分片、3 首并发、暂停继续、进度存 IndexedDB、刷新后接着传）；上传前批量查哈希，命中就跳过；上传路径按内容哈希</li>
+            <li>上传托盘：拖放区（文件 / 文件夹）、逐首卡片、批量编辑、失败重试</li>
+          </ul>
+          <div class="acc"><b>验收</b>　测试曲集全部走通；取回的文件哈希一致；断网恢复后续传；重复文件不重复上传。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M3</b><h4>播放引擎 v2</h4><span>3–4 天</span></div>
+          <ul>
+            <li><code>lib/music/engine/</code>：状态机、队列（下一首播放 / 加入队列 / 随机带历史 / 循环）、预加载下一首、签名过期续签续播、网络重试、Media Session、关掉再开接着放</li>
+            <li>默认纯净直出；第一次点播放时同时解锁两个播放元素；iPhone 上隐藏音量滑块；增强模式先留接口（M6 做）</li>
+            <li>现有 8 段合成音景移到「声音 / 环境音」层（对应 TODO 的分层音景），音乐页只放真歌；音乐 UI 迁入 <code>themes/cinnaglass/music/</code> 子目录</li>
+          </ul>
+          <div class="acc"><b>验收</b>　iPhone 锁屏连播 60 分钟；切歌无爆音；续签无感；首次出声达到第 1 节的目标。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M4</b><h4>歌词与海报</h4><span>2–3 天</span></div>
+          <ul>
+            <li><code>lyrics.ts</code>：LRC（多时间戳、offset、同时间戳双语）与逐字 LRC 解析成统一结构；TTML 预留</li>
+            <li>歌词编辑：粘贴或导入、打拍子逐句对时、整体偏移；自动匹配（见第 7 节）</li>
+            <li>海报：替换、裁切、自动候选；主色驱动播放页；沉浸歌词接真实数据并逐字点亮</li>
+          </ul>
+          <div class="acc"><b>验收</b>　无歌词、纯文本、逐句、逐字四种状态都正确；偏移调整即时生效。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M5</b><h4>曲库界面</h4><span>4–5 天</span></div>
+          <ul>
+            <li>歌曲 / 专辑 / 艺人 / 歌单 / 最近添加；搜索（拼音全拼和首字母）；筛选（无损、Hi-Res、TA 传的、收藏）</li>
+            <li>「我们的歌单」：谁加的、每人一个回应、我们都喜欢、拖动排序；「送一首歌」走金亮信纸</li>
+            <li>单曲菜单：下一首播放、加入歌单、编辑信息、换海报 / 歌词、设为私有、删除（软删 30 天）</li>
+          </ul>
+          <div class="acc"><b>验收</b>　2,000 首列表滚动流畅（虚拟列表）；搜索响应 &lt; 50 ms。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M6</b><h4>音质增强</h4><span>2 天</span></div>
+          <ul>
+            <li>响度均衡三档（关 / 只调小 / 完整）；增强模式（声明 playback 音频会话，iOS 17.5+）与交叉淡化（只用于随机播放）；微淡化衔接；输出设备选择；信号路径面板</li>
+            <li>可选：同专辑采样级无缝（Worker 生成 FLAC fMP4 重封装，MSE / ManagedMediaSource 拼接）</li>
+          </ul>
+          <div class="acc"><b>验收</b>　曲间响度差 &lt; 1 LU；无缝测试专辑没有咔哒声；信号路径显示与实际一致。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M7</b><h4>媒体 Worker（D1 选 B 时）</h4><span>3–5 天</span></div>
+          <ul>
+            <li>一个小容器：FFmpeg（不带非自由编码器）、flac、fpcalc、audiowaveform、rsgain、sharp；放在按量计费的地方（Cloud Run Jobs、Fly Machines、Cloudflare Containers，每月约 0–5 美元），同一个镜像也能在 NAS 上跑</li>
+            <li>唤醒：入库 RPC 往 Supabase Queues 放任务 → 触发器经 pg_net 叫醒 Worker → Worker 取完队列就退出；pg_cron 每 5 分钟兜底检查；失败 5 次标记失败、界面可重试</li>
+            <li>ALAC / APE / WavPack / AIFF / DSD → FLAC 串流版；CUE 物理切轨（可选）；响度扫描；指纹匹配补全标签；波形；省流副本</li>
+          </ul>
+          <div class="acc"><b>验收</b>　转换前后 PCM MD5 一致；任务幂等、失败可重试。</div>
+        </div>
+        <div class="m">
+          <div class="m-head"><b>M8</b><h4>验收与收尾</h4><span>1–2 天</span></div>
+          <ul>
+            <li>格式 × 浏览器 × 设备矩阵；断网与弱网；长时间播放的内存；功能文档进 <code>ai/features/music/</code>，更新 TODO 与 PROJECT</li>
+          </ul>
+          <div class="acc"><b>验收</b>　第 1 节的验收线全部达标。</div>
+        </div>
+      </div>
+
+      <h3>代码放哪</h3>
+      <pre><code>src/types/music.ts                     一张表一个类型
+src/lib/music/library.ts               曲库查询、搜索、编辑（零 React）
+src/lib/music/upload.ts                断点续传、查重、入库
+src/lib/music/ingest.worker.ts         标签 / 封面 / 歌词 / 哈希 / 乱码修复 / CUE
+src/lib/music/lyrics.ts                LRC、逐字 LRC、TTML → 统一结构
+src/lib/music/artwork.ts               海报多尺寸、主色、ThumbHash
+src/lib/music/sources.ts               来源适配器（本地曲库；下一期接在线来源）
+src/lib/music/engine/player.ts         状态机、队列、预加载、续签、Media Session
+src/lib/music/engine/output-pure.ts    &lt;audio&gt; 纯净直出
+src/lib/music/engine/output-boost.ts   Web Audio 增强：响度、淡化、限幅
+src/themes/cinnaglass/music/           播放页、曲库、上传托盘、歌词编辑、信号路径
+supabase/migrations/…_music.sql        表、索引、RLS、桶</code></pre>
+    </section>
+
+    <section id="s13">
+      <div class="sec-head"><span class="eyebrow">第 13 节</span><h2>风险与成本</h2></div>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>风险</th><th>影响</th><th>对策</th></tr></thead>
+          <tbody>
+            <tr><th>iPhone 播放 Supabase 上的音频</th><td>有一条 2025 年未解决的报告说 iOS 播放器放不了 Supabase 上的 m4a / mp3</td><td>M0 第一天用真机验证签名 URL 播放；不行就改由 R2 出流（D6-S2）</td></tr>
+            <tr><th>Supabase 计划与额度</th><td>Free 单文件 50 MB，Hi-Res 传不上去；Pro 默认开花费上限，额度用完后上传失败到下个账期</td><td>升 Pro；设用量提醒或关掉花费上限；表里留 <code>storage_backend</code> 以便平移</td></tr>
+            <tr><th>原件没有备份</th><td>数据库备份不含 Storage 文件，也没有版本历史，误删就没了</td><td>前端不能删原件，删除走回收站、30 天后清理；每周把新增原件备份到 NAS 或另一家存储</td></tr>
+            <tr><th>iPhone 的网页音频限制</th><td>锁屏断播、音量不可调、静音键把声音关掉</td><td>手机默认纯净直出（D2）；声明播放类音频会话；真机矩阵专项测</td></tr>
+            <tr><th>部分格式浏览器放不了</th><td>ALAC（非 Safari）、APE、DSD、WavPack 传上来放不出</td><td>上传前就标注；D1-B 的 Worker 无损转 FLAC；Worker 上线前可在浏览器里用 ffmpeg.wasm 慢速转换</td></tr>
+            <tr><th>在国内访问海外存储</th><td>无损大文件起播慢、拖动卡</td><td>预加载下一首、缓存最近播放；蜂窝用高品质副本（D3）；必要时换国内存储（D6-S3）</td></tr>
+            <tr><th>版权</th><td>公开分享或公开发行时，用户上传的歌有侵权风险</td><td>一期只在两人的世界里私有播放，不做公开链接；公开发行前单独评估授权与下架流程；在线曲库只走官方渠道</td></tr>
+            <tr><th>签名 URL 外泄</th><td>链接被转发后别人能听</td><td>私有桶 + 短 TTL + 不记录 URL；删除曲目时同步删文件</td></tr>
+            <tr><th>标签很乱</th><td>曲库里艺人、专辑重复或乱码</td><td>编码修复 + 批量编辑 + 自动匹配补全；专辑按（专辑艺人, 专辑名）归并</td></tr>
+            <tr><th>手机上传被打断</th><td>锁屏或切后台时上传挂起</td><td>断点续传，回来自动继续；大批量上传时申请屏幕常亮（浏览器支持时）</td></tr>
+            <tr><th>迁移与令牌</th><td>线上表没有迁移历史，管理令牌已失效</td><td>M0 换新令牌，这次起所有表结构走 <code>supabase/migrations/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>每月成本估算</h3>
+      <div class="tbl">
+        <table class="wide">
+          <thead><tr><th>项目</th><th>假设</th><th>每月</th></tr></thead>
+          <tbody>
+            <tr><th>Supabase Pro</th><td>基础费用，含 100 GB 存储和 250 GB + 250 GB 流量</td><td class="mono">25 美元</td></tr>
+            <tr><th>存储超出</th><td>5,000 首混合格式，约 200 GB</td><td class="mono">约 2 美元</td></tr>
+            <tr><th>流量超出</th><td>两人每天各听 3 小时无损</td><td class="mono">通常 0（CD 音质约 73 GB / 月）</td></tr>
+            <tr><th>媒体 Worker（D1-B）</th><td>1,000 首补处理约 1–3 CPU 小时；按量计费的容器</td><td class="mono">0–5 美元</td></tr>
+            <tr><th>原件备份（可选）</th><td>Backblaze B2，200 GB</td><td class="mono">约 1.4 美元</td></tr>
+            <tr><th>Apple 开发者计划（D8 选 O2）</th><td>MusicKit 需要</td><td class="mono">99 美元 / 年，约 8 美元</td></tr>
+            <tr><th>改用 R2 时（D6-S2）</th><td>200 GB 存储 + Worker 付费版；流量免费</td><td class="mono">约 3 + 5 美元</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">一期的典型花费就是 Supabase Pro 的 25 美元，加上 Worker 和备份共约 25–35 美元 / 月。价格来自 2026-09 调研时的官方文档与定价页，部分数字取自搜索摘要，下单前再核对一次。</p>
+    </section>
+
+    <section id="s14">
+      <div class="sec-head"><span class="eyebrow">第 14 节</span><h2>我的选择</h2></div>
+      <p>各节决定卡片上的投票都汇总在这里。选择先记在这台设备上；页面连上共享记录时，打开这页的人都能看到彼此选了什么，我在对话里也能直接读到。连不上的话，点「复制我的选择」贴回对话就行。</p>
+      <div class="board">
+        <div class="board-row" data-d="D1"><b>D1</b><span>总体架构</span><em>还没选</em></div>
+        <div class="board-row" data-d="D2"><b>D2</b><span>播放引擎</span><em>还没选</em></div>
+        <div class="board-row" data-d="D3"><b>D3</b><span>音质档位</span><em>还没选</em></div>
+        <div class="board-row" data-d="D4"><b>D4</b><span>歌词渲染</span><em>还没选</em></div>
+        <div class="board-row" data-d="D5"><b>D5</b><span>曲库归属</span><em>还没选</em></div>
+        <div class="board-row" data-d="D6"><b>D6</b><span>存储与分发</span><em>还没选</em></div>
+        <div class="board-row" data-d="D7"><b>D7</b><span>界面方向</span><em>还没选</em></div>
+        <div class="board-row" data-d="D8"><b>D8</b><span>在线曲库路线</span><em>还没选</em></div>
+      </div>
+      <div class="board-actions">
+        <button class="btn" id="copy-picks" type="button">复制我的选择</button>
+        <span class="board-status" id="board-status" role="status">选择先保存在这台设备上。</span>
+      </div>
+      <textarea id="copy-fallback" class="copyfb" hidden readonly aria-label="我的选择（文本）"></textarea>
+    </section>
+
+    <section id="refs">
+      <div class="sec-head"><span class="eyebrow">附录</span><h2>调研来源</h2></div>
+      <p class="small muted">2026-09-30 四路并行调研。调研环境的代理屏蔽了部分官网，这些结论改从浏览器源码、官方仓库里的文档源文件或搜索摘要核实；正文里写「未验证」的地方需要真机或官方再确认。</p>
+      <div class="two">
+        <div class="card">
+          <h4>浏览器与音质</h4>
+          <ul class="small">
+            <li><a href="https://github.com/chromium/chromium/blob/main/media/base/mime_util_internal.cc">Chromium 支持的容器与编码</a> · <a href="https://github.com/chromium/chromium/blob/main/media/renderers/audio_renderer_impl.cc">Chrome 重采样到设备采样率</a></li>
+            <li><a href="https://github.com/mozilla-firefox/firefox/blob/main/dom/media/VideoUtils.cpp">Firefox 按文件采样率输出</a></li>
+            <li><a href="https://github.com/WebKit/WebKit/blob/main/Source/WebCore/platform/audio/cocoa/MediaSessionManagerCocoa.mm">WebKit 音频会话与静音键</a> · <a href="https://github.com/WebKit/WebKit/blob/main/Source/WebCore/html/HTMLMediaElement.cpp">iPhone 音量锁定</a></li>
+            <li><a href="https://github.com/w3c/audio-session/blob/main/index.bs">Audio Session 规范</a> · <a href="https://github.com/mdn/browser-compat-data">MDN 兼容性数据</a></li>
+            <li><a href="https://github.com/tidal-music/tidal-sdk-web">TIDAL 网页播放器 SDK</a> · <a href="https://github.com/complexlogic/rsgain">rsgain（ReplayGain 2.0）</a></li>
+            <li><a href="https://github.com/GoogleChrome/developer.chrome.com/blob/main/site/en/blog/media-source-extensions-for-audio/index.md">用 MSE 做无缝播放</a> · <a href="https://github.com/FFmpeg/FFmpeg/blob/master/doc/muxers.texi">FFmpeg 哈希校验</a></li>
+            <li><a href="https://github.com/mpv-player/mpv/blob/master/DOCS/man/options.rst">mpv 独占输出选项</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>存储与处理</h4>
+          <ul class="small">
+            <li><a href="https://supabase.com/docs/guides/storage/uploads/file-limits">Supabase 文件大小上限</a> · <a href="https://supabase.com/docs/guides/storage/uploads/resumable-uploads">断点续传</a> · <a href="https://supabase.com/docs/guides/storage/cdn/smart-cdn">Smart CDN</a></li>
+            <li><a href="https://supabase.com/docs/guides/functions/limits">Edge Functions 限制</a> · <a href="https://supabase.com/docs/guides/queues">Queues</a> · <a href="https://supabase.com/docs/guides/platform/backups">备份不含 Storage</a></li>
+            <li><a href="https://github.com/orgs/supabase/discussions/35866">iOS 播放 Supabase 音频的未解决报告</a></li>
+            <li><a href="https://developers.cloudflare.com/r2/pricing/">Cloudflare R2 定价</a></li>
+            <li><a href="https://github.com/Borewit/music-metadata">music-metadata</a> · <a href="https://github.com/Daninet/hash-wasm">hash-wasm</a> · <a href="https://github.com/tus/tus-js-client">tus-js-client</a> · <a href="https://github.com/evanw/thumbhash">ThumbHash</a></li>
+            <li><a href="https://github.com/ffmpegwasm/ffmpeg.wasm/blob/main/apps/website/docs/performance.md">ffmpeg.wasm 性能</a> · <a href="https://github.com/MaxMEllon/cue-parser">CUE 解析</a></li>
+            <li><a href="https://github.com/navidrome/navidrome">Navidrome</a> · <a href="https://github.com/tranxuanthang/lrclib">LRCLIB</a> · <a href="https://github.com/amll-dev/applemusic-like-lyrics/blob/main/LICENSE">AMLL 许可证（AGPL-3.0）</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>在线曲库与条款</h4>
+          <ul class="small">
+            <li><a href="https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security">Spotify 2026 开发模式收紧</a> · <a href="https://developer.spotify.com/blog/2025-04-15-updating-the-criteria-for-web-api-extended-access">扩展额度门槛</a> · <a href="https://developer.spotify.com/policy">开发者政策</a></li>
+            <li><a href="https://developer.apple.com/support/terms/apple-developer-program-license-agreement/">Apple 开发者协议（MusicKit 条款）</a> · <a href="https://developer.apple.com/documentation/musickitjs/musickit/playbackbitrate">MusicKit 播放码率</a></li>
+            <li><a href="https://developers.google.com/youtube/terms/developer-policies">YouTube 开发者政策</a></li>
+            <li><a href="https://developer.tidal.com/documentation/guidelines-developer-terms-2_0">TIDAL 开发者条款</a> · <a href="https://github.com/metabrainz/listenbrainz-server/pull/3681">第三方只有试听（2026-09-29）</a></li>
+            <li><a href="https://opensubsonic.netlify.app/">OpenSubsonic 规范</a></li>
+            <li><a href="https://github.com/NetEase/skills">网易云官方 ncm-cli</a> · <a href="https://github.com/waliean/openncm-player/issues/1">开放渠道版权实测</a></li>
+            <li><a href="https://www.spp.gov.cn/xwfbh/dxal/202401/t20240105_639390.shtml">最高检典型案例</a> · <a href="https://www.ciplawyer.cn/articles/152403.html">网易诉讯飞「发条」</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>界面参考</h4>
+          <ul class="small">
+            <li><a href="https://developer.apple.com/design/human-interface-guidelines/materials">Apple HIG：材质</a> · <a href="https://9to5mac.com/2026/03/25/apple-music-in-ios-26-4-has-new-design-for-albums-playlists-and-more/">Apple Music iOS 26.4 专辑页</a></li>
+            <li><a href="https://newsroom.spotify.com/2026-02-04/lyric-translations-offline-previews/">Spotify 歌词翻译与预览</a> · <a href="https://newsroom.spotify.com/2025-09-10/lossless-listening-arrives-on-spotify-premium-with-a-richer-more-detailed-listening-experience/">Spotify 无损</a></li>
+            <li><a href="https://support.google.com/youtubemusic/answer/9716522?hl=en">YouTube Music 上传个人音乐</a></li>
+            <li><a href="https://help.roonlabs.com/portal/en/kb/articles/signal-path">Roon 信号路径</a> · <a href="https://medium.com/plexlabs/plexamp-v3-9af3b10063b4">Plexamp v3</a></li>
+            <li><a href="https://github.com/koel/koel/blob/master/docs/usage/web-interface.md">Koel 界面与上传</a> · <a href="https://www.npmjs.com/package/pinyin-pro">pinyin-pro</a></li>
+            <li><a href="https://www.w3.org/WAI/ARIA/apg/patterns/slider/examples/slider-seek/">WAI-ARIA 进度条示例</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">
+        <span>方案书 v1 · 2026-09-30 · 由 Claude 根据仓库现状与四路调研整理</span>
+        <span>定稿后会整理进仓库 <code>ai/features/music/</code>，任务写回 <code>ai/TODO.md</code>。</span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+  // Highlight the section being read in the contents rail; the page reads fine without it.
+  const links = $$('.toc a[href^="#"]');
+  const byId = new Map(links.map((a) => [a.getAttribute('href').slice(1), a]));
+  if ('IntersectionObserver' in window && links.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const hit = byId.get(e.target.id);
+          links.forEach((a) => a.classList.toggle('on', a === hit));
+        }
+      },
+      { rootMargin: '-15% 0px -75% 0px' }
+    );
+    byId.forEach((_, id) => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+
+  // Decision board: every decision card carries its options as vote buttons. Picks are kept
+  // in this browser, and in the artifact's shared store when the viewer can write there,
+  // so both of you (and Claude) can read them back.
+  const KEY = 'ow-music-proposal-picks-v1';
+  const cards = $$('.decision[data-d]');
+  const readLocal = () => {
+    try {
+      const v = JSON.parse(localStorage.getItem(KEY) || '{}');
+      return v && typeof v === 'object' ? v : {};
+    } catch {
+      return {};
+    }
+  };
+  const writeLocal = (v) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(v));
+    } catch {}
+  };
+  let picks = readLocal();
+  let voters = []; // [{id, picks}]
+  let myId = null;
+  let db = null;
+  let people = null;
+  let writing = false;
+  let dirty = false;
+
+  const labelOf = (d, k) => {
+    const b = $(`.decision[data-d="${d}"] .vote button[data-k="${k}"]`);
+    return b ? b.textContent.trim() : k;
+  };
+  const titleOf = (d) => {
+    const s = $(`.board-row[data-d="${d}"] span`);
+    return s ? s.textContent.trim() : d;
+  };
+
+  const paintMine = () => {
+    for (const card of cards) {
+      const d = card.dataset.d;
+      $$('.vote button[data-k]', card).forEach((b) => b.setAttribute('aria-pressed', String(picks[d] === b.dataset.k)));
+    }
+    for (const row of $$('.board-row[data-d]')) {
+      const d = row.dataset.d;
+      const em = $('em', row);
+      if (picks[d]) {
+        em.textContent = labelOf(d, picks[d]);
+        em.classList.add('set');
+      } else {
+        em.textContent = '还没选';
+        em.classList.remove('set');
+      }
+    }
+  };
+
+  // Show who picked what under each decision (only when the shared store is live).
+  const paintVoters = async () => {
+    const others = voters.filter((v) => v.picks && typeof v.picks === 'object');
+    let names = {};
+    if (people && others.length) {
+      try {
+        names = await people.profiles(others.map((v) => v.id));
+      } catch {
+        names = {};
+      }
+    }
+    for (const card of cards) {
+      const d = card.dataset.d;
+      const who = $('.who', card);
+      if (!who) continue;
+      who.replaceChildren();
+      for (const v of others) {
+        const k = v.id === myId ? picks[d] : v.picks[d];
+        if (!k) continue;
+        const p = names[v.id];
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        if (p && p.avatarUrl) {
+          const img = document.createElement('img');
+          img.src = p.avatarUrl;
+          img.alt = '';
+          chip.append(img);
+        }
+        const t = document.createElement('span');
+        t.textContent = `${v.id === myId ? '你' : (p && p.name) || '另一位'}：${labelOf(d, k)}`;
+        chip.append(t);
+        who.append(chip);
+      }
+    }
+  };
+
+  // One write at a time to this viewer's own vote document; bursts coalesce.
+  const flush = async () => {
+    if (!db || !myId) return;
+    if (writing) {
+      dirty = true;
+      return;
+    }
+    writing = true;
+    try {
+      do {
+        dirty = false;
+        await db.doc(`votes/${myId}`).set({ picks: { ...picks }, updatedAt: new Date().toISOString() });
+      } while (dirty);
+      setStatus('已保存到这页，你们都能看到。');
+    } catch (e) {
+      setStatus('这次没能存到共享记录，选择只保存在这台设备上。');
+      if (e && (e.code === 'invalid_argument' || e.code === 'revoked' || e.code === 'not_granted')) db = null;
+    } finally {
+      writing = false;
+    }
+  };
+
+  const setStatus = (text) => {
+    const el = $('#board-status');
+    if (el) el.textContent = text;
+  };
+
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('.vote button[data-k]');
+    if (!b) return;
+    const card = b.closest('.decision[data-d]');
+    const d = card.dataset.d;
+    const k = b.dataset.k;
+    picks = { ...picks, [d]: picks[d] === k ? undefined : k };
+    if (!picks[d]) delete picks[d];
+    writeLocal(picks);
+    paintMine();
+    void paintVoters();
+    void flush();
+  });
+
+  // Copy the picks as plain text to paste back into the conversation.
+  const summaryText = () => {
+    const lines = cards.map((c) => {
+      const d = c.dataset.d;
+      return `${d} ${titleOf(d)}：${picks[d] ? labelOf(d, picks[d]) : '未选'}`;
+    });
+    return ['【音乐方案 · 我的选择】', ...lines].join('\n');
+  };
+  const copyBtn = $('#copy-picks');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const text = summaryText();
+      const fallback = () => {
+        const ta = $('#copy-fallback');
+        ta.hidden = false;
+        ta.value = text;
+        ta.focus();
+        ta.select();
+        setStatus('已选中文字，长按或 Ctrl+C 复制。');
+      };
+      try {
+        navigator.clipboard.writeText(text).then(() => setStatus('已复制，可以直接粘贴到对话里。'), fallback);
+      } catch {
+        fallback();
+      }
+    });
+  }
+
+  paintMine();
+
+  // Light up the shared store and the comment entry points when the viewer provides them.
+  const use = window.claude && typeof window.claude.use === 'function' ? (n) => window.claude.use(n) : null;
+  if (!use) return;
+
+  use('comments').then((comments) => {
+    if (!comments) return;
+    for (const card of cards) {
+      const btn = $('.talk', card);
+      if (!btn) continue;
+      btn.hidden = false;
+      btn.addEventListener('click', () => {
+        comments.openComposer({ element: card }).catch((e) => {
+          if (e && (e.code === 'unavailable' || e.code === 'not_granted' || e.code === 'capability_disabled')) {
+            $$('.talk').forEach((x) => (x.hidden = true));
+          }
+        });
+      });
+    }
+  });
+
+  Promise.all([use('db'), use('user')]).then(async ([store, u]) => {
+    people = u;
+    if (!store || !u) return;
+    const id = await u.id();
+    if (!id) return;
+    db = store;
+    myId = id;
+    let first = true;
+    store.collection('votes').onSnapshot(
+      (snap) => {
+        voters = snap.docs.filter((doc) => doc.exists).map((doc) => ({ id: doc.id, ...(doc.data() || {}) }));
+        const mine = voters.find((v) => v.id === myId);
+        if (first) {
+          first = false;
+          if (mine && mine.picks && Object.keys(mine.picks).length) {
+            picks = { ...mine.picks };
+            writeLocal(picks);
+          } else if (Object.keys(picks).length) {
+            void flush();
+          }
+          setStatus('选择会保存在这页，打开这页的人都能看到。');
+        }
+        paintMine();
+        void paintVoters();
+      },
+      () => {
+        db = null;
+        setStatus('共享记录暂时不可用，选择只保存在这台设备上。');
+      }
+    );
+  });
+})();
+</script>
+
+</body>
+</html>
