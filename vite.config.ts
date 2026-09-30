@@ -8,5 +8,10 @@ export default defineConfig({
         alias: {
             '@': '/src'
         }
+    },
+    build: {
+        // Font slices load on demand through unicode-range; inlining the small ones would put
+        // every glyph set into the stylesheet. Other small assets keep Vite's default.
+        assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined)
     }
 });

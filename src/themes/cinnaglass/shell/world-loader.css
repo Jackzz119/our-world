@@ -74,8 +74,10 @@
 .wl-card h2 {
     margin: 0;
     color: var(--ui-text);
-    font-size: 18px;
-    font-weight: 600;
+    font-family: var(--ui-display);
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
 }
 .wl-cup {
     display: block;
