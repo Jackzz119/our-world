@@ -21,7 +21,7 @@ const TAG = '[room][web][room-scene]';
 // (a query like the app's other switches, ?enter and ?surface).
 const DEBUG_PANEL = import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug');
 
-// Who sits where comes from cast.ts (his view by default since 2026-09-29, `?as=` switches).
+// Who sits where comes from cast.ts (her view by default, 阿屿 across; `?as=` switches).
 const CAST: TableCast = { viewer: VIEWER, partner: PARTNER, rig: PARTNER_RIGS[PARTNER] };
 
 const PARTNER_STATES: { id: PartnerState; label: string }[] = [
