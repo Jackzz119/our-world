@@ -59,8 +59,8 @@ async function visit(page, screen) {
     await page.locator('.ui-environment').first().waitFor();
     if (['chat', 'settings', 'calendar', 'clock', 'wishes'].includes(screen))
         await page.locator('dialog[open]').waitFor();
-    // the journal and the photo wall open the memory panel (desktop dock, phone sheet), not a dialog
-    if (['journal', 'photos'].includes(screen)) await page.locator('.memory-panel[data-state="open"]').waitFor();
+    // the journal and the photo wall open the memory page: a content page (centred window / whole phone screen)
+    if (['journal', 'photos'].includes(screen)) await page.locator('dialog.memory-page[open]').waitFor();
     if (screen === 'reset') await page.getByRole('alert').waitFor();
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(80);
@@ -96,8 +96,9 @@ async function layout(page, label) {
     const problems = await page.evaluate(() => {
         const dialog = document.querySelector('dialog[open]');
         const selectors = dialog
-            ? '.ui-dialog[open],.ui-dialog[open] .ui-dialog-header,.ui-dialog[open] .chsc-input'
-            : '.rail,.amb-dock,.chat-card,.cc-input,.music-wrap,.memory-dock,.mem-head,.mem-compose';
+            ? '.ui-dialog[open],.ui-dialog[open] .ui-dialog-header,.ui-dialog[open] .chsc-input,' +
+              '.ui-page[open],.ui-page[open] .ui-page-head,.ui-page[open] .mem-compose,.ui-page[open] .mem-switch'
+            : '.rail,.amb-dock,.chat-card,.cc-input,.music-wrap';
         const bad = [];
         for (const el of document.querySelectorAll(selectors)) {
             if (!el.checkVisibility()) continue;
@@ -106,7 +107,7 @@ async function layout(page, label) {
                 bad.push(`${el.className}: outside viewport`);
         }
         for (const el of document.querySelectorAll(
-            '.ui-dialog[open] .ui-dialog-content,.cc-list,.chsc-main,.ui-entry,.mem-scroll'
+            '.ui-dialog[open] .ui-dialog-content,.cc-list,.chsc-main,.ui-entry,.mem-scroll,.ui-page[open] .ui-page-head'
         )) {
             if (el.checkVisibility() && el.scrollWidth > el.clientWidth + 2)
                 bad.push(`${el.className}: horizontal overflow`);
@@ -116,7 +117,7 @@ async function layout(page, label) {
         if (input && list && list.getBoundingClientRect().height < 65) bad.push('chat has no usable reading area');
         if (!dialog) {
             const rail = document.querySelector('.rail')?.getBoundingClientRect();
-            for (const el of document.querySelectorAll('.chat-card,.music-wrap,.memory-dock')) {
+            for (const el of document.querySelectorAll('.chat-card,.music-wrap')) {
                 if (!el.checkVisibility() || !rail) continue;
                 const r = el.getBoundingClientRect();
                 if (r.left < rail.right && r.right > rail.left && r.top < rail.bottom && r.bottom > rail.top)
@@ -165,8 +166,8 @@ try {
                 assert.equal(await page.locator('.chsc-msgs').getByText('手机回归测试', { exact: true }).count(), 1);
             }
             if (['journal', 'photos'].includes(screen)) {
-                await page.locator('.mem-close').click();
-                await page.locator('.memory-panel[hidden]').waitFor({ state: 'attached' });
+                await page.locator('.ui-page-close').click();
+                await page.locator('dialog.memory-page:not([open])').waitFor({ state: 'attached' });
                 await visit(page, screen);
             }
             if (['settings', 'calendar', 'clock', 'wishes'].includes(screen)) {
@@ -200,53 +201,97 @@ try {
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full');
     await page.getByRole('button', { name: '收回一起听' }).tap();
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'half');
+    // while a sheet is up the bar is the sheet's foot, not a pill of its own
+    assert.equal(
+        await page.locator('.rail').evaluate((e) => getComputedStyle(e).backgroundColor),
+        'rgba(0, 0, 0, 0)',
+        'navigation merges into the open sheet'
+    );
+    // every sheet can be put away with a button, not only by dragging
+    await page.locator('.music-sheet .mp-close').tap();
+    await page.locator('.music-sheet').waitFor({ state: 'detached' });
+    // one window at a time: opening another sends the open one away
+    await page.locator('[data-nav-key="music"]').tap();
     await page.locator('[data-nav-key="chat"]').tap();
-    assert.equal(await page.locator('.music-wrap').isVisible(), false);
-    await page.locator('[data-nav-key="chat"]').tap();
-    // tools and rooms open as sheets behind the bar; Escape puts them away
-    await page.locator('[data-nav-key="modules"]').tap();
-    assert.equal(await page.locator('.rail-sheet').isVisible(), true);
+    // the window sent away leaves with its own exit animation
+    await page.locator('.music-wrap').waitFor({ state: 'hidden', timeout: 3000 });
+    await page.locator('[data-nav-key="memories"]').tap();
+    await page.locator('.rail-sheet').waitFor();
+    await page.locator('.chat-sheet').waitFor({ state: 'detached' });
+    assert.equal(await page.locator('.ui-sheet').count(), 1, 'one sheet at a time');
     await settle(page);
-    await layout(page, 'tools sheet open');
+    await layout(page, 'memories sheet open');
+    await page.locator('[data-nav-key="music"]').tap();
+    await page.locator('.rail-sheet').waitFor({ state: 'detached' });
+    await page.locator('[data-nav-key="rooms"]').tap();
+    await page.locator('.rail-sheet').waitFor();
+    // rooms send the player away
+    await page.locator('.music-sheet').waitFor({ state: 'detached', timeout: 3000 });
+    await page.locator('.rail-sheet .ui-sheet-close').tap();
+    await page.locator('.rail-sheet').waitFor({ state: 'detached' });
+    await page.locator('[data-nav-key="chat"]').tap();
+    await page.locator('[data-nav-key="settings"]').tap();
+    await page.locator('dialog.settings-dialog[open], dialog[open]').first().waitFor();
+    await page.locator('.chat-sheet').waitFor({ state: 'detached' });
+    await page.keyboard.press('Escape');
+    // rooms and memories open as sheets behind the bar; Escape puts them away
+    await page.locator('[data-nav-key="memories"]').tap();
+    assert.equal(await page.locator('.rail-sheet').isVisible(), true);
     await page.keyboard.press('Escape');
     await page.locator('.rail-sheet').waitFor({ state: 'detached' });
 
-    // the journal rises as a sheet over the viewer's side; the lightbox's Escape closes only the photo
+    // the journal is a content page: the whole screen straight away (no half height); Esc in the lightbox
+    // closes only the photo
     await visit(page, 'journal');
-    assert.equal(await page.locator('.memory-sheet').getAttribute('data-detent'), 'half');
-    await page.getByRole('button', { name: '展开我们的日记' }).tap();
-    assert.equal(await page.locator('.memory-sheet').getAttribute('data-detent'), 'full');
+    const pageBox = await page.locator('dialog.memory-page').boundingBox();
+    assert(pageBox.y <= 12 && pageBox.y + pageBox.height >= 843, 'the journal takes the whole phone screen');
     await settle(page);
-    await layout(page, 'journal sheet full');
-    await page.locator('.mem-journal .mem-photo').last().tap();
+    await layout(page, 'journal page');
+    await page.locator('#mem-journal .mem-photo').last().tap();
     await page.locator('dialog.mem-lightbox[open]').waitFor();
     await page.keyboard.press('Escape');
     await page.locator('dialog.mem-lightbox').waitFor({ state: 'detached' });
-    assert.equal(await page.locator('.memory-sheet[data-state="open"]').count(), 1, 'lightbox Escape keeps the sheet');
-    // a draft survives putting the journal away and taking it out again from the tools
+    assert.equal(await page.locator('dialog.memory-page[open]').count(), 1, 'lightbox Escape keeps the page');
+    // a draft survives putting the journal away and taking it out again from 回忆, and switching views
     await page.locator('.mem-compose .compose-collapsed').tap();
     await page.locator('.mem-compose textarea').fill('收起再打开，草稿还在');
-    await page.locator('.mem-close').tap();
-    await page.locator('.memory-panel[hidden]').waitFor({ state: 'attached' });
-    await page.locator('[data-nav-key="modules"]').tap();
+    await page.locator('.ui-page-close').tap();
+    await page.locator('dialog.memory-page:not([open])').waitFor({ state: 'attached' });
+    await page.locator('[data-nav-key="memories"]').tap();
     await page.locator('.rail-sheet [data-nav-key="journal"]').tap();
-    await page.locator('.memory-sheet[data-state="open"]').waitFor();
-    assert.equal(await page.locator('.compose-collapsed.draft').count(), 1, 'journal draft kept');
-    // the photo wall tab, and a polaroid opening the lightbox
+    await page.locator('dialog.memory-page[open]').waitFor();
+    assert.equal(await page.locator('#mem-journal .compose-collapsed.draft').count(), 1, 'journal draft kept');
+    await page.locator('.mem-switch [data-key="calendar"]').tap();
+    await page.locator('.mem-switch [data-key="scrapbook"]').tap();
+    assert.equal(await page.locator('#mem-journal .compose-collapsed.draft').count(), 1, 'draft kept across views');
+    // every view of either tab draws without an error
+    for (const key of ['calendar', 'book', 'scrapbook']) {
+        await page.locator(`.mem-switch [data-key="${key}"]`).tap();
+        await page.locator(`#mem-journal[data-view="${key}"]`).waitFor();
+        await settle(page);
+        await layout(page, `journal ${key}`);
+    }
     await page.locator('#mem-tab-photos').tap();
+    for (const key of ['cork', 'album', 'projector', 'polaroid']) {
+        await page.locator(`.mem-switch [data-key="${key}"]`).tap();
+        await page.locator(`#mem-photos[data-view="${key}"]`).waitFor();
+        await settle(page);
+        await layout(page, `photos ${key}`);
+    }
+    // a polaroid opens the lightbox
     await page.locator('.mem-pola').first().tap();
     await page.locator('dialog.mem-lightbox[open]').waitFor();
     await page.getByRole('button', { name: '关闭照片' }).tap();
     await page.locator('dialog.mem-lightbox').waitFor({ state: 'detached' });
     // opened on the photo wall first, the journal still lands on its newest page
     await visit(page, 'room');
-    await page.locator('[data-nav-key="modules"]').tap();
+    await page.locator('[data-nav-key="memories"]').tap();
     await page.locator('.rail-sheet [data-nav-key="photos"]').tap();
-    await page.locator('.memory-sheet[data-state="open"]').waitFor();
+    await page.locator('dialog.memory-page[open]').waitFor();
     await page.locator('#mem-tab-journal').tap();
     await settle(page);
     const unread = await page
-        .locator('.mem-journal .mem-scroll')
+        .locator('#mem-journal .mem-scroll')
         .evaluate((e) => e.scrollHeight - e.scrollTop - e.clientHeight);
     assert(unread < 4, 'journal opens at the newest page');
 

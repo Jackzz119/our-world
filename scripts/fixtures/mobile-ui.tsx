@@ -25,6 +25,7 @@ import { TWEAK_DEFAULTS } from '@/themes/cinnaglass/tweaks';
 import type { Tweaks } from '@/themes/cinnaglass/tweaks';
 import { useUiViewport } from '@/themes/cinnaglass/ui/use-ui-viewport';
 import { useMotionPreference } from '@/themes/cinnaglass/ui/motion-preference';
+import { applyLook } from '@/themes/cinnaglass/ui/look';
 import type { Channel } from '@/types/chat';
 import type { Msg } from '@/themes/cinnaglass/chat/chat-data';
 import type { Alarm, CalEvent } from '@/themes/cinnaglass/model';
@@ -91,7 +92,10 @@ export function MobileFixture() {
     const [t, setT] = useState<Tweaks>({
         ...TWEAK_DEFAULTS,
         mood: (query.get('mood') as Tweaks['mood']) || TWEAK_DEFAULTS.mood,
-        weather: query.get('weather') === 'rain' ? 'rain' : 'sun'
+        weather: query.get('weather') === 'rain' ? 'rain' : 'sun',
+        // ?journal= and ?photo= pick how the memory page draws its tabs
+        journalStyle: (query.get('journal') as Tweaks['journalStyle']) || TWEAK_DEFAULTS.journalStyle,
+        photoStyle: (query.get('photo') as Tweaks['photoStyle']) || TWEAK_DEFAULTS.photoStyle
     });
     // html[data-motion] as the app publishes it (?motion=reduced forces the low-motion mode)
     useMotionPreference(query.get('motion') === 'reduced' ? 'reduced' : t.motion);
@@ -110,10 +114,23 @@ export function MobileFixture() {
     const [loadProgress] = useState(createLoadProgress);
     const [roomState, setRoomState] = useState<'loading' | 'ready' | 'failed'>('loading');
     const close = () => setScreen('room');
+    // one window at a time on a phone, wired the way WorldPage wires it
+    const [railDismiss, setRailDismiss] = useState(0);
+    const others = (keep: 'chat' | 'music' | 'rail' | 'ambience' | 'surface') => {
+        if (!compact) return;
+        if (keep !== 'chat') setChat(false);
+        if (keep !== 'music') setMusic(false);
+        if (keep !== 'rail') setRailDismiss((n) => n + 1);
+        if (keep !== 'surface' && screen !== 'room') close();
+    };
+    const openScreen = (next: string) => {
+        others('surface');
+        setScreen(next);
+    };
     const openChat = () => {
         setChat(true);
         setLetter(false);
-        if (compact) setMusic(false);
+        others('chat');
     };
     const send = (_: string, text: string) =>
         setMessages((old) => [
@@ -185,6 +202,8 @@ export function MobileFixture() {
                         widgets={{}}
                         setWidget={noop}
                         onLeaveWorld={() => setScreen('lobby')}
+                        onPopOpen={() => others('rail')}
+                        dismissSignal={railDismiss}
                         onAction={(key) => {
                             if (key === 'chat') {
                                 if (chat) setChat(false);
@@ -192,12 +211,12 @@ export function MobileFixture() {
                             }
                             if (key === 'music') {
                                 setMusic(!music);
-                                if (compact && !music) setChat(false);
+                                if (!music) others('music');
                             }
-                            if (key === 'settings') setScreen('settings');
-                            if (key === 'calendar') setScreen('calendar');
-                            if (key === 'journal') setScreen('journal');
-                            if (key === 'photos') setScreen('photos');
+                            if (key === 'settings') openScreen('settings');
+                            if (key === 'calendar') openScreen('calendar');
+                            if (key === 'journal') openScreen('journal');
+                            if (key === 'photos') openScreen('photos');
                         }}
                     />
                     <Ambience
@@ -206,6 +225,7 @@ export function MobileFixture() {
                         wx={t.weather}
                         setWx={(weather) => setT({ ...t, weather } as typeof t)}
                         weather={{ kind: 'cloud', label: '实况不可用', temp: null, place: '', status: 'unavailable' }}
+                        onOpen={() => others('ambience')}
                     />
                     <MomentCard anniv="2023-05-20" onHide={noop} />
                     <SunlitLetter mood={t.mood} visible={letter} onOpen={openChat} />
@@ -224,7 +244,7 @@ export function MobileFixture() {
                         open={music}
                         setOpen={(value) => {
                             setMusic(value);
-                            if (compact && value) setChat(false);
+                            if (value) others('music');
                         }}
                     />
                 </>
@@ -258,13 +278,17 @@ export function MobileFixture() {
                 alarms={alarms}
                 setAlarms={setAlarms}
             />
-            {/* ?screen=journal | photos: the memory panel over a local feed (?journal=book: the old book) */}
+            {/* ?screen=journal | photos: the memory page over a local feed (?journal= / ?photo= pick its views) */}
             <ObjectSurfaces
                 screen={screen === 'journal' ? 'timeline' : screen === 'photos' ? 'photos' : null}
                 onClose={close}
                 feed={memories}
                 thumbUrls={fixtureThumbs}
-                journalStyle={query.get('journal') === 'book' ? 'book' : 'scrapbook'}
+                journalStyle={t.journalStyle}
+                photoStyle={t.photoStyle}
+                onJournalStyle={(journalStyle) => setT((old) => ({ ...old, journalStyle }))}
+                onPhotoStyle={(photoStyle) => setT((old) => ({ ...old, photoStyle }))}
+                musicPlaying={music}
             />
             {screen === 'wishes' && (
                 <TaskDialog
@@ -323,4 +347,7 @@ export function MobileFixture() {
     );
 }
 
+applyLook();
+// ?look=porcelain: the light glass studied for the contrast review (fixture only, not shipped)
+if (new URLSearchParams(location.search).get('look') === 'porcelain') void import('./look-porcelain.css');
 createRoot(document.getElementById('root')!).render(<MobileFixture />);

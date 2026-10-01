@@ -129,7 +129,8 @@ try {
         result.push({ mood, bounds, metrics, changes, contrast });
         await home.evaluate((el) => el.blur());
     }
-    await rail.getByRole('button', { name: '工具', exact: true }).click();
+    // the room's own things (decorating, its little cards, the way back) live under 房间 since 2026-10-01
+    await rail.getByRole('button', { name: '房间', exact: true }).click();
     assert.equal(await page.getByRole('button', { name: '装扮（敬请期待）', exact: true }).isDisabled(), true);
     const toggle = page.getByRole('switch', { name: '纪念日卡', exact: true });
     assert.equal(await toggle.locator('i[aria-hidden=true]').count(), 1);
@@ -141,10 +142,12 @@ try {
         'rgb(230, 214, 185)'
     );
     await toggle.click();
-    await page.getByRole('button', { name: '照片墙', exact: true }).click();
-    await page.getByRole('button', { name: '关闭照片墙', exact: true }).waitFor();
-    assert.equal(await page.locator('.modules-pop').count(), 0);
-    await page.getByRole('button', { name: '关闭照片墙', exact: true }).click();
+    // 回忆 opens the journal, the photo wall and the anniversaries; the photo wall is a content page
+    await rail.getByRole('button', { name: '回忆', exact: true }).click();
+    await page.locator('.memory-link[data-nav-key="photos"]').click();
+    await page.getByRole('button', { name: '收起回忆', exact: true }).waitFor();
+    assert.equal(await page.locator('.memories-pop').count(), 0);
+    await page.getByRole('button', { name: '收起回忆', exact: true }).click();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await home.focus();
     assert.equal(await home.evaluate((el) => getComputedStyle(el).transitionDuration), '0s');
@@ -218,12 +221,12 @@ try {
     });
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] });
     assert.equal(await touchHome.getAttribute('data-pressed'), null);
-    await touchRail.getByRole('button', { name: '工具', exact: true }).tap();
+    await touchRail.getByRole('button', { name: '房间', exact: true }).tap();
     assert.equal(await touchPage.getByRole('button', { name: '装扮（敬请期待）', exact: true }).isDisabled(), true);
     await touchPage.waitForTimeout(300);
-    await touchPage.screenshot({ path: path.join(dir, 'touch-tools.png') });
+    await touchPage.screenshot({ path: path.join(dir, 'touch-rooms.png') });
     await touchPage.touchscreen.tap(10, 10);
-    assert.equal(await touchPage.locator('.modules-pop').count(), 0);
+    assert.equal(await touchPage.locator('.rooms-pop').count(), 0);
     await touchContext.close();
     const docsPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     docsPage.on('pageerror', (e) => errors.push(e.message));
