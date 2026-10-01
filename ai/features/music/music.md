@@ -1,6 +1,6 @@
 # 音乐模块 · 本地上传与曲库 方案文档
 
-> 🟡 **方案待讨论**（2026-09-30 出方案，未开工）。音乐模块的功能细节唯一载体，PROJECT.md 只留摘要 + 本文引用；任务状态归 [TODO](../../TODO.md)。
+> 🟡 **M0 进行中**（2026-09-30 出方案；2026-10-01 M0 仓库侧完成：迁移、权限测试、测试曲集、真机验证页，等用户应用迁移并跑真机验证，见 [m0.md](m0.md)）。音乐模块的功能细节唯一载体，PROJECT.md 只留摘要 + 本文引用；任务状态归 [TODO](../../TODO.md)。
 > 完整方案书（架构图、信号路径图、界面样机、八张决定卡片与投票）：[发布版](https://claude.ai/artifact/FgMvGftKN7Lhbd7w7WccFK)（私有，需登录）· 本地副本 [proposal.html](proposal.html)
 > 调研原文（英文，2026-09-30 四路并行）：[音质与网页播放](research/audio-quality.md) · [在线曲库接入](research/online-sources.md) · [上传、处理与存储](research/ingest-storage.md) · [界面参考](research/ui-ux.md)
 > 关联代码（现状）：`src/themes/cinnaglass/music.tsx`、`music-tracks.ts`、`use-music-playback.ts`、`music.css`、`shell/floaters.tsx`；存储现状 `src/lib/storage.ts`、`sql/storage-memories-bucket.sql`
@@ -70,10 +70,9 @@ music/                                          私有桶；全局单文件上�
   <world>/r/<track_id>/aac256-v1.m4a            省流副本
   <world>/r/<track_id>/peaks-v1.json            波形与能量曲线（唱片机灯光按进度呼吸）
   <world>/art/<sha256>/{256,512,1200}.webp      海报三档（Safari 不能编码 WebP，iPhone 上生成为 .jpg）
-  <world>/p/<owner>/…                           设为私有的曲目
 ```
 
-RLS：读 = 我的世界且（`visibility = 'world'` 或我是上传者）；删除和可见性只有上传者；歌词、海报、专辑信息两人都能改；「我们的歌单」两人都能改。表结构以迁移文件进 `supabase/migrations/`。Supabase 数据库备份不含 Storage 文件、也没有版本 → 每周把新增原件备份到 NAS 或另一家存储。签名 URL 6–12 小时、同一播放版本复用同一签名以命中 CDN 缓存。
+私有曲目不搬文件：`orig/` 下的原件能不能读由数据库判断（上传者本人，或文件属于一首对 TA 可见的曲目），切换「仅自己」立即生效；往 `orig/` 上传必须先有自己的「上传中」预留记录；`tmp/<自己>/` 是可删的临时区（实现与 62 条权限测试见 [m0.md](m0.md)）。RLS：读 = 我的世界且（`visibility = 'world'` 或我是上传者）；删除和可见性只有上传者；歌词、海报、专辑信息两人都能改；「我们的歌单」两人都能改。表结构以迁移文件进 `supabase/migrations/`。Supabase 数据库备份不含 Storage 文件、也没有版本 → 每周把新增原件备份到 NAS 或另一家存储。签名 URL 6–12 小时、同一播放版本复用同一签名以命中 CDN 缓存。
 
 ### 歌词与海报
 

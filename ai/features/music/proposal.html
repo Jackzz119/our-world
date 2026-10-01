@@ -1328,7 +1328,7 @@ create table music_tracks (
         <li><strong>读</strong>：曲目所在世界是我的世界，并且 <code>visibility = 'world'</code> 或我是上传者。文件、播放版本、歌词、海报跟随曲目。</li>
         <li><strong>写</strong>：新增只能以自己为 owner；删除和改可见性只有上传者；歌词、海报、专辑信息两人都能改（记录修改人）。</li>
         <li><strong>「我们的歌单」</strong>：两人都能加、删、排序；个人歌单只有自己能动。</li>
-        <li><strong>存储</strong>：新建私有桶 <code>music</code>，沿用 <code>memories</code> 的规则（路径第一段 = world_id 判成员）；设为私有的曲目，文件移到 <code>&lt;world&gt;/p/&lt;owner&gt;/</code> 下，只有本人能读。播放一律用签名 URL。</li>
+        <li><strong>存储</strong>：新建私有桶 <code>music</code>，路径第一段 = world_id 判成员（同 <code>memories</code>）；私有曲目不搬文件，原件能不能读由数据库判断（上传者本人，或文件属于一首对 TA 可见的曲目），切换「仅自己」立即生效。播放一律用签名 URL。</li>
         <li><strong>原件保护</strong>：前端不能直接删 <code>orig/</code> 下的文件，删除走「回收站」RPC，30 天后由定时任务清理。Supabase 的数据库备份不含 Storage 里的文件、也没有版本历史，所以可以每周把新增原件复制一份到 NAS 或另一家对象存储。</li>
       </ul>
       <pre><code>music/                                          私有桶；全局单文件上限设到约 5 GB
@@ -1337,7 +1337,7 @@ create table music_tracks (
   &lt;world&gt;/r/&lt;track_id&gt;/aac256-v1.m4a              省流副本（D3-Q2）
   &lt;world&gt;/r/&lt;track_id&gt;/peaks-v1.json              波形与能量曲线
   &lt;world&gt;/art/&lt;sha256&gt;/{256,512,1200}.webp        海报三档（iPhone 上生成时为 .jpg）
-  &lt;world&gt;/p/&lt;owner&gt;/…                             设为私有的曲目</code></pre>
+  &lt;world&gt;/tmp/&lt;user&gt;/…                           自己的临时区（验证页、暂存），可删</code></pre>
       <p class="small muted">要改文件就写一个新版本名，不覆盖旧文件（CDN 缓存更新慢）。桶不设 MIME 白名单：浏览器给 .ape、.dsf、.cue、.lrc 报不出类型，改为读文件头判断格式，上传时显式带上类型。</p>
       <p class="small muted">迁移管理：仓库新增 <code>supabase/migrations/</code>，这次的表、索引、RLS、桶配置都以迁移文件入库，结束「线上直接改表、仓库没有历史」的状态（和 TODO 里的 Supabase 审计遗留一起做）。</p>
     </section>
