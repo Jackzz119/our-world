@@ -303,6 +303,13 @@
                 font-size: 13px;
                 line-height: 1.65;
             }
+            .sub-title {
+                margin: 26px 0 12px;
+                color: var(--muted);
+                font-size: 15px;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+            }
             .note {
                 padding: 14px 16px;
                 border-radius: 14px;
@@ -577,17 +584,22 @@
     <body>
         <div class="page">
             <header>
-                <span class="eyebrow">对坐 · 第三期 · 2026-09-29 出稿 · 09-30 第二轮</span>
+                <span class="eyebrow">对坐 · 第三期 · 2026-09-29 出稿 · 09-30 第二轮 · 10-01 第三轮</span>
                 <h1>动效、托盘与回忆 · 看样</h1>
                 <div class="read">
                     <p>
                         第一轮做了全项目的交互动效（设置里可切低动效）、手机上从底部升起的功能托盘（对方人物始终完整可见）、能选曲
                         / 看海报 /
-                        看歌词的音乐主页面和进入世界的加载动画。你看完后定了几件事，第二轮照着做完：沉浸歌词、标题字，以及日记和照片墙的桌面版、手机版统一迭代（旧的棕皮书留在设置里）。
+                        看歌词的音乐主页面和进入世界的加载动画。你看完后定了几件事，第二轮照着做完：沉浸歌词、标题字，以及日记和照片墙的桌面版、手机版统一迭代。
+                    </p>
+                    <p>
+                        <b>第三轮（10 月 1 日）</b>按你的反馈改：定下<a href="#layer-title">产品分层</a>（场景伴生 /
+                        内容页）；日记和照片墙改成内容页，桌面正中、手机全屏，每个比稿方向都做成能随时切换的「样子」；手机导航并进托盘、托盘有关闭按钮、一次只开一个窗口；工具扳手换成「回忆」；UI
+                        换成更实的<a href="#look-title">深玻璃</a>，不再融进场景。
                     </p>
                     <p class="muted">
-                        方案图用开发环境里拍的真实书房做背景，玻璃和纸的数值和线上一致；图上金色虚线标签是设计注记。点任意一张看大图。没有生成任何美术图：纸、胶带、软木都是
-                        CSS，需要正式美术时先占位，等 Codex 装好再出图。
+                        方案图用开发环境里拍的真实书房做背景，玻璃和纸的数值和线上一致；图上金色虚线标签是设计注记。点任意一张看大图。没有生成任何美术图：纸、胶带、软木、胶片都是
+                        CSS，需要正式美术时先占位，等 Codex 能在云端用（环境放开 OpenAI 域名并登录）再出图。
                     </p>
                 </div>
                 <div class="legend" aria-label="状态说明">
@@ -602,26 +614,53 @@
                 <h2 id="decide-title">还需要你决定</h2>
                 <ol class="decide">
                     <li>
-                        <b>日记</b
+                        <b>对比层次</b
                         ><span
-                            >保持 G1 手帐长卷（已实现），或换 G2 桌面长卷 / G3
-                            日历手账；旧棕皮书要不要一直留在设置里。</span
+                            >默认已换成<a href="#look-title">深玻璃</a>；要更像游戏可以换描金暗夜（已实现，地址加
+                            <code>?look=gilded</code>
+                            就能在你手机上试）；暖瓷浅色只出了设计，要的话下一轮把所有组件做成浅色。<code
+                                >?look=classic</code
+                            >
+                            随时看改之前。</span
                         >
                     </li>
                     <li>
-                        <b>照片墙</b
+                        <b>回忆入口里放什么</b
                         ><span
-                            >保持 H1 拍立得墙（已实现），或换 H2 软木板 / H3 月历相册；H4
-                            放映要不要以后做成灯箱里的「放映」按钮。</span
+                            >现在是日记 / 照片墙 /
+                            纪念日。原来工具里属于房间的东西——装扮、纪念日卡和音乐迷你条的开关、回大厅——我挪进了「房间」，这一步是我定的默认，要你点头。</span
                         >
                     </li>
                     <li>
-                        <b>纸、胶带和空状态</b
+                        <b>默认的样子</b
+                        ><span>日记默认手帐、照片墙默认拍立得；回忆页里随时能换，换过会记住。要不要换默认。</span>
+                    </li>
+                    <li>
+                        <b>纸、胶带、软木、胶片和空状态</b
+                        ><span>现在都是 CSS 占位；Codex 能用后出正式素材。歌单海报同理。</span>
+                    </li>
+                </ol>
+                <h3 class="decided-title">你 10 月 1 日定下的</h3>
+                <ol class="decide decided">
+                    <li>
+                        <b>产品分层</b
                         ><span
-                            >现在是 CSS 占位，要不要等 Codex
-                            装好后出正式的纸张纹理、胶带和空状态插画；歌单海报同理。</span
+                            >音乐、聊天、房间、回忆入口是场景伴生，可以半开；日记、照片墙是内容页，手机直接展开、桌面正中弹窗（已实现，写进设计系统和项目红线）。</span
                         >
                     </li>
+                    <li><b>手机导航</b><span>托盘打开时导航并进托盘，不再单独叠在上面（已实现）。</span></li>
+                    <li><b>关闭按钮</b><span>每个托盘都有，拖动只是快捷方式（已实现）。</span></li>
+                    <li><b>一次一个窗口</b><span>手机上开新的就收起旧的，不叠在一起（已实现）。</span></li>
+                    <li><b>回忆入口</b><span>工具扳手换成表达回忆的图标（已实现）。</span></li>
+                    <li>
+                        <b>日记的样子</b
+                        ><span>G1 按居中重做，G3 日历和旧棕皮书都是日记的变种，都有手机版（已实现）。</span>
+                    </li>
+                    <li>
+                        <b>照片墙的样子</b
+                        ><span>H2 软木板、H3 相册、H4 放映也做成变种，和 H1 拍立得一起随时切换（已实现）。</span>
+                    </li>
+                    <li><b>对比层次</b><span>参考同类风格的优秀设计重做（见 L 节，默认已换，等你看）。</span></li>
                 </ol>
                 <h3 class="decided-title">你 9 月 30 日定下的</h3>
                 <ol class="decide decided">
@@ -644,24 +683,279 @@
                 </ol>
             </section>
 
+            <section aria-labelledby="layer-title">
+                <h2 id="layer-title">0 · 产品分层：场景伴生与内容页</h2>
+                <p class="read">
+                    你 10 月 1 日说的，我理解成下面这张表，以后新功能先按它归类再选载体（也写进了设计系统的 UX 参考 §0
+                    和项目红线）。
+                </p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>层</th>
+                                <th>现在有谁</th>
+                                <th>桌面</th>
+                                <th>手机</th>
+                                <th>场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>场景伴生</b></td>
+                                <td>房间、聊天、一起听、回忆入口（菜单）、时辰 / 天气</td>
+                                <td>贴边浮窗、右侧停靠栏、导航旁的小菜单</td>
+                                <td>底部托盘，可半开 / 拉满；导航并进托盘；关闭按钮 + 下拉</td>
+                                <td>不暂停，TA 完整可见</td>
+                            </tr>
+                            <tr>
+                                <td><b>内容页</b></td>
+                                <td>日记、照片墙；以后要「进去看」的都归这里</td>
+                                <td>屏幕正中的大窗，房间压暗、虚化</td>
+                                <td>直接全屏，没有半开；页头关闭 + 下拉关闭</td>
+                                <td>压暗退后</td>
+                            </tr>
+                            <tr>
+                                <td><b>任务窗</b></td>
+                                <td>设置、日历·纪念日、时钟、心愿单、完整聊天</td>
+                                <td>正中小窗</td>
+                                <td>从底边升起（你 9 月 30 日说保留）</td>
+                                <td>压暗</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="note">
+                    <b>手机一次只开一个窗口</b
+                    >：开任何托盘、内容页或任务窗，开着的那个自己收起。桌面上聊天卡和音乐停靠栏仍然可以同时开着，内容页和任务窗盖在它们上面。<b>关闭永远有按钮</b>，拖动、下拉、Esc
+                    是快捷方式。
+                </p>
+            </section>
+
+            <section aria-labelledby="look-title">
+                <h2 id="look-title">L · 对比层次</h2>
+                <p class="read muted">
+                    你的反馈：UI
+                    对场景来说颜色对比和层次太低，弹窗快融进场景。同一个夜晚的书房、同样打开聊天卡和一起听，四种玻璃并排（正式组件实拍）。
+                </p>
+                <div class="grid wide">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-deep-desk.jpg"
+                            aria-label="放大 深玻璃"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-deep-desk.jpg"
+                                alt="深玻璃：聊天卡与停靠栏"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L1 深玻璃</h3>
+                            <span class="chip done">推荐 · 已实现（默认）</span>
+                        </div>
+                        <p>
+                            底色单独抽出来、更实更暗（不透明度 +0.17），模糊 18px，霜纹减半，加 1px
+                            暗描边和更深的投影；导航玻璃 0.66；任务窗和内容页背后把房间压暗、虚化。还是 Cinnaglass
+                            的磨砂玻璃，只是不再透出背后的灯。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-gilded-desk.jpg"
+                            aria-label="放大 描金暗夜"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-gilded-desk.jpg"
+                                alt="描金暗夜"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L2 描金暗夜</h3>
+                            <span class="chip">备选 · 已实现 <code>?look=gilded</code></span>
+                        </div>
+                        <p>
+                            近乎不透明的墨蓝玻璃，不要霜纹，边上一道金线、顶边最亮。分得最开、最像游戏
+                            UI；比深玻璃更「重」。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-porcelain-desk.jpg"
+                            aria-label="放大 暖瓷"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-porcelain-desk.jpg"
+                                alt="暖瓷：浅色霜玻璃"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L3 暖瓷</h3>
+                            <span class="chip design">只出设计</span>
+                        </div>
+                        <p>
+                            浅色霜玻璃配深色字，夜景上对比最强，很多恋爱游戏这么做。上线要把每个组件里写死的浅色字一一改掉，所以这一期只在样板里拍了图。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-classic-desk.jpg"
+                            aria-label="放大 改之前"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-classic-desk.jpg"
+                                alt="改之前的玻璃"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>改之前</h3>
+                            <span class="chip no">已替换 <code>?look=classic</code></span>
+                        </div>
+                        <p>
+                            原来的玻璃：0.65 的半透明灰，透出背后暖色的灯和桌面，边缘也软，聊天卡和停靠栏快要融进房间。
+                        </p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-deep-phone.jpg"
+                            aria-label="放大 深玻璃手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-deep-phone.jpg"
+                                alt="深玻璃：手机音乐托盘"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L1 手机</h3>
+                            <span class="chip done">默认</span>
+                        </div>
+                        <p>托盘和并进去的导航是一块深玻璃。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-gilded-phone.jpg"
+                            aria-label="放大 描金暗夜手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-gilded-phone.jpg"
+                                alt="描金暗夜：手机"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L2 手机</h3>
+                            <span class="chip">备选</span>
+                        </div>
+                        <p>托盘顶边一道金线。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-porcelain-phone.jpg"
+                            aria-label="放大 暖瓷手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-porcelain-phone.jpg"
+                                alt="暖瓷：手机"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>L3 手机</h3>
+                            <span class="chip design">只出设计</span>
+                        </div>
+                        <p>浅色托盘在夜景下最醒目。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/look-classic-phone.jpg"
+                            aria-label="放大 改之前手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/look-classic-phone.jpg"
+                                alt="改之前：手机"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>改之前</h3>
+                            <span class="chip no">已替换</span>
+                        </div>
+                        <p>托盘透出背后的暖光，层次不清。</p>
+                    </div>
+                </div>
+                <p class="note">
+                    <b>参考了什么</b>：Apple 说透明的玻璃下面要垫一层压暗，文字和图标才读得清（<a
+                        href="https://developer.apple.com/videos/play/wwdc2025/219/"
+                        >Meet Liquid Glass</a
+                    >）；NN/g 和几篇玻璃拟态的可读性总结都建议在文字下垫 10–30% 的实色底、8–20px 模糊、1px 约 20%
+                    的亮边（<a href="https://www.nngroup.com/articles/glassmorphism/">NN/g</a>）；visionOS
+                    的规矩是不要玻璃叠玻璃，里层用实色填充（<a
+                        href="https://www.createwithswift.com/ensuring-interface-legibility-and-contrast-in-visionos/"
+                        >Create with Swift</a
+                    >）；星穹铁道的全屏菜单把场景整个压暗，原神用不透明的奶油色面板（<a
+                        href="https://medium.com/@acarenatnic/how-honkai-star-rail-fixes-genshin-impacts-ui-problem-6b386d6154f1"
+                        >HSR 对比原神的界面</a
+                    >）。深玻璃取的是「更实的底 + 硬边 + 深投影 + 内容页压暗」，描金暗夜再往游戏 UI
+                    走一步，暖瓷是浅色那条路。
+                </p>
+            </section>
+
             <section aria-labelledby="live-title">
                 <h2 id="live-title">实装录屏</h2>
                 <p class="muted read">
-                    正式组件在隔离样板里操作录下来的。这台云端容器没有
+                    正式组件在隔离样板里操作录下来的，10 月 1 日全部按深玻璃重录。这台云端容器没有
                     GPU，场景是软件渲染，录制时暂停了场景，所以阿屿是静止的；真机上他会呼吸、眨眼。
                 </p>
                 <div class="videos">
                     <figure>
                         <video
-                            src="../../../uiux/cinnaglass/ux/live/phone-journal.mp4"
-                            poster="../../../uiux/cinnaglass/ux/live/phone-journal.jpg"
+                            src="../../../uiux/cinnaglass/ux/live/phone-sheets.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-sheets.jpg"
                             muted
                             loop
                             playsinline
                             autoplay
                             preload="metadata"
                         ></video>
-                        <figcaption>手机日记（G1）：托盘半高露出最新一页，拉满往回翻，写一页，收起</figcaption>
+                        <figcaption>
+                            手机托盘（10-01）：导航并进托盘；开回忆、房间时前一个自己收起；右上关闭按钮；聊天、设置也一次一个
+                        </figcaption>
+                    </figure>
+                    <figure>
+                        <video
+                            src="../../../uiux/cinnaglass/ux/live/phone-memory.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/phone-memory.jpg"
+                            muted
+                            loop
+                            playsinline
+                            autoplay
+                            preload="metadata"
+                        ></video>
+                        <figcaption>
+                            手机回忆页（10-01）：直接全屏；日记换成日历、书本；照片墙换成软木板、相册、放映
+                        </figcaption>
                     </figure>
                     <figure>
                         <video
@@ -677,18 +971,6 @@
                     </figure>
                     <figure>
                         <video
-                            src="../../../uiux/cinnaglass/ux/live/phone-photos.mp4"
-                            poster="../../../uiux/cinnaglass/ux/live/phone-photos.jpg"
-                            muted
-                            loop
-                            playsinline
-                            autoplay
-                            preload="metadata"
-                        ></video>
-                        <figcaption>照片墙（H1）：照片从拍立得里长出来，左右滑，往下拉关闭</figcaption>
-                    </figure>
-                    <figure>
-                        <video
                             src="../../../uiux/cinnaglass/ux/live/phone-lyrics.mp4"
                             poster="../../../uiux/cinnaglass/ux/live/phone-lyrics.jpg"
                             muted
@@ -701,15 +983,17 @@
                     </figure>
                     <figure class="desk">
                         <video
-                            src="../../../uiux/cinnaglass/ux/live/desk-journal.mp4"
-                            poster="../../../uiux/cinnaglass/ux/live/desk-journal.jpg"
+                            src="../../../uiux/cinnaglass/ux/live/desk-memory.mp4"
+                            poster="../../../uiux/cinnaglass/ux/live/desk-memory.jpg"
                             muted
                             loop
                             playsinline
                             autoplay
                             preload="metadata"
                         ></video>
-                        <figcaption>桌面回忆面板：停在右侧一列，灯箱、目录跳转、写一页、照片墙、在日记里看</figcaption>
+                        <figcaption>
+                            桌面回忆页（10-01）：正中大窗、房间压暗；手帐左边目录日历；切到日历、书本；照片墙的四种样子
+                        </figcaption>
                     </figure>
                     <figure class="desk">
                         <video
@@ -749,18 +1033,6 @@
                     </figure>
                     <figure>
                         <video
-                            src="../../../uiux/cinnaglass/ux/live/phone-tools.mp4"
-                            poster="../../../uiux/cinnaglass/ux/live/phone-tools.jpg"
-                            muted
-                            loop
-                            playsinline
-                            autoplay
-                            preload="metadata"
-                        ></video>
-                        <figcaption>工具托盘：开关弹簧拨片；房间托盘</figcaption>
-                    </figure>
-                    <figure>
-                        <video
                             src="../../../uiux/cinnaglass/ux/live/phone-chat.mp4"
                             poster="../../../uiux/cinnaglass/ux/live/phone-chat.jpg"
                             muted
@@ -781,7 +1053,7 @@
                             autoplay
                             preload="metadata"
                         ></video>
-                        <figcaption>设置从底边升起，主题外观里新的「动效」三档</figcaption>
+                        <figcaption>设置从底边升起，主题外观里的「动效」三档</figcaption>
                     </figure>
                     <figure class="desk">
                         <video
@@ -823,95 +1095,253 @@
             </section>
 
             <section aria-labelledby="g-title">
-                <h2 id="g-title">G · 日记</h2>
+                <h2 id="g-title">G · 日记：三种样子</h2>
                 <p class="read muted">
-                    你的要求：日记和照片墙的桌面版、手机版也要统一迭代，旧日记先不删。改之前棕皮书在桌面居中盖住
-                    TA，手机上整屏都是书；这次按「TA 始终可见」的规则重做，旧书留在设置 → 日记样式「书本（旧版）」。
+                    你 10 月 1 日的要求：日记是内容页，手机直接全屏、桌面正中弹窗；G1 按居中重做，G3
+                    日历和旧棕皮书都做成日记的样子，每种都有手机版，想怎么看就切换。页头右边的分段按钮随时换，换过会记住（设置
+                    → 主题外观 →「日记的样子」也能改）；切换时写到一半的「写一页」不丢。
                 </p>
                 <div class="grid wide">
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-journal-desk.jpg"
-                            aria-label="放大 G1 手帐长卷"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-scrapbook-desk.jpg"
+                            aria-label="放大 G1 手帐"
                         >
                             <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-journal-desk.jpg"
-                                alt="G1 桌面：日记停在右侧一列，TA 完整可见"
+                                src="../../../uiux/cinnaglass/ux/img/memory-scrapbook-desk.jpg"
+                                alt="G1 手帐：桌面正中的回忆页，左栏月历与按月目录，中间纸页长卷"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G1 手帐长卷</h3>
-                            <span class="chip done">推荐 · 已实现</span>
+                            <h3>G1 手帐</h3>
+                            <span class="chip done">已实现 · 默认</span>
                         </div>
                         <p>
-                            每页是一张贴在玻璃上的纸（胶带、微微歪、手写字），从旧到新往下排，打开停在最新一页；桌面停在音乐停靠栏那一列，音乐照常放。谁写的看墨色、头像圈和名字，不看左右。
+                            按你说的居中重做：左边一栏是当月日历（写过的日子带墨点，蓝是我、粉是
+                            TA）和按月的目录，中间纸页长卷居中，「写一页」在底部。打开停在最新一页，往上滚到顶自动翻出更早的。
                         </p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../memories/img/G2.jpg"
-                            aria-label="放大 G2 桌面长卷 · 底部托盘"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-calendar-desk.jpg"
+                            aria-label="放大 G3 日历"
                         >
                             <img
-                                src="../../memories/img/G2.jpg"
-                                alt="G2 桌面长卷：底部托盘里的横向手卷"
+                                src="../../../uiux/cinnaglass/ux/img/memory-calendar-desk.jpg"
+                                alt="G3 日历：左边手账月历，右边那一天的纸页"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G2 桌面长卷 · 底部托盘</h3>
-                            <span class="chip">备选</span>
+                            <h3>G3 日历</h3>
+                            <span class="chip done">已实现</span>
                         </div>
                         <p>
-                            托盘只盖住我这边的桌面，日记像一卷手卷横着往回翻，最像「摊在桌上」；长文要点开读，滚轮要横着映射。
+                            左边一页手账月历：写过的日子带墨点，有照片的日子角上贴一张小拍立得，今天画金圈。右边是选中那天的纸页，‹
+                            › 跳到上一个、下一个写过的日子。翻到还没载入的月份会自己往前翻。
                         </p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../memories/img/G3.jpg"
-                            aria-label="放大 G3 日历手账"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-book-desk.jpg"
+                            aria-label="放大 书本"
                         >
                             <img
-                                src="../../memories/img/G3.jpg"
-                                alt="G3 日历手账：左边日历，右边那天的纸页"
+                                src="../../../uiux/cinnaglass/ux/img/memory-book-desk.jpg"
+                                alt="书本：原来的棕皮书放进回忆页"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G3 日历手账</h3>
-                            <span class="chip">备选</span>
+                            <h3>书本</h3>
+                            <span class="chip done">已实现 · 旧版</span>
+                        </div>
+                        <p>原来的棕皮书原样搬进回忆页的窗里：翻页、目录、写一页都照旧，代码没动。</p>
+                    </div>
+                </div>
+                <div class="grid phones">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-scrapbook-phone.jpg"
+                            aria-label="放大 G1 手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-scrapbook-phone.jpg"
+                                alt="G1 手机：全屏长卷，停在最新一页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G1 手机</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>直接全屏，没有半开；目录在页头的日历按钮里。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-calendar-phone.jpg"
+                            aria-label="放大 G3 手机"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-calendar-phone.jpg"
+                                alt="G3 手机：日期条与当天纸页"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>G3 手机</h3>
+                            <span class="chip done">已实现</span>
                         </div>
                         <p>
-                            按日子找回忆最顺手，没写的日子也摆出来；但要盖住整张桌子，日子稀疏时大半是空格。「按日子找」已收进
-                            G1 的目录。
+                            月历收成一条左右滑的日期条，选中那天滚到中间；在纸页上左右滑换到上一个、下一个写过的日子。
                         </p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/journal-book-desk.jpg"
-                            aria-label="放大 G4 棕皮书"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-book-phone.jpg"
+                            aria-label="放大 书本手机"
                         >
                             <img
-                                src="../../../uiux/cinnaglass/ux/img/journal-book-desk.jpg"
-                                alt="G4 原来的棕皮书"
+                                src="../../../uiux/cinnaglass/ux/img/memory-book-phone.jpg"
+                                alt="书本手机：单页"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G4 棕皮书</h3>
-                            <span class="chip done">保留 · 设置里可选</span>
+                            <h3>书本手机</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>手机上是单页书，翻页照旧。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../memories/img/G3m.jpg"
+                            aria-label="放大 G3 比稿原图"
+                        >
+                            <img src="../../memories/img/G3m.jpg" alt="G3 手机比稿原图" loading="lazy" />
+                        </button>
+                        <div class="card-head">
+                            <h3>G3 比稿原图</h3>
+                            <span class="chip design">9 月 30 日的稿</span>
+                        </div>
+                        <p>实装照着它做，日期条和当天纸页的关系没变。</p>
+                    </div>
+                </div>
+                <p class="note">
+                    <b>G2 桌面长卷 · 底部托盘</b>（<a href="../../memories/img/G2.jpg">比稿原图</a
+                    >）这次没有做：它是只盖半张桌子的底部托盘，和「内容页桌面正中、手机全屏」冲突，横着翻的长卷也和居中的
+                    G1 重复。<b>改之前</b>：<a href="../../memories/img/now-book-desk.jpg">桌面书本</a> ·
+                    <a href="../../memories/img/now-book-phone.jpg">手机书本</a
+                    >。低动效下全部改成淡入淡出，印章直接出现、不溅墨星。
+                </p>
+            </section>
+
+            <section aria-labelledby="h-title">
+                <h2 id="h-title">H · 照片墙：四种样子</h2>
+                <p class="read muted">
+                    同一个回忆页的第二个标题页签。H2、H3、H4 按你说的都做成照片墙的样子，和 H1
+                    拍立得一起在页头随时切换，都有手机版；灯箱是四种样子共用的。
+                </p>
+                <div class="grid wide">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-polaroid-desk.jpg"
+                            aria-label="放大 H1 拍立得"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-polaroid-desk.jpg"
+                                alt="H1 拍立得：按月贴成一排排拍立得"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H1 拍立得</h3>
+                            <span class="chip done">已实现 · 默认</span>
                         </div>
                         <p>
-                            原来的书，翻页、目录、写一页都照旧；代码原样留着，设置 → 日记样式选「书本（旧版）」就回来。
+                            日记里所有照片按月贴成拍立得（胶带、微歪、铅笔日期），桌面一行居中排开，打开时逐张钉上墙。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-cork-desk.jpg"
+                            aria-label="放大 H2 软木板"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-cork-desk.jpg"
+                                alt="H2 软木板：每月一块，红线串起同一天"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H2 软木板</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            每个月一块软木板，同一天的照片用红线串起来。桌面上可以拖着摆，摆法只存在这台设备；摆过的板上出现「整理一下」，照片滑回原位。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-album-desk.jpg"
+                            aria-label="放大 H3 相册"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-album-desk.jpg"
+                                alt="H3 相册：月份签与按月的方格"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H3 相册</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            方格相册：上面一排月份签，滚到哪个月亮哪个，点一下跳过去；桌面一行 6
+                            格，正方形紧挨着排，一屏看得最多，悬停浮出日期和谁的照片。月份少时一行排不满、靠左，和比稿一样。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-projector-desk.jpg"
+                            aria-label="放大 H4 放映"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-projector-desk.jpg"
+                                alt="H4 放映：银幕、放映键与胶片"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>H4 放映</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            暗下来的银幕上一张张放，慢慢推拉，每张 4.5
+                            秒；下面是说明、放映键和一条胶片。鼠标停在银幕上先停住，自己翻就暂停；正在一起听时显示「配着音乐放映」。
                         </p>
                     </div>
                 </div>
@@ -920,177 +1350,80 @@
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-half-phone.jpg"
-                            aria-label="放大 G1 手机半高"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-polaroid-phone.jpg"
+                            aria-label="放大 H1 手机"
                         >
                             <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-half-phone.jpg"
-                                alt="G1 手机半高：最新一页和写一页"
+                                src="../../../uiux/cinnaglass/ux/img/memory-polaroid-phone.jpg"
+                                alt="H1 手机：两列拍立得"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G1 手机半高</h3>
+                            <h3>H1 手机</h3>
                             <span class="chip done">已实现</span>
                         </div>
-                        <p>托盘半高正好露出最新一页和「写一页」，TA 在上面完整可见。</p>
+                        <p>两列，按月分组。</p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-full-phone.jpg"
-                            aria-label="放大 G1 拉满往回翻"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-cork-phone.jpg"
+                            aria-label="放大 H2 手机"
                         >
                             <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-full-phone.jpg"
-                                alt="G1 手机拉满"
+                                src="../../../uiux/cinnaglass/ux/img/memory-cork-phone.jpg"
+                                alt="H2 手机：两列错落的软木板"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G1 拉满往回翻</h3>
+                            <h3>H2 手机</h3>
                             <span class="chip done">已实现</span>
                         </div>
-                        <p>上拉到全高读长文，月份标签吸顶，往上滚到顶自动翻出更早的回忆。</p>
+                        <p>两列错落，红线照画；手机上不拖，滑动照常滚动，点一下看大图。</p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-compose-phone.jpg"
-                            aria-label="放大 G1 写一页"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-album-phone.jpg"
+                            aria-label="放大 H3 手机"
                         >
                             <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-compose-phone.jpg"
-                                alt="G1 手机写一页"
+                                src="../../../uiux/cinnaglass/ux/img/memory-album-phone.jpg"
+                                alt="H3 手机：三列方格"
                                 loading="lazy"
                             />
                         </button>
                         <div class="card-head">
-                            <h3>G1 写一页</h3>
+                            <h3>H3 手机</h3>
                             <span class="chip done">已实现</span>
                         </div>
-                        <p>横格纸从下面升起，托盘自动拉满；点外面只收起，草稿留着。</p>
+                        <p>三列方格，月份签横着滑；横过来 6 列。</p>
                     </div>
                     <div class="card">
                         <button
                             class="shot"
                             type="button"
-                            data-full="../../memories/img/G3m.jpg"
-                            aria-label="放大 G3 手机"
+                            data-full="../../../uiux/cinnaglass/ux/img/memory-projector-phone.jpg"
+                            aria-label="放大 H4 手机"
                         >
-                            <img src="../../memories/img/G3m.jpg" alt="G3 手机：日期条与当天纸页" loading="lazy" />
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memory-projector-phone.jpg"
+                                alt="H4 手机：银幕在上，放映键在拇指边"
+                                loading="lazy"
+                            />
                         </button>
                         <div class="card-head">
-                            <h3>G3 手机</h3>
-                            <span class="chip">备选</span>
+                            <h3>H4 手机</h3>
+                            <span class="chip done">已实现</span>
                         </div>
-                        <p>日历收成一条可以左右滑的日期条，下面是当天的纸页。</p>
+                        <p>银幕在上，放映键在拇指边，左右滑换张。</p>
                     </div>
                 </div>
                 <div class="grid wide">
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-index-desk.jpg"
-                            aria-label="放大 G1 目录"
-                        >
-                            <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-index-desk.jpg"
-                                alt="G1 目录：当月日历，写过的日子带墨点"
-                                loading="lazy"
-                            />
-                        </button>
-                        <div class="card-head">
-                            <h3>G1 目录</h3>
-                            <span class="chip done">已实现</span>
-                        </div>
-                        <p>右上日历图标：写过的日子带墨点（蓝是我、粉是 TA），点一天把那一页滚到中间并亮一圈。</p>
-                    </div>
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-compose-desk.jpg"
-                            aria-label="放大 G1 写一页（桌面）"
-                        >
-                            <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-compose-desk.jpg"
-                                alt="G1 桌面写一页"
-                                loading="lazy"
-                            />
-                        </button>
-                        <div class="card-head">
-                            <h3>G1 写一页（桌面）</h3>
-                            <span class="chip done">已实现</span>
-                        </div>
-                        <p>
-                            拖图进来或选文件，最多 9 张；「记下这一刻」后新页落下，角上盖一个「记」字印章并溅几点墨星。
-                        </p>
-                    </div>
-                </div>
-                <p class="note">
-                    <b>改之前</b>：<a href="../../memories/img/now-book-desk.jpg">桌面书本</a> ·
-                    <a href="../../memories/img/now-book-phone.jpg">手机书本</a> ·
-                    <a href="../../memories/img/now-photos-phone.jpg">手机照片墙</a
-                    >。低动效下全部改成淡入淡出，印章直接出现、不溅墨星。
-                </p>
-            </section>
-
-            <section aria-labelledby="h-title">
-                <h2 id="h-title">H · 照片墙</h2>
-                <div class="grid wide">
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-photos-desk.jpg"
-                            aria-label="放大 H1 拍立得墙"
-                        >
-                            <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-photos-desk.jpg"
-                                alt="H1 桌面：同一面板里的拍立得墙"
-                                loading="lazy"
-                            />
-                        </button>
-                        <div class="card-head">
-                            <h3>H1 拍立得墙</h3>
-                            <span class="chip done">推荐 · 已实现</span>
-                        </div>
-                        <p>和日记同一个面板、两个标题页签；日记里所有照片按月贴成两列拍立得，打开时逐张钉上墙。</p>
-                    </div>
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../memories/img/H2.jpg"
-                            aria-label="放大 H2 软木板"
-                        >
-                            <img src="../../memories/img/H2.jpg" alt="H2 软木板" loading="lazy" />
-                        </button>
-                        <div class="card-head">
-                            <h3>H2 软木板</h3>
-                            <span class="chip">备选</span>
-                        </div>
-                        <p>照片按月钉在软木板上，可以拖着摆，红线串起同一天；最好玩，照片一多就乱，摆法只在本机。</p>
-                    </div>
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../memories/img/H4.jpg"
-                            aria-label="放大 H4 放映机"
-                        >
-                            <img src="../../memories/img/H4.jpg" alt="H4 放映机" loading="lazy" />
-                        </button>
-                        <div class="card-head">
-                            <h3>H4 放映机</h3>
-                            <span class="chip">备选</span>
-                        </div>
-                        <p>一张大图加一条胶片，配着正在放的歌自动翻；建议以后做成灯箱里的「放映」按钮，不替代墙。</p>
-                    </div>
                     <div class="card">
                         <button
                             class="shot"
@@ -1106,34 +1439,15 @@
                         </button>
                         <div class="card-head">
                             <h3>灯箱（桌面）</h3>
-                            <span class="chip done">已实现</span>
+                            <span class="chip done">已实现 · 共用</span>
                         </div>
                         <p>
-                            照片从缩略图里长出来；← → 翻页，Esc
+                            照片从被点的那张里长出来；← → 翻页，Esc
                             或点暗处缩回原位；说明条写谁、哪天、那页的字，可以「在日记里看」。
                         </p>
                     </div>
                 </div>
                 <div class="grid phones">
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../../uiux/cinnaglass/ux/img/memory-photos-phone.jpg"
-                            aria-label="放大 H1 手机"
-                        >
-                            <img
-                                src="../../../uiux/cinnaglass/ux/img/memory-photos-phone.jpg"
-                                alt="H1 手机照片墙"
-                                loading="lazy"
-                            />
-                        </button>
-                        <div class="card-head">
-                            <h3>H1 手机</h3>
-                            <span class="chip done">已实现</span>
-                        </div>
-                        <p>同一个托盘，标题页签切过来就是照片墙。</p>
-                    </div>
                     <div class="card">
                         <button
                             class="shot"
@@ -1170,31 +1484,109 @@
                             <h3>往下拉关闭</h3>
                             <span class="chip done">已实现</span>
                         </div>
-                        <p>照片跟着手指往下走，背后的暗慢慢褪掉，松手后缩回拍立得。</p>
-                    </div>
-                    <div class="card">
-                        <button
-                            class="shot"
-                            type="button"
-                            data-full="../../memories/img/H3.jpg"
-                            aria-label="放大 H3 月历相册"
-                        >
-                            <img src="../../memories/img/H3.jpg" alt="H3 月历相册" loading="lazy" />
-                        </button>
-                        <div class="card-head">
-                            <h3>H3 月历相册</h3>
-                            <span class="chip">备选</span>
-                        </div>
-                        <p>三列方格、按月跳，一屏看得多；照片多了以后最好找，但没了拍立得的手作感。</p>
+                        <p>照片跟着手指往下走，背后的暗慢慢褪掉，松手后缩回原位。</p>
                     </div>
                 </div>
+                <p class="note">
+                    <b>比稿原图</b>：<a href="../../memories/img/H2.jpg">H2 软木板</a> ·
+                    <a href="../../memories/img/H3.jpg">H3 月历相册</a> ·
+                    <a href="../../memories/img/H4.jpg">H4 放映机</a>。<b>改之前</b>：<a
+                        href="../../memories/img/now-photos-phone.jpg"
+                        >手机照片墙</a
+                    >。
+                </p>
             </section>
 
             <section aria-labelledby="a-title">
                 <h2 id="a-title">A · 手机功能托盘</h2>
                 <p class="read muted">
-                    你的想法：手机上音乐不要悬浮条，点开从下往上弹出，盖住场景里我这边（手和杯子），对方人物完整可见；其他功能同理。
+                    你的想法：手机上音乐不要悬浮条，点开从下往上弹出，盖住场景里我这边（手和杯子），对方人物完整可见；其他功能同理。10
+                    月 1 日：导航单独叠在托盘上不自然，要融进窗口；要有关闭按钮；手机上不该同时开好几个窗口。
                 </p>
+                <h3 class="sub-title">10 月 1 日改过之后</h3>
+                <div class="grid phones">
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/sheet-merged-phone.jpg"
+                            aria-label="放大 导航并进托盘"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/sheet-merged-phone.jpg"
+                                alt="音乐托盘：导航成了托盘的脚，右上关闭"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>导航并进托盘</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            托盘打开时导航自己的胶囊底、霜纹和描边淡掉，变成托盘的脚，上面一道细线；音乐托盘的关闭按钮在心形旁边。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memories-sheet-phone.jpg"
+                            aria-label="放大 回忆入口"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memories-sheet-phone.jpg"
+                                alt="回忆托盘：日记、照片墙、纪念日"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>回忆入口</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>
+                            扳手换成两张叠着的拍立得和一颗心；「回忆」用日记的手写体。点日记或照片墙直接进全屏内容页。
+                        </p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/rooms-sheet-phone.jpg"
+                            aria-label="放大 房间"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/rooms-sheet-phone.jpg"
+                                alt="房间托盘：房间、小卡片开关、装扮、回大厅"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>房间</h3>
+                            <span class="chip done">已实现 · 待你确认</span>
+                        </div>
+                        <p>原来工具里属于房间的东西挪到这里：纪念日卡开关、装扮（敬请期待）、回大厅。</p>
+                    </div>
+                    <div class="card">
+                        <button
+                            class="shot"
+                            type="button"
+                            data-full="../../../uiux/cinnaglass/ux/img/memories-pop-desk.jpg"
+                            aria-label="放大 桌面回忆菜单"
+                        >
+                            <img
+                                src="../../../uiux/cinnaglass/ux/img/memories-pop-desk.jpg"
+                                alt="桌面：导航旁的回忆菜单"
+                                loading="lazy"
+                            />
+                        </button>
+                        <div class="card-head">
+                            <h3>桌面的回忆菜单</h3>
+                            <span class="chip done">已实现</span>
+                        </div>
+                        <p>桌面上是导航旁的小菜单，三项各带一句说明。</p>
+                    </div>
+                </div>
+                <h3 class="sub-title">9 月 29 日的比稿</h3>
                 <div class="grid phones">
                     <div class="card">
                         <button class="shot" type="button" data-full="../img/A1.jpg" aria-label="放大 A1 半桌托盘">
@@ -1208,7 +1600,7 @@
                             <h3>A1 半桌托盘</h3>
                             <span class="chip done">推荐 · 已实现</span>
                         </div>
-                        <p>顶边停在对方书下，底导航浮在托盘上当标签栏；点当前图标、下拉或甩一下收起。</p>
+                        <p>顶边停在对方书下；点当前图标、下拉或甩一下收起。（10-01 起导航并进托盘、加了关闭按钮。）</p>
                     </div>
                     <div class="card">
                         <button class="shot" type="button" data-full="../img/A2.jpg" aria-label="放大 A2 整页播放器">
@@ -1266,9 +1658,9 @@
                         </button>
                         <div class="card-head">
                             <h3>A7 工具</h3>
-                            <span class="chip done">已实现</span>
+                            <span class="chip no">10-01 换成回忆入口</span>
                         </div>
-                        <p>工具小菜单变成托盘，图块更好点，开关也有空间。</p>
+                        <p>工具小菜单变成托盘；10 月 1 日起这一格是「回忆」，开关挪进了房间。</p>
                     </div>
                     <div class="card">
                         <button class="shot" type="button" data-full="../img/A8.jpg" aria-label="放大 A8 房间托盘">
@@ -1295,8 +1687,8 @@
                 </div>
                 <p class="note">
                     <b>已实现的托盘</b>：半高是可见高度的一半（至少 340px）。拖手柄或标题条改高度，甩一下（超过 0.11
-                    px/ms）就收起，拉过顶部有阻尼；Esc
-                    收起，焦点回到入口。托盘不挡导航，也不挡场景：打开时仍能戳对方、摸头。我这边的桌面会轻轻压暗，对方保持明亮。
+                    px/ms）就收起，拉过顶部有阻尼；关闭按钮或 Esc
+                    收起，焦点回到入口。导航是托盘的脚，托盘也不挡场景：打开时仍能戳对方、摸头。我这边的桌面会轻轻压暗，对方保持明亮。手机上一次只开一个窗口。
                 </p>
             </section>
 

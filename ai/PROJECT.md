@@ -73,11 +73,11 @@ src/
 ├── types/               # feed.ts、chat.ts（一个类型对一张表）、image-slot.d.ts
 └── themes/cinnaglass/
     ├── cinnaglass.css · materials.css       # C/兼容材质与基础主题；reset 在 src/index.css
-    ├── ui/              # ui-system.css（A/B 材质与控件、--ui-display 标题字）· motion.css + motion-preference（动效 token / 低动效）· sheet（手机托盘）· use-panel-focus · use-presence · feedback · task-dialog · use-ui-environment
+    ├── ui/              # ui-system.css（深玻璃材质与控件、--ui-display 标题字）· look（?look= 换玻璃看样）· motion.css + motion-preference（动效 token / 低动效）· sheet（手机托盘 + SheetHead）· content-page（内容页外壳）· use-panel-focus · use-presence · feedback · task-dialog · use-ui-environment
     ├── room/            # table-scene（Pixi 合成器入口）+ room-scene（React 壳）· room-types · study-table · partner-layer · partner-state · steam-layer · rain-layer · affordance · lighting · fade-queue · textures
-    ├── shell/           # rail + navigation-glass.css · ambience · floaters（纪念卡/音乐条与停靠栏）· chat-card · world-loader + load-progress（进入世界加载）· world-surfaces · use-world-chat-bubble
-    ├── journal/         # 棕皮书日记与翻页（C 类物件 UI，设置「书本（旧版）」时使用）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
-    ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· memory-surface（回忆面板：日记 + 照片墙）· journal-stream · journal-index · photo-wall · memory-lightbox · memory-photos · memory.css · composer · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
+    ├── shell/           # rail（房间 / 聊天 / 一起听 / 回忆 / 设置）+ rail-icons + navigation-glass.css · ambience · floaters（纪念卡/音乐条与停靠栏）· chat-card · world-loader + load-progress（进入世界加载）· world-surfaces · use-world-chat-bubble
+    ├── journal/         # 棕皮书日记与翻页（C 类物件 UI，回忆页里日记的「书本」样子）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
+    ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· memory-surface（回忆页：日记 + 照片墙）· memory-views（样子的约定）· 日记的样子 journal-stream / journal-calendar / journal-book-view · 照片墙的样子 photo-wall / photo-cork / photo-album / photo-projector · journal-index · show-entry · memory-lightbox · memory-photos · memory.css · composer · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
     ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
     ├── calendar · settings · world-settings · music + music-tracks + use-music-playback · lobby · entry.css
     ├── icons · model · profile · tweaks    # 共享图标/类型/偏好；旧登录 SVG 已移除
@@ -99,7 +99,8 @@ src/
 - **手机版 UI**（2026-09-21）：App 统一发布可见视口，A/B/入口适配安全区与软键盘；完整聊天按需展开会话、横屏播放器消除重复条。8 尺寸 × 12 页面及 4 类合成键盘回归通过，真机待验收；独立功能 `ai/features/mobile-ui.md`，图文 `ai/design_system/uiux/mobile.md`。
 - **UI 基建现状**：2026-09-20 本地 A/B 与边缘页面已统一为导航同源材料和原生 TaskDialog，音乐接真实本机 WebAudio、天气与未实现能力状态如实呈现；实现/兼容/验收边界见 `ai/features/ui-system/ui-system.md`，消费者与历史证据见同目录 `audit.md`
 - **UI 动效与手机托盘**（2026-09-29 实现，2026-09-30 用户看样保留）：全组件按压 / 进出场反馈与低动效模式；手机上聊天、音乐、工具、房间、回忆从底部托盘升起，对方完整可见；音乐主页面（8 首音景、概念图裁切的占位海报、歌词、歌单、本机收藏、沉浸歌词），桌面右侧停靠栏；进入世界时台灯随真实加载进度亮起；面板标题用站酷小薇。交互与录屏 `ai/design_system/uiux/cinnaglass/ux/ux.md`，比稿 `ai/design_system/codex-visual/ui-motion/ui-motion.md`，看样页 `codex-visual/ui-motion/review/`，手机回归 `ai/features/mobile-ui.md`
-- **回忆面板**（2026-09-30，推荐方案已实现，待用户看样）：日记（手帐长卷、写一页、目录日历）与照片墙（拍立得）同一面板两页签，共用灯箱；桌面右侧停靠、手机托盘；旧棕皮书保留为设置「书本（旧版）」。比稿 `ai/design_system/codex-visual/memories/memories.md`，功能 `ai/features/timeline.md`
+- **回忆页**（2026-09-30 做成面板，2026-10-01 按用户的产品分层改为内容页，待看样）：日记与照片墙同一页两页签，桌面正中、手机全屏；日记 手帐 / 日历 / 书本，照片墙 拍立得 / 软木板 / 相册 / 放映，页头随时切换；共用灯箱；导航「回忆」入口替换了工具扳手。比稿 `ai/design_system/codex-visual/memories/memories.md`，功能 `ai/features/timeline.md`
+- **深玻璃**（2026-10-01，待看样）：用户嫌 UI 和场景对比太低，玻璃加厚、加硬描边和深投影，内容页压暗场景；`?look=gilded` / `?look=classic` 对比。`ai/design_system/uiux/cinnaglass/ux/ux.md` §8
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
@@ -153,7 +154,7 @@ src/
 
 1. **设计入口唯一**：整体风格与素材位置以 `ai/design_system/design-system.md` 及其链接的常驻 Markdown 为准；设计系统只放最新一期，上一期在 `arts/archive/`（只留一期，不作参考源）；UI/UX 以 `ai/design_system/uiux/uiux.md`、主题规范 `uiux/cinnaglass/ui-system.md`、当前决定 `uiux/cinnaglass/decisions.md` 为准。`ai/STYLE.md` / `ai/UX.md` 只是旧链接兼容桩；`concept/` 与 `research/` 里的「定稿」是当时状态，不能覆盖现行决定。
 2. **UI/UX 工作流**：先读设计系统与 Monet 要求 → `ui-tailor` 设计/展示/验证 → 视觉完成件交 `monet` 审核 → 决定与素材同步回设计系统。**2026-09-30 用户定规**：UX 用看样页展示（实景方案图 + 状态标签 + 实装录屏 + 动效试验区 + 决定清单 + 调研），UX 是设计系统参考的重要一环、不只用 token 表达（`uiux/cinnaglass/ux/ux.md`）；需要美术图时不在会话里自己生成，先占位，等用户在机器上装好 Codex 再出图。**2026-09-20 目录裁决：比稿、调研和待确认原型统一归 `ai/design_system/codex-visual/`，`uiux/` 只保留已敲定规范与选定展示；方向认可与细节定稿、设计批准与产品实现分别记录。** 技能本体仍在 `ai/jaSkills/`。没有独立 agent 时加载相应 skill 切换职责并标注「同 agent 自审」，不虚构委派；普通回合报告在 session 里给，不逐轮建 report 文件。已有混合目录随 UI 标准板合并后迁移并修正引用。
-3. **日记：冻结已解除（2026-09-30 用户：日记与照片墙统一迭代，旧日记先不删）**。默认日记是 A 类回忆面板（`surfaces/memory-surface.tsx`，桌面右侧停靠、手机托盘，TA 始终可见）；棕皮书（`journal/`）原样保留为设置「书本（旧版）」，删除前先问用户。改公共 `.modal` / `.paper` 时仍要确认不破坏书本模式。当前导航是 A 类悬浮 UI 基准。
+3. **产品分层（2026-10-01 用户定，贯穿开发）**：音乐、聊天、房间、回忆入口是**场景伴生**——手机底部托盘可半开、导航并进托盘，桌面贴边；日记、照片墙是**内容页**——手机直接全屏、桌面正中弹窗（`ui/content-page.tsx`）；手机一次只开一个窗口，关闭永远有按钮。新功能先归类再选载体，见 `ai/design_system/uiux/cinnaglass/ux/ux.md` §0。日记冻结已解除；棕皮书（`journal/`）是日记的「书本」样子，删除前先问用户；改公共 `.modal` / `.paper` 时仍要确认不破坏书本。当前导航是 A 类悬浮 UI 基准。
 4. **代码与结构规范**：`ai/project-audit/CONVENTIONS.md`（分层依赖方向、命名、复用/拆分、注释、格式化、脚本依赖）；写代码前看 `.prettierrc` 与 `eslint.config.js`，配置优先于现状；`pnpm exec tsc -b` 必须保持零错误。
 5. **数据与后端**：`ai/PROJECT.md` 数据库节是临时真源（前端 select 反查，未核线上），改表结构先看 `ai/features/supabase.md` 的审计遗留；`VITE_*` 变量进浏览器，不放 `service_role`。
 6. **审核中**：`project-audit` 五步全项目自审进行到第三步结束（诊断已交付、P1 待用户裁决实施），入口 `ai/project-audit/INDEX.md`；审核发现的待办写回 `ai/TODO.md`，证据只放审核目录。
