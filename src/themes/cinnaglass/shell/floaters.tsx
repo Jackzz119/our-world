@@ -160,6 +160,7 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                         tab={tab}
                         onTab={setTab}
                         onNeedRoom={() => setDetent('full')}
+                        onClose={() => setOpen(false)}
                         immersive={immersive}
                         onImmersive={setImmersive}
                     />

@@ -1,5 +1,5 @@
 // tweaks.ts — user-adjustable theme settings (mood, glass style, weather, chat
-// alignment, transparency, motion, journal style), persisted to localStorage under ow-tweaks-v1.
+// alignment, transparency, motion, how memories are drawn), persisted to localStorage under ow-tweaks-v1.
 
 import { useCallback, useState } from 'react';
 import type { RoomMood } from '@/themes/cinnaglass/room/room-types';
@@ -19,9 +19,12 @@ export type ChatAlign = 'left' | 'sides';
 // Low-motion mode: follow the OS switch, or force full / reduced motion
 // (resolved and published by ui/motion-preference.ts).
 export type MotionPref = 'system' | 'full' | 'reduced';
-// How the journal opens: the scrapbook stream in the memory panel (default since
-// 2026-09-30), or the chestnut book it replaced, kept on request.
-export type JournalStyle = 'scrapbook' | 'book';
+// How the memory page draws the journal and the photo wall (surfaces/memory-views.ts). The
+// reader switches in the page header; the choice is remembered. 2026-10-01 the user asked for
+// every comparison direction as a way to look: the scrapbook stream, the calendar, the old
+// chestnut book; polaroids, a cork board, an album grid, a projector.
+export type JournalStyle = 'scrapbook' | 'calendar' | 'book';
+export type PhotoStyle = 'polaroid' | 'cork' | 'album' | 'projector';
 
 // Everything the ambience and settings panels can change, stored as one blob.
 export type Tweaks = {
@@ -32,6 +35,7 @@ export type Tweaks = {
     reduceTransparency: boolean;
     motion: MotionPref;
     journalStyle: JournalStyle;
+    photoStyle: PhotoStyle;
 };
 
 // localStorage key; bump the suffix when the stored shape changes incompatibly.
@@ -45,7 +49,8 @@ export const TWEAK_DEFAULTS: Tweaks = {
     chatAlign: 'left',
     reduceTransparency: false,
     motion: 'system',
-    journalStyle: 'scrapbook'
+    journalStyle: 'scrapbook',
+    photoStyle: 'polaroid'
 };
 
 // Stored tweaks merged over the defaults; a missing or unparsable blob falls

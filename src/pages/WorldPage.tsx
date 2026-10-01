@@ -100,6 +100,16 @@ const WorldPage = () => {
     const [musicOpen, setMusicOpen] = useState(false);
     const [musicPlaying, setMusicPlaying] = useState(false);
     const [convOpen, setConvOpen] = useState<string | null>(null);
+    // On a phone one window is open at a time (2026-10-01): a sheet, a page or a dialog opening sends
+    // the others away. Desktop floaters keep each other company; pages there sit over the room.
+    const [railDismiss, setRailDismiss] = useState(0);
+    const others = (keep: 'chat' | 'music' | 'rail' | 'ambience' | 'surface') => {
+        if (!compact) return;
+        if (keep !== 'chat') setChatOpen(false);
+        if (keep !== 'music') setMusicOpen(false);
+        if (keep !== 'rail') setRailDismiss((n) => n + 1);
+        if (keep !== 'surface' && screen !== null) closeSurface();
+    };
     // which surface is open, and the rail / hotspot routes that open one
     const {
         screen,
@@ -112,28 +122,18 @@ const WorldPage = () => {
         initialScreen: DEV_SURFACE,
         onToggleChat: () => {
             setChatOpen((open) => !open);
-            if (!chatOpen && compact) {
-                setMusicOpen(false);
-                if (memoryOpen) closeSurface();
-            }
+            if (!chatOpen) others('chat');
         },
         onToggleMusic: () => {
             const nextOpen = widgets.music === false || !musicOpen;
             setWidget('music', true);
             setMusicOpen(nextOpen);
-            if (nextOpen && compact) setChatOpen(false);
-            // the player and the memory panel share the right-hand column (the bottom sheet on a phone)
-            if (nextOpen && memoryOpen) closeSurface();
+            if (nextOpen) others('music');
         },
-        onOpenTab: (opening) => {
-            if (opening === 'wishlist' || (opening === 'timeline' && t.journalStyle === 'book')) return;
-            setMusicOpen(false);
-            if (compact) setChatOpen(false);
-        }
+        onOpen: () => others('surface')
     });
-    // The journal and the photo wall open in the memory panel (the chestnut book in 书本 mode covers the room instead).
-    const memoryOpen = screen === 'photos' || (screen === 'timeline' && t.journalStyle !== 'book');
-    const bookOpen = screen === 'timeline' && t.journalStyle === 'book';
+    // The journal and the photo wall open in the memory page (a content page over the room).
+    const memoryOpen = screen === 'photos' || screen === 'timeline';
     // Four localStorage-backed slices; usePersistedState mirrors each one back
     // on every change (the read strategy stays per-slice — see the hook).
     const [profile, setProfile] = usePersistedState('ow-profile-v1', () => gload('ow-profile-v1', PROFILE_DEFAULT));
@@ -297,7 +297,7 @@ const WorldPage = () => {
                 chrome piece floats above it. The Discord-era sidebar/HUD
                 retired with the idle-companion pivot
                 (ai/design_system/uiux/uiux.md). */}
-            <div className="stage" data-reading={bookOpen || undefined} style={{ position: 'absolute', inset: 0 }}>
+            <div className="stage" data-reading={memoryOpen || undefined} style={{ position: 'absolute', inset: 0 }}>
                 {inWorld ? (
                     // the entry loader below covers the chunk download too, so no fallback of its own
                     <Suspense fallback={null}>
@@ -305,7 +305,7 @@ const WorldPage = () => {
                             onProgress={room.progress.set}
                             onReady={() => setRoom((r) => ({ ...r, state: 'ready' }))}
                             onFailed={() => setRoom((r) => ({ ...r, state: 'failed' }))}
-                            active={screen === null || screen === 'timeline' || memoryOpen}
+                            active={screen === null || memoryOpen}
                             mood={t.mood}
                             weatherKind={weather.kind}
                             onHotspot={onHotspot}
@@ -354,6 +354,8 @@ const WorldPage = () => {
                             widgets={widgets}
                             setWidget={setWidget}
                             onLeaveWorld={leaveRoom}
+                            onPopOpen={() => others('rail')}
+                            dismissSignal={railDismiss}
                         />
                         <Ambience
                             mood={t.mood}
@@ -361,6 +363,7 @@ const WorldPage = () => {
                             wx={t.weather}
                             weather={weather}
                             setWx={(k) => setTweak('weather', k)}
+                            onOpen={() => others('ambience')}
                         />
                         <SunlitLetter
                             mood={t.mood}
@@ -368,8 +371,7 @@ const WorldPage = () => {
                             onOpen={() => {
                                 document.querySelector<HTMLButtonElement>('[data-nav-key="chat"]')?.focus();
                                 setChatOpen(true);
-                                if (compact) setMusicOpen(false);
-                                if (compact && memoryOpen) closeSurface();
+                                others('chat');
                             }}
                         />
                         {widgets.anniv !== false && (
@@ -422,6 +424,7 @@ const WorldPage = () => {
                     world={world}
                     worldIconUrl={worldIconUrl}
                     onWorldSaved={onWorldSaved}
+                    musicPlaying={musicPlaying}
                 />
                 {/* covering chat hub — one expand away from the chat card */}
                 <ChannelScreen

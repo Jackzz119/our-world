@@ -22,9 +22,13 @@ export const RailMusic = (p: IcoProps) => (
         <ellipse cx="17.5" cy="16.5" rx="3.5" ry="2.8" transform="rotate(-16 17.5 16.5)" />
     </Ico>
 );
-export const RailTools = (p: IcoProps) => (
+// 回忆 (2026-10-01, replacing the tools wrench): two polaroids in a little stack, a heart on the
+// front one — the journal and the photo wall live behind it.
+export const RailMemories = (p: IcoProps) => (
     <Ico {...p}>
-        <path d="m13.7 3.3 4.1-1.1-3.2 4.2 3 3 4.2-3.2-1.1 4.1a6.3 6.3 0 0 1-7.7 3.4L5 21.5c-.6.6-1.5.6-2.1 0l-.4-.4c-.6-.6-.6-1.5 0-2.1l7.8-8a6.3 6.3 0 0 1 3.4-7.7Z" />
+        <path d="m8.6 4.9.5-1.2a1.2 1.2 0 0 1 1.5-.7l9.3 3.2c.6.2 1 .9.7 1.5l-4.2 12.1" />
+        <rect x="3.2" y="6.2" width="12.6" height="15" rx="1.3" transform="rotate(-6 9.5 13.7)" />
+        <path d="M9.9 15.8s-2.7-1.6-2.7-3.4a1.45 1.45 0 0 1 2.7-.75 1.45 1.45 0 0 1 2.7.75c0 1.8-2.7 3.4-2.7 3.4Z" />
     </Ico>
 );
 export const RailSettings = (p: IcoProps) => (

@@ -1,0 +1,979 @@
+/* The calendar journal (journal-calendar.tsx, concept G3 in ai/design_system/codex-visual/memories/):
+   on a desktop the month is a page of a paper planner beside the open day's pages; on a phone a
+   strip of the month's days runs over them. Paper, ink, the page cards and the composer come from
+   memory.css; this file adds the planner page, the strip and the day's frame. */
+
+.jcal {
+    --jcal-gold: #c38b2a;
+    --jcal-mine-lit: #9ccbe4;
+    --jcal-theirs-lit: #f0a9bd;
+    position: relative;
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        'cal head'
+        'cal pages'
+        'cal compose';
+    column-gap: 26px;
+    min-height: 0;
+    padding: 8px 22px 18px 26px;
+}
+.jcal-cal {
+    grid-area: cal;
+}
+.jcal-dayhead {
+    grid-area: head;
+}
+.jcal-pages {
+    grid-area: pages;
+}
+.jcal-compose {
+    grid-area: compose;
+}
+
+/* ---------- desktop: the month, a page of a paper planner ---------- */
+.jcal-cal.mem-paper {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: 18px 16px 12px;
+    border-radius: 7px 11px 9px 13px / 11px 7px 13px 9px;
+    rotate: -0.35deg;
+    animation: jcal-page-in var(--dur-panel) var(--ease-spring) backwards;
+}
+@keyframes jcal-page-in {
+    from {
+        opacity: 0;
+        translate: 0 calc(var(--rise) * 1.4);
+        rotate: -1.4deg;
+    }
+}
+/* washi tape holding the page's corners to the glass */
+.jcal-cal::before,
+.jcal-cal::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    width: 88px;
+    height: 22px;
+    background: repeating-linear-gradient(90deg, #ffffff38 0 5px, transparent 5px 11px), var(--tape);
+    opacity: 0.86;
+    clip-path: polygon(
+        0 8%,
+        5% 0,
+        10% 9%,
+        15% 0,
+        85% 0,
+        90% 10%,
+        95% 0,
+        100% 8%,
+        100% 92%,
+        95% 100%,
+        90% 90%,
+        85% 100%,
+        15% 100%,
+        10% 91%,
+        5% 100%,
+        0 92%
+    );
+    pointer-events: none;
+}
+.jcal-cal::before {
+    --tape: #efc3cf;
+    top: 6px;
+    left: -22px;
+    rotate: -40deg;
+}
+.jcal-cal::after {
+    --tape: #b9d3e6;
+    right: -28px;
+    bottom: 6px;
+    width: 76px;
+    rotate: -38deg;
+}
+.jcal-cal-hd {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 0 8px 18px;
+}
+.jcal-title {
+    margin: 0 auto 0 0;
+    color: var(--paper-ink);
+    font-family: var(--ui-display);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+/* the month's numeral, large, with a stroke of highlighter under it */
+.jcal-title-m {
+    position: relative;
+    isolation: isolate;
+    display: inline-block;
+    margin: 0 0.14em;
+    font-size: 38px;
+    line-height: 1;
+}
+.jcal-title-m::after {
+    content: '';
+    position: absolute;
+    right: -0.18em;
+    bottom: 0.04em;
+    left: -0.18em;
+    z-index: -1;
+    height: 0.32em;
+    border-radius: 3px 7px 4px 8px;
+    background: rgb(232 178 84 / 0.46);
+    rotate: -2.5deg;
+}
+.jcal-cal .jcal-flip {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--paper-ink);
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.jcal-cal .jcal-flip:not(:disabled):active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.jcal-cal .jcal-flip:disabled {
+    opacity: 0.26;
+    cursor: default;
+}
+@media (hover: hover) and (pointer: fine) {
+    .jcal-cal .jcal-flip:not(:disabled):hover {
+        background: rgb(110 83 47 / 0.1);
+    }
+}
+/* gold rings vanish on cream: on paper the focus ring is ink (and outranks the glass one) */
+.jcal .jcal-cal :is(button, [tabindex]):focus-visible {
+    outline: 2px solid var(--paper-ink);
+    outline-offset: 1px;
+}
+
+.jcal-grid {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+.jcal-wds {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    padding: 0 0 7px;
+    border-bottom: 1.5px solid rgb(110 83 47 / 0.3);
+}
+/* set over the day numerals, as a printed planner does */
+.jcal-wd {
+    padding-left: 13px;
+    color: var(--paper-muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+}
+/* the weekend printed in the planner's red */
+.jcal-wd:is(:first-child, :last-child) {
+    color: var(--stamp);
+}
+.jcal-weeks {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    min-height: 0;
+    transition: opacity var(--dur-enter) ease;
+    animation: jcal-slide-in var(--dur-panel) var(--ease-spring) backwards;
+}
+.jcal-weeks[data-loading] {
+    opacity: 0.5;
+}
+@keyframes jcal-slide-in {
+    from {
+        opacity: 0;
+        translate: var(--from, 0) 0;
+    }
+}
+.jcal-week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    border-bottom: 1px solid var(--paper-rule);
+}
+.jcal-slot {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    container-type: size;
+}
+.jcal-slot + .jcal-slot {
+    border-left: 1px solid rgb(110 83 47 / 0.08);
+}
+.jcal-cell {
+    position: absolute;
+    inset: 3px;
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--paper-muted);
+    font: inherit;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+}
+button.jcal-cell {
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease,
+        color var(--dur-hover) ease,
+        translate var(--dur-hover) var(--ease-out),
+        scale var(--dur-release) var(--ease-pop);
+}
+.jcal-num {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    min-width: 1.3em;
+    font-family: var(--ui-display);
+    font-size: 17px;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.jcal-cell[data-written] {
+    color: var(--paper-ink);
+}
+.jcal-cell[data-out] :is(.jcal-num, .jcal-ink) {
+    opacity: 0.4;
+}
+.jcal-cell[data-off] .jcal-num {
+    opacity: 0.2;
+}
+.jcal-cell[data-future]:not([data-selected], [data-out]) .jcal-num {
+    opacity: 0.55;
+}
+/* not fetched yet: a faint hatching until older pages arrive */
+.jcal-cell[data-unknown]:not([data-written]) {
+    background: repeating-linear-gradient(-45deg, rgb(110 83 47 / 0.07) 0 2px, transparent 2px 7px);
+}
+@media (hover: hover) and (pointer: fine) {
+    button.jcal-cell:not([data-selected]):hover {
+        background-color: rgb(110 83 47 / 0.09);
+        translate: 0 var(--hover-lift);
+    }
+}
+button.jcal-cell:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+/* the open day is inked in */
+.jcal-cell[data-selected] {
+    background: var(--paper-grain), radial-gradient(120% 90% at 22% 0%, #6d5134, transparent 70%), var(--paper-ink);
+    color: #f8eedb;
+    box-shadow:
+        0 8px 16px -10px #1e1206,
+        0 2px 4px -1px #0005,
+        inset 0 1px 0 #ffffff24;
+}
+/* today: a ring of gold ink drawn round the date (full strength even in the next month's row) */
+.jcal-cell[data-today]::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 0;
+    width: 32px;
+    height: 29px;
+    box-sizing: border-box;
+    border: 2px solid var(--jcal-gold);
+    border-radius: 54% 46% 52% 48% / 50% 56% 44% 50%;
+    rotate: -9deg;
+    pointer-events: none;
+}
+.jcal-cell[data-today][data-selected]::before {
+    border-color: var(--ui-accent);
+}
+.jcal-ink {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    display: flex;
+    gap: 4px;
+}
+.jcal-ink i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50% 46% 52% 48%;
+    background: var(--ink-mine);
+    animation: jcal-dot-in 520ms var(--ease-pop) calc(140ms + var(--i, 0) * 12ms) backwards;
+}
+.jcal-ink i[data-author='theirs'] {
+    background: var(--ink-theirs);
+}
+.jcal-cell[data-selected] .jcal-ink i[data-author='mine'] {
+    background: var(--jcal-mine-lit);
+}
+.jcal-cell[data-selected] .jcal-ink i[data-author='theirs'] {
+    background: var(--jcal-theirs-lit);
+}
+@keyframes jcal-dot-in {
+    from {
+        opacity: 0;
+        scale: 0;
+    }
+}
+/* the day's first photo, a tiny polaroid tucked into the corner */
+.jcal-snap {
+    position: absolute;
+    right: 5px;
+    bottom: 6px;
+    box-sizing: border-box;
+    /* as big as the square allows under its date: half its width, at most 44px */
+    width: clamp(18px, min(50cqw, (100cqh - 40px) * 0.84), 44px);
+    aspect-ratio: 0.84;
+    padding: 3px 3px 7px;
+    border-radius: 1.5px;
+    background: #fcf9f1;
+    box-shadow:
+        0 1px 2px #0005,
+        0 5px 9px -5px #0009;
+    rotate: var(--tilt);
+    transition:
+        rotate var(--dur-release) var(--ease-pop),
+        scale var(--dur-release) var(--ease-pop);
+    animation: jcal-tuck 560ms var(--ease-pop) calc(180ms + var(--i, 0) * 12ms) backwards;
+}
+/* more than one photo that day: the edge of another peeks out behind */
+.jcal-snap[data-more] {
+    box-shadow:
+        0 1px 2px #0005,
+        0 5px 9px -5px #0009,
+        3px -3px 0 -0.5px #efe8d8,
+        3px -3px 2px -0.5px #0003;
+}
+.jcal-snap img,
+.jcal-snap .mem-photo-wait {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 1px;
+    background: #e6dcc6;
+    object-fit: cover;
+}
+.jcal-cell[data-selected] .jcal-snap {
+    rotate: calc(var(--tilt) * -0.5);
+    scale: 1.06;
+}
+@media (hover: hover) and (pointer: fine) {
+    button.jcal-cell:hover .jcal-snap {
+        rotate: 0deg;
+        scale: 1.1;
+    }
+}
+/* a small window's squares have no room for it beside the date; the ink dots still mark the day
+   (visibility, not display: the grid measures its squares more than once, and a display flip on the
+   way would restart the tuck-in) */
+@container (max-height: 62px) or (max-width: 44px) {
+    .jcal-snap {
+        visibility: hidden;
+    }
+}
+@keyframes jcal-tuck {
+    from {
+        opacity: 0;
+        translate: 0 -8px;
+        rotate: calc(var(--tilt) + 12deg);
+        scale: 1.25;
+    }
+}
+.jcal-cal-ft {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 32px;
+    padding: 9px 30px 0 10px;
+    color: var(--paper-muted);
+    font-size: 12px;
+}
+.jcal-count {
+    color: var(--paper-ink);
+    font:
+        400 15px/1.3 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.04em;
+}
+.jcal-legend {
+    display: inline-flex;
+    flex: none;
+    gap: 14px;
+    margin-left: auto;
+}
+.jcal-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.jcal-legend i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ink-mine);
+}
+.jcal-legend i[data-author='theirs'] {
+    background: var(--ink-theirs);
+}
+.jcal-older {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 1px dashed rgb(110 83 47 / 0.38);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--paper-ink);
+    font: inherit;
+    font-size: 12.5px;
+}
+button.jcal-older {
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+button.jcal-older:hover {
+    background: rgb(110 83 47 / 0.08);
+}
+button.jcal-older:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+/* waiting, in ink */
+.jcal-spin {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgb(110 83 47 / 0.22);
+    border-top-color: var(--paper-ink);
+    border-radius: 50%;
+    animation: ow-spin 800ms linear infinite;
+}
+
+/* ---------- the open day: its title, its pages, the page being written ---------- */
+.jcal-dayhead {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    min-width: 0;
+    padding: 2px 4px 6px 8px;
+    container: jcal-day / inline-size;
+}
+.jcal-dayhead-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+.jcal-daytitle {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ui-text);
+    font-family: var(--ui-display);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+.jcal-daytitle small {
+    color: var(--ui-muted);
+    font-size: 16px;
+    letter-spacing: 0.06em;
+}
+.jcal-today-tag {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 9px 3px;
+    border-radius: 999px;
+    background: rgb(241 209 154 / 0.18);
+    color: var(--ui-accent);
+    font-family: var(--ui-display);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    vertical-align: 5px;
+}
+.jcal-daysub {
+    margin: 3px 0 0;
+    overflow: hidden;
+    color: var(--ui-muted);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.jcal-turn {
+    display: flex;
+    flex: none;
+    gap: 6px;
+    padding-bottom: 2px;
+}
+.jcal-turn[hidden] {
+    display: none;
+}
+.jcal-turn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 34px;
+    padding: 0 13px 0 8px;
+    border: 1px solid rgb(var(--ui-rim) / 0.22);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.05);
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background-color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        color var(--dur-hover) ease,
+        translate var(--dur-hover) var(--ease-out),
+        scale var(--dur-release) var(--ease-pop);
+}
+.jcal-turn-btn + .jcal-turn-btn {
+    padding: 0 8px 0 13px;
+}
+.jcal-turn-btn svg {
+    flex: none;
+    color: var(--ui-accent);
+}
+/* the desktop names the day a button goes to; the phone (and a narrow column) says 上一篇 / 下一篇 */
+.jcal-turn-word,
+.jcal[data-layout='strip'] .jcal-turn-date {
+    display: none;
+}
+.jcal[data-layout='strip'] .jcal-turn-word,
+.jcal-turn-btn[data-none] .jcal-turn-word {
+    display: inline;
+}
+/* a narrow desktop column: a smaller title without the weekday, then words instead of dates */
+@container jcal-day (max-width: 520px) {
+    .jcal[data-layout='split'] .jcal-daytitle {
+        font-size: 24px;
+    }
+    .jcal[data-layout='split'] .jcal-daytitle small {
+        display: none;
+    }
+}
+@container jcal-day (max-width: 430px) {
+    .jcal[data-layout='split'] .jcal-turn-word {
+        display: inline;
+    }
+    .jcal[data-layout='split'] .jcal-turn-date {
+        display: none;
+    }
+}
+.jcal-turn-btn:not(:disabled):active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.jcal-turn-btn:disabled {
+    opacity: 0.36;
+    cursor: default;
+}
+@media (hover: hover) and (pointer: fine) {
+    .jcal-turn-btn:not(:disabled):hover {
+        border-color: rgb(241 209 154 / 0.55);
+        background: rgb(241 209 154 / 0.12);
+        translate: 0 var(--hover-lift);
+    }
+}
+/* no written day that way: the desktop keeps the button's place and shows nothing */
+.jcal[data-layout='split'] .jcal-turn-btn[data-none] {
+    visibility: hidden;
+}
+
+.jcal-pages {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    padding: 18px 6px 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #ffffff30 transparent;
+    mask-image: linear-gradient(transparent, #000 14px, #000 calc(100% - 18px), transparent);
+}
+.jcal-leaf {
+    transition:
+        translate var(--dur-release) var(--ease-spring),
+        opacity var(--dur-hover) ease;
+    animation: jcal-slide-in var(--dur-panel) var(--ease-spring) backwards;
+}
+.jcal-leaf[data-dragging] {
+    transition: none;
+}
+/* the snapshot of the day being left (journal-calendar.tsx leave) */
+.jcal-leaf-ghost {
+    position: absolute;
+    pointer-events: none;
+    animation: none;
+}
+.jcal[data-layout='split'] .mem-entry {
+    padding: 20px 20px 16px;
+}
+/* in the wide column a lone photo keeps a page's proportion instead of filling it */
+.jcal[data-layout='split'] .mem-photos[data-count='1'] {
+    grid-template-columns: minmax(0, 440px);
+}
+.jcal .mem-note {
+    margin: 12px 6px;
+}
+/* a day with nothing written: an unwritten page, ruled and quiet */
+.jcal-blank {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin: 6px 6px 16px;
+    padding: 34px 22px 32px;
+    border-radius: 6px 10px 8px 12px / 10px 6px 12px 8px;
+    color: var(--paper-muted);
+    text-align: center;
+    background:
+        repeating-linear-gradient(transparent 0 30px, rgb(110 83 47 / 0.12) 30px 31px) 0 14px / 100% calc(100% - 28px)
+            no-repeat,
+        linear-gradient(174deg, rgb(243 233 211 / 0.9), rgb(222 200 160 / 0.82));
+    outline: 1.5px dashed rgb(110 83 47 / 0.28);
+    outline-offset: -9px;
+    box-shadow: 0 12px 24px -16px #000c;
+    opacity: 0.92;
+}
+.jcal-blank p {
+    margin: 0;
+}
+.jcal-blank-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--paper-ink);
+    font:
+        400 21px/1.5 'Journal WenKai',
+        KaiTi,
+        serif;
+    letter-spacing: 0.04em;
+}
+.jcal-blank-hint {
+    font-size: 13px;
+    line-height: 1.6;
+}
+.jcal-blank .mem-note-btn {
+    margin-top: 6px;
+}
+/* pages still on their way: paper with the shape of a page on it */
+.jcal-skel {
+    display: grid;
+    gap: 22px;
+    padding: 2px 6px;
+}
+.jcal-skel-card {
+    display: grid;
+    gap: 12px;
+    padding: 18px 16px 20px;
+    opacity: 0.78;
+}
+.jcal-skel-hd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.jcal-skel-card i {
+    display: block;
+    border-radius: 6px;
+    background: linear-gradient(100deg, rgb(110 83 47 / 0.1) 30%, rgb(110 83 47 / 0.2) 50%, rgb(110 83 47 / 0.1) 70%) 0
+        0 / 220% 100%;
+    animation: mem-shimmer 1.4s linear infinite;
+}
+.jcal-skel-card .jcal-skel-ava {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.jcal-skel-line {
+    height: 12px;
+}
+.jcal-skel-hd .jcal-skel-line {
+    width: 30%;
+}
+.jcal-skel-line[data-short] {
+    width: 58%;
+}
+.jcal-skel-pic {
+    height: 150px;
+}
+.jcal .jcal-compose {
+    padding: 8px 6px 0;
+}
+
+/* ---------- phone: a strip of the month's days over the pages ---------- */
+.jcal[data-layout='strip'] {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+.jcal-top {
+    flex: none;
+    min-width: 0;
+}
+.jcal-strip-hd {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 6px 0 16px;
+}
+.jcal-strip-hd .jcal-title {
+    color: var(--ui-text);
+    font-size: 21px;
+}
+.jcal-strip-hd .ui-icon-button {
+    background: transparent;
+    border-color: transparent;
+}
+.jcal-strip-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 4px;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+.jcal-strip-note .jcal-spin {
+    border-color: rgb(255 255 255 / 0.2);
+    border-top-color: var(--ui-accent);
+}
+.jcal-strip {
+    position: relative;
+    display: flex;
+    gap: 7px;
+    padding: 4px 14px 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 14px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    animation: jcal-slide-in var(--dur-panel) var(--ease-spring) backwards;
+}
+.jcal-strip::-webkit-scrollbar {
+    display: none;
+}
+.jcal-chip {
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 48px;
+    height: 68px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    background: rgb(0 0 0 / 0.16);
+    color: rgb(255 248 235 / 0.5);
+    font: inherit;
+    scroll-snap-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background-color var(--dur-hover) ease,
+        border-color var(--dur-hover) ease,
+        color var(--dur-hover) ease,
+        box-shadow var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.jcal-chip-wd {
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+}
+.jcal-chip-num {
+    font-family: var(--ui-display);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.jcal-chip .jcal-ink {
+    position: static;
+    gap: 3px;
+    height: 5px;
+}
+.jcal-chip .jcal-ink i {
+    width: 5px;
+    height: 5px;
+    background: var(--jcal-mine-lit);
+    animation-delay: calc(120ms + var(--i, 0) * 10ms);
+}
+.jcal-chip .jcal-ink i[data-author='theirs'] {
+    background: var(--jcal-theirs-lit);
+}
+/* a day we wrote on stands up out of the strip */
+.jcal-chip[data-written] {
+    border-color: rgb(var(--ui-rim) / 0.2);
+    background: rgb(255 255 255 / 0.11);
+    color: var(--ui-text);
+}
+.jcal-chip[data-future] {
+    opacity: 0.6;
+}
+.jcal-chip[data-unknown]:not([data-written]) {
+    border-style: dashed;
+    border-color: rgb(var(--ui-rim) / 0.2);
+}
+.jcal-chip[data-today] {
+    box-shadow: inset 0 0 0 1.5px var(--ui-accent);
+}
+.jcal-chip[aria-selected='true'] {
+    border-color: transparent;
+    background: linear-gradient(180deg, #f6dfb1, var(--ui-accent));
+    color: #352b1e;
+    opacity: 1;
+    box-shadow:
+        0 8px 16px -8px #000c,
+        inset 0 1px 0 #fff8;
+}
+.jcal-chip[aria-selected='true'][data-today] {
+    box-shadow:
+        0 8px 16px -8px #000c,
+        inset 0 0 0 1.5px #a07a3c;
+}
+.jcal-chip[aria-selected='true'] .jcal-ink i[data-author='mine'] {
+    background: var(--ink-mine);
+}
+.jcal-chip[aria-selected='true'] .jcal-ink i[data-author='theirs'] {
+    background: var(--ink-theirs);
+}
+.jcal-chip:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+@media (hover: hover) and (pointer: fine) {
+    .jcal-chip:not([aria-selected='true']):hover {
+        background-color: rgb(255 255 255 / 0.16);
+    }
+}
+.jcal-chip:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 2px;
+}
+.jcal[data-layout='strip'] .jcal-dayhead {
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px 2px 16px;
+}
+.jcal[data-layout='strip'] .jcal-daytitle {
+    font-size: 19px;
+}
+.jcal[data-layout='strip'] .jcal-daytitle small {
+    font-size: 13px;
+}
+.jcal[data-layout='strip'] .jcal-today-tag {
+    margin-left: 6px;
+    padding: 1px 7px 2px;
+    font-size: 12px;
+    vertical-align: 3px;
+}
+.jcal[data-layout='strip'] .jcal-daysub {
+    margin-top: 1px;
+    font-size: 12px;
+}
+.jcal[data-layout='strip'] .jcal-turn {
+    gap: 4px;
+    padding: 0;
+}
+.jcal[data-layout='strip'] .jcal-turn-btn {
+    min-height: 40px;
+    padding: 0 11px 0 6px;
+}
+.jcal[data-layout='strip'] .jcal-turn-btn + .jcal-turn-btn {
+    padding: 0 6px 0 11px;
+}
+.jcal[data-layout='strip'] .jcal-pages {
+    flex: 1 1 auto;
+    padding: 16px 6px 14px;
+    /* sideways drags are the swipe between days; up and down stays the browser's scroll */
+    touch-action: pan-y;
+}
+.jcal[data-layout='strip'] .jcal-compose {
+    flex: none;
+    padding: 6px 12px calc(10px + var(--ui-safe-bottom, env(safe-area-inset-bottom, 0px)));
+}
+/* the open page rises from above the home indicator, not over it */
+.jcal[data-layout='strip'] .jcal-compose .compose.is-open {
+    bottom: calc(10px + var(--ui-safe-bottom, env(safe-area-inset-bottom, 0px)));
+}
+/* the narrowest phones: the weekday gives way to the two buttons */
+@media (max-width: 359px) {
+    .jcal[data-layout='strip'] .jcal-daytitle small {
+        display: none;
+    }
+}
+/* phones on their side: the strip, the day and the page being written in a column on the left,
+   the pages reading down the whole height on the right */
+@media (max-height: 599px) and (min-width: 600px) {
+    .jcal[data-layout='strip'] {
+        display: grid;
+        grid-template-columns: minmax(0, 41fr) minmax(0, 59fr);
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            'top pages'
+            'head pages'
+            '. pages'
+            'compose pages';
+        column-gap: 6px;
+    }
+    .jcal[data-layout='strip'] .jcal-top {
+        grid-area: top;
+    }
+    .jcal[data-layout='strip'] .jcal-strip-hd {
+        padding-left: 14px;
+    }
+    .jcal[data-layout='strip'] .jcal-chip {
+        width: 44px;
+        height: 60px;
+    }
+    .jcal[data-layout='strip'] .jcal-pages {
+        padding: 10px 10px 14px 4px;
+    }
+}
+
+/* ---------- low motion: fades only ---------- */
+:root[data-motion='reduced'] :is(.jcal-cal, .jcal-weeks, .jcal-leaf, .jcal-strip, .jcal-ink i, .jcal-snap) {
+    animation-name: ow-fade-in;
+}
+:root[data-motion='reduced'] :is(.jcal-skel-card i, .jcal-spin) {
+    animation: none;
+}
+:root[data-motion='reduced'] .jcal-snap {
+    transition: none;
+}

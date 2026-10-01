@@ -101,7 +101,12 @@ export function MusicPlayer({
                     )}
                 </header>
             )}
-            <NowPlaying player={player} onList={() => openTab('list')} onLyrics={immerse} />
+            <NowPlaying
+                player={player}
+                onList={() => openTab('list')}
+                onLyrics={immerse}
+                onClose={variant === 'sheet' ? onClose : undefined}
+            />
             <MusicTabs tab={tab} onTab={openTab} />
             <div className="mp-panel" role="tabpanel" aria-label={TABS.find((t) => t.k === tab)?.label}>
                 {tab === 'lyrics' ? (
@@ -140,12 +145,15 @@ export function PosterArt({ player, className = '' }: { player: MusicPlayback; c
 function NowPlaying({
     player,
     onList,
-    onLyrics
+    onLyrics,
+    onClose
 }: {
     player: MusicPlayback;
     onList: () => void;
     /** the preview opens the immersive lyrics */
     onLyrics?: () => void;
+    /** the phone sheet has no header of its own: its close button sits beside the heart */
+    onClose?: () => void;
 }) {
     const { track } = player;
     const line = lyricAt(track, player.pos);
@@ -186,6 +194,16 @@ function NowPlaying({
                 >
                     <IHeart size={20} fill={liked ? 'currentColor' : 'none'} />
                 </button>
+                {onClose && (
+                    <button
+                        type="button"
+                        className="ui-icon-button mp-ghost mp-close"
+                        aria-label="收起一起听"
+                        onClick={onClose}
+                    >
+                        <IClose size={18} />
+                    </button>
+                )}
             </div>
             <button
                 type="button"

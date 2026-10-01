@@ -1,12 +1,14 @@
-// Sheet — the phone layout's home for A panels (music, chat, tools, rooms).
+// Sheet — the phone layout's home for the companion panels (music, chat, rooms, the memories menu).
 // It rises from the bottom over the viewer's side of the table (hands, mug) and
-// stops below the partner, so TA stays in full view; navigation stays on top of
-// it and the scene stays live (non-modal). Drag the grip or the header to
-// change height or dismiss (a flick is enough), Esc closes, focus returns to
-// the opener. Children mark their draggable header strip with data-sheet-grab,
-// and a part that handles Escape itself (an open composer) with data-esc-own.
-// Concept: ai/design_system/codex-visual/ui-motion/ui-motion.md (A1).
+// stops below the partner, so TA stays in full view; the navigation bar becomes
+// the sheet's own foot while it is open, and the scene stays live (non-modal).
+// Drag the grip or the header to change height or dismiss (a flick is enough), or
+// use the close button every sheet header carries (SheetHead); Esc closes, focus
+// returns to the opener. Children mark their draggable header strip with
+// data-sheet-grab, and a part that handles Escape itself (an open composer) with
+// data-esc-own. Concept: ai/design_system/codex-visual/ui-motion/ui-motion.md (A1).
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { IClose } from '@/themes/cinnaglass/icons';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
 import { usePanelFocus } from '@/themes/cinnaglass/ui/use-panel-focus';
@@ -234,6 +236,35 @@ export function Sheet({
                 <span aria-hidden="true" />
             </button>
             <div className="ui-sheet-body">{children}</div>
+            <span className="ui-sheet-foot" aria-hidden="true" />
         </section>
+    );
+}
+
+// The header strip of a sheet: its title, any actions, and the close button — dragging is not the
+// only way out (2026-10-01). The strip is also a drag handle.
+export function SheetHead({
+    title,
+    onClose,
+    children
+}: {
+    title: string;
+    onClose: () => void;
+    /** actions between the title and the close button */
+    children?: ReactNode;
+}) {
+    return (
+        <header className="ui-sheet-head" data-sheet-grab>
+            <h2 className="ui-sheet-title">{title}</h2>
+            {children}
+            <button
+                type="button"
+                className="ui-icon-button ui-sheet-close"
+                aria-label={`收起${title}`}
+                onClick={onClose}
+            >
+                <IClose size={18} />
+            </button>
+        </header>
     );
 }

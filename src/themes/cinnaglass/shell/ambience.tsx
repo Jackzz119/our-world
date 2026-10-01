@@ -101,13 +101,16 @@ export function Ambience({
     setMood,
     wx,
     setWx,
-    weather
+    weather,
+    onOpen
 }: {
     mood: Mood;
     setMood: (value: Mood) => void;
     wx: WeatherTweak;
     setWx: (value: WeatherTweak) => void;
     weather?: Weather;
+    /** a panel opened: a phone shows one window at a time */
+    onOpen?: () => void;
 }) {
     const [panel, setPanel] = useState<'time' | 'weather' | null>(null);
     const host = useRef<HTMLDivElement>(null);
@@ -179,7 +182,8 @@ export function Ambience({
                             aria-controls={id}
                             onClick={(event) => {
                                 origin.current = event.currentTarget;
-                                setPanel((old) => (old === category ? null : category));
+                                if (panel === null) onOpen?.();
+                                setPanel(panel === category ? null : category);
                             }}
                         >
                             <Icon size={26} />

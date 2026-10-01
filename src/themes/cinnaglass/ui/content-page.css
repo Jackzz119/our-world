@@ -1,0 +1,161 @@
+/* Content pages (content-page.tsx): a large window over the dimmed room on a desktop, the whole
+   screen on a phone. The glass is the shared .ui-surface; this file sizes, dims and moves it. */
+.ui-page.ui-surface {
+    --ui-alpha: 0.88;
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    width: min(1120px, calc(100vw - 64px));
+    height: min(820px, calc(var(--ui-visible-height, 100dvh) - 48px));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 30px;
+    color: var(--ui-text);
+    font-size: 15px;
+    line-height: 1.5;
+    outline: none;
+    transition:
+        opacity var(--dur-enter) var(--ease-out),
+        scale var(--dur-panel) var(--ease-spring),
+        translate var(--dur-panel) var(--ease-spring),
+        overlay var(--dur-enter) allow-discrete,
+        display var(--dur-enter) allow-discrete;
+}
+.ui-page[open] {
+    display: flex;
+}
+.ui-page:not([open]) {
+    opacity: 0;
+    scale: var(--enter-scale);
+    translate: 0 calc(var(--rise) * 1.4);
+    transition-duration: var(--dur-exit);
+    transition-timing-function: var(--ease-out);
+}
+@starting-style {
+    .ui-page[open] {
+        opacity: 0;
+        scale: calc(var(--enter-scale) - 0.02);
+        translate: 0 calc(var(--rise) * 2.4);
+    }
+}
+/* The room steps back: dimmed and softened, still there around the page. */
+.ui-page::backdrop {
+    background: rgb(9 10 14 / 0.6);
+    backdrop-filter: blur(6px) saturate(0.8);
+    -webkit-backdrop-filter: blur(6px) saturate(0.8);
+    transition:
+        background-color var(--dur-panel) ease,
+        backdrop-filter var(--dur-panel) ease,
+        overlay var(--dur-panel) allow-discrete,
+        display var(--dur-panel) allow-discrete;
+}
+.ui-page:not([open])::backdrop {
+    background-color: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+@starting-style {
+    .ui-page[open]::backdrop {
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+.ui-page-head {
+    position: relative;
+    z-index: 2;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 14px 10px 24px;
+}
+.ui-page-close.ui-icon-button {
+    margin-left: auto;
+    background: transparent;
+    border-color: transparent;
+}
+.ui-page-body {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ---------- phones: the whole screen, straight away, rising from the bottom edge ---------- */
+.ui-page[data-compact] {
+    top: calc(var(--ui-visible-top, 0px) + var(--ui-safe-top, 0px) + 8px);
+    right: var(--ui-safe-right, 0px);
+    bottom: var(--ui-keyboard-inset, 0px);
+    left: var(--ui-safe-left, 0px);
+    width: auto;
+    height: auto;
+    margin: 0;
+    border-bottom: 0;
+    border-radius: 26px 26px 0 0;
+    transition:
+        translate var(--dur-sheet) var(--ease-drawer),
+        opacity var(--dur-enter) ease,
+        overlay var(--dur-sheet) allow-discrete,
+        display var(--dur-sheet) allow-discrete;
+}
+.ui-page[data-compact]:not([open]) {
+    opacity: 1;
+    scale: 1;
+    translate: 0 100%;
+    transition-duration: calc(var(--dur-sheet) * 0.6), var(--dur-exit);
+    transition-timing-function: var(--ease-out), ease;
+}
+@starting-style {
+    .ui-page[data-compact][open] {
+        opacity: 1;
+        scale: 1;
+        translate: 0 100%;
+    }
+}
+.ui-page[data-pulling] {
+    transition: none;
+}
+.ui-page[data-compact] .ui-page-head {
+    /* a header that wraps keeps its close button on the first row */
+    align-items: flex-start;
+    padding: 18px 6px 8px 16px;
+}
+.ui-page[data-compact] [data-page-grab] {
+    touch-action: none;
+}
+.ui-page-grip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 20px;
+    translate: -50% 0;
+    cursor: grab;
+}
+.ui-page-grip::before {
+    content: '';
+    width: 38px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgb(255 248 235 / 0.42);
+}
+/* Low motion: the page fades in place instead of travelling. */
+:root[data-motion='reduced'] .ui-page[data-compact]:not([open]) {
+    opacity: 0;
+    translate: 0;
+}
+@starting-style {
+    :root[data-motion='reduced'] .ui-page[data-compact][open] {
+        opacity: 0;
+        translate: 0;
+    }
+}
