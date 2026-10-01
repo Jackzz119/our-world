@@ -1,6 +1,6 @@
 # Cinnaglass · 当前主题规范
 
-> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) / [UX 参考](ux/ux.md) · 2026-09-20，2026-09-30 补回忆面板、沉浸歌词与标题字。
+> [UI/UX 总览](../uiux.md) / [整体设计](../../design-system.md) / [当前决定](decisions.md) / [UX 参考](ux/ux.md) · 2026-09-20，2026-09-30 补回忆面板、沉浸歌词与标题字，2026-10-01 回忆改为内容页、深玻璃。
 
 **[打开全局实景预览](../../preview.html#ui)**。A/B 与账户、大厅已按用户批准的导航母材质完成本地迁移；下图为实际组件与真实房间素材，账号、消息、照片列表用隔离演示内容。它们展示当前实现，独立 Monet 复核不代替用户后续体验反馈。全局动效与低动效模式、手机底部托盘已于 2026-09-30 看样保留；每种交互的流程、状态、动效数值与录屏在 [UX 参考](ux/ux.md)，本页只写外观与组件。
 
@@ -57,20 +57,38 @@
 
 只有世界会话内对方有效未读消息触发信纸；点击打开聊天并沿现有已读流程处理，已读后消失，新未读再次出现。删除、发送失败与待发送消息不伪造来信；读状态保存失败仍保留未读。桌面纪念卡向下避让；宽度 ≤1100px 或高度 ≤700px 且播放器展开时，两张提示卡暂时收起，未读点保留，播放器收起后恢复。小屏有来信时优先信纸。实现：[SunlitLetter](../../../../src/themes/cinnaglass/shell/sunlit-letter.tsx)、[未读判断](../../../../src/themes/cinnaglass/shell/use-world-chat-bubble.ts)、[入口编排](../../../../src/pages/WorldPage.tsx)。
 
-### 回忆面板：日记 + 照片墙（2026-09-30，实装 · 待看样）
+### 回忆页：日记 + 照片墙（内容页，2026-10-01，实装 · 待看样）
 
-日记和照片墙合成一个 A 类面板的两个标题页签（站酷小薇、金色笔触滑过）：**纸在玻璃上**——Cinnaglass 磨砂外壳装着米色纸页（细颗粒、手裁不齐的圆角、微微歪、顶上一条和纸胶带）、霞鹜文楷手写字和白边照片；照片墙是按月两列的拍立得（白边、胶带、铅笔日期）。桌面停在右侧一列（440px，音乐停靠栏那一列），手机是可拉满的底部托盘；写一页是一张横格纸，发布后盖「记」字朱印。身份只用墨色（我是青蓝、TA 是豆沙红）、头像圈和名字，不用位置。纸、胶带是 CSS 占位，正式纸张纹理与胶带素材等 Codex 出图。
+2026-10-01 用户：日记和照片墙是来看内容的**内容页**，不是陪着你的伴生浮窗——手机直接全屏展开，桌面正中弹窗，不缩在一边（产品分层见 [UX 参考 §0](ux/ux.md)）。外壳是 [content-page.tsx](../../../../src/themes/cinnaglass/ui/content-page.tsx)：桌面一个 1120×820 以内的大窗，背后房间压暗 0.6、虚化 6px；手机从底边升起占满屏幕，顶部留 8px 和安全区，页头有关闭按钮、能下拉关闭。
 
-| 桌面                                                                   | 手机                                                            |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
-| ![回忆面板：日记页签，纸页贴在玻璃上](ux/img/memory-journal-desk.jpg)  | ![手机回忆托盘：半高露出最新一页](ux/img/memory-half-phone.jpg) |
-| ![回忆面板：照片墙页签，按月两列拍立得](ux/img/memory-photos-desk.jpg) | ![手机照片墙](ux/img/memory-photos-phone.jpg)                   |
+页头是两个标题页签（日记 / 照片墙，站酷小薇，金色笔触滑过）加一个「样子」开关（金色滑块），手机上开关单独一行。**纸在玻璃上**的材质不变：米色纸页（细颗粒、手裁不齐的圆角、微微歪、和纸胶带）、霞鹜文楷手写字、白边照片；身份只用墨色（我青蓝、TA 豆沙红）、头像圈和名字。
 
-来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-index.tsx](../../../../src/themes/cinnaglass/surfaces/journal-index.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[memory-lightbox.tsx](../../../../src/themes/cinnaglass/surfaces/memory-lightbox.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../codex-visual/memories/memories.md)。
+| 日记的样子 | 桌面                                                                        | 手机                                                               |
+| ---------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 手帐       | ![手帐：左边目录日历与按月，中间纸页长卷](ux/img/memory-scrapbook-desk.jpg) | ![手帐：全屏长卷，停在最新一页](ux/img/memory-scrapbook-phone.jpg) |
+| 日历       | ![日历：左边一整页月历，右边那天的纸页](ux/img/memory-calendar-desk.jpg)    | ![日历：日期条加那天的纸页](ux/img/memory-calendar-phone.jpg)      |
+| 书本       | ![书本：原来那本棕皮书，双页](ux/img/memory-book-desk.jpg)                  | ![书本：单页](ux/img/memory-book-phone.jpg)                        |
+
+| 照片墙的样子 | 桌面                                                          | 手机                                              |
+| ------------ | ------------------------------------------------------------- | ------------------------------------------------- |
+| 拍立得       | ![拍立得：按月挂成一排排](ux/img/memory-polaroid-desk.jpg)    | ![拍立得：两列](ux/img/memory-polaroid-phone.jpg) |
+| 软木板       | ![软木板：图钉、红线串起同一天](ux/img/memory-cork-desk.jpg)  | ![软木板：手机](ux/img/memory-cork-phone.jpg)     |
+| 相册         | ![相册：方格，按月跳](ux/img/memory-album-desk.jpg)           | ![相册：三列方格](ux/img/memory-album-phone.jpg)  |
+| 放映         | ![放映：大图、说明、胶片条](ux/img/memory-projector-desk.jpg) | ![放映：手机](ux/img/memory-projector-phone.jpg)  |
+
+来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)（页与开关）、[memory-views.ts](../../../../src/themes/cinnaglass/surfaces/memory-views.ts)（样子的约定）、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-calendar.tsx](../../../../src/themes/cinnaglass/surfaces/journal-calendar.tsx)、[journal-book-view.tsx](../../../../src/themes/cinnaglass/surfaces/journal-book-view.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[photo-cork.tsx](../../../../src/themes/cinnaglass/surfaces/photo-cork.tsx)、[photo-album.tsx](../../../../src/themes/cinnaglass/surfaces/photo-album.tsx)、[photo-projector.tsx](../../../../src/themes/cinnaglass/surfaces/photo-projector.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../codex-visual/memories/memories.md)。
+
+### 深玻璃（2026-10-01，实装 · 待看样）
+
+用户觉得弹窗快融进场景，颜色对比和层次太低。所有 `.ui-surface` 改用单独的底色 `--ui-base`（不再直接用导航色板的 tint），不透明度加 `--ui-boost` 0.17，模糊 18px，霜纹降到 0.1，外加 1px 暗描边和两层更深的投影；导航玻璃 0.66；任务窗背后压暗 0.5 并虚化。备选描金暗夜 `?look=gilded`、改之前 `?look=classic`、只出设计的暖瓷，并排对比见 [UX 参考 §8](ux/ux.md)。
+
+| 深玻璃（默认）                                           | 改之前                                        |
+| -------------------------------------------------------- | --------------------------------------------- |
+| ![深玻璃：聊天卡与音乐停靠栏](ux/img/look-deep-desk.jpg) | ![改之前的玻璃](ux/img/look-classic-desk.jpg) |
 
 ### 标题字
 
-`--ui-display`：站酷小薇（ZCOOL XiaoWei，OFL-1.1，`@fontsource/zcool-xiaowei` 按字符切片加载，[main.tsx](../../../../src/main.tsx) 引入、[ui-system.css](../../../../src/themes/cinnaglass/ui/ui-system.css) 定义）。2026-09-30 用户选定，只用在面板标题：任务窗标题、「一起听」、回忆面板页签、进入世界的加载标题、手机工具 / 房间托盘标题。只有一个字重，标题一律 400；正文、按钮、标签仍是 Noto Sans SC，日记正文是霞鹜文楷。
+`--ui-display`：站酷小薇（ZCOOL XiaoWei，OFL-1.1，`@fontsource/zcool-xiaowei` 按字符切片加载，[main.tsx](../../../../src/main.tsx) 引入、[ui-system.css](../../../../src/themes/cinnaglass/ui/ui-system.css) 定义）。2026-09-30 用户选定，只用在面板标题：任务窗标题、「一起听」、回忆页的标题页签、进入世界的加载标题、手机托盘标题（房间、回忆）。只有一个字重，标题一律 400；正文、按钮、标签仍是 Noto Sans SC，日记正文是霞鹜文楷。站酷小薇把「回」画成实心方块，所以「回」这一个字由霞鹜文楷补上（`'UI Display Hui'`，只含 U+56DE），「回忆」入口的标题整个用手写体 `--ui-hand`。
 
 ## B 任务与功能弹窗
 
@@ -102,7 +120,7 @@
 
 ![窄屏时间提醒：时间输入独占一行，避免 AM/PM 被裁切](unification-verification/clock-mobile.png)
 
-照片墙原来也用这个 B 壳（[改之前的样子](../../codex-visual/memories/img/now-photos-desk.jpg)），2026-09-30 起移进回忆面板（见上文 A）。
+照片墙原来也用这个 B 壳（[改之前的样子](../../codex-visual/memories/img/now-photos-desk.jpg)），2026-09-30 起移进回忆（现在是回忆页，见上文）。
 
 ![心愿单：完成状态与添加入口，明确只保存在本机](unification-verification/wishes.png)
 
@@ -112,7 +130,7 @@
 
 ## C 专属物件 UI
 
-**棕皮书日记 = 设置里的「书本（旧版）」**（2026-09-30 起）。默认的日记换成了上面 A 类的回忆面板；用户要求旧日记先不删，所以原样保留，设置 → 主题外观 → 日记样式选「书本（旧版）」就回到这本书（照片墙仍在回忆面板里）。
+**棕皮书日记 = 日记的「书本」样子**（2026-10-01 起）。用户：老旧日记本也是日记的变种渲染。它原样开在回忆页里（双页 / 单页、翻页、目录、写一页都照旧），回忆页页头切到「书本」就是它；书本自己的关闭按钮不显示，关页由回忆页负责。
 
 ![当前棕皮旧纸日记：真实组件、暖褐文字、照片纸角与羽毛笔](journal-room-object/book-verification/design-content-night.png)
 
