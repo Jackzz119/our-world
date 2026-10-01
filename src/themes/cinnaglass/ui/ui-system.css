@@ -1,11 +1,39 @@
 /* Adopted A/B materials and controls. Legacy diary tokens are deliberately untouched. */
 @import './motion.css';
+/* ZCOOL XiaoWei draws 回 as a solid block (its inner square winds the same way as the outer one, so
+   the counter fills in). That one character comes from the journal hand instead. */
+@font-face {
+    font-family: 'UI Display Hui';
+    src: url('/fonts/journal/LXGWWenKaiLite-Regular.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+56DE;
+}
 :root {
     /* Display face for panel titles only (dialogs, docks, sheets, the entry loader); body copy stays
        Noto Sans SC. The face has a single weight, so titles set 400: synthetic bold smears it. */
-    --ui-display: 'ZCOOL XiaoWei', 'Noto Serif SC', 'Songti SC', serif;
+    --ui-display: 'UI Display Hui', 'ZCOOL XiaoWei', 'Noto Serif SC', 'Songti SC', serif;
+    /* the journal hand, for what is written rather than printed (回忆, the journal's pages) */
+    --ui-hand: 'Journal WenKai', KaiTi, serif;
 }
+/* Glass that holds its own against the painted room (2026-10-01 contrast redesign): the user found
+   the panels melting into the scene. Following what keeps glass legible over busy art — a denser,
+   darker base under the text, a hard hairline edge and a deeper drop shadow, the room dimmed behind
+   whole pages — the default is a deep glass; the navigation palette still lights its edges by mood
+   (use-ui-environment.ts copies --nav-* into --ui-tint/top/cold/rim). ?look=gilded and ?look=classic
+   (look.ts) put the alternatives on for a review. */
 .ui-environment {
+    --ui-base: 31 31 40;
+    --ui-boost: 0.17;
+    --ui-blur: 18px;
+    --ui-sat: 0.85;
+    --ui-frost: 0.1;
+    --ui-hairline: rgb(0 0 0 / 0.36);
+    --ui-drop: 0 24px 56px -22px rgb(0 0 0 / 0.88), 0 3px 10px -4px rgb(0 0 0 / 0.42);
+    --ui-scrim: rgb(9 10 14 / 0.5);
+    --nav-base: 31 31 40;
+    --nav-glass: 0.66;
     --ui-tint: 63 64 72;
     --ui-top: 192 187 185;
     --ui-cold: 161 185 209;
@@ -21,12 +49,39 @@
     --ui-liner-base: #34343f;
 }
 .ui-environment[data-mood='golden'] {
+    --ui-base: 40 33 27;
+    --nav-base: 40 33 27;
     --ui-liner-top: #494235;
     --ui-liner-base: #39342c;
 }
 .ui-environment[data-mood='night'] {
+    --ui-base: 30 27 26;
+    --nav-base: 30 27 26;
     --ui-liner-top: #3b342c;
     --ui-liner-base: #2d2924;
+}
+/* 描金暗夜: near-opaque ink glass, a gold hairline, no frost — the most game-like of the three. */
+:root[data-look='gilded'] .ui-environment {
+    --ui-base: 21 22 30;
+    --nav-base: 21 22 30;
+    --ui-boost: 0.25;
+    --ui-blur: 14px;
+    --ui-frost: 0;
+    --ui-hairline: rgb(241 209 154 / 0.3);
+    --nav-glass: 0.86;
+}
+/* the glass before the redesign, kept for comparison */
+:root[data-look='classic'] .ui-environment {
+    --ui-base: var(--ui-tint);
+    --nav-base: var(--nav-tint);
+    --ui-boost: 0;
+    --ui-blur: 12px;
+    --ui-sat: 0.7;
+    --ui-frost: 0.18;
+    --ui-hairline: transparent;
+    --ui-drop: 0 14px 36px -15px #000a;
+    --ui-scrim: #11131666;
+    --nav-glass: initial;
 }
 .ui-surface {
     color-scheme: dark;
@@ -39,12 +94,14 @@
     border-radius: 22px;
     background:
         radial-gradient(ellipse at 0 0, rgb(var(--ui-cold) / 0.12), transparent 58%),
-        linear-gradient(115deg, rgb(var(--ui-top) / 0.1), transparent 40%), rgb(var(--ui-tint) / var(--ui-alpha));
+        linear-gradient(115deg, rgb(var(--ui-top) / 0.1), transparent 40%),
+        rgb(var(--ui-base) / min(0.97, calc(var(--ui-alpha) + var(--ui-boost))));
     box-shadow:
-        0 14px 36px -15px #000a,
+        0 0 0 1px var(--ui-hairline),
+        var(--ui-drop),
         inset 0 1px 0 rgb(var(--ui-rim) / 0.15);
-    backdrop-filter: blur(12px) saturate(0.7);
-    -webkit-backdrop-filter: blur(12px) saturate(0.7);
+    backdrop-filter: blur(var(--ui-blur)) saturate(var(--ui-sat));
+    -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(var(--ui-sat));
 }
 .ui-surface::before {
     content: '';
@@ -53,7 +110,7 @@
     z-index: -1;
     border-radius: inherit;
     background: url('/ui/nav/frost.webp') 42% 50% / 256px 512px;
-    opacity: 0.18;
+    opacity: var(--ui-frost);
     pointer-events: none;
 }
 .ui-surface::after {
@@ -77,6 +134,16 @@
         linear-gradient(#fff 0 0);
     mask-composite: exclude;
     pointer-events: none;
+}
+/* 描金: the rim is a gold line, brightest along the top edge */
+:root[data-look='gilded'] .ui-surface::after {
+    background: linear-gradient(
+        180deg,
+        rgb(241 209 154 / 0.85),
+        rgb(241 209 154 / 0.22) 32%,
+        rgb(241 209 154 / 0.12) 70%,
+        rgb(241 209 154 / 0.4)
+    );
 }
 .ui-liner {
     box-sizing: border-box;
@@ -161,7 +228,8 @@
     width: 920px;
 }
 .ui-dialog::backdrop {
-    background: #11131666;
+    background: var(--ui-scrim, #11131666);
+    backdrop-filter: blur(3px);
 }
 .ui-dialog-header {
     display: flex;

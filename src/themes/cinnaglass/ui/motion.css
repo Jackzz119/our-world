@@ -184,10 +184,12 @@
 }
 .ui-dialog:not([open])::backdrop {
     background-color: transparent;
+    backdrop-filter: none;
 }
 @starting-style {
     .ui-dialog[open]::backdrop {
         background-color: transparent;
+        backdrop-filter: none;
     }
 }
 
