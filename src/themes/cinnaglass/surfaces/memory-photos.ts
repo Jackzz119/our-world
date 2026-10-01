@@ -1,6 +1,6 @@
 // memory-photos.ts — the photos in the loaded feed as flat lists: one post's
 // photos (the journal hands those to the lightbox) and every photo newest first
-// (what the wall lays out and steps through). Also the shared month label.
+// (what the wall lays out and steps through). Also the shared month label and polaroid caption.
 import { thumbPathOf } from '@/lib/storage';
 import type { FeedPost } from '@/types/feed';
 
@@ -32,6 +32,17 @@ export function wallPhotos(posts: FeedPost[], thumbUrls: Record<string, string>)
 export function monthLabel(iso: string, now = new Date()): string {
     const d = new Date(iso);
     return `${d.getFullYear() === now.getFullYear() ? '' : `${d.getFullYear()} 年 `}${d.getMonth() + 1} 月`;
+}
+
+// "9.21", with 今天 / 昨天 for fresh ones — the pencil note on a polaroid's rim (the wall, the cork board).
+export function photoCaption(iso: string, now = new Date()): string {
+    const d = new Date(iso);
+    const md = `${d.getMonth() + 1}.${d.getDate()}`;
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString()) return `${md} · 今天`;
+    if (d.toDateString() === yesterday.toDateString()) return `${md} · 昨天`;
+    return md;
 }
 
 // Stable key for grouping by month, independent of the label's wording.

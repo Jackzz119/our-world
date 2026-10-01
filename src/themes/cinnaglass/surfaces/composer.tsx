@@ -11,6 +11,10 @@ import { IPhoto, ISparkle } from '@/themes/cinnaglass/icons';
 // and on cancel, never on collapse (a collapsed composer still holds a draft).
 type Picked = { file: File; url: string };
 const MAX_IMGS = 9;
+// A draft outlives the composer holding it: the memory page draws the journal several ways, and
+// switching views must not drop a half-written page. Keyed by the host's draftKey, kept for the
+// session (the picked files' object URLs stay valid until 取消 or 删除 revokes them).
+const drafts = new Map<string, { text: string; picked: Picked[] }>();
 
 // Uploads run sequentially; the post row is written only after every image
 // lands. On failure whatever already reached the bucket is removed again —
@@ -36,19 +40,22 @@ async function publishMemory(worldId: string, content: string, files: File[]): P
 // Clicking outside or Esc only collapses — the draft survives; only 取消 clears.
 // onOpenChange lets a host make room (the phone sheet goes full height to write);
 // a new openSignal value opens it from outside (an empty journal's 写下第一页);
-// submit replaces the Storage + posts write for a host that keeps memories elsewhere.
+// submit replaces the Storage + posts write for a host that keeps memories elsewhere;
+// composers sharing a draftKey share one draft.
 export function Composer({
     worldId,
     onPublished,
     onOpenChange,
     openSignal = 0,
-    submit
+    submit,
+    draftKey
 }: {
     worldId: string | null;
     onPublished: () => void;
     onOpenChange?: (open: boolean) => void;
     openSignal?: number;
     submit?: (content: string, files: File[]) => Promise<void>;
+    draftKey?: string;
 }) {
     const [open, setOpenState] = useState(false);
     const [signal, setSignal] = useState(openSignal);
@@ -60,8 +67,11 @@ export function Composer({
         setOpenState(next);
         onOpenChange?.(next);
     };
-    const [text, setText] = useState('');
-    const [picked, setPicked] = useState<Picked[]>([]);
+    const [text, setText] = useState(() => (draftKey && drafts.get(draftKey)?.text) || '');
+    const [picked, setPicked] = useState<Picked[]>(() => (draftKey && drafts.get(draftKey)?.picked) || []);
+    useEffect(() => {
+        if (draftKey) drafts.set(draftKey, { text, picked });
+    }, [draftKey, text, picked]);
     const [busy, setBusy] = useState(false);
     const [err, setErr] = useState<string | null>(null);
     const [over, setOver] = useState(false);

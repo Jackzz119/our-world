@@ -146,6 +146,12 @@
 .mp-like[aria-pressed='true'] {
     color: #f5b6c1;
 }
+/* the phone sheet's close button sits beside the heart, so the half sheet keeps its height */
+.mp-close.ui-icon-button {
+    align-self: flex-start;
+    margin-left: -6px;
+    color: var(--ui-muted);
+}
 .mp-like[aria-pressed='true'] svg {
     animation: ow-pop-in var(--dur-release) var(--ease-pop);
     filter: drop-shadow(0 0 6px #f5b6c188);

@@ -25,84 +25,37 @@
     --paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%236b4f2a' opacity='.07' filter='url(%23n)' d='M0 0h160v160H0z'/%3E%3C/svg%3E");
 }
 
-/* ---------- desktop dock ---------- */
-.memory-dock.ui-surface {
-    --ui-alpha: 0.74;
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    bottom: 24px;
-    z-index: 37;
-    display: flex;
-    flex-direction: column;
-    width: min(440px, calc(100vw - 180px));
-    padding: 18px 12px 12px;
-    border-radius: 28px;
-    outline: none;
-    transition:
-        opacity var(--dur-enter) var(--ease-out),
-        translate var(--dur-panel) var(--ease-spring),
-        scale var(--dur-panel) var(--ease-spring);
+/* ---------- the page (ui/content-page.tsx): a centred window, the whole screen on a phone ---------- */
+.memory-page.ui-page.ui-surface {
+    --ui-alpha: 0.9;
 }
-.memory-dock[hidden] {
-    display: none;
-}
-@starting-style {
-    .memory-dock.ui-surface {
-        opacity: 0;
-        translate: calc(var(--rise) * 3.2) 0;
-        scale: var(--enter-scale);
-    }
-}
-.memory-dock[data-state='closing'] {
-    opacity: 0;
-    translate: calc(var(--rise) * 2.4) 0;
-    transition-duration: var(--dur-exit);
-    transition-timing-function: var(--ease-out);
-    pointer-events: none;
-}
-/* the panel takes the right-hand column (the bottom sheet on a phone): the music bar and the
-   corner cards step aside, as they do for the open player */
-.app.ui-environment:has(.memory-panel[data-state='open']) :is(.music-wrap, .moment-card, .letter-notice) {
-    opacity: 0;
+/* The room's own cards stand down while the page is open (stage[data-reading], WorldPage). */
+.stage[data-reading='true'] :is(.letter-notice) {
     visibility: hidden;
-    pointer-events: none;
-    transition:
-        opacity var(--dur-exit) ease,
-        visibility 0s linear var(--dur-exit);
 }
 
-/* ---------- phone sheet ---------- */
-.memory-sheet.ui-sheet.ui-surface {
-    --ui-alpha: 0.72;
-    padding-inline: 8px;
+/* ---------- header: two title tabs, the view switch, the month line ---------- */
+.mem-page-head {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    min-width: 0;
 }
-.memory-sheet .mem-head {
-    padding-top: 2px;
+.ui-page[data-compact] .mem-page-head {
+    gap: 8px 6px;
 }
-/* At half height only the sheet's top half is on screen (it rests translated down), so the views
-   stop where the screen does: the newest page and the doorway to write stay in sight. */
-.memory-sheet {
-    --sheet-half: min(var(--sheet-full), max(340px, calc(var(--ui-visible-height, 100dvh) * 0.5)));
+/* phones: the switch takes its own row under the tabs */
+.ui-page[data-compact] .mem-page-head .mem-switch {
+    order: 3;
+    flex: 1 0 100%;
 }
-.memory-sheet .mem-views {
-    transition: margin-bottom var(--dur-sheet) var(--ease-drawer);
-}
-.memory-sheet[data-detent='half'] .mem-views {
-    margin-bottom: calc(var(--sheet-full) - var(--sheet-half));
-}
-.memory-sheet[data-detent='half'] .mem-sub {
-    display: none;
+.ui-page[data-compact] .mem-page-head .mem-tabs {
+    flex: 1;
 }
 
 /* ---------- header: two title tabs ---------- */
-.mem-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    column-gap: 2px;
-    padding: 0 4px 10px 8px;
-}
 .mem-tabs {
     --tab: 3.9em;
     position: relative;
@@ -113,8 +66,7 @@
     font-family: var(--ui-display);
     font-size: 25px;
 }
-.mem-tab,
-.mem-title {
+.mem-tab {
     margin: 0;
     padding: 0 0 7px;
     border: 0;
@@ -126,10 +78,6 @@
     line-height: 1.25;
     text-align: left;
     white-space: nowrap;
-}
-.mem-title {
-    font-family: var(--ui-display);
-    font-size: 25px;
 }
 .mem-tab {
     cursor: pointer;
@@ -169,7 +117,7 @@
         translate var(--dur-panel) var(--ease-spring),
         width var(--dur-panel) var(--ease-spring);
 }
-.mem-head .ui-icon-button {
+.mem-page-head .ui-icon-button {
     background: transparent;
     border-color: transparent;
 }
@@ -178,11 +126,87 @@
     color: var(--ui-accent);
 }
 .mem-sub {
-    grid-column: 1 / -1;
-    margin: 2px 0 0;
+    flex: 1;
+    min-width: 0;
+    margin: 4px 0 0;
+    overflow: hidden;
     color: var(--ui-muted);
     font-size: 12px;
     letter-spacing: 0.02em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- how a tab is drawn: a small segmented switch ---------- */
+.mem-switch {
+    --seg: calc((100% - 6px) / var(--n));
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    flex: none;
+    min-width: calc(var(--n) * 62px);
+    padding: 3px;
+    border: 1px solid rgb(var(--ui-rim) / 0.2);
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.22);
+    box-shadow: inset 0 1px 2px #0005;
+}
+.mem-switch button {
+    position: relative;
+    z-index: 1;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ui-muted);
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mem-switch button[aria-checked='true'] {
+    color: #35291b;
+    font-weight: 600;
+}
+.mem-switch button:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mem-switch button:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .mem-switch button:not([aria-checked='true']):hover {
+        color: var(--ui-text);
+    }
+}
+/* the lit segment slides under the chosen one */
+.mem-switch-ink {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    z-index: 0;
+    width: var(--seg);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f6dfb1, var(--ui-accent));
+    box-shadow:
+        0 4px 10px -4px #000a,
+        inset 0 1px 0 #fff8;
+    translate: calc(var(--at) * 100%) 0;
+    transition: translate var(--dur-panel) var(--ease-spring);
+}
+.ui-page[data-compact] .mem-switch button {
+    min-height: 36px;
+    padding: 0 6px;
 }
 
 /* ---------- the two views ---------- */
@@ -270,6 +294,146 @@
 .mem-older:hover:not(:disabled) {
     border-color: var(--ui-accent);
     color: var(--ui-text);
+}
+
+/* ---------- the scrapbook (journal-stream.tsx) ---------- */
+.mem-scrapbook {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.mem-stream {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+/* Desktop: the calendar and the months in a side column, the stream in the middle of the rest. */
+.mem-scrapbook[data-layout='docked'] {
+    gap: 4px;
+    padding: 0 14px 14px;
+}
+.mem-side {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 14px;
+    width: 268px;
+    min-height: 0;
+    padding: 4px 4px 0 8px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.mem-index.mem-index-docked {
+    padding: 14px 12px 10px;
+    border: 1px solid rgb(var(--ui-rim) / 0.16);
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--ui-liner-top), var(--ui-liner-base) 64%);
+    box-shadow: inset 0 1px 0 #ffffff0d;
+    outline: none;
+}
+.mem-months {
+    display: grid;
+    gap: 2px;
+}
+.mem-month-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 38px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ui-muted);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mem-month-link small {
+    color: var(--ui-muted);
+    font-size: 12px;
+    opacity: 0.8;
+}
+.mem-month-link[aria-current='true'] {
+    background: rgb(241 209 154 / 0.13);
+    color: var(--ui-accent);
+}
+.mem-month-link:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.mem-month-link:focus-visible {
+    outline: 2px solid var(--ui-accent);
+    outline-offset: 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .mem-month-link:hover {
+        background: var(--ui-hover);
+        color: var(--ui-text);
+    }
+}
+.mem-scrapbook[data-layout='docked'] .mem-stream {
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.16), rgb(0 0 0 / 0.08));
+    box-shadow: inset 0 1px 0 #ffffff0a;
+}
+.mem-scrapbook[data-layout='docked'] .mem-scroll {
+    padding: 14px 28px 24px;
+}
+.mem-scrapbook[data-layout='docked'] :is(.mem-month, .mem-older, .mem-first, .mem-note, .mem-skeleton),
+.mem-scrapbook[data-layout='docked'] .mem-compose {
+    width: 100%;
+    max-width: 660px;
+    margin-inline: auto;
+}
+.mem-scrapbook[data-layout='docked'] .mem-compose {
+    padding: 8px 28px 14px;
+    max-width: 716px;
+}
+.mem-scrapbook[data-layout='docked'] .mem-entry {
+    padding: 22px 22px 18px;
+}
+/* Phone: the stream fills the page; the bottom clears the home indicator. */
+.mem-scrapbook[data-layout='stack'] .mem-compose {
+    padding: 8px 10px calc(10px + var(--ui-safe-bottom, 0px));
+}
+
+/* ---------- the chestnut book as a view (journal-book-view.tsx) ---------- */
+.mem-book-view {
+    position: relative;
+    display: grid;
+    flex: 1 1 auto;
+    place-items: center;
+    min-height: 0;
+    container-type: size;
+}
+.mem-book-view .object-surface.diary-surface {
+    --book-width: min(1040px, calc(100cqw - 56px), calc((100cqh - 28px) * 1.55224));
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    transition: none;
+}
+.ui-page[data-compact] .mem-book-view .object-surface.diary-surface {
+    --book-width: min(420px, calc(100cqw - 16px));
+    height: min(690px, calc(100cqh - 12px));
+}
+.mem-book-view .object-x {
+    display: none;
 }
 
 /* ---------- paper ---------- */
@@ -436,6 +600,13 @@
 }
 .mem-photos[data-count='1'] .mem-photo {
     aspect-ratio: 4 / 3;
+}
+/* in the wide desktop column a lone photo keeps a page's proportion instead of filling it */
+.mem-scrapbook[data-layout='docked'] .mem-photos[data-count='1'] {
+    grid-template-columns: minmax(0, 420px);
+}
+.mem-scrapbook[data-layout='docked'] .mem-photos:is([data-count='2'], [data-count='4']) {
+    max-width: 520px;
 }
 .mem-photos[data-count='3'] .mem-photo:first-child {
     grid-column: 1 / -1;
@@ -903,9 +1074,32 @@ button.mem-day:active {
 /* ---------- the photo wall ---------- */
 .mem-wall {
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+    gap: 26px 22px;
+    padding: 8px 10px 10px;
+}
+/* in the wide window a month's polaroids hang centred on the wall, however few there are */
+.ui-page:not([data-compact]) .mem-wall {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.ui-page:not([data-compact]) .mem-wall > .mem-pola {
+    width: 196px;
+}
+.ui-page[data-compact] .mem-wall {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px 16px;
     padding: 6px 6px 8px;
+}
+.mem-photos-view {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+.ui-page:not([data-compact]) .mem-photos-view .mem-scroll {
+    padding: 10px 28px 28px;
 }
 .mem-pola {
     position: relative;

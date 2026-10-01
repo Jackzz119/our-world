@@ -1,41 +1,16 @@
-// photo-wall.tsx — 照片墙 (concept H1 in ai/design_system/codex-visual/memories/):
-// every photo in the journal as a taped polaroid, newest first, under month
-// tags, two to a row. A polaroid opens the shared lightbox, which can jump back
-// to the entry it came from. Stays mounted while hidden, like the journal.
+// photo-wall.tsx — 照片墙 as polaroids (concept H1 in ai/design_system/codex-visual/memories/), one
+// of the memory page's photo views (memory-views.ts): every photo in the journal as a taped
+// polaroid, newest first, under month tags — two to a row on a phone, as many as fit in the wide
+// desktop window. A polaroid opens the shared lightbox, which can jump back to the entry it came
+// from. Stays mounted while hidden, like the journal.
 import type { CSSProperties } from 'react';
-import type { FeedStatus } from '@/hooks/useFeed';
 import { hashOf } from '@/themes/cinnaglass/surfaces/author-tone';
-import { monthKey, monthLabel, type MemoryPhoto } from '@/themes/cinnaglass/surfaces/memory-photos';
+import { monthKey, monthLabel, photoCaption, type MemoryPhoto } from '@/themes/cinnaglass/surfaces/memory-photos';
+import type { PhotoViewProps } from '@/themes/cinnaglass/surfaces/memory-views';
 
 const TAPES = ['#b9d3e6', '#efc3cf', '#efe1b4'];
 
-// "9.21", with 今天 / 昨天 for fresh ones — the pencil note on the polaroid's rim.
-function caption(iso: string): string {
-    const d = new Date(iso);
-    const md = `${d.getMonth() + 1}.${d.getDate()}`;
-    const now = new Date();
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    if (d.toDateString() === now.toDateString()) return `${md} · 今天`;
-    if (d.toDateString() === yesterday.toDateString()) return `${md} · 昨天`;
-    return md;
-}
-
-export function PhotoWall({
-    photos,
-    status,
-    anyImages,
-    hidden,
-    onPhoto
-}: {
-    /** every photo, newest first (memory-photos.ts wallPhotos) */
-    photos: MemoryPhoto[];
-    status: FeedStatus;
-    /** some post carries images, even if none is signed yet */
-    anyImages: boolean;
-    hidden: boolean;
-    onPhoto: (index: number) => void;
-}) {
+export function PhotoWall({ photos, status, anyImages, onPhoto }: PhotoViewProps) {
     const months: { key: string; label: string; items: { photo: MemoryPhoto; index: number }[] }[] = [];
     photos.forEach((photo, index) => {
         const key = monthKey(photo.post.created_at);
@@ -44,13 +19,7 @@ export function PhotoWall({
         else months.push({ key, label: monthLabel(photo.post.created_at), items: [{ photo, index }] });
     });
     return (
-        <div
-            className="mem-view mem-photos-view"
-            role="tabpanel"
-            id="mem-photos"
-            aria-labelledby="mem-tab-photos"
-            hidden={hidden}
-        >
+        <div className="mem-photos-view">
             <div className="mem-scroll">
                 {months.map((month) => (
                     <section
@@ -77,7 +46,7 @@ export function PhotoWall({
                                         key={photo.key}
                                         className="mem-pola"
                                         style={style}
-                                        aria-label={`查看 ${caption(photo.post.created_at)} 的照片`}
+                                        aria-label={`查看 ${photoCaption(photo.post.created_at)} 的照片`}
                                         onClick={() => onPhoto(index)}
                                     >
                                         <span className="mem-pola-pic">
@@ -94,7 +63,7 @@ export function PhotoWall({
                                                 <span className="mem-photo-wait" aria-hidden="true" />
                                             )}
                                         </span>
-                                        <span className="mem-pola-cap">{caption(photo.post.created_at)}</span>
+                                        <span className="mem-pola-cap">{photoCaption(photo.post.created_at)}</span>
                                     </button>
                                 );
                             })}
@@ -119,3 +88,5 @@ export function PhotoWall({
         </div>
     );
 }
+
+export default PhotoWall;

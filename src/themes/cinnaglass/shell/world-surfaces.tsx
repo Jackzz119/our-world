@@ -37,6 +37,8 @@ type WorldSurfacesProps = {
     world: World | null;
     worldIconUrl: string | null;
     onWorldSaved: (w: World) => void;
+    /** sound is playing in the room (the photo projector shows to it) */
+    musicPlaying?: boolean;
 };
 
 export function WorldSurfaces({
@@ -57,11 +59,21 @@ export function WorldSurfaces({
     onSaveMyName,
     world,
     worldIconUrl,
-    onWorldSaved
+    onWorldSaved,
+    musicPlaying
 }: WorldSurfacesProps) {
     return (
         <>
-            <SubScreen screen={tab} origin={origin} onClose={onClose} journalStyle={t.journalStyle} />
+            <SubScreen
+                screen={tab}
+                origin={origin}
+                onClose={onClose}
+                journalStyle={t.journalStyle}
+                photoStyle={t.photoStyle}
+                onJournalStyle={(style) => setTweak('journalStyle', style)}
+                onPhotoStyle={(style) => setTweak('photoStyle', style)}
+                musicPlaying={musicPlaying}
+            />
             <CalendarScreen
                 open={screen === 'calendar'}
                 onClose={onClose}

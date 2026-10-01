@@ -25,7 +25,15 @@ import {
     IUser
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
-import type { ChatAlign, JournalStyle, Mood, MotionPref, SetTweak, Tweaks } from '@/themes/cinnaglass/tweaks';
+import type {
+    ChatAlign,
+    JournalStyle,
+    Mood,
+    MotionPref,
+    PhotoStyle,
+    SetTweak,
+    Tweaks
+} from '@/themes/cinnaglass/tweaks';
 
 const TAG = '[auth][web][settings]';
 
@@ -43,9 +51,17 @@ const MOTION_OPTS: SegOpt[] = [
     { k: 'full', label: '完整动效' },
     { k: 'reduced', label: '低动效' }
 ];
+// the same choices as the switch in the memory page's header (surfaces/memory-views.ts)
 const JOURNAL_OPTS: SegOpt[] = [
     { k: 'scrapbook', label: '手帐' },
-    { k: 'book', label: '书本（旧版）' }
+    { k: 'calendar', label: '日历' },
+    { k: 'book', label: '书本' }
+];
+const PHOTO_OPTS: SegOpt[] = [
+    { k: 'polaroid', label: '拍立得' },
+    { k: 'cork', label: '软木板' },
+    { k: 'album', label: '相册' },
+    { k: 'projector', label: '放映' }
 ];
 const MOOD_OPTS: SegOpt[] = [
     { k: 'golden', label: '黄昏', Icon: ISun },
@@ -471,13 +487,24 @@ export function SettingsScreen({
                 </div>
                 <div className="set-row" style={{ flexWrap: 'wrap' }}>
                     <div className="set-body">
-                        <div className="set-t">日记样式</div>
-                        <div className="set-s">手帐和照片墙在同一个面板里；书本是之前那本棕皮日记</div>
+                        <div className="set-t">日记的样子</div>
+                        <div className="set-s">打开日记时先看到哪一种；回忆页里也能随时换，书本是原来那本棕皮日记</div>
                     </div>
                     <Segmented
                         opts={JOURNAL_OPTS}
                         value={t.journalStyle}
                         onChange={(k) => setTweak('journalStyle', k as JournalStyle)}
+                    />
+                </div>
+                <div className="set-row" style={{ flexWrap: 'wrap' }}>
+                    <div className="set-body">
+                        <div className="set-t">照片墙的样子</div>
+                        <div className="set-s">拍立得、软木板、方格相册，或者一张张放映</div>
+                    </div>
+                    <Segmented
+                        opts={PHOTO_OPTS}
+                        value={t.photoStyle}
+                        onChange={(k) => setTweak('photoStyle', k as PhotoStyle)}
                     />
                 </div>
                 <div className="set-row">

@@ -18,11 +18,11 @@ type SurfaceRouterOptions = {
      *  own open flags in WorldPage, so the rail/hotspot routes call back out. */
     onToggleChat: () => void;
     onToggleMusic: () => void;
-    /** a SubScreen tab is opening: the memory panel takes the column the player and chat use */
-    onOpenTab?: (tab: TabKey) => void;
+    /** a surface is opening (a phone shows one window at a time: the others step aside) */
+    onOpen?: (screen: string) => void;
 };
 
-export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic, onOpenTab }: SurfaceRouterOptions) {
+export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic, onOpen }: SurfaceRouterOptions) {
     const [screen, setScreen] = useState<string | null>(() =>
         initialScreen && MODAL_TABS.includes(initialScreen as TabKey) ? initialScreen : null
     );
@@ -31,10 +31,9 @@ export function useSurfaceRouter({ initialScreen, onToggleChat, onToggleMusic, o
     // Open a surface. SubScreen tabs additionally record where the click came
     // from, so the modal can grow out of that point; other screens ignore origin.
     const open = (k: string, origin?: SurfaceOrigin) => {
-        if (MODAL_TABS.includes(k as TabKey)) {
+        if (MODAL_TABS.includes(k as TabKey))
             setSurfaceOrigin(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2, source: 'keyboard' });
-            onOpenTab?.(k as TabKey);
-        }
+        onOpen?.(k);
         setScreen(k);
     };
     const close = () => setScreen(null);

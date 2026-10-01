@@ -60,7 +60,7 @@
             rgb(var(--nav-top) / 0.055) 78%,
             transparent
         ),
-        rgb(var(--nav-tint) / var(--nav-alpha));
+        rgb(var(--nav-base, var(--nav-tint)) / var(--nav-glass, var(--nav-alpha)));
     backdrop-filter: blur(var(--nav-blur)) saturate(0.7);
     -webkit-backdrop-filter: blur(var(--nav-blur)) saturate(0.7);
     box-shadow:
@@ -318,7 +318,7 @@
 }
 .rail-pop {
     --nav-blur: 8px;
-    background-color: rgb(var(--nav-tint) / max(0.5, var(--nav-alpha)));
+    background-color: rgb(var(--nav-base, var(--nav-tint)) / max(0.5, var(--nav-glass, var(--nav-alpha))));
     position: absolute;
     isolation: isolate;
     z-index: 1;
@@ -330,7 +330,7 @@
         translate var(--dur-exit) var(--ease-out),
         scale var(--dur-exit) var(--ease-out);
 }
-.modules-pop {
+.memories-pop {
     transform-origin: left 30px;
 }
 .rail-pop[data-state='closing'] {
@@ -346,14 +346,14 @@
         scale: calc(var(--enter-scale) - 0.01);
     }
 }
-/* the room cards and tool rows arrive one after another */
-.rail-pop:not([data-state='closing']) :is(.room-card, .rail-tool-links > .rail-btn, .module-row, .modules-lobby) {
+/* the room cards, memory links and rows arrive one after another */
+.rail-pop:not([data-state='closing']) :is(.room-card, .memory-link, .module-row, .modules-lobby) {
     animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
 }
-.rail-pop :is(.room-card, .rail-tool-links > .rail-btn, .module-row, .modules-lobby):nth-child(2) {
+.rail-pop :is(.room-card, .memory-link, .module-row, .modules-lobby):nth-child(2) {
     animation-delay: 30ms;
 }
-.rail-pop :is(.room-card, .rail-tool-links > .rail-btn, .module-row, .modules-lobby):nth-child(3) {
+.rail-pop :is(.room-card, .memory-link, .module-row, .modules-lobby):nth-child(3) {
     animation-delay: 60ms;
 }
 .rooms-pop {
@@ -361,12 +361,33 @@
     top: 0;
     /* one card per room that has a scene, so the width follows the list */
     width: max-content;
-    height: 173px;
+    min-width: 236px;
     box-sizing: border-box;
     border-radius: 21px;
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 19px 18px 14px;
+}
+.rail-rooms {
+    display: flex;
     gap: 15px;
-    padding: 19px 20px 21px 27px;
+}
+/* what the room itself holds: its little cards, decorating, the way back to the lobby */
+.rail-room-tools {
+    display: grid;
+    gap: 2px;
+    padding-top: 10px;
+    border-top: 1px solid rgb(var(--nav-rim) / 0.2);
+}
+.rail-room-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.modules-lobby:disabled {
+    opacity: 0.55;
+    cursor: default;
 }
 .room-card {
     position: relative;
@@ -425,44 +446,97 @@
     background: #ffe7b5;
     box-shadow: 0 0 6px #ffc97d;
 }
-.modules-pop {
+.memories-pop {
     left: 90px;
-    top: 72px;
+    top: 150px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    min-width: 210px;
+    gap: 8px;
+    width: 252px;
     border-radius: 19px;
-    padding: 12px;
+    padding: 14px 12px 12px;
 }
-.rail-tool-links {
+.rail-pop-title {
+    padding: 0 8px;
+    color: var(--nav-ink);
+    font-family: var(--ui-hand);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+}
+/* 回忆 is written, not printed: its sheet title takes the journal hand too */
+.rail-sheet[aria-label='回忆'] .ui-sheet-title {
+    font-family: var(--ui-hand);
+    font-size: 21px;
+    letter-spacing: 0.08em;
+}
+/* 回忆: the journal, the photo wall, the anniversaries — each a small card with what it holds */
+.rail-memory-links {
     display: grid;
-    gap: 3px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgb(var(--nav-rim) / 0.2);
-    margin-bottom: 6px;
+    gap: 4px;
 }
-.rail-tool-links .rail-btn {
-    width: 100%;
-    height: 40px;
-    border-radius: 10px;
-    justify-content: flex-start;
-    padding: 0 10px;
+.memory-link {
+    display: flex;
+    align-items: center;
     gap: 12px;
-}
-.rail-tool-links .rail-btn > svg {
-    width: 20px;
-    height: 20px;
-}
-.rail-tool-links .rail-label {
-    position: static;
-    opacity: 1;
-    transform: none;
+    width: 100%;
+    min-height: 54px;
+    padding: 8px 10px;
     border: 0;
-    background: none;
-    padding: 0;
-    box-shadow: none;
-    backdrop-filter: none;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--nav-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        scale var(--dur-release) var(--ease-pop),
+        background-color var(--dur-hover) ease;
+}
+.memory-link:active {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.memory-link:focus-visible {
+    outline: 2px solid var(--nav-ink);
+    outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .memory-link:hover {
+        background: rgb(var(--nav-top) / 0.1);
+    }
+    .memory-link:hover .memory-link-icon {
+        scale: 1.06;
+        rotate: -4deg;
+    }
+}
+.memory-link-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgb(var(--nav-glow) / 0.35);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgb(var(--nav-glow) / 0.26), rgb(var(--nav-glow) / 0.06) 70%);
+    color: #ffe7b8;
+    transition:
+        scale var(--dur-release) var(--ease-pop),
+        rotate var(--dur-release) var(--ease-pop);
+}
+.memory-link-text {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+}
+.memory-link-text b {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.memory-link-text small {
+    color: rgb(var(--nav-top) / 0.78);
+    font-size: 12px;
 }
 .module-row {
     display: flex;
@@ -561,7 +635,7 @@
     .rail-btn:is(:hover, :focus-visible) .rail-label {
         transform: translateX(-50%);
     }
-    .rail-pop.modules-pop {
+    .rail-pop.memories-pop {
         left: 0;
         top: auto;
         bottom: 74px;
@@ -583,9 +657,31 @@
         width: 104px;
         height: 110px;
     }
-    .rail-tool-links .rail-label,
-    .rail-tool-links .rail-btn:is(:hover, :focus-visible) .rail-label {
-        transform: none;
+}
+/* Portrait phones: while a sheet is up, the bar is the sheet's own foot — the same glass, no pill
+   floating on top of it (2026-10-01). It takes its pill back as the sheet goes down. */
+@media (max-width: 767px) and (min-height: 600px) {
+    .rail {
+        transition:
+            background-color var(--dur-enter) ease,
+            border-color var(--dur-enter) ease,
+            box-shadow var(--dur-enter) ease;
+    }
+    .app:has(.ui-sheet[data-state='open']) .rail-wrap > .rail {
+        border-color: transparent;
+        background: transparent;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    /* the pill's own frost and rim go too */
+    .rail::before,
+    .rail::after {
+        transition: opacity var(--dur-enter) ease;
+    }
+    .app:has(.ui-sheet[data-state='open']) .rail-wrap > .rail::before,
+    .app:has(.ui-sheet[data-state='open']) .rail-wrap > .rail::after {
+        opacity: 0;
     }
 }
 /* Low motion (html[data-motion], ui/motion-preference.ts): the tokens already turn pops into
@@ -612,20 +708,16 @@
     }
 }
 
-/* ---------- phone sheets for rooms and tools (rail.tsx) ---------- */
+/* ---------- phone sheets for rooms and memories (rail.tsx) ---------- */
 .rail-sheet.ui-surface {
     --ui-alpha: 0.72;
     gap: 12px;
 }
-.rail-sheet-title {
-    margin: 0 4px 10px;
-    color: var(--ui-text);
-    font-family: var(--ui-display);
-    font-size: 19px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-}
 .rail-sheet-rooms {
+    display: grid;
+    gap: 12px;
+}
+.rail-sheet-rooms .rail-rooms {
     display: flex;
     gap: 12px;
     padding: 2px 2px 6px;
@@ -639,44 +731,12 @@
     scroll-snap-align: start;
     animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
 }
-.rail-sheet-tools {
-    display: grid;
+.rail-sheet-rooms .rail-room-tools {
     gap: 8px;
+    padding-top: 0;
+    border-top: 0;
 }
-.rail-sheet-tools .rail-tool-links {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding-bottom: 12px;
-}
-.rail-sheet-tools .rail-tool-links .rail-btn {
-    flex-direction: column;
-    justify-content: center;
-    gap: 8px;
-    height: 92px;
-    padding: 8px 6px;
-    border-radius: 18px;
-    background: linear-gradient(145deg, var(--ui-liner-top), var(--ui-liner-base) 58%);
-    box-shadow: inset 0 1px 0 #ffffff0c;
-    color: var(--ui-text);
-    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
-}
-.rail-sheet-tools .rail-tool-links .rail-btn:nth-child(2) {
-    animation-delay: 30ms;
-}
-.rail-sheet-tools .rail-tool-links .rail-btn:nth-child(3) {
-    animation-delay: 60ms;
-}
-.rail-sheet-tools .rail-tool-links .rail-btn > svg {
-    width: 26px;
-    height: 26px;
-}
-.rail-sheet-tools .rail-tool-links .rail-label {
-    font-size: 13px;
-    white-space: normal;
-    text-align: center;
-    color: inherit;
-}
-.rail-sheet-tools .module-row {
+.rail-sheet-rooms .module-row {
     min-height: 48px;
     padding: 6px 14px;
     border-radius: 14px;
@@ -684,12 +744,44 @@
     color: var(--ui-text);
     font-size: 14px;
 }
-.rail-sheet-tools .modules-lobby {
-    justify-self: start;
+.rail-sheet-rooms .modules-lobby {
     min-height: 44px;
+    margin-top: 0;
     padding: 8px 12px;
     color: var(--ui-text);
     font-size: 13px;
+}
+.rail-sheet-memories .rail-memory-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.rail-sheet-memories .memory-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    min-height: 118px;
+    padding: 12px 6px 10px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, var(--ui-liner-top), var(--ui-liner-base) 58%);
+    box-shadow: inset 0 1px 0 #ffffff0c;
+    color: var(--ui-text);
+    text-align: center;
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+}
+.rail-sheet-memories .memory-link:nth-child(2) {
+    animation-delay: 30ms;
+}
+.rail-sheet-memories .memory-link:nth-child(3) {
+    animation-delay: 60ms;
+}
+.rail-sheet-memories .memory-link-icon {
+    width: 46px;
+    height: 46px;
+}
+.rail-sheet-memories .memory-link-text small {
+    color: var(--ui-muted);
+    font-size: 11px;
+    line-height: 1.35;
 }
 .rail-sheet .sw {
     background: rgb(21 19 17 / 0.28);

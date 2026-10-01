@@ -1,7 +1,8 @@
 // journal-index.tsx — 目录: the journal's calendar. One month at a time; a day we
 // wrote on carries a dot in the writer's ink (both dots when we both did), and
 // tapping it brings that day's first entry to the middle of the stream. Months
-// before the loaded ones offer to turn up older memories.
+// before the loaded ones offer to turn up older memories. On a desktop it is
+// docked in the scrapbook's side column; on a phone it pops over the stream.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { FeedPost } from '@/types/feed';
 import { IChevron } from '@/themes/cinnaglass/icons';
@@ -17,6 +18,8 @@ type JournalIndexProps = {
     /** a day was picked: its first entry */
     onPick: (postId: string) => void;
     onClose: () => void;
+    /** always shown in a side column: no popover focus, outside click or Esc */
+    docked?: boolean;
 };
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
@@ -32,7 +35,8 @@ export function JournalIndex({
     onLoadOlder,
     onReload,
     onPick,
-    onClose
+    onClose,
+    docked = false
 }: JournalIndexProps) {
     const ref = useRef<HTMLDivElement>(null);
     const newest = posts.at(-1);
@@ -51,6 +55,7 @@ export function JournalIndex({
         closeRef.current = onClose;
     });
     useEffect(() => {
+        if (docked) return;
         const panel = ref.current;
         const opener = panel?.closest('.memory-panel')?.querySelector<HTMLElement>('.mem-index-btn');
         panel?.focus({ preventScroll: true });
@@ -65,7 +70,7 @@ export function JournalIndex({
             if (!document.activeElement || document.activeElement === document.body)
                 opener?.focus({ preventScroll: true });
         };
-    }, []);
+    }, [docked]);
 
     const days = new Map<string, { first: FeedPost; mine: boolean; theirs: boolean; count: number }>();
     for (const post of posts) {
@@ -84,12 +89,13 @@ export function JournalIndex({
     return (
         <div
             ref={ref}
-            className="mem-index ui-surface"
-            role="dialog"
+            className={docked ? 'mem-index mem-index-docked' : 'mem-index ui-surface'}
+            role={docked ? 'region' : 'dialog'}
             aria-label="目录：按日子翻阅"
             tabIndex={-1}
+            data-esc-own={docked ? undefined : ''}
             onKeyDown={(event) => {
-                if (event.key === 'Escape') {
+                if (!docked && event.key === 'Escape') {
                     event.stopPropagation();
                     onClose();
                 }

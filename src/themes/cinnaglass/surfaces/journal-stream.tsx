@@ -1,10 +1,10 @@
-// journal-stream.tsx — our journal as a scrapbook (concept G1 in ai/design_system/codex-visual/memories/):
-// every entry is a paper card on the glass, oldest at the top and the newest at
-// the bottom, right above the page being written; month tags stick while you
-// scroll. It opens at the newest page, and scrolling up turns up older memories
-// without the page jumping. Who wrote what is ink colour, avatar and name —
-// never a side of the page (ai/features/timeline.md §七). The chestnut book it
-// replaced stays in journal/ for the 书本 setting.
+// journal-stream.tsx — our journal as a scrapbook (concept G1 in ai/design_system/codex-visual/memories/),
+// one of the memory page's journal views (memory-views.ts): every entry is a paper card on the glass,
+// oldest at the top and the newest at the bottom, right above the page being written; month tags
+// stick while you scroll. It opens at the newest page, and scrolling up turns up older memories
+// without the page jumping. In the centred desktop window the calendar index and the months sit in a
+// side column beside the stream; on a phone the index pops over it from the page header. Who wrote
+// what is ink colour, avatar and name — never a side of the page (ai/features/timeline.md §七).
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { UseFeed } from '@/hooks/useFeed';
 import type { FeedPost } from '@/types/feed';
@@ -15,21 +15,14 @@ import { Composer } from '@/themes/cinnaglass/surfaces/composer';
 import { fmtDay, fmtFullDate } from '@/themes/cinnaglass/surfaces/date-format';
 import { JournalIndex } from '@/themes/cinnaglass/surfaces/journal-index';
 import { monthKey, monthLabel, photosOf, type MemoryPhoto } from '@/themes/cinnaglass/surfaces/memory-photos';
+import type { JournalViewProps } from '@/themes/cinnaglass/surfaces/memory-views';
 import { burst } from '@/themes/cinnaglass/ui/feedback';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { showEntry } from '@/themes/cinnaglass/surfaces/show-entry';
+import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
 
-type JournalStreamProps = {
-    feed: UseFeed;
-    thumbUrls: Record<string, string>;
-    /** another view is in front: stay mounted (drafts, scroll), but hidden */
-    hidden: boolean;
-    /** the panel itself is open (it stays mounted, hidden, while closed) */
-    open: boolean;
-    onPhoto: (photos: MemoryPhoto[], index: number) => void;
-    /** scroll to this entry and let it glow; a fresh object for every request */
-    focus: { postId: string } | null;
-    /** the composer opened: the phone sheet makes room for writing */
-    onWrite: () => void;
+type JournalStreamProps = JournalViewProps & {
+    /** phone: the 目录 popover, opened from the page header */
     indexOpen: boolean;
     onIndexOpen: (open: boolean) => void;
 };
@@ -45,35 +38,8 @@ const clock = (iso: string) => {
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
-// Bring an entry to the middle of the stream and let its edge glow once. False when it is not loaded.
-function showEntry(scroll: HTMLElement, postId: string): boolean {
-    const entry = scroll.querySelector<HTMLElement>(`[data-post-id="${CSS.escape(postId)}"]`);
-    if (!entry) return false;
-    const reduced = motionReduced();
-    const top = entry.offsetTop - (scroll.clientHeight - entry.offsetHeight) / 2;
-    scroll.scrollTo({ top: Math.max(0, top), behavior: reduced ? 'auto' : 'smooth' });
-    entry.animate(
-        [
-            { boxShadow: '0 0 0 0 rgb(241 209 154 / 0)' },
-            { boxShadow: '0 0 0 4px rgb(241 209 154 / 0.85)', offset: 0.35 },
-            { boxShadow: '0 0 0 0 rgb(241 209 154 / 0)' }
-        ],
-        { duration: reduced ? 900 : 1300, delay: reduced ? 0 : 320, easing: 'ease-out' }
-    );
-    return true;
-}
-
-export function JournalStream({
-    feed,
-    thumbUrls,
-    hidden,
-    open,
-    onPhoto,
-    focus,
-    onWrite,
-    indexOpen,
-    onIndexOpen
-}: JournalStreamProps) {
+export function JournalStream({ feed, thumbUrls, open, onPhoto, focus, indexOpen, onIndexOpen }: JournalStreamProps) {
+    const compact = useCompactUi();
     const scrollRef = useRef<HTMLDivElement>(null);
     const olderRef = useRef<HTMLButtonElement>(null);
     // distance from the bottom to keep while older entries are prepended
@@ -104,14 +70,21 @@ export function JournalStream({
         else months.push({ key, label: monthLabel(post.created_at), posts: [post] });
     }
 
-    // Open at the newest page, once, the first time the stream is actually on screen with entries
-    // (a closed panel is still mounted, but has no size to scroll).
-    useLayoutEffect(() => {
+    // Open at the newest page, once, the first time the stream is actually on screen with entries:
+    // a closed page is still mounted but has no size, so wait for the scroller to get one.
+    useEffect(() => {
         const scroll = scrollRef.current;
-        if (!scroll || hidden || !open || landed.current || !posts.length || !scroll.clientHeight) return;
-        landed.current = true;
-        scroll.scrollTop = scroll.scrollHeight;
-    }, [hidden, open, posts.length]);
+        if (!scroll || !open || !posts.length) return;
+        const land = () => {
+            if (landed.current || !scroll.clientHeight) return;
+            landed.current = true;
+            scroll.scrollTop = scroll.scrollHeight;
+        };
+        land();
+        const observer = new ResizeObserver(land);
+        observer.observe(scroll);
+        return () => observer.disconnect();
+    }, [open, posts.length]);
 
     // Older entries arrive above: keep the reader's distance from the bottom.
     useLayoutEffect(() => {
@@ -136,7 +109,7 @@ export function JournalStream({
     useEffect(() => {
         const target = olderRef.current;
         const root = scrollRef.current;
-        if (!target || !root || hidden || !feed.hasMore) return;
+        if (!target || !root || !open || !feed.hasMore) return;
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries.some((entry) => entry.isIntersecting)) loadOlderRef.current();
@@ -145,7 +118,7 @@ export function JournalStream({
         );
         observer.observe(target);
         return () => observer.disconnect();
-    }, [hidden, feed.hasMore, feed.loadingOlder]);
+    }, [open, feed.hasMore, feed.loadingOlder]);
 
     // Our new entry: scroll down to it and let the stamp throw a little ink.
     useEffect(() => {
@@ -162,119 +135,161 @@ export function JournalStream({
     // A jump from the calendar or the photo wall: bring the entry to the middle and let it glow.
     useLayoutEffect(() => {
         const scroll = scrollRef.current;
-        if (!scroll || hidden || !focus || handledFocus.current === focus) return;
+        if (!scroll || !open || !focus || handledFocus.current === focus) return;
         if (showEntry(scroll, focus.postId)) handledFocus.current = focus;
-    }, [focus, hidden, posts]);
+    }, [focus, open, posts]);
 
     const published = () => {
         setAwaiting(true);
         feed.reload();
     };
+    const write = () => {
+        setWriteSignal((n) => n + 1);
+        const scroll = scrollRef.current;
+        scroll?.scrollTo({ top: scroll.scrollHeight, behavior: motionReduced() ? 'auto' : 'smooth' });
+    };
+
+    // The month the reader is in, for the side column's month list.
+    const [inMonth, setInMonth] = useState<string | null>(null);
+    const scrollFrame = useRef(0);
+    const trackMonth = () => {
+        cancelAnimationFrame(scrollFrame.current);
+        scrollFrame.current = requestAnimationFrame(() => {
+            const scroll = scrollRef.current;
+            if (!scroll) return;
+            let current: string | null = null;
+            for (const section of scroll.querySelectorAll<HTMLElement>('.mem-month'))
+                if (section.offsetTop <= scroll.scrollTop + scroll.clientHeight / 3)
+                    current = section.dataset.month ?? null;
+            setInMonth(current);
+        });
+    };
+    const goMonth = (key: string) => {
+        const scroll = scrollRef.current;
+        const section = scroll?.querySelector<HTMLElement>(`.mem-month[data-month="${key}"]`);
+        if (!scroll || !section) return;
+        scroll.scrollTo({ top: section.offsetTop - 4, behavior: motionReduced() ? 'auto' : 'smooth' });
+    };
+    const index = (docked: boolean) => (
+        <JournalIndex
+            posts={posts}
+            currentUserId={feed.currentUserId}
+            hasMore={feed.hasMore}
+            loadingOlder={feed.loadingOlder}
+            onLoadOlder={loadOlder}
+            onReload={feed.reload}
+            onPick={(postId) => {
+                if (!docked) onIndexOpen(false);
+                if (scrollRef.current) showEntry(scrollRef.current, postId);
+            }}
+            onClose={() => onIndexOpen(false)}
+            docked={docked}
+        />
+    );
 
     return (
-        <div
-            className="mem-view mem-journal"
-            role="tabpanel"
-            id="mem-journal"
-            aria-labelledby="mem-tab-journal"
-            hidden={hidden}
-        >
-            <div className="mem-scroll" ref={scrollRef}>
-                {feed.hasMore ? (
-                    <button
-                        type="button"
-                        ref={olderRef}
-                        className="mem-older"
-                        disabled={feed.loadingOlder}
-                        onClick={loadOlder}
-                    >
-                        {feed.loadingOlder && <span className="ui-spinner" aria-hidden="true" />}
-                        {feed.loadingOlder ? '正在往前翻…' : '翻出更早的回忆'}
-                    </button>
-                ) : (
-                    posts.length > 0 && (
-                        <p className="mem-first">这本日记从 {fmtFullDate(posts[0].created_at).split(' · ')[0]} 开始</p>
-                    )
-                )}
-                {months.map((month) => (
-                    <section className="mem-month" key={month.key} aria-label={month.label}>
-                        <h3 className="mem-month-tag">
-                            <span>{month.label}</span>
-                        </h3>
-                        {month.posts.map((post) => (
-                            <JournalEntry
-                                key={post.post_id}
-                                post={post}
-                                feed={feed}
-                                thumbUrls={thumbUrls}
-                                onPhoto={onPhoto}
-                                fresh={post.post_id === fresh}
-                            />
-                        ))}
-                    </section>
-                ))}
-                {!ready && feed.status === 'loading' && (
-                    <div className="mem-skeleton" role="status" aria-label="正在收好你们的回忆">
-                        <i />
-                        <i />
-                        <i />
-                    </div>
-                )}
-                {feed.status === 'error' && !posts.length && (
-                    <div className="mem-note mem-paper" role="alert">
-                        <p>回忆暂时没能载入。</p>
-                        <button type="button" className="mem-note-btn" onClick={feed.reload}>
-                            再试一次
-                        </button>
-                    </div>
-                )}
-                {feed.status === 'ready' && !posts.length && (
-                    <div className="mem-note mem-paper">
-                        <p className="mem-note-title">第一页，从今天开始。</p>
-                        <p>写下今天的一件小事，或者放一张照片进来。</p>
+        <div className="mem-scrapbook" data-layout={compact ? 'stack' : 'docked'}>
+            {!compact && (
+                <aside className="mem-side" aria-label="目录">
+                    {index(true)}
+                    {months.length > 0 && (
+                        <nav className="mem-months" aria-label="按月翻">
+                            {[...months].reverse().map((month) => (
+                                <button
+                                    type="button"
+                                    key={month.key}
+                                    className="mem-month-link"
+                                    aria-current={(inMonth ?? months.at(-1)?.key) === month.key || undefined}
+                                    onClick={() => goMonth(month.key)}
+                                >
+                                    <span>{month.label}</span>
+                                    <small>{month.posts.length} 页</small>
+                                </button>
+                            ))}
+                        </nav>
+                    )}
+                </aside>
+            )}
+            <div className="mem-stream">
+                <div className="mem-scroll" ref={scrollRef} onScroll={compact ? undefined : trackMonth}>
+                    {feed.hasMore ? (
                         <button
                             type="button"
-                            className="mem-note-btn"
-                            onClick={() => {
-                                setWriteSignal((n) => n + 1);
-                                onWrite();
-                            }}
+                            ref={olderRef}
+                            className="mem-older"
+                            disabled={feed.loadingOlder}
+                            onClick={loadOlder}
                         >
-                            <IPencil size={16} /> 写下第一页
+                            {feed.loadingOlder && <span className="ui-spinner" aria-hidden="true" />}
+                            {feed.loadingOlder ? '正在往前翻…' : '翻出更早的回忆'}
                         </button>
-                    </div>
-                )}
+                    ) : (
+                        posts.length > 0 && (
+                            <p className="mem-first">
+                                这本日记从 {fmtFullDate(posts[0].created_at).split(' · ')[0]} 开始
+                            </p>
+                        )
+                    )}
+                    {months.map((month) => (
+                        <section className="mem-month" key={month.key} data-month={month.key} aria-label={month.label}>
+                            <h3 className="mem-month-tag">
+                                <span>{month.label}</span>
+                            </h3>
+                            {month.posts.map((post) => (
+                                <JournalEntry
+                                    key={post.post_id}
+                                    post={post}
+                                    feed={feed}
+                                    thumbUrls={thumbUrls}
+                                    onPhoto={onPhoto}
+                                    fresh={post.post_id === fresh}
+                                />
+                            ))}
+                        </section>
+                    ))}
+                    {!ready && feed.status === 'loading' && (
+                        <div className="mem-skeleton" role="status" aria-label="正在收好你们的回忆">
+                            <i />
+                            <i />
+                            <i />
+                        </div>
+                    )}
+                    {feed.status === 'error' && !posts.length && (
+                        <div className="mem-note mem-paper" role="alert">
+                            <p>回忆暂时没能载入。</p>
+                            <button type="button" className="mem-note-btn" onClick={feed.reload}>
+                                再试一次
+                            </button>
+                        </div>
+                    )}
+                    {feed.status === 'ready' && !posts.length && (
+                        <div className="mem-note mem-paper">
+                            <p className="mem-note-title">第一页，从今天开始。</p>
+                            <p>写下今天的一件小事，或者放一张照片进来。</p>
+                            <button type="button" className="mem-note-btn" onClick={write}>
+                                <IPencil size={16} /> 写下第一页
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="mem-compose">
+                    <Composer
+                        worldId={feed.worldId}
+                        onPublished={published}
+                        openSignal={writeSignal}
+                        submit={feed.publish}
+                        draftKey="journal"
+                    />
+                </div>
             </div>
-            <div className="mem-compose">
-                <Composer
-                    worldId={feed.worldId}
-                    onPublished={published}
-                    onOpenChange={(open) => open && onWrite()}
-                    openSignal={writeSignal}
-                    submit={feed.publish}
-                />
-            </div>
-            {indexOpen && (
-                <JournalIndex
-                    posts={posts}
-                    currentUserId={feed.currentUserId}
-                    hasMore={feed.hasMore}
-                    loadingOlder={feed.loadingOlder}
-                    onLoadOlder={loadOlder}
-                    onReload={feed.reload}
-                    onPick={(postId) => {
-                        onIndexOpen(false);
-                        if (scrollRef.current) showEntry(scrollRef.current, postId);
-                    }}
-                    onClose={() => onIndexOpen(false)}
-                />
-            )}
+            {compact && indexOpen && index(false)}
         </div>
     );
 }
 
-// One page of the journal: who and when, the photos taped on, then the words.
-function JournalEntry({
+// One page of the journal: who and when, the photos taped on, then the words. Every journal view
+// that shows pages as paper uses this card.
+export function JournalEntry({
     post,
     feed,
     thumbUrls,
@@ -342,7 +357,7 @@ function JournalEntry({
 
 // The photos taped onto a page: one wide, two side by side, three as one big and two small,
 // then a grid of up to six with the rest counted on the last.
-function PhotoStrip({
+export function PhotoStrip({
     photos,
     onPhoto
 }: {
