@@ -48,3 +48,5 @@ __pycache__/
 /ai/design_system/**/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]Z*/
 # marionette build folders (raw / final / review): rebuilt from the tracked source with scripts/rig.py
 /arts/characters/*/build/
+# Generated test corpora and scratch output (scripts/make-music-fixtures.py writes tmp/music-fixtures/)
+/tmp/
