@@ -1,5 +1,5 @@
 // Personal settings: native modal with a continuous glass shell and a mood-tinted reading liner.
-// Three concise sections: 个人资料 / 账号与密码 / 主题外观 (theme is live via setTweak).
+// Three concise sections: 个人资料 / 账号与密码 / 主题外观 (theme is live via setTweak; the look via ui/look.ts).
 // Every row here is real: the nickname writes profiles.display_name, the
 // password change re-authenticates then calls auth.updateUser, the email is
 // the auth user's and read-only.
@@ -25,6 +25,8 @@ import {
     IUser
 } from '@/themes/cinnaglass/icons';
 import type { Profile } from '@/themes/cinnaglass/model';
+import { setLook, type Look } from '@/themes/cinnaglass/ui/look';
+import { useLook } from '@/themes/cinnaglass/ui/use-look';
 import type {
     ChatAlign,
     JournalStyle,
@@ -45,6 +47,12 @@ type SegOpt = { k: string; label: string; Icon?: (p: IcoProps) => ReactNode };
 const CHAT_ALIGN_OPTS: SegOpt[] = [
     { k: 'left', label: '全部靠左' },
     { k: 'sides', label: '左右分侧' }
+];
+// the looks Settings offers (ui/look.ts); classic stays a ?look= review, so none is lit while it is on
+const LOOK_OPTS: SegOpt[] = [
+    { k: 'default', label: '深玻璃' },
+    { k: 'gilded', label: '描金暗夜' },
+    { k: 'porcelain', label: '暖瓷' }
 ];
 const MOTION_OPTS: SegOpt[] = [
     { k: 'system', label: '跟随系统' },
@@ -218,6 +226,7 @@ export function SettingsScreen({
 }) {
     const passwordId = useId();
     const p = profile;
+    const look = useLook();
     // the account email is the auth user's — shown, never edited here
     const { user } = useAuth();
     const [pwOpen, setPwOpen] = useState(false);
@@ -466,6 +475,13 @@ export function SettingsScreen({
                     >
                         {t.reduceTransparency ? '已开启' : '已关闭'}
                     </button>
+                </div>
+                <div className="set-row" style={{ flexWrap: 'wrap' }}>
+                    <div className="set-body">
+                        <div className="set-t">界面风格</div>
+                        <div className="set-s">深玻璃稳重，描金像游戏，暖瓷是浅色</div>
+                    </div>
+                    <Segmented opts={LOOK_OPTS} value={look} onChange={(k) => setLook(k as Look | 'default')} />
                 </div>
                 <div className="set-row" style={{ flexWrap: 'wrap' }}>
                     <div className="set-body">
