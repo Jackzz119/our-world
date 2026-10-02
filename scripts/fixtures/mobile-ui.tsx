@@ -348,6 +348,4 @@ export function MobileFixture() {
 }
 
 applyLook();
-// ?look=porcelain: the light glass studied for the contrast review (fixture only, not shipped)
-if (new URLSearchParams(location.search).get('look') === 'porcelain') void import('./look-porcelain.css');
 createRoot(document.getElementById('root')!).render(<MobileFixture />);
