@@ -1082,7 +1082,7 @@
             <div class="card">
                 <button class="shot" type="button" data-full="img/look-porcelain-desk.jpg" aria-label="放大 暖瓷"><img src="img/look-porcelain-desk.jpg" alt="暖瓷：浅色霜玻璃" loading="lazy" /></button>
                 <div class="card-head"><h3>L3 暖瓷</h3><span class="chip done">已实现 · 10-02</span></div>
-                <p id="porcelain-desk-note">浅色霜玻璃配深色暖墨字，夜景上对比最强，很多恋爱游戏这么做。10 月 2 日正式做进所有组件，原来写死在组件里的浅色字、白色描边和金色光都换了暖瓷的版本。</p>
+                <p>浅色霜玻璃配深色暖墨字，夜景上对比最强，很多恋爱游戏这么做。10 月 2 日正式做进所有组件：原来写死在组件里的浅色字、白色描边和金色光都换了暖瓷的版本；金色分成两种，字和图标用深金 <code>#855617</code>，按钮和选中的底用浅金，上面配深墨字。</p>
             </div>
         </div>
         <div class="grid phones">
@@ -1102,6 +1102,37 @@
                 <p>浅色托盘在夜景里最醒目。</p>
             </div>
         </div>
+        <h3>暖瓷 · 别的界面</h3>
+        <div class="grid phones">
+            <div class="card">
+                <button class="shot" type="button" data-full="img/porcelain-settings-phone.jpg" aria-label="放大 暖瓷设置"><img src="img/porcelain-settings-phone.jpg" alt="暖瓷：设置里的界面风格一行" loading="lazy" /></button>
+                <div class="card-head"><h3>设置里换</h3><span class="chip done">已实现</span></div>
+                <p>主题外观 → 界面风格：深玻璃 / 描金暗夜 / 暖瓷，点了立刻换，记在这台设备上。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/porcelain-memories-phone.jpg" aria-label="放大 暖瓷回忆入口"><img src="img/porcelain-memories-phone.jpg" alt="暖瓷：回忆托盘" loading="lazy" /></button>
+                <div class="card-head"><h3>回忆入口</h3><span class="chip done">已实现</span></div>
+                <p>托盘和并进去的导航一整块浅瓷，图标描深金。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/porcelain-chat-phone.jpg" aria-label="放大 暖瓷聊天"><img src="img/porcelain-chat-phone.jpg" alt="暖瓷：暮色里的聊天托盘" loading="lazy" /></button>
+                <div class="card-head"><h3>聊天 · 暮色</h3><span class="chip done">已实现</span></div>
+                <p>气泡变成白瓷，自己的那条加一道金边。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/porcelain-rooms-golden-phone.jpg" aria-label="放大 暖瓷房间"><img src="img/porcelain-rooms-golden-phone.jpg" alt="暖瓷：黄昏里的房间托盘" loading="lazy" /></button>
+                <div class="card-head"><h3>房间 · 黄昏</h3><span class="chip done">已实现</span></div>
+                <p>最亮的黄昏里边缘也清楚：一道暖色细描边加深投影。</p>
+            </div>
+        </div>
+        <div class="grid wide">
+            <div class="card">
+                <button class="shot" type="button" data-full="img/porcelain-journal-desk.jpg" aria-label="放大 暖瓷回忆页"><img src="img/porcelain-journal-desk.jpg" alt="暖瓷：桌面回忆页" loading="lazy" /></button>
+                <div class="card-head"><h3>回忆页</h3><span class="chip done">已实现</span></div>
+                <p>窗换成浅瓷，纸、照片和放映的银幕保持原样。</p>
+            </div>
+        </div>
+        <p class="note"><b>暖瓷的数值</b>：底色 <code>250 247 241</code>，不透明度 +0.24，模糊 24px，霜纹 0.05，导航 0.88；字 <code>#2a231b</code>、次要字 <code>#675b4c</code>；一道 <code>rgb(70 52 30 / 0.22)</code> 的细描边和更深的投影。按实际渲染的像素量过对比度：三个时辰、手机和桌面、190 张截图里 3005 段字，正文最差 8.9:1，次要字最差 3.5:1（沉浸歌词的浅底上，别处 4.8 以上），深金小字最差 4.6:1。减少透明效果时每块都是实色 <code>#f5f0e8</code>。默认的深玻璃一点没变（110 个状态逐个比过计算样式）。</p>
         <p class="note"><b>参考了什么</b>：Apple 说透明的玻璃下面要垫一层压暗，文字和图标才读得清（<a href="https://developer.apple.com/videos/play/wwdc2025/219/">Meet Liquid Glass</a>）。NN/g 和几篇玻璃拟态的可读性总结都建议在文字下垫 10–30% 的实色底、8–20px 模糊、一道约 20% 的 1px 亮边（<a href="https://www.nngroup.com/articles/glassmorphism/">NN/g</a>）。visionOS 的规矩是不要玻璃叠玻璃，里层用实色填（<a href="https://www.createwithswift.com/ensuring-interface-legibility-and-contrast-in-visionos/">Create with Swift</a>）。星穹铁道的全屏菜单把场景整个压暗，原神用不透明的奶油色面板（<a href="https://medium.com/@acarenatnic/how-honkai-star-rail-fixes-genshin-impacts-ui-problem-6b386d6154f1">HSR 对比原神的界面</a>）。深玻璃取了其中的「更实的底 + 硬边 + 深投影 + 内容页压暗」；描金暗夜再往游戏 UI 走一步；暖瓷走浅色那条路。地址加 <code>?look=classic</code> 还能看到改之前的玻璃（只作对比，设置里没有）。</p>
     </section>
 
