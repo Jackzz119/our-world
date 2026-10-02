@@ -450,6 +450,7 @@ export function JournalCalendar({ feed, thumbUrls, open, onPhoto, focus }: Journ
             </div>
         );
     else if (!posts.length)
+        // ART-REQUEST ART-05: a spot illustration goes above the title
         leaf = (
             <div className="mem-note mem-paper">
                 <p className="mem-note-title">第一页，从今天开始。</p>

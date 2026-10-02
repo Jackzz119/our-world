@@ -78,6 +78,7 @@ export function PhotoWall({ photos, status, anyImages, onPhoto }: PhotoViewProps
                             <p>照片暂时没能载入。</p>
                         ) : (
                             <>
+                                {/* ART-REQUEST ART-05: a spot illustration goes above the title */}
                                 <p className="mem-note-title">墙上还空着。</p>
                                 <p>在日记里写一页带照片的回忆，它就会贴到这里。</p>
                             </>

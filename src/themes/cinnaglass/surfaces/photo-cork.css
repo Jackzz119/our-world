@@ -5,7 +5,9 @@
 
 .cork-view {
     --frame: 11px;
-    /* cork: granules, pale crumbs and fine pits from four noise fields, and a slow mottling */
+    /* cork: granules, pale crumbs and fine pits from four noise fields, and a slow mottling; a generated
+       cork tile and wood rail replace these (ART-REQUEST ART-04,
+       ai/design_system/codex-visual/art-requests/art-requests.md) */
     --cork-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.9 0 0 0 0 0.72 4 0 0 0 -2.3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23a)' opacity='0.62'/%3E%3Cfilter id='b' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.26' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.135 0 0 0 0 0.05 0 0 0 -6 3.1'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23b)' opacity='0.82'/%3E%3Cfilter id='c' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.135 0 0 0 0 0.05 0 0 0 -3.6 1.9'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)' opacity='0.5'/%3E%3Cfilter id='d' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0 0.035 0 0 0 -8 4.3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23d)' opacity='0.16'/%3E%3C/svg%3E");
     /* the frame's grain, running along each rail */
     --wood-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='24'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .45' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .14 0 0 0 0 .07 0 0 0 0 .02 0 0 0 -2.8 1.62'/%3E%3C/filter%3E%3Crect width='420' height='24' filter='url(%23w)' opacity='.6'/%3E%3C/svg%3E");
@@ -276,7 +278,7 @@
         box-shadow 220ms var(--ease-out);
 }
 
-/* ---------- pushpins: a glossy head lit from the top-left ---------- */
+/* ---------- pushpins: a glossy head lit from the top-left (generated pins optional, ART-REQUEST ART-04) ---------- */
 .cork-pins {
     position: absolute;
     inset: 0;
