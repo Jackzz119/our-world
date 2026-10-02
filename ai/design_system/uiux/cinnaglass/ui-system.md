@@ -78,13 +78,13 @@
 
 来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)（页与开关）、[memory-views.ts](../../../../src/themes/cinnaglass/surfaces/memory-views.ts)（样子的约定）、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-calendar.tsx](../../../../src/themes/cinnaglass/surfaces/journal-calendar.tsx)、[journal-book-view.tsx](../../../../src/themes/cinnaglass/surfaces/journal-book-view.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[photo-cork.tsx](../../../../src/themes/cinnaglass/surfaces/photo-cork.tsx)、[photo-album.tsx](../../../../src/themes/cinnaglass/surfaces/photo-album.tsx)、[photo-projector.tsx](../../../../src/themes/cinnaglass/surfaces/photo-projector.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../../../arts/archive/v3-ui-rounds/memories/memories.md)。
 
-### 深玻璃（2026-10-01，实装 · 待看样）
+### 界面风格：深玻璃 · 描金暗夜 · 暖瓷（2026-10-01；暖瓷 10-02 实装）
 
-用户觉得弹窗快融进场景，颜色对比和层次太低。所有 `.ui-surface` 改用单独的底色 `--ui-base`（不再直接用导航色板的 tint），不透明度加 `--ui-boost` 0.17，模糊 18px，霜纹降到 0.1，外加 1px 暗描边和两层更深的投影；导航玻璃 0.66；任务窗背后压暗 0.5 并虚化。备选描金暗夜 `?look=gilded`、改之前 `?look=classic`、只出设计的暖瓷，并排对比见 [UX 参考 §8](ux/ux.md)。
+用户觉得弹窗快融进场景，颜色对比和层次太低。所有 `.ui-surface` 改用单独的底色 `--ui-base`（不再直接用导航色板的 tint），不透明度加 `--ui-boost` 0.17，模糊 18px，霜纹降到 0.1，外加 1px 暗描边和两层更深的投影；导航玻璃 0.66；任务窗背后压暗 0.5 并虚化。这是默认。另外两种在设置 → 主题外观 → 界面风格里换：描金暗夜（近乎不透明的墨蓝玻璃加一道金线），以及 2026-10-02 正式实装的**暖瓷**——浅色霜玻璃配深色暖墨字，底色 `250 247 241`、不透明度 +0.24、模糊 24px，字 `#2a231b`，金色分成字用的深金 `#855617` 和实心控件用的浅金，规则都在 [look-porcelain.css](../../../../src/themes/cinnaglass/ui/look-porcelain.css)，挂在 `:root[data-look='porcelain']` 下。`?look=classic` 是改之前的玻璃，只作对比。数值、对比度和并排对比见 [UX 参考 §8](ux/ux.md)。
 
-| 深玻璃（默认）                                           | 改之前                                        |
-| -------------------------------------------------------- | --------------------------------------------- |
-| ![深玻璃：聊天卡与音乐停靠栏](ux/img/look-deep-desk.jpg) | ![改之前的玻璃](ux/img/look-classic-desk.jpg) |
+| 深玻璃（默认）                                           | 暖瓷                                                        |
+| -------------------------------------------------------- | ----------------------------------------------------------- |
+| ![深玻璃：聊天卡与音乐停靠栏](ux/img/look-deep-desk.jpg) | ![暖瓷：聊天卡与音乐停靠栏](ux/img/look-porcelain-desk.jpg) |
 
 ### 标题字
 
