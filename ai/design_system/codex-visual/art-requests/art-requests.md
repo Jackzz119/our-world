@@ -1,6 +1,8 @@
 # 要图清单（交给出图的 agent）
 
-> 2026-10-02 UI Tailor 整理，风格按 Monet 的设计系统。用户定规：美术图不在会话里自己生成，先占位，由下一个 agent 在用户的机器上用 `codex-visual` 出图。这里一处一处写清楚界面里还在用占位的地方：在哪、现在什么样、要什么、怎么接、怎么验。出完图、用户看过、接进代码后，把那一条从这里删掉，素材登记到 [设计系统「实际素材位置」](../../design-system.md#实际素材位置)。代码里搜 `ART-REQUEST` 能找到每一处接入点。
+> 2026-10-02 UI Tailor 整理，风格按 Monet 的设计系统。用户定规：美术图不在会话里自己生成，先占位，由下一个 agent 在用户的机器上用 `codex-visual` 出图。这里一处一处写清楚界面里还在用占位的地方：在哪、现在什么样、要什么、怎么接、怎么验。出完图、用户看过、接进代码后，把那一条从这里删掉，素材登记到 [设计系统「实际素材位置」](../../design-system.md#实际素材位置)。
+>
+> **2026-10-02 出图结果**：五项都已由 Codex 出图、Monet 审过并接进代码（每项末尾的「结果」写了采用哪一轮、和要求的偏差、要你看哪里），素材已登记到设计系统；**等你看样**，看过就把这几条删掉。打包脚本 [build-ui-art.py](../../../../scripts/build-ui-art.py)，母版、来源批次和每一步处理记在 [arts/ui/music/manifest.json](../../../../arts/ui/music/manifest.json) 与 [arts/ui/memory/manifest.json](../../../../arts/ui/memory/manifest.json)。
 
 ## 怎么用
 
@@ -26,13 +28,13 @@
 
 ## 一览
 
-| 编号   | 要什么                       | 在哪                                         | 现在的占位                             | 优先 | 组  |
-| ------ | ---------------------------- | -------------------------------------------- | -------------------------------------- | ---- | --- |
-| ART-01 | 歌单海报 8 张                | 音乐托盘、停靠栏、迷你条、歌单、沉浸歌词     | 当期概念图的方形裁切，8 张都是窗外城市 | 高   | R1  |
-| ART-02 | 手帐纸纹理                   | 回忆页所有的纸：日记页、便签、写一页、月份签 | CSS 分形噪点                           | 高   | R2  |
-| ART-03 | 和纸胶带 4 色                | 日记页顶上、拍立得、日历纸的角               | CSS 条纹加锯齿裁切                     | 中   | R3  |
-| ART-04 | 软木板纹理、木框（图钉可选） | 照片墙·软木板                                | CSS 四层噪点加渐变                     | 中   | R2  |
-| ART-05 | 空状态小插画 4 张            | 日记、照片墙、相册、放映的空状态纸条         | 只有字的纸条                           | 中   | R4  |
+| 编号   | 要什么                       | 在哪                                         | 原来的占位                             | 优先 | 组  | 状态（10-02）                        |
+| ------ | ---------------------------- | -------------------------------------------- | -------------------------------------- | ---- | --- | ------------------------------------ |
+| ART-01 | 歌单海报 8 张                | 音乐托盘、停靠栏、迷你条、歌单、沉浸歌词     | 当期概念图的方形裁切，8 张都是窗外城市 | 高   | R1  | 已出图接入，两张重画一轮；待看样     |
+| ART-02 | 手帐纸纹理                   | 回忆页所有的纸：日记页、便签、写一页、月份签 | CSS 分形噪点                           | 高   | R2  | 已出图接入；待看样                   |
+| ART-03 | 和纸胶带 4 色                | 日记页顶上、拍立得、日历纸的角               | CSS 条纹加锯齿裁切                     | 中   | R3  | 第二轮接入，胶带位改成约 5:1；待看样 |
+| ART-04 | 软木板纹理、木框（图钉可选） | 照片墙·软木板                                | CSS 四层噪点加渐变                     | 中   | R2  | 软木与木框接入，图钉保留 CSS；待看样 |
+| ART-05 | 空状态小插画 4 张            | 日记、照片墙、相册、放映的空状态纸条         | 只有字的纸条                           | 中   | R4  | 第二轮接入；待看样                   |
 
 **不需要出图**（保持 CSS / SVG）：图标（随主题换色、要锐利）、放映的银幕和胶片齿孔、日历的格子、「记」字印章、玻璃本身的霜纹（已有 [frost.webp](../../../../public/ui/nav/frost.webp)）。房间切换（E）和找歌（C）还没做，要图等做的时候再列。
 
@@ -72,6 +74,14 @@
 
 **验收**：8 张缩到 44px 拼成一排，一眼分得清；中间 40% 的圆里主体还在；`mobile-ui.html?screen=room&mood=night` 打开音乐托盘看封套和唱片圆标、切到歌单看 8 行、点歌词进沉浸看糊开的底色上歌词是否清楚；桌面停靠栏同样看一遍；每张 ≤ 60 KB。
 
+**结果（2026-10-02，待看样）**：
+
+![现在：手机歌单里的 8 张新封面](../../uiux/cinnaglass/ux/img/music-playlist-phone.jpg)
+
+- 第一轮（批次 `20261002-081349Z`）8 张留用 6 张。`lamp-radio`（初稿木色好但整张是棕不是丁香紫，终稿把收音机也染成紫木头）和 `spring-walk`（纸袋折成硬多面体，像低模渲染）在第二轮（`20261002-085413Z`）按审图意见重画：收音机保持胡桃木本色、只让环境是丁香紫；纸袋换成柔软的皱纸。
+- 和要求的偏差：母版是工具原生的 1254² 而不是 1024²（原样入库，不缩放）；`seaside-stars` 没画出「开着的窗」，读成星空海面前的贝壳风铃；`tint` 改成每张海报左上→右下的平均色——它只用作载入前的底色，原来的亮色渐变在深色海报载入前会闪一下。
+- 验收：44px 深浅两种底上 8 张都分得开，唱片圆标里主体还在；8 张 13–59 KB（`first-snow` 降到 q74 才进 60 KB）；手机托盘、歌单、沉浸歌词、桌面停靠栏和四种界面风格的截图已重拍进 [UX 参考](../../uiux/cinnaglass/ux/ux.md)。
+
 ```text
 Production asset delegation (UI Tailor, Claude) for "Our World", a web + phone app for couples: each partner sees
 the other sitting across a table in a painted anime-style study room. PRODUCTION UI ASSETS, NOT CONCEPT ART.
@@ -107,6 +117,14 @@ Write codex-report.md in Simplified Chinese: per file the size, how it answers i
 
 **验收**：2×2 拼看不出接缝；在 `?screen=journal&journal=scrapbook|calendar` 里看日记页和日历纸，纸的颜色和现在一样、只多了纤维；在纸最深的角上量对比度：正文墨色 `#4a3620` ≥ 6.5:1、次要字 `#7b6446` ≥ 3.2:1（现在分别约 7.0 和 3.4）。
 
+**结果（2026-10-02，待看样）**：
+
+![现在：手帐纸纹正片叠底在原来的奶油色上，顶上是新胶带](img/after-paper.jpg)
+
+- 用第二次生成的近白纸纹（批次 `20261002-081435Z`）：远看还是那张奶油色的纸，近看有细长纤维，原来的数码沙点没有了。
+- 偏差：母版 1254² 而不是 2048²；两次生成的接缝都还量得出（上下接缝处的差是内部相邻像素的 1.5 倍），按共用要求做了确定性的接缝处理（和半格偏移的副本做保对比度的交叉过渡，参数记在 manifest），处理后 1.03。运行时 1024² WebP 用 q97（73 KB）：纤维只深 1–4 个色阶，q82 会压掉三分之二。
+- 对比度（纸最深的角，叠上纸纹后）：正文墨色 6.84:1、次要字 3.35:1；纤维最密的一小块（字那么大的 9px 区域）上 6.63 / 3.25，都过线。
+
 ## ART-03 和纸胶带（R3）
 
 ![现在：拍立得顶上的胶带是 CSS 条纹](img/now-tape.jpg)
@@ -126,6 +144,14 @@ Write codex-report.md in Simplified Chinese: per file the size, how it answers i
 **接入**：`TAPES` 改成颜色加图（例如 `{ tint: '#b9d3e6', img: '/ui/memory/tape-blue.webp' }`），行内样式多给一个 `--tape-img`；CSS 换成 `background: var(--tape-img) center / 100% 100% no-repeat`，去掉 `clip-path`（毛边在图里），投影改 `filter: drop-shadow(0 1px 1px #0003)`；白底方案再加 `mix-blend-mode: multiply`。`--tape` 颜色保留给图片载入前。
 
 **验收**：`?screen=photos&photo=polaroid` 和 `?screen=journal` 里，胶带在亮照片、暗照片和纸上都像真的贴着；54px 宽时毛边和印花还看得出、不糊；四种颜色和 `TAPES` 对得上。
+
+**结果（2026-10-02，待看样）**：
+
+![现在：拍立得上两头手撕的和纸胶带](img/after-tape.jpg)
+
+- 第一轮（`20261002-081513Z`）纸质和透明底都好，但胶带约 7:1 太长、两头像规则的小锯齿；第二轮（`20261002-084211Z`）换成带纤维毛边的不规则撕口，印花放大到小尺寸也读得出，采用第二轮。
+- 偏差：两轮都做不到 3.6:1 的短胶带（第二轮 4.4–5.2:1）。真实手帐里的胶带本来常是这个长度，所以改界面不改图：胶带位改成约 5:1（日记页 98×20、拍立得 72×15、日历角 104×22 / 92×20），每条按自己的比例 `contain` 放进去、不拉伸；锯齿 `clip-path` 删掉，投影改成跟着撕口走的 `drop-shadow`。胶带主体不透明（≈ 98%），透明感仍由原来的 `opacity: 0.86` 给。灰绿实测 `#c9d5b7`，比 `#cfe2c4` 灰一点。
+- 颜色和图收在 [washi-tape.ts](../../../../src/themes/cinnaglass/surfaces/washi-tape.ts)（日记页四色、拍立得沿用原来的前三色）；图没载入时，胶带位里先垫一小块原色。
 
 ```text
 Production asset delegation (UI Tailor, Claude) for "Our World" (couples' app; the memory page is a paper
@@ -160,6 +186,13 @@ Write codex-report.md in Simplified Chinese: size, alpha check (or white-ground 
 **接入**：`.cork-surface` 的 `var(--cork-grain), var(--cork-mottle), linear-gradient(…)` 换成 `url('/ui/memory/cork-tile.webp') 0 0 / 512px 512px`，上面两层径向光保留；`--wood-h` / `--wood-v` 换成 `wood-rail.webp`（竖向用旋转后的那张）；删掉不用的噪点变量。
 
 **验收**：`?screen=photos&photo=cork` 桌面和手机，板子 2×2 以上看不出重复；照片、月份签和红线压在上面层次清楚；木框四边接得上；`memory-views.html?view=cork&empty=1` 的空板也看一遍。
+
+**结果（2026-10-02，待看样）**：
+
+![现在：生成的软木和胡桃木框](img/after-cork.jpg)
+
+- 软木（最终色、细颗粒）和胡桃木细直纹都用第二次生成（`20261002-081435Z`）。左上亮、右下暗的光仍是 CSS；木纹不透明，所以木框上加了一层同方向的光，代替原来被盖住的渐变；四个 SVG 噪点变量已删。
+- 偏差：软木平均 `#b38053`，比 `#ae8259` 略暖；软木两次生成都有可见接缝，木纹左右接缝更明显（接缝处的差是内部的 6.9 倍），都做了确定性接缝处理（软木 1.10 / 1.02、木纹 0.89）。横框是从 2167×726 的木纹正中切一条，竖框是同一条转 90°。图钉没出：14–16px 下 CSS 图钉已经够真，不值得多 5 张透明图。
 
 R2 的 brief（ART-02 和 ART-04 一起）：
 
@@ -212,6 +245,14 @@ Simplified Chinese with each file's size and the 2x2 seam check.
 
 **验收**：`memory-views.html?view=calendar|cork|album|projector&empty=1` 和 `mobile-ui.html?screen=journal` / `?screen=photos` 的空状态，桌面和手机都看：白底完全消失，线条在纸上像墨水画的；4 张是一套；标题仍然是纸条上最醒目的东西。
 
+**结果（2026-10-02，待看样）**：
+
+![现在：四张空状态纸条上的钢笔小画](img/after-empty.jpg)
+
+- 第一轮（`20261002-082040Z`；最初那次因为 Codex 的命令沙箱在这台机器上起不来没出图，加了工具说明重发）语义和画风都对，但线太细，放进 72–96px 的纸条里像淡铅笔；第二轮（`20261002-085134Z`）换粗一号的笔尖、暖棕墨，去掉书签带一类细节，采用第二轮。
+- 处理（脚本里确定性完成，画本身不动）：生成的「白底」其实是 253–254 的近白噪点，叠在纸上会露出淡淡的方框，所以把高于 252 的通道归白；四张的留白不一样，按画的外框裁成方形、让每张画占 84%，看起来一样大。
+- 接入：六处空状态纸条的标题上方，96px（手机 72px），`mix-blend-mode: multiply`；`mobile-ui.html` 样板加了 `?empty=1`，手帐和拍立得的空状态也能直接看。
+
 ```text
 Production asset delegation (UI Tailor, Claude) for "Our World" (couples' app; the memory page is a paper
 journal and a photo wall). PRODUCTION UI ASSETS. Specs: ai/design_system/codex-visual/art-requests/art-requests.md,
@@ -228,3 +269,4 @@ The four must read as one set. Write codex-report.md in Simplified Chinese: size
 ## 交接记录
 
 - 2026-10-02：清单建立，五项都还没出图（UI Tailor）。下一步：用户在机器上装好 Codex 并登录后，按 R1 → R4 的顺序委派。
+- 2026-10-02（下一个 agent，Monet 审图 + UI Tailor 接入，同 agent 自审）：R1–R4 并行委派，海报两张、胶带、空状态小画各重做一轮，五项全部接入；之前 / 现在的对照在 [看样页](../../uiux/cinnaglass/ux/index.html#art-title)。剩下等你看样，看过后删掉这五条。

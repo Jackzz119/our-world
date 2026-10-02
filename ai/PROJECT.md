@@ -2,7 +2,7 @@
 
 > 第三期「对坐」，2026-09-25 选定、09-27 定为开发方向（概念与决定见 `ai/design_system/concept/across-the-table/`）。上一期「放置陪伴小屋」的重定位依据仍在 `ai/reboot/`，美术资料在 `arts/archive/v2-companion-house/`。
 > 核心文档：本文档（PRD + 技术事实）· `ai/TODO.md`（任务唯一来源）· `ai/design_system/design-system.md`（当前设计系统）· `ai/features/*.md`（功能细节）。
-> 最后更新：2026-09-29（UI 迭代：动效体系与低动效模式、手机底部托盘、音乐主页面、进入世界加载页，本地实现待看样；书房：大动作改成关键帧链，喝一口的杯子交接不再出双杯，小满入座，默认他的视角）
+> 最后更新：2026-10-02（新美术：要图清单五项由 Codex 出图并接入——歌单封面、手帐纸、和纸胶带、软木与木框、空状态小画，待用户看样）；2026-09-29（UI 迭代：动效体系与低动效模式、手机底部托盘、音乐主页面、进入世界加载页；书房：大动作改成关键帧链，喝一口的杯子交接不再出双杯，小满入座，默认他的视角）
 
 ## 产品定位（PRD）
 
@@ -77,7 +77,7 @@ src/
     ├── room/            # table-scene（Pixi 合成器入口）+ room-scene（React 壳）· room-types · study-table · partner-layer · partner-state · steam-layer · rain-layer · affordance · lighting · fade-queue · textures
     ├── shell/           # rail（房间 / 聊天 / 一起听 / 回忆 / 设置）+ rail-icons + navigation-glass.css · ambience · floaters（纪念卡/音乐条与停靠栏）· chat-card · world-loader + load-progress（进入世界加载）· world-surfaces · use-world-chat-bubble
     ├── journal/         # 棕皮书日记与翻页（C 类物件 UI，回忆页里日记的「书本」样子）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
-    ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· memory-surface（回忆页：日记 + 照片墙）· memory-views（样子的约定）· 日记的样子 journal-stream / journal-calendar / journal-book-view · 照片墙的样子 photo-wall / photo-cork / photo-album / photo-projector · journal-index · show-entry · memory-lightbox · memory-photos · memory.css · composer · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
+    ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· memory-surface（回忆页：日记 + 照片墙）· memory-views（样子的约定）· 日记的样子 journal-stream / journal-calendar / journal-book-view · 照片墙的样子 photo-wall / photo-cork / photo-album / photo-projector · journal-index · show-entry · memory-lightbox · memory-photos · washi-tape（胶带的颜色与图）· memory.css · composer · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
     ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
     ├── calendar · settings · world-settings · music + music-tracks + use-music-playback · lobby · entry.css
     ├── icons · model · profile · tweaks    # 共享图标/类型/偏好；旧登录 SVG 已移除
@@ -101,7 +101,7 @@ src/
 - **UI 动效与手机托盘**（2026-09-29 实现，2026-09-30 用户看样保留，2026-10-02 动效换成苹果的弹簧模型、托盘从任何地方都能拖）：全组件按压 / 进出场反馈与低动效模式；手机上聊天、音乐、工具、房间、回忆从底部托盘升起，对方完整可见；音乐主页面（8 首音景、概念图裁切的占位海报、歌词、歌单、本机收藏、沉浸歌词），桌面右侧停靠栏；进入世界时台灯随真实加载进度亮起；面板标题用站酷小薇。交互与录屏 `ai/design_system/uiux/cinnaglass/ux/ux.md`，常驻看样页 `ai/design_system/uiux/cinnaglass/ux/index.html`（只放当期在用的界面，发布版由 `scripts/build-review-page.mjs` 生成），还没做的找歌 / 房间切换 `ai/design_system/codex-visual/ui-motion/ui-motion.md`，三轮的旧比稿在 `arts/archive/v3-ui-rounds/`，手机回归 `ai/features/mobile-ui.md`
 - **回忆页**（2026-09-30 做成面板，2026-10-01 按用户的产品分层改为内容页，2026-10-02 用户认可）：日记与照片墙同一页两页签，桌面正中、手机全屏；日记 手帐 / 日历 / 书本，照片墙 拍立得 / 软木板 / 相册 / 放映，页头随时切换；共用灯箱；导航「回忆」入口替换了工具扳手。比稿已移档 `arts/archive/v3-ui-rounds/memories/`，功能 `ai/features/timeline.md`
 - **界面风格**（2026-10-01 深玻璃，2026-10-02 用户认可并要暖瓷浅色正式实装）：深玻璃是默认（更实的底、硬描边、深投影，内容页压暗场景）；描金暗夜和暖瓷浅色在设置 → 主题外观 → 界面风格里换，`?look=gilded|porcelain|classic` 也能切（classic 只作对比）。`ai/design_system/uiux/cinnaglass/ux/ux.md` §8
-- **要图清单**（2026-10-02）：界面里还在用占位的美术（歌单海报、手帐纸、和纸胶带、软木板与木框、空状态小插画）逐处写清要求，附可以直接贴给 Codex 的 brief，代码里用 `ART-REQUEST` 注释标出接入点；等用户装好 Codex 后交给下一个 agent 出图。`ai/design_system/codex-visual/art-requests/art-requests.md`
+- **要图清单与新美术**（2026-10-02）：界面里用占位的美术（歌单海报、手帐纸、和纸胶带、软木板与木框、空状态小插画）逐处写清要求后，同日在用户机器上用 Codex 出图、Monet 审图并全部接入，待用户看样：8 张封面 `public/music/covers/`，回忆页素材 `public/ui/memory/`（纸纹正片叠底、胶带按自身比例 `contain` 进约 5:1 的胶带位、软木与胡桃木框、空状态小画），母版与每一步处理在 `arts/ui/music/`、`arts/ui/memory/` 的 manifest，打包脚本 `scripts/build-ui-art.py`（Pillow + numpy，不修图，只缩放、导出、确定性接缝处理与近白归白）。胶带的颜色与图在 `surfaces/washi-tape.ts`。`ai/design_system/codex-visual/art-requests/art-requests.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）

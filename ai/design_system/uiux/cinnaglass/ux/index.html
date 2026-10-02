@@ -887,7 +887,7 @@
     }
     .art-row {
         display: grid;
-        grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
         gap: 14px 18px;
         padding: 14px;
         border-radius: 18px;
@@ -906,6 +906,23 @@
     }
     .art-row .shot.fit img {
         object-fit: contain;
+    }
+    /* before / now, side by side */
+    .art-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-self: start;
+    }
+    .art-pair figure {
+        display: grid;
+        gap: 6px;
+        margin: 0;
+    }
+    .art-pair figcaption {
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
     }
     .art-text {
         display: grid;
@@ -1008,7 +1025,7 @@
                 设计系统的常驻看样页：只放现在真正在用的界面。截图和录屏都是正式组件在开发样板里拍的，还有能上手的动效试验区、定下的规则，以及还要你决定的事。agent 做 UI 之前先看这里，你看设计也看这里。
             </p>
             <p>
-                <b>10 月 2 日第四轮</b>：动效改成苹果的弹簧模型。托盘从哪儿都能拖，跟手，放手时带着手指的速度回弹（<a href="#spring-title">M 节</a>可以直接拖）。暖瓷浅色正式做进了所有组件，设置里能换。界面里还在用占位的美术都标了出来，并写清楚要什么（<a href="#art-title">要图的地方</a>）。
+                <b>10 月 2 日第四轮</b>：动效改成苹果的弹簧模型。托盘从哪儿都能拖，跟手，放手时带着手指的速度回弹（<a href="#spring-title">M 节</a>可以直接拖）。暖瓷浅色正式做进了所有组件，设置里能换。界面里还在用占位的美术都标了出来，并写清楚要什么。同一天这些图由 Codex 在你的机器上出好、接进了界面：歌单封面、手帐纸、和纸胶带、软木与木框、空状态小画（<a href="#art-title">新美术</a>，之前 / 现在并排）。
             </p>
             <p class="muted">
                 09-29 到 10-01 三轮的比稿（旧导航、工具扳手、旧玻璃的方案图）已经移进档案，这里不再放。还没做的两组设计（找歌、房间切换的加载）按现在的界面重画后放在<a href="#next-title">最后</a>。这台云端容器没有 GPU，场景是软件渲染，拍的时候暂停了场景，所以阿屿是静止的。点任意一张看大图。
@@ -1026,7 +1043,7 @@
         <ol class="decide">
             <li><b>默认的界面风格</b><span>深玻璃仍是默认。暖瓷已经做进所有组件，在设置 → 主题外观 → 界面风格里换（地址加 <code>?look=porcelain</code> 也行）。要不要改默认，你说了算。</span></li>
             <li><b>真机手感</b><span>容器里只能按数值验托盘的拖动和甩。请在手机上拖一下音乐托盘，尤其是往上推和往下甩；哪一下不对，告诉我是哪个动作。</span></li>
-            <li><b>出图</b><span>有 5 处要图（见<a href="#art-title">要图的地方</a>）。等你在机器上装好 Codex，交给下一个 agent 照清单出。</span></li>
+            <li><b>新美术</b><span>5 处占位美术都换成了生成的图（见<a href="#art-title">新美术</a>）。看看哪张要重画；胶带比清单写的长，所以胶带位改成了约 5:1。不说就按现在的保留。</span></li>
             <li><b>音乐来源</b><span>找歌（C 组）要先定用哪个平台，以及版权和登录怎么处理。</span></li>
             <li><b>房间切换的加载</b><span>等有了第二个房间再做，我建议 E2 加 E3。</span></li>
         </ol>
@@ -1036,7 +1053,7 @@
             <li><b>这一版的实现</b><span>你说都很好，所以第三轮的默认都保留：回忆入口里三张卡；房间里放开关、装扮和回大厅；日记默认手帐，照片墙默认拍立得。</span></li>
             <li><b>暖瓷浅色</b><span>正式实现（已实现，设置里可选）。</span></li>
             <li><b>弹簧动效</b><span>参考苹果的弹簧曲线重做，拖托盘不再发沉（已实现，见 M 节）。</span></li>
-            <li><b>美术图</b><span>先标注要图的地方并写清要求，交给下一个 agent 出图（清单已写）。</span></li>
+            <li><b>美术图</b><span>先标注要图的地方并写清要求，交给下一个 agent 出图（清单已写，同日已出图接入，待你看样）。</span></li>
             <li><b>技能修改</b><span>Monet 和 UI Tailor 里关于看样页的规则保留。</span></li>
             <li><b>合并</b><span>这次做完合并进 dev。</span></li>
         </ol>
@@ -1393,7 +1410,7 @@
                 <p>沉浸歌词就在停靠栏这一列里，Esc 先退出沉浸，再收起播放器。</p>
             </div>
         </div>
-        <p class="note"><b>现在的音乐</b>：8 首本机合成的音景，每首有海报和随时间高亮的歌词；点歌单任一行直接播放，收藏只存在这台设备。手机上没有悬浮条，出声时导航的音乐图标带三根小音柱。音乐只在本机播放，不和对方同步。<b>海报还是占位</b>（概念图的方形裁切），见<a href="#art-title">要图的地方</a> ART-01。</p>
+        <p class="note"><b>现在的音乐</b>：8 首本机合成的音景，每首有海报和随时间高亮的歌词；点歌单任一行直接播放，收藏只存在这台设备。手机上没有悬浮条，出声时导航的音乐图标带三根小音柱。音乐只在本机播放，不和对方同步。<b>海报是这份歌单自己的封面</b>（10 月 2 日生成，每首一个静物画面，待你看样），见<a href="#art-title">新美术</a>。</p>
     </section>
 
     <section aria-labelledby="g-title">
@@ -1504,57 +1521,99 @@
     </section>
 
     <section aria-labelledby="art-title">
-        <h2 id="art-title">要图的地方</h2>
-        <p class="read">界面里还有 5 处在用占位：纸、胶带、软木都是 CSS 画的，海报是概念图的裁切。我没有自己生成图，而是把每一处在哪、现在什么样、要什么、怎么接、怎么验都写进了 <a href="../../../codex-visual/art-requests/art-requests.md">要图清单</a>，每组还附了可以直接贴给 Codex 的英文 brief。代码里搜 <code>ART-REQUEST</code> 能找到每一处接入点。</p>
-        <p class="note"><b>交接给出图的 agent</b>：在你的机器上用 <code>codex-visual</code>，一次委派一组：R1 海报 → R2 纸和软木 → R3 胶带 → R4 空状态。共用的要求：不写字、不画人脸、原创；图由生成直接产出，不后抠、不手修；回忆页的材质不随时辰变。出完先给你看，接好后在这里换成新截图。</p>
+        <h2 id="art-title">新美术（10 月 2 日出图）</h2>
+        <p class="read">界面里原来有 5 处在用占位：纸、胶带、软木都是 CSS 画的，海报是概念图的裁切。10 月 2 日按 <a href="../../../codex-visual/art-requests/art-requests.md">要图清单</a> 交给 Codex 在你的机器上出图，Monet 逐张审过，不合格的重画了一轮，然后接进界面。每组左边是之前、右边是现在，都是正式组件在开发样板里拍的；点图看大图。</p>
+        <p class="note"><b>怎么做的</b>：图由生成直接产出，不后抠、不手修。脚本 <code>scripts/build-ui-art.py</code> 只做缩放、导出 WebP，以及清单允许的确定性处理（纹理接缝的交叉过渡、小画的近白归白和留白裁切），每一步和来源批次记在 <code>arts/ui/music/manifest.json</code>、<code>arts/ui/memory/manifest.json</code>。用到这些图的 UX 截图都已重拍；录屏里还是旧的海报和纸，要不要重录你说。</p>
         <div class="art-list">
             <div class="art-row">
-                <button class="shot top" type="button" data-full="../../../codex-visual/art-requests/img/now-posters-phone.jpg" aria-label="放大 现在的歌单海报"><img src="../../../codex-visual/art-requests/img/now-posters-phone.jpg" alt="现在：歌单里 8 张海报都是窗外的城市" loading="lazy" /></button>
+                <div class="art-pair">
+                    <figure>
+                        <button class="shot top" type="button" data-full="../../../codex-visual/art-requests/img/now-posters-phone.jpg" aria-label="放大 之前的歌单海报"><img src="../../../codex-visual/art-requests/img/now-posters-phone.jpg" alt="之前：歌单里 8 张海报都是窗外的城市" loading="lazy" /></button>
+                        <figcaption>之前</figcaption>
+                    </figure>
+                    <figure>
+                        <button class="shot top" type="button" data-full="img/music-playlist-phone.jpg" aria-label="放大 现在的歌单海报"><img src="img/music-playlist-phone.jpg" alt="现在：歌单里 8 张各不相同的静物封面" loading="lazy" /></button>
+                        <figcaption>现在</figcaption>
+                    </figure>
+                </div>
                 <div class="art-text">
-                    <div class="card-head"><h3>ART-01 歌单海报 8 张</h3><span class="chip art">要图 · 优先</span></div>
-                    <p><b>在哪</b>：音乐托盘和停靠栏的封套（72–112px，同时印在唱片中心的圆标上）、歌单每行 44px、迷你条 40px，沉浸歌词里还会糊成整块底色。</p>
-                    <p><b>要什么</b>：每首歌一张方图，画歌词里的那个画面（橘子和被风鼓起的窗帘、雨窗、暖灯收音机、樱花河边、落针的唱机、海边风铃、清晨列车、结霜窗上的心）。母版 1024²，运行时 512² webp，每张 ≤ 60 KB，文件名不变。</p>
-                    <p><b>必须</b>：和书房同一个世界、同一种画法，8 张像一套唱片；主体放在正中，44px 时也分得清；主色就是每首的 <code>tint</code>。<b>不要</b>：字、人脸、把整张封面画成唱片，也不要再画窗外的城市。</p>
+                    <div class="card-head"><h3>ART-01 歌单海报 8 张</h3><span class="chip done">已实现 · 待你看样</span></div>
+                    <p><b>现在</b>：每首歌一张静物封面，画的是歌词里的那个画面：被风鼓起的纱帘和积云、雨窗边冒热气的杯子、暖灯下的收音机、河边长椅上的面包、正在落针的唱机、星空海面前的贝壳风铃、清晨列车上的便当、结霜窗上画的心。8 张同一种画法，44px 的歌单行里靠轮廓和明暗就分得清，印在唱片圆标上也认得出。</p>
+                    <p><b>重画过的</b>：暖灯电台（第一版把收音机也染成了紫色木头，现在木头是本色、只有环境是丁香紫）、一起散步（纸袋原来折成硬多面体，现在是柔软的皱纸）。</p>
+                    <p><b>看一下</b>：沉浸歌词里糊开的底色、暖瓷浅色下的歌单。载入前垫的底色改成了每张海报自己的平均色，切歌时不闪。</p>
                 </div>
             </div>
             <div class="art-row">
-                <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-paper.jpg" aria-label="放大 现在的纸"><img src="../../../codex-visual/art-requests/img/now-paper.jpg" alt="现在：日记页的纸是 CSS 噪点" loading="lazy" /></button>
+                <div class="art-pair">
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-paper.jpg" aria-label="放大 之前的纸"><img src="../../../codex-visual/art-requests/img/now-paper.jpg" alt="之前：日记页的纸是 CSS 噪点，胶带是条纹色块" loading="lazy" /></button>
+                        <figcaption>之前</figcaption>
+                    </figure>
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/after-paper.jpg" aria-label="放大 现在的纸"><img src="../../../codex-visual/art-requests/img/after-paper.jpg" alt="现在：日记页叠上了手帐纸纹，顶上是新胶带" loading="lazy" /></button>
+                        <figcaption>现在</figcaption>
+                    </figure>
+                </div>
                 <div class="art-text">
-                    <div class="card-head"><h3>ART-02 手帐纸纹理</h3><span class="chip art">要图 · 优先</span></div>
-                    <p><b>在哪</b>：回忆页所有的纸：日记页、空状态便签、写一页、软木板的月份签、日历纸。</p>
-                    <p><b>要什么</b>：一张无缝平铺的手帐内页纸，细长纤维加很淡的云状深浅，几乎是白色（专门用来正片叠底，颜色仍由 CSS 给）。母版 2048²，运行时 1024² 按 512px 平铺，≤ 90 KB。</p>
-                    <p><b>必须</b>：2×2 拼起来看不出接缝；叠上以后正文墨色在纸最深处仍 ≥ 6.5:1。<b>不要</b>：横格、折痕、污渍、暗角、光照渐变。</p>
+                    <div class="card-head"><h3>ART-02 手帐纸纹理</h3><span class="chip done">已实现 · 待你看样</span></div>
+                    <p><b>现在</b>：回忆页所有的纸（日记页、空状态纸条、写一页、软木板的月份签、日历纸）叠了一层几乎是白色的手帐纸纹：远看还是原来那张奶油色的纸，近看有细长的纤维，原来的数码沙点没有了。</p>
+                    <p><b>对比度</b>：纸最深的角上，正文墨色 6.84:1、次要字 3.35:1（要求 6.5 和 3.2），字仍然一样清楚。</p>
+                    <p><b>看一下</b>：变化是故意很轻的，手机上（高清屏）最看得出来。如果你想要更明显的纸感，可以再出一张纤维更多的。</p>
                 </div>
             </div>
             <div class="art-row">
-                <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-tape.jpg" aria-label="放大 现在的胶带"><img src="../../../codex-visual/art-requests/img/now-tape.jpg" alt="现在：拍立得顶上的胶带是 CSS 条纹" loading="lazy" /></button>
+                <div class="art-pair">
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-tape.jpg" aria-label="放大 之前的胶带"><img src="../../../codex-visual/art-requests/img/now-tape.jpg" alt="之前：拍立得顶上的胶带是 CSS 条纹加锯齿" loading="lazy" /></button>
+                        <figcaption>之前</figcaption>
+                    </figure>
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/after-tape.jpg" aria-label="放大 现在的胶带"><img src="../../../codex-visual/art-requests/img/after-tape.jpg" alt="现在：拍立得上两头手撕的和纸胶带" loading="lazy" /></button>
+                        <figcaption>现在</figcaption>
+                    </figure>
+                </div>
                 <div class="art-text">
-                    <div class="card-head"><h3>ART-03 和纸胶带 4 色</h3><span class="chip art">要图</span></div>
-                    <p><b>在哪</b>：日记页顶上（76×20px）、每张拍立得（54×17px）、日历纸的角。</p>
-                    <p><b>要什么</b>：蓝、粉、奶黄、灰绿四条短胶带（就是现在的四种颜色），两头手撕毛边，各带一种很淡的印花（细格、小樱花、小圆点、细斜纹）。半透明、自带透明底，1024×256 母版，240×64 运行时；出不了透明底就画在纯白底上，接入时正片叠底。</p>
-                    <p><b>不要</b>：整卷胶带、透视、投影（CSS 加）、太艳太密的印花。</p>
+                    <div class="card-head"><h3>ART-03 和纸胶带 4 色</h3><span class="chip done">已实现 · 待你看样</span></div>
+                    <p><b>现在</b>：蓝色细格、粉色小樱花、奶黄小圆点、灰绿斜纹四条和纸胶带，两头是带纸纤维的手撕口，自带透明底；日记页顶上、每张拍立得、日历纸的两个角都换上了。</p>
+                    <p><b>改了胶带位</b>：生成的胶带比清单写的长（两轮都是 4.4–5.2 : 1，做不出 3.6 : 1 的短段），真实手帐里的胶带本来也常是这个长度，所以改界面不改图：胶带位加长到约 5 : 1，每条按自己的比例放进去、不拉伸。第一轮的撕口像规则的小锯齿，用的是第二轮。</p>
                 </div>
             </div>
             <div class="art-row">
-                <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-cork.jpg" aria-label="放大 现在的软木板"><img src="../../../codex-visual/art-requests/img/now-cork.jpg" alt="现在：软木板、木框和图钉都是 CSS" loading="lazy" /></button>
+                <div class="art-pair">
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/now-cork.jpg" aria-label="放大 之前的软木板"><img src="../../../codex-visual/art-requests/img/now-cork.jpg" alt="之前：软木板和木框是 CSS 噪点" loading="lazy" /></button>
+                        <figcaption>之前</figcaption>
+                    </figure>
+                    <figure>
+                        <button class="shot" type="button" data-full="../../../codex-visual/art-requests/img/after-cork.jpg" aria-label="放大 现在的软木板"><img src="../../../codex-visual/art-requests/img/after-cork.jpg" alt="现在：生成的软木和胡桃木框" loading="lazy" /></button>
+                        <figcaption>现在</figcaption>
+                    </figure>
+                </div>
                 <div class="art-text">
-                    <div class="card-head"><h3>ART-04 软木板与木框</h3><span class="chip art">要图</span></div>
-                    <p><b>在哪</b>：照片墙·软木板。</p>
-                    <p><b>要什么</b>：软木无缝平铺（最终颜色，平均 <code>#ae8259</code>，颗粒、浅色碎屑、小坑），1024² 按 512px 平铺；胡桃木画框的横向木纹长条，840×48，竖框用同一张旋转。图钉可选（5 色，带透明底），不做就保留 CSS。</p>
-                    <p><b>不要</b>：把照片、纸条、图钉画进纹理里；暗角和光照（CSS 有左上亮、右下暗）；512px 一格就能认出来的重复。</p>
+                    <div class="card-head"><h3>ART-04 软木板与木框</h3><span class="chip done">已实现 · 待你看样</span></div>
+                    <p><b>现在</b>：软木是生成的平铺纹理（最终颜色，细颗粒、浅色碎屑和小坑），画框是胡桃木的细直纹；左上亮、右下暗的光仍由 CSS 加。照片、月份签、红线压在上面层次不变。</p>
+                    <p><b>没做的</b>：图钉（清单里是可选项）保留 CSS，14–16px 下它已经够真。软木比清单的颜色略暖一点（#b38053 对 #ae8259）。</p>
                 </div>
             </div>
             <div class="art-row">
-                <button class="shot fit" type="button" data-full="../../../codex-visual/art-requests/img/now-empty.jpg" aria-label="放大 现在的空状态"><img src="../../../codex-visual/art-requests/img/now-empty.jpg" alt="现在：空状态只有字" loading="lazy" /></button>
+                <div class="art-pair">
+                    <figure>
+                        <button class="shot fit" type="button" data-full="../../../codex-visual/art-requests/img/now-empty.jpg" aria-label="放大 之前的空状态"><img src="../../../codex-visual/art-requests/img/now-empty.jpg" alt="之前：空状态纸条只有字" loading="lazy" /></button>
+                        <figcaption>之前</figcaption>
+                    </figure>
+                    <figure>
+                        <button class="shot fit" type="button" data-full="../../../codex-visual/art-requests/img/after-empty.jpg" aria-label="放大 现在的空状态"><img src="../../../codex-visual/art-requests/img/after-empty.jpg" alt="现在：四张空状态纸条上的钢笔小画" loading="lazy" /></button>
+                        <figcaption>现在</figcaption>
+                    </figure>
+                </div>
                 <div class="art-text">
-                    <div class="card-head"><h3>ART-05 空状态小插画 4 张</h3><span class="chip art">要图</span></div>
-                    <p><b>在哪</b>：日记、照片墙（拍立得和软木板）、相册、放映没有内容时的那张纸条，放在标题上方，96px（手机 72px）。</p>
-                    <p><b>要什么</b>：像主人自己在手帐里用钢笔随手画的：深棕墨线，配一两块淡水彩，留白多。摊开的空本子和钢笔；一张空白拍立得加一小段胶带；一页贴着四个相角的空相册；镜头盖着的小放映机加一卷胶片。画在纯白底上，接入时正片叠底，768² 母版，192² 运行时。</p>
-                    <p><b>不要</b>：厚涂、扁平图标风、阴影、彩色底、字、人物；不能比纸条的标题抢眼。</p>
+                    <div class="card-head"><h3>ART-05 空状态小插画 4 张</h3><span class="chip done">已实现 · 待你看样</span></div>
+                    <p><b>现在</b>：日记、照片墙（拍立得和软木板）、相册、放映没有内容时，纸条标题上方有一张钢笔小画：摊开的空本子和钢笔、贴着胶带的空白拍立得、四个相角的空相册页、镜头盖着的小放映机。暖棕墨线配一点淡水彩，像主人自己在手帐里随手画的，96px（手机 72px），标题仍是纸条上最醒目的。</p>
+                    <p><b>重画过</b>：第一版线太细，放到纸条上像淡铅笔；现在换了粗一号的笔尖和暖棕墨。</p>
                 </div>
             </div>
         </div>
-        <p class="muted read">不需要出图、保持 CSS / SVG 的：图标（要随主题换色、要锐利）、放映的银幕和胶片齿孔、日历的格子、「记」字印章、玻璃的霜纹。</p>
+        <p class="muted read">保持 CSS / SVG、不出图的：图标（要随主题换色、要锐利）、放映的银幕和胶片齿孔、日历的格子、「记」字印章、玻璃的霜纹、软木板的图钉。</p>
     </section>
 
     <section aria-labelledby="next-title">
