@@ -22,7 +22,7 @@
     --ui-muted: #675b4c;
     --ui-accent: #855617;
     --ui-error: #a8322c;
-    --ui-success: #3b6e34;
+    --ui-success: #356630;
     --ui-line: rgb(84 64 40 / 0.17);
     --ui-hover: rgb(84 64 40 / 0.06);
     --ui-liner-top: #fffdf9;
@@ -270,9 +270,13 @@
         0 12px 24px -12px rgb(40 26 12 / 0.6),
         0 0 0 1px rgb(84 64 40 / 0.12);
 }
+:root[data-look='porcelain'] .ui-environment .mp {
+    /* the burst of hearts when a song is liked (music.tsx) */
+    --mp-heart: #c2506b;
+}
 :root[data-look='porcelain'] .ui-environment .mp-like[aria-pressed='true'],
 :root[data-look='porcelain'] .ui-environment .mp-row-like {
-    color: #c2506b;
+    color: var(--mp-heart, #c2506b);
 }
 :root[data-look='porcelain'] .ui-environment .mp-like[aria-pressed='true'] svg {
     filter: drop-shadow(0 0 4px rgb(194 80 107 / 0.35));
@@ -804,6 +808,10 @@
 /* over the near-black dim the caption needs more body than the room's cards */
 :root[data-look='porcelain'] .ui-environment .lb-caption.ui-surface {
     --ui-alpha: 0.7;
+}
+:root[data-look='porcelain'] .ui-environment .mem-lightbox :is(.lb-close, .lb-nav) {
+    border-color: rgb(255 255 255 / 0.6);
+    background: rgb(var(--ui-tint) / 0.86);
 }
 :root[data-look='porcelain'] .ui-environment .lb-who img {
     box-shadow: 0 0 0 1.5px #fff;

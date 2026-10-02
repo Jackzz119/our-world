@@ -186,7 +186,10 @@ function NowPlaying({
                         if (!liked)
                             burst(event.currentTarget, {
                                 glyphs: ['♥', '✦', '♥'],
-                                color: '#f5b6c1',
+                                // a look can tint the hearts (porcelain's pink reads on light glass)
+                                color:
+                                    getComputedStyle(event.currentTarget).getPropertyValue('--mp-heart').trim() ||
+                                    '#f5b6c1',
                                 count: 7,
                                 size: 13
                             });
