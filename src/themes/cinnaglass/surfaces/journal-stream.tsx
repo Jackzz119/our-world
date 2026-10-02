@@ -263,6 +263,7 @@ export function JournalStream({ feed, thumbUrls, open, onPhoto, focus, indexOpen
                         </div>
                     )}
                     {feed.status === 'ready' && !posts.length && (
+                        // ART-REQUEST ART-05: a spot illustration goes above the title
                         <div className="mem-note mem-paper">
                             <p className="mem-note-title">第一页，从今天开始。</p>
                             <p>写下今天的一件小事，或者放一张照片进来。</p>

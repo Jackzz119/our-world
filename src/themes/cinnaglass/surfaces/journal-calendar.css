@@ -51,7 +51,7 @@
         rotate: -1.4deg;
     }
 }
-/* washi tape holding the page's corners to the glass */
+/* washi tape holding the page's corners to the glass (ART-REQUEST ART-03) */
 .jcal-cal::before,
 .jcal-cal::after {
     content: '';

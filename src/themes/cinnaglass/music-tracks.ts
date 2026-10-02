@@ -2,8 +2,8 @@
 // of music.tsx so that component file only exports components (react-refresh).
 // Posters are square crops of this period's concept art (public/music/covers/,
 // cut from ai/design_system/concept/across-the-table/img/) standing in until the
-// playlist gets its own artwork; lyrics are written for each soundscape and
-// timed in seconds on its generated timeline.
+// playlist gets its own artwork (ART-REQUEST ART-01, ai/design_system/codex-visual/art-requests/art-requests.md);
+// lyrics are written for each soundscape and timed in seconds on its generated timeline.
 
 export type LyricLine = { t: number; text: string };
 export type Track = {
