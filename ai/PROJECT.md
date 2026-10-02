@@ -98,9 +98,10 @@ src/
 - **环境与来信 UI**（2026-09-20）：左上角时钟/云双圆入口沿用导航材质，点击展开/收起、横拖或方向键选择；滑动透镜及真实天气状态沿原偏好与 `useWeather` 链路，较矮桌面面板向右避让导航；`SunlitLetter` 用金亮信纸提示世界未读消息，点击打开聊天并使用已有已读游标，已读后消失。时辰配色、小屏与播放器避让见 `ai/design_system/uiux/cinnaglass/ui-system.md`；暮色玫瑰金适配待用户看样，未新增通知后端。
 - **手机版 UI**（2026-09-21）：App 统一发布可见视口，A/B/入口适配安全区与软键盘；完整聊天按需展开会话、横屏播放器消除重复条。8 尺寸 × 12 页面及 4 类合成键盘回归通过，真机待验收；独立功能 `ai/features/mobile-ui.md`，图文 `ai/design_system/uiux/mobile.md`。
 - **UI 基建现状**：2026-09-20 本地 A/B 与边缘页面已统一为导航同源材料和原生 TaskDialog，音乐接真实本机 WebAudio、天气与未实现能力状态如实呈现；实现/兼容/验收边界见 `ai/features/ui-system/ui-system.md`，消费者与历史证据见同目录 `audit.md`
-- **UI 动效与手机托盘**（2026-09-29 实现，2026-09-30 用户看样保留）：全组件按压 / 进出场反馈与低动效模式；手机上聊天、音乐、工具、房间、回忆从底部托盘升起，对方完整可见；音乐主页面（8 首音景、概念图裁切的占位海报、歌词、歌单、本机收藏、沉浸歌词），桌面右侧停靠栏；进入世界时台灯随真实加载进度亮起；面板标题用站酷小薇。交互与录屏 `ai/design_system/uiux/cinnaglass/ux/ux.md`，比稿 `ai/design_system/codex-visual/ui-motion/ui-motion.md`，看样页 `codex-visual/ui-motion/review/`，手机回归 `ai/features/mobile-ui.md`
-- **回忆页**（2026-09-30 做成面板，2026-10-01 按用户的产品分层改为内容页，待看样）：日记与照片墙同一页两页签，桌面正中、手机全屏；日记 手帐 / 日历 / 书本，照片墙 拍立得 / 软木板 / 相册 / 放映，页头随时切换；共用灯箱；导航「回忆」入口替换了工具扳手。比稿 `ai/design_system/codex-visual/memories/memories.md`，功能 `ai/features/timeline.md`
-- **深玻璃**（2026-10-01，待看样）：用户嫌 UI 和场景对比太低，玻璃加厚、加硬描边和深投影，内容页压暗场景；`?look=gilded` / `?look=classic` 对比。`ai/design_system/uiux/cinnaglass/ux/ux.md` §8
+- **UI 动效与手机托盘**（2026-09-29 实现，2026-09-30 用户看样保留，2026-10-02 动效换成苹果的弹簧模型、托盘从任何地方都能拖）：全组件按压 / 进出场反馈与低动效模式；手机上聊天、音乐、工具、房间、回忆从底部托盘升起，对方完整可见；音乐主页面（8 首音景、概念图裁切的占位海报、歌词、歌单、本机收藏、沉浸歌词），桌面右侧停靠栏；进入世界时台灯随真实加载进度亮起；面板标题用站酷小薇。交互与录屏 `ai/design_system/uiux/cinnaglass/ux/ux.md`，常驻看样页 `ai/design_system/uiux/cinnaglass/ux/index.html`（只放当期在用的界面，发布版由 `scripts/build-review-page.mjs` 生成），还没做的找歌 / 房间切换 `ai/design_system/codex-visual/ui-motion/ui-motion.md`，三轮的旧比稿在 `arts/archive/v3-ui-rounds/`，手机回归 `ai/features/mobile-ui.md`
+- **回忆页**（2026-09-30 做成面板，2026-10-01 按用户的产品分层改为内容页，2026-10-02 用户认可）：日记与照片墙同一页两页签，桌面正中、手机全屏；日记 手帐 / 日历 / 书本，照片墙 拍立得 / 软木板 / 相册 / 放映，页头随时切换；共用灯箱；导航「回忆」入口替换了工具扳手。比稿已移档 `arts/archive/v3-ui-rounds/memories/`，功能 `ai/features/timeline.md`
+- **界面风格**（2026-10-01 深玻璃，2026-10-02 用户认可并要暖瓷浅色正式实装）：深玻璃是默认（更实的底、硬描边、深投影，内容页压暗场景）；描金暗夜和暖瓷浅色在设置 → 主题外观 → 界面风格里换，`?look=gilded|porcelain|classic` 也能切（classic 只作对比）。`ai/design_system/uiux/cinnaglass/ux/ux.md` §8
+- **要图清单**（2026-10-02）：界面里还在用占位的美术（歌单海报、手帐纸、和纸胶带、软木板与木框、空状态小插画）逐处写清要求，附可以直接贴给 Codex 的 brief，代码里用 `ART-REQUEST` 注释标出接入点；等用户装好 Codex 后交给下一个 agent 出图。`ai/design_system/codex-visual/art-requests/art-requests.md`
 - **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
