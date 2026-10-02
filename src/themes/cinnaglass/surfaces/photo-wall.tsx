@@ -7,8 +7,10 @@ import type { CSSProperties } from 'react';
 import { hashOf } from '@/themes/cinnaglass/surfaces/author-tone';
 import { monthKey, monthLabel, photoCaption, type MemoryPhoto } from '@/themes/cinnaglass/surfaces/memory-photos';
 import type { PhotoViewProps } from '@/themes/cinnaglass/surfaces/memory-views';
+import { TAPES, tapeStyle } from '@/themes/cinnaglass/surfaces/washi-tape';
 
-const TAPES = ['#b9d3e6', '#efc3cf', '#efe1b4'];
+// polaroids take the blue, pink and butter strips
+const POLA_TAPES = TAPES.slice(0, 3);
 
 export function PhotoWall({ photos, status, anyImages, onPhoto }: PhotoViewProps) {
     const months: { key: string; label: string; items: { photo: MemoryPhoto; index: number }[] }[] = [];
@@ -37,7 +39,7 @@ export function PhotoWall({ photos, status, anyImages, onPhoto }: PhotoViewProps
                                 const hash = hashOf(photo.key);
                                 const style = {
                                     '--tilt': `${((hash % 5) - 2) * 1.3}deg`,
-                                    '--tape': TAPES[hash % TAPES.length],
+                                    ...tapeStyle(hash, POLA_TAPES),
                                     '--order': Math.min(i, 9)
                                 } as CSSProperties;
                                 return (
@@ -78,7 +80,13 @@ export function PhotoWall({ photos, status, anyImages, onPhoto }: PhotoViewProps
                             <p>照片暂时没能载入。</p>
                         ) : (
                             <>
-                                {/* ART-REQUEST ART-05: a spot illustration goes above the title */}
+                                <img
+                                    className="mem-note-art"
+                                    src="/ui/memory/empty-wall.webp"
+                                    alt=""
+                                    width={96}
+                                    height={96}
+                                />
                                 <p className="mem-note-title">墙上还空着。</p>
                                 <p>在日记里写一页带照片的回忆，它就会贴到这里。</p>
                             </>

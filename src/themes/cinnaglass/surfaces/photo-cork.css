@@ -1,18 +1,11 @@
 /* 软木板 (photo-cork.tsx, concept H2 in ai/design_system/codex-visual/memories/): one cork board per
    month in a thin wooden frame, the polaroids of memory.css (.mem-pola) pinned on with glossy pushpins
-   and a red string through each day. Cork, wood, pins and string are all CSS / inline SVG. Light
-   falls from the top-left, so every shadow leans to the bottom-right. */
+   and a red string through each day. The cork and the walnut are generated tiles
+   (arts/ui/memory/manifest.json); pins and string are CSS / inline SVG. Light falls from the
+   top-left, so every shadow leans to the bottom-right. */
 
 .cork-view {
     --frame: 11px;
-    /* cork: granules, pale crumbs and fine pits from four noise fields, and a slow mottling; a generated
-       cork tile and wood rail replace these (ART-REQUEST ART-04,
-       ai/design_system/codex-visual/art-requests/art-requests.md) */
-    --cork-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.9 0 0 0 0 0.72 4 0 0 0 -2.3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23a)' opacity='0.62'/%3E%3Cfilter id='b' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.26' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.135 0 0 0 0 0.05 0 0 0 -6 3.1'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23b)' opacity='0.82'/%3E%3Cfilter id='c' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.135 0 0 0 0 0.05 0 0 0 -3.6 1.9'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)' opacity='0.5'/%3E%3Cfilter id='d' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 0 0.035 0 0 0 -8 4.3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23d)' opacity='0.16'/%3E%3C/svg%3E");
-    /* the frame's grain, running along each rail */
-    --wood-h: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='24'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .45' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .14 0 0 0 0 .07 0 0 0 0 .02 0 0 0 -2.8 1.62'/%3E%3C/filter%3E%3Crect width='420' height='24' filter='url(%23w)' opacity='.6'/%3E%3C/svg%3E");
-    --wood-v: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='420'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45 .005' numOctaves='3' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .14 0 0 0 0 .07 0 0 0 0 .02 0 0 0 -2.8 1.62'/%3E%3C/filter%3E%3Crect width='24' height='420' filter='url(%23w)' opacity='.6'/%3E%3C/svg%3E");
-    --cork-mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560'%3E%3Cfilter id='m' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='3' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .2 0 0 0 0 .08 0 0 0 -2.2 1.25'/%3E%3C/filter%3E%3Crect width='560' height='560' filter='url(%23m)' opacity='.5'/%3E%3C/svg%3E");
     position: relative;
     display: flex;
     flex: 1 1 auto;
@@ -58,11 +51,15 @@
 .cork-frame {
     padding: var(--frame);
     border-radius: 12px;
+    /* the generated walnut rail runs along each side (the side rails are the same strip turned 90°);
+       the frame keeps its top-left light as a wash over the opaque wood, and the gradient underneath
+       stands in until the rails load */
     background:
-        var(--wood-h) 0 0 / 420px 24px repeat-x,
-        var(--wood-h) 0 100% / 420px 24px repeat-x,
-        var(--wood-v) 0 0 / 24px 420px repeat-y,
-        var(--wood-v) 100% 0 / 24px 420px repeat-y,
+        linear-gradient(155deg, rgb(255 226 188 / 0.16), transparent 38%, transparent 56%, rgb(22 9 0 / 0.3)),
+        url('/ui/memory/wood-rail.webp') 0 0 / 420px 24px repeat-x,
+        url('/ui/memory/wood-rail.webp') 0 100% / 420px 24px repeat-x,
+        url('/ui/memory/wood-rail-v.webp') 0 0 / 24px 420px repeat-y,
+        url('/ui/memory/wood-rail-v.webp') 100% 0 / 24px 420px repeat-y,
         linear-gradient(155deg, #93613a, #73472a 36%, #5b371d 70%, #694225);
     box-shadow:
         inset 0 1px 0 rgb(255 224 184 / 0.42),
@@ -79,11 +76,11 @@
     position: relative;
     isolation: isolate;
     border-radius: 4px;
-    /* lit from the top-left, falling off to the bottom-right */
+    /* the generated cork tile (final colour), lit from the top-left and falling off to the bottom-right */
     background:
         radial-gradient(120% 95% at 8% 0%, rgb(255 234 196 / 0.24), transparent 62%),
-        radial-gradient(150% 120% at 92% 112%, rgb(62 33 12 / 0.32), transparent 58%), var(--cork-grain),
-        var(--cork-mottle), linear-gradient(158deg, #b98d63, #ae8259 50%, #a57850);
+        radial-gradient(150% 120% at 92% 112%, rgb(62 33 12 / 0.32), transparent 58%),
+        url('/ui/memory/cork-tile.webp') 0 0 / 512px 512px #ae8259;
     box-shadow:
         inset 0 2px 7px rgb(35 17 5 / 0.55),
         inset 0 0 0 1px rgb(40 20 8 / 0.32),
@@ -106,6 +103,7 @@
     background:
         var(--paper-grain), radial-gradient(120% 100% at 15% 0%, #fbf4e3, transparent 60%),
         linear-gradient(172deg, #f3e8cf, #e4d2ab);
+    background-blend-mode: multiply, normal, normal;
     border-radius: 3px 5px 4px 6px / 5px 3px 6px 4px;
     rotate: -1.6deg;
     box-shadow:
@@ -278,7 +276,7 @@
         box-shadow 220ms var(--ease-out);
 }
 
-/* ---------- pushpins: a glossy head lit from the top-left (generated pins optional, ART-REQUEST ART-04) ---------- */
+/* ---------- pushpins: a glossy CSS head lit from the top-left (at 14–16 px a generated pin adds nothing) ---------- */
 .cork-pins {
     position: absolute;
     inset: 0;

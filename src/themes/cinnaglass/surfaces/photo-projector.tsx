@@ -375,7 +375,13 @@ export function PhotoProjector({ feed, photos, status, anyImages, open, onPhoto,
                                 </>
                             ) : (
                                 <>
-                                    {/* ART-REQUEST ART-05: a spot illustration goes above the title */}
+                                    <img
+                                        className="mem-note-art"
+                                        src="/ui/memory/empty-projector.webp"
+                                        alt=""
+                                        width={96}
+                                        height={96}
+                                    />
                                     <p className="mem-note-title">放映机还空着。</p>
                                     <p>在日记里写一页带照片的回忆，它就会在这里放给你看。</p>
                                 </>
