@@ -100,7 +100,9 @@ export function MobileFixture() {
     // html[data-motion] as the app publishes it (?motion=reduced forces the low-motion mode)
     useMotionPreference(query.get('motion') === 'reduced' ? 'reduced' : t.motion);
     const ref = useUiEnvironment(t.mood, true);
-    const memories = useFixtureFeed();
+    // ?empty=1 empties the memory feed, for the journal / photo wall empty notes
+    const fixtureFeed = useFixtureFeed();
+    const memories = query.get('empty') ? { ...fixtureFeed, posts: [] } : fixtureFeed;
     const compact = useCompactUi();
     const [chat, setChat] = useState(initial === 'compact-chat');
     const [music, setMusic] = useState(initial === 'music');
