@@ -450,9 +450,9 @@ export function JournalCalendar({ feed, thumbUrls, open, onPhoto, focus }: Journ
             </div>
         );
     else if (!posts.length)
-        // ART-REQUEST ART-05: a spot illustration goes above the title
         leaf = (
             <div className="mem-note mem-paper">
+                <img className="mem-note-art" src="/ui/memory/empty-journal.webp" alt="" width={96} height={96} />
                 <p className="mem-note-title">第一页，从今天开始。</p>
                 <p>写下今天的一件小事，或者放一张照片进来。</p>
                 <button type="button" className="mem-note-btn" onClick={write}>

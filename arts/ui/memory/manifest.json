@@ -1,0 +1,316 @@
+{
+  "paper": {
+    "date": "2026-10-02",
+    "request": "ai/design_system/codex-visual/art-requests/art-requests.md#art-02-手帐纸纹理r2",
+    "batch": "20261002-081435Z",
+    "method": "Built-in image_gen (Codex). Runtime = Lanczos resize to 1024 (tiled at 512 CSS px) and WebP.",
+    "source": "arts/ui/memory/source/paper-tile.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "steps": [
+      "seam: variance-preserving blend with the half-offset copy, band 0.25",
+      "periodic Lanczos resize to 1024"
+    ],
+    "runtime": {
+      "file": "public/ui/memory/paper-tile.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "quality": 97,
+      "kb": 73.3
+    },
+    "luminance": {
+      "min": 236.4,
+      "p1": 247.8,
+      "mean": 251.8,
+      "max": 255.0
+    },
+    "reports": [
+      "arts/ui/memory/source/codex-report-20261002-081435Z.md"
+    ]
+  },
+  "cork": {
+    "date": "2026-10-02",
+    "request": "ai/design_system/codex-visual/art-requests/art-requests.md#art-04-软木板与木框r2图钉可选",
+    "method": "Built-in image_gen (Codex). Runtime = Lanczos resize and WebP.",
+    "reports": [
+      "arts/ui/memory/source/codex-report-20261002-081435Z.md"
+    ],
+    "cork": {
+      "batch": "20261002-081435Z",
+      "source": "arts/ui/memory/source/cork-tile.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "steps": [
+        "seam: variance-preserving blend with the half-offset copy, band 0.25",
+        "periodic Lanczos resize to 1024"
+      ],
+      "runtime": {
+        "file": "public/ui/memory/cork-tile.webp",
+        "size": [
+          1024,
+          1024
+        ],
+        "quality": 66,
+        "kb": 135.8
+      },
+      "mean": "#b38053"
+    },
+    "wood": {
+      "batch": "20261002-081435Z",
+      "source": "arts/ui/memory/source/wood-source.png",
+      "sourceSize": [
+        2167,
+        726
+      ],
+      "steps": [
+        "crop the full-width strip y 301–425 of 2167x726 (row 0.5)",
+        "seam along the length: variance-preserving blend with the half-offset copy, band 0.25",
+        "periodic Lanczos resize to 840x48 (wrapping along the length); the side rails are the same strip turned 90°"
+      ],
+      "runtime": [
+        {
+          "file": "public/ui/memory/wood-rail.webp",
+          "size": [
+            840,
+            48
+          ],
+          "quality": 82,
+          "kb": 3.9
+        },
+        {
+          "file": "public/ui/memory/wood-rail-v.webp",
+          "size": [
+            48,
+            840
+          ],
+          "quality": 82,
+          "kb": 3.6
+        }
+      ]
+    }
+  },
+  "tape": {
+    "date": "2026-10-02",
+    "request": "ai/design_system/codex-visual/art-requests/art-requests.md#art-03-和纸胶带r3",
+    "method": "Built-in image_gen (Codex) with a native transparent background; never keyed or cut out.",
+    "reports": [
+      "arts/ui/memory/source/codex-report-20261002-081513Z.md",
+      "arts/ui/memory/source/codex-report-20261002-084211Z.md"
+    ],
+    "files": [
+      {
+        "name": "tape-blue",
+        "batch": "20261002-084211Z",
+        "source": "arts/ui/memory/source/tape-blue.png",
+        "sourceSize": [
+          2172,
+          724
+        ],
+        "steps": [
+          "trim the transparent margin (alpha > 8) to [242, 209, 1925, 533]",
+          "Lanczos resize to 240 wide"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/tape-blue.webp",
+          "size": [
+            240,
+            46
+          ],
+          "quality": 92,
+          "kb": 2.7
+        },
+        "bodyMean": "#b1cae1",
+        "bodyAlpha": 0.985
+      },
+      {
+        "name": "tape-pink",
+        "batch": "20261002-084211Z",
+        "source": "arts/ui/memory/source/tape-pink.png",
+        "sourceSize": [
+          1942,
+          809
+        ],
+        "steps": [
+          "trim the transparent margin (alpha > 8) to [69, 223, 1876, 585]",
+          "Lanczos resize to 240 wide"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/tape-pink.webp",
+          "size": [
+            240,
+            48
+          ],
+          "quality": 92,
+          "kb": 2.9
+        },
+        "bodyMean": "#edc4c9",
+        "bodyAlpha": 0.983
+      },
+      {
+        "name": "tape-butter",
+        "batch": "20261002-084211Z",
+        "source": "arts/ui/memory/source/tape-butter.png",
+        "sourceSize": [
+          2172,
+          724
+        ],
+        "steps": [
+          "trim the transparent margin (alpha > 8) to [108, 181, 2048, 562]",
+          "Lanczos resize to 240 wide"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/tape-butter.webp",
+          "size": [
+            240,
+            47
+          ],
+          "quality": 92,
+          "kb": 2.7
+        },
+        "bodyMean": "#e9dab3",
+        "bodyAlpha": 0.981
+      },
+      {
+        "name": "tape-sage",
+        "batch": "20261002-084211Z",
+        "source": "arts/ui/memory/source/tape-sage.png",
+        "sourceSize": [
+          1942,
+          809
+        ],
+        "steps": [
+          "trim the transparent margin (alpha > 8) to [134, 215, 1808, 594]",
+          "Lanczos resize to 240 wide"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/tape-sage.webp",
+          "size": [
+            240,
+            54
+          ],
+          "quality": 92,
+          "kb": 4.0
+        },
+        "bodyMean": "#c9d5b7",
+        "bodyAlpha": 0.981
+      }
+    ]
+  },
+  "empty": {
+    "date": "2026-10-02",
+    "request": "ai/design_system/codex-visual/art-requests/art-requests.md#art-05-空状态小插画r4",
+    "method": "Built-in image_gen (Codex) on white, multiplied in by CSS; the drawing itself is never edited.",
+    "reports": [
+      "arts/ui/memory/source/codex-report-20261002-082040Z.md",
+      "arts/ui/memory/source/codex-report-20261002-085134Z.md"
+    ],
+    "files": [
+      {
+        "name": "empty-journal",
+        "batch": "20261002-085134Z",
+        "source": "arts/ui/memory/source/empty-journal.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "steps": [
+          "white point: channels above 252 to 255, 244–252 ramped (the near-white ground speckle)",
+          "square crop [-2, -14, 1283, 1271] so the drawing spans 0.84 of the side",
+          "Lanczos resize to 192"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/empty-journal.webp",
+          "size": [
+            192,
+            192
+          ],
+          "quality": 95,
+          "kb": 6.3
+        },
+        "inkCoverage": 0.1007,
+        "darkest": 25.0
+      },
+      {
+        "name": "empty-wall",
+        "batch": "20261002-085134Z",
+        "source": "arts/ui/memory/source/empty-wall.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "steps": [
+          "white point: channels above 252 to 255, 244–252 ramped (the near-white ground speckle)",
+          "square crop [87, 50, 1214, 1177] so the drawing spans 0.84 of the side",
+          "Lanczos resize to 192"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/empty-wall.webp",
+          "size": [
+            192,
+            192
+          ],
+          "quality": 95,
+          "kb": 5.4
+        },
+        "inkCoverage": 0.0961,
+        "darkest": 25.9
+      },
+      {
+        "name": "empty-album",
+        "batch": "20261002-085134Z",
+        "source": "arts/ui/memory/source/empty-album.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "steps": [
+          "white point: channels above 252 to 255, 244–252 ramped (the near-white ground speckle)",
+          "square crop [77, 70, 1179, 1172] so the drawing spans 0.84 of the side",
+          "Lanczos resize to 192"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/empty-album.webp",
+          "size": [
+            192,
+            192
+          ],
+          "quality": 95,
+          "kb": 4.2
+        },
+        "inkCoverage": 0.0817,
+        "darkest": 38.8
+      },
+      {
+        "name": "empty-projector",
+        "batch": "20261002-085134Z",
+        "source": "arts/ui/memory/source/empty-projector.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "steps": [
+          "white point: channels above 252 to 255, 244–252 ramped (the near-white ground speckle)",
+          "square crop [82, 54, 1252, 1224] so the drawing spans 0.84 of the side",
+          "Lanczos resize to 192"
+        ],
+        "runtime": {
+          "file": "public/ui/memory/empty-projector.webp",
+          "size": [
+            192,
+            192
+          ],
+          "quality": 95,
+          "kb": 7.9
+        },
+        "inkCoverage": 0.1016,
+        "darkest": 14.7
+      }
+    ]
+  }
+}

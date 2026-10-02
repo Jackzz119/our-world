@@ -679,7 +679,13 @@ function CorkNote({ status, anyImages, onRetry }: { status: FeedStatus; anyImage
                             </>
                         ) : (
                             <>
-                                {/* ART-REQUEST ART-05: a spot illustration goes above the title */}
+                                <img
+                                    className="mem-note-art"
+                                    src="/ui/memory/empty-wall.webp"
+                                    alt=""
+                                    width={96}
+                                    height={96}
+                                />
                                 <p className="mem-note-title">墙上还空着。</p>
                                 <p>在日记里写一页带照片的回忆，它就会贴到这里。</p>
                             </>

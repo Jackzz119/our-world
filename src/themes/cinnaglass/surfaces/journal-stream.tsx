@@ -16,6 +16,7 @@ import { fmtDay, fmtFullDate } from '@/themes/cinnaglass/surfaces/date-format';
 import { JournalIndex } from '@/themes/cinnaglass/surfaces/journal-index';
 import { monthKey, monthLabel, photosOf, type MemoryPhoto } from '@/themes/cinnaglass/surfaces/memory-photos';
 import type { JournalViewProps } from '@/themes/cinnaglass/surfaces/memory-views';
+import { tapeStyle } from '@/themes/cinnaglass/surfaces/washi-tape';
 import { burst } from '@/themes/cinnaglass/ui/feedback';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
 import { showEntry } from '@/themes/cinnaglass/surfaces/show-entry';
@@ -30,8 +31,6 @@ type JournalStreamProps = JournalViewProps & {
 // Past this much text an entry folds to a few lines with 展开全文.
 const LONG_TEXT = 150;
 const LONG_LINES = 5;
-// Washi tape colours, picked per entry by hash (decoration, not identity).
-const TAPES = ['#b9d3e6', '#efc3cf', '#efe1b4', '#cfe2c4'];
 
 const clock = (iso: string) => {
     const d = new Date(iso);
@@ -263,8 +262,14 @@ export function JournalStream({ feed, thumbUrls, open, onPhoto, focus, indexOpen
                         </div>
                     )}
                     {feed.status === 'ready' && !posts.length && (
-                        // ART-REQUEST ART-05: a spot illustration goes above the title
                         <div className="mem-note mem-paper">
+                            <img
+                                className="mem-note-art"
+                                src="/ui/memory/empty-journal.webp"
+                                alt=""
+                                width={96}
+                                height={96}
+                            />
                             <p className="mem-note-title">第一页，从今天开始。</p>
                             <p>写下今天的一件小事，或者放一张照片进来。</p>
                             <button type="button" className="mem-note-btn" onClick={write}>
@@ -313,7 +318,7 @@ export function JournalEntry({
     const hash = hashOf(post.post_id);
     const style = {
         '--tilt': `${((hash % 7) - 3) * 0.22}deg`,
-        '--tape': TAPES[hash % TAPES.length]
+        ...tapeStyle(hash)
     } as CSSProperties;
     return (
         <article

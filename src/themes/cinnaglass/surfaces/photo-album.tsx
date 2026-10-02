@@ -302,7 +302,13 @@ export function PhotoAlbum({ feed, photos, status, anyImages, open, onPhoto }: P
                             </>
                         ) : (
                             <>
-                                {/* ART-REQUEST ART-05: a spot illustration goes above the title */}
+                                <img
+                                    className="mem-note-art"
+                                    src="/ui/memory/empty-album.webp"
+                                    alt=""
+                                    width={96}
+                                    height={96}
+                                />
                                 <p className="mem-note-title">相册还空着。</p>
                                 <p>在日记里写一页带照片的回忆，它就会收进这里。</p>
                                 {feed.hasMore && (
