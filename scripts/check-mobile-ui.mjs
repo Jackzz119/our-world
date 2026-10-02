@@ -201,6 +201,40 @@ try {
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full');
     await page.getByRole('button', { name: '收回一起听' }).tap();
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'half');
+    // the sheet drags from anywhere (here its lyric preview, a button): pushed past the middle and held still,
+    // it settles at full height — a finger that stopped throws nothing — and the press is not a tap on the button
+    const touch = await page.context().newCDPSession(page);
+    const finger = (type, x, y) =>
+        touch.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
+    const sheetY = () =>
+        page.locator('.music-sheet').evaluate((e) => new DOMMatrixReadOnly(getComputedStyle(e).transform).m42);
+    const pull = async (selector, dy) => {
+        const box = await page.locator(selector).boundingBox();
+        const [x, y] = [box.x + 24, box.y + box.height / 2];
+        await finger('touchStart', x, y);
+        for (let i = 1; i <= 10; i++) await finger('touchMove', x, y + (dy * i) / 10);
+        await page.waitForTimeout(300);
+        return () => finger('touchEnd', x, y + dy);
+    };
+    // the scene would otherwise hold each pointer event for a software-rendered frame
+    await page.evaluate(() => window.__owApp?.stop());
+    const half = await sheetY();
+    const letGo = await pull('.music-sheet .mp-lyric', -half * 0.7);
+    await letGo();
+    await settle(page);
+    assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full', 'pushed up from the lyrics');
+    assert.equal(await page.locator('.music-sheet [data-immersive]').count(), 0, 'a drag is not a tap');
+    // past the top it gives like a rubber band (UIScrollView's 0.55), then springs back; the drag takes over
+    // at the first 15px step (past the 6px slop), so the sheet follows the other 135px
+    const height = await page.locator('.music-sheet').evaluate((e) => e.offsetHeight);
+    const release = await pull('.music-sheet .mp-lyric', -150);
+    const stretched = await sheetY();
+    const rubber = (135 * height * 0.55) / (height + 0.55 * 135);
+    assert.ok(Math.abs(stretched + rubber) < 4, `rubber band: ${stretched} for ${-rubber}`);
+    await release();
+    await settle(page);
+    assert.ok(Math.abs(await sheetY()) < 1, 'springs back to full height');
+    await page.evaluate(() => window.__owApp?.start());
     // while a sheet is up the bar is the sheet's foot, not a pill of its own
     assert.equal(
         await page.locator('.rail').evaluate((e) => getComputedStyle(e).backgroundColor),
