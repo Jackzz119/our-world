@@ -22,7 +22,7 @@
 
 ![展开音乐：同源外壳与稳定阅读底；进度、播放和音量对应实际音频](unification-verification/music.png)
 
-**2026-09-29 音乐主页面（本地实现，待看样）**：上图是改版前的展开播放器。现在桌面迷你条展开成右侧整列的停靠栏，手机改为底部托盘；页面上半是正在播放（海报像唱片封套，播放时书房的唱片从后面滑出慢转；两行歌词、进度、传输），下半是「歌词 / 歌单 / 声音」三个标签。8 首音景，海报是当期概念图裁切的占位，收藏只存在本机。比稿与动图见 [UI 动效与手机托盘](../../codex-visual/ui-motion/ui-motion.md)。
+**2026-09-29 音乐主页面（2026-09-30 用户看样保留）**：上图是改版前的展开播放器。现在桌面迷你条展开成右侧整列的停靠栏，手机改为底部托盘；页面上半是正在播放（海报像唱片封套，播放时书房的唱片从后面滑出慢转；两行歌词、进度、传输），下半是「歌词 / 歌单 / 声音」三个标签。8 首音景，海报是当期概念图裁切的占位，收藏只存在本机。流程、动效与录屏见 [UX 参考 §2](ux/ux.md)，现在的样子在 [看样页](ux/index.html#b-title)。
 
 **声音与天气真实边界**：音乐是八组 WebAudio 合成音景（2026-09-29 由四组增加），没有歌曲文件，也没有双人同步。播放/暂停、进度/拖动、曲目、循环方式与音量独立于展开/隐藏，隐藏不销毁音频。天气手动模式不显示虚构温度；实况加载、成功和不可用明确区分。时间提醒只在本机保存，不发系统通知。
 
@@ -57,7 +57,7 @@
 
 只有世界会话内对方有效未读消息触发信纸；点击打开聊天并沿现有已读流程处理，已读后消失，新未读再次出现。删除、发送失败与待发送消息不伪造来信；读状态保存失败仍保留未读。桌面纪念卡向下避让；宽度 ≤1100px 或高度 ≤700px 且播放器展开时，两张提示卡暂时收起，未读点保留，播放器收起后恢复。小屏有来信时优先信纸。实现：[SunlitLetter](../../../../src/themes/cinnaglass/shell/sunlit-letter.tsx)、[未读判断](../../../../src/themes/cinnaglass/shell/use-world-chat-bubble.ts)、[入口编排](../../../../src/pages/WorldPage.tsx)。
 
-### 回忆页：日记 + 照片墙（内容页，2026-10-01，实装 · 待看样）
+### 回忆页：日记 + 照片墙（内容页，2026-10-01，定稿）
 
 2026-10-01 用户：日记和照片墙是来看内容的**内容页**，不是陪着你的伴生浮窗——手机直接全屏展开，桌面正中弹窗，不缩在一边（产品分层见 [UX 参考 §0](ux/ux.md)）。外壳是 [content-page.tsx](../../../../src/themes/cinnaglass/ui/content-page.tsx)：桌面一个 1120×820 以内的大窗，背后房间压暗 0.6、虚化 6px；手机从底边升起占满屏幕，顶部留 8px 和安全区，页头有关闭按钮、能下拉关闭。
 
@@ -76,7 +76,7 @@
 | 相册         | ![相册：方格，按月跳](ux/img/memory-album-desk.jpg)           | ![相册：三列方格](ux/img/memory-album-phone.jpg)  |
 | 放映         | ![放映：大图、说明、胶片条](ux/img/memory-projector-desk.jpg) | ![放映：手机](ux/img/memory-projector-phone.jpg)  |
 
-来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)（页与开关）、[memory-views.ts](../../../../src/themes/cinnaglass/surfaces/memory-views.ts)（样子的约定）、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-calendar.tsx](../../../../src/themes/cinnaglass/surfaces/journal-calendar.tsx)、[journal-book-view.tsx](../../../../src/themes/cinnaglass/surfaces/journal-book-view.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[photo-cork.tsx](../../../../src/themes/cinnaglass/surfaces/photo-cork.tsx)、[photo-album.tsx](../../../../src/themes/cinnaglass/surfaces/photo-album.tsx)、[photo-projector.tsx](../../../../src/themes/cinnaglass/surfaces/photo-projector.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../codex-visual/memories/memories.md)。
+来源：[memory-surface.tsx](../../../../src/themes/cinnaglass/surfaces/memory-surface.tsx)（页与开关）、[memory-views.ts](../../../../src/themes/cinnaglass/surfaces/memory-views.ts)（样子的约定）、[journal-stream.tsx](../../../../src/themes/cinnaglass/surfaces/journal-stream.tsx)、[journal-calendar.tsx](../../../../src/themes/cinnaglass/surfaces/journal-calendar.tsx)、[journal-book-view.tsx](../../../../src/themes/cinnaglass/surfaces/journal-book-view.tsx)、[photo-wall.tsx](../../../../src/themes/cinnaglass/surfaces/photo-wall.tsx)、[photo-cork.tsx](../../../../src/themes/cinnaglass/surfaces/photo-cork.tsx)、[photo-album.tsx](../../../../src/themes/cinnaglass/surfaces/photo-album.tsx)、[photo-projector.tsx](../../../../src/themes/cinnaglass/surfaces/photo-projector.tsx)、[memory.css](../../../../src/themes/cinnaglass/surfaces/memory.css)；比稿 [memories](../../../../arts/archive/v3-ui-rounds/memories/memories.md)。
 
 ### 深玻璃（2026-10-01，实装 · 待看样）
 
@@ -120,7 +120,7 @@
 
 ![窄屏时间提醒：时间输入独占一行，避免 AM/PM 被裁切](unification-verification/clock-mobile.png)
 
-照片墙原来也用这个 B 壳（[改之前的样子](../../codex-visual/memories/img/now-photos-desk.jpg)），2026-09-30 起移进回忆（现在是回忆页，见上文）。
+照片墙原来也用这个 B 壳（[改之前的样子](../../../../arts/archive/v3-ui-rounds/memories/img/now-photos-desk.jpg)），2026-09-30 起移进回忆（现在是回忆页，见上文）。
 
 ![心愿单：完成状态与添加入口，明确只保存在本机](unification-verification/wishes.png)
 
