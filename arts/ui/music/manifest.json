@@ -1,0 +1,213 @@
+{
+  "covers": {
+    "date": "2026-10-02",
+    "request": "ai/design_system/codex-visual/art-requests/art-requests.md#art-01-歌单海报r1",
+    "batches": [
+      "20261002-081349Z",
+      "20261002-085413Z"
+    ],
+    "method": "Built-in image_gen (Codex), one call per cover; adopted unedited. Runtime = Lanczos resize to 512 and WebP.",
+    "reports": [
+      "arts/ui/music/covers/source/codex-report-20261002-081349Z.md",
+      "arts/ui/music/covers/source/codex-report-20261002-085413Z.md"
+    ],
+    "prompts": [
+      "arts/ui/music/covers/source/prompts-20261002-081349Z.json",
+      "arts/ui/music/covers/source/prompts-20261002-085413Z.json"
+    ],
+    "files": [
+      {
+        "name": "afternoon-clouds",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/afternoon-clouds.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/afternoon-clouds.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 33.7
+        },
+        "mean": "#c7a37c",
+        "dominant": [
+          "#f0d2b3",
+          "#68431f",
+          "#c58e4c"
+        ]
+      },
+      {
+        "name": "rainy-window",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/rainy-window.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/rainy-window.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 40.1
+        },
+        "mean": "#735959",
+        "dominant": [
+          "#43323a",
+          "#7b6375",
+          "#eab47c"
+        ]
+      },
+      {
+        "name": "lamp-radio",
+        "batch": "20261002-085413Z",
+        "source": "arts/ui/music/covers/source/lamp-radio.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/lamp-radio.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 23.4
+        },
+        "mean": "#794e6d",
+        "dominant": [
+          "#6f4a82",
+          "#52271c",
+          "#dc9887"
+        ]
+      },
+      {
+        "name": "spring-walk",
+        "batch": "20261002-085413Z",
+        "source": "arts/ui/music/covers/source/spring-walk.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/spring-walk.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 47.7
+        },
+        "mean": "#bab6a1",
+        "dominant": [
+          "#b1b49d",
+          "#e6dcc7",
+          "#807a67"
+        ]
+      },
+      {
+        "name": "record-corner",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/record-corner.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/record-corner.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 29.2
+        },
+        "mean": "#574063",
+        "dominant": [
+          "#34253d",
+          "#634a78",
+          "#a577a5"
+        ]
+      },
+      {
+        "name": "seaside-stars",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/seaside-stars.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/seaside-stars.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 13.1
+        },
+        "mean": "#111625",
+        "dominant": [
+          "#040c1c",
+          "#171d31",
+          "#a3887f"
+        ]
+      },
+      {
+        "name": "dawn-train",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/dawn-train.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/dawn-train.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 82,
+          "kb": 27.9
+        },
+        "mean": "#c18669",
+        "dominant": [
+          "#eea985",
+          "#714a3b",
+          "#ab745a"
+        ]
+      },
+      {
+        "name": "first-snow",
+        "batch": "20261002-081349Z",
+        "source": "arts/ui/music/covers/source/first-snow.png",
+        "sourceSize": [
+          1254,
+          1254
+        ],
+        "runtime": {
+          "file": "public/music/covers/first-snow.webp",
+          "size": [
+            512,
+            512
+          ],
+          "quality": 74,
+          "kb": 59.3
+        },
+        "mean": "#675b6d",
+        "dominant": [
+          "#52587d",
+          "#432724",
+          "#aa97a2"
+        ]
+      }
+    ]
+  }
+}

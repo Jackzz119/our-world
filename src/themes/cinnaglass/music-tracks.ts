@@ -1,9 +1,8 @@
 // music-tracks.ts — the built-in generative playlist (no audio files). Kept out
 // of music.tsx so that component file only exports components (react-refresh).
-// Posters are square crops of this period's concept art (public/music/covers/,
-// cut from ai/design_system/concept/across-the-table/img/) standing in until the
-// playlist gets its own artwork (ART-REQUEST ART-01, ai/design_system/codex-visual/art-requests/art-requests.md);
-// lyrics are written for each soundscape and timed in seconds on its generated timeline.
+// Posters are the playlist's own generated covers, one still life per track (public/music/covers/,
+// originals and provenance in arts/ui/music/manifest.json); lyrics are written for each soundscape
+// and timed in seconds on its generated timeline.
 
 export type LyricLine = { t: number; text: string };
 export type Track = {
@@ -13,7 +12,7 @@ export type Track = {
     chord: number[];
     dur: number;
     poster: string;
-    /** fallback paint while the poster loads, and the glow behind it */
+    /** paint while the poster loads: the poster's own top-left to bottom-right average */
     tint: string;
     lyrics: LyricLine[];
 };
@@ -30,7 +29,7 @@ export const TRACKS: Track[] = [
         chord: [0, 4, 7, 11],
         dur: 214,
         poster: '/music/covers/afternoon-clouds.webp',
-        tint: 'linear-gradient(145deg,#FCE3B0,#F5B774)',
+        tint: 'linear-gradient(145deg,#ceaf86,#b98653)',
         lyrics: lines([
             [0, '午后的风把窗帘吹成一朵云'],
             [16, '你把橘子分我一半'],
@@ -52,7 +51,7 @@ export const TRACKS: Track[] = [
         chord: [0, 3, 7, 10],
         dur: 198,
         poster: '/music/covers/rainy-window.webp',
-        tint: 'linear-gradient(145deg,#BFD0F2,#8C9DDB)',
+        tint: 'linear-gradient(145deg,#755f63,#694b49)',
         lyrics: lines([
             [0, '窗外的灯一盏一盏亮起来'],
             [15, '杯子里的热气慢慢变细'],
@@ -74,7 +73,7 @@ export const TRACKS: Track[] = [
         chord: [0, 4, 7, 11],
         dur: 236,
         poster: '/music/covers/lamp-radio.webp',
-        tint: 'linear-gradient(145deg,#E7C4F0,#B68FD9)',
+        tint: 'linear-gradient(145deg,#84587d,#694167)',
         lyrics: lines([
             [0, '收音机里有人在念晚安'],
             [18, '旋钮转过一格，换成老情歌'],
@@ -97,7 +96,7 @@ export const TRACKS: Track[] = [
         chord: [0, 5, 7, 12],
         dur: 188,
         poster: '/music/covers/spring-walk.webp',
-        tint: 'linear-gradient(145deg,#BFE8D2,#86C9A6)',
+        tint: 'linear-gradient(145deg,#a4b19b,#d1bda8)',
         lyrics: lines([
             [0, '周末的早上不定闹钟'],
             [14, '你的鞋带又松了'],
@@ -119,7 +118,7 @@ export const TRACKS: Track[] = [
         chord: [0, 3, 7, 10],
         dur: 205,
         poster: '/music/covers/record-corner.webp',
-        tint: 'linear-gradient(145deg,#C9B3E8,#7E6AB5)',
+        tint: 'linear-gradient(145deg,#71558c,#4f3b58)',
         lyrics: lines([
             [0, '唱针落下的那一秒'],
             [14, '房间忽然安静了'],
@@ -141,7 +140,7 @@ export const TRACKS: Track[] = [
         chord: [0, 4, 9, 14],
         dur: 222,
         poster: '/music/covers/seaside-stars.webp',
-        tint: 'linear-gradient(145deg,#9FB6E8,#3F5A9E)',
+        tint: 'linear-gradient(145deg,#0b1223,#050b18)',
         lyrics: lines([
             [0, '海风把窗帘吹起来'],
             [16, '贝壳风铃叮叮地响'],
@@ -163,7 +162,7 @@ export const TRACKS: Track[] = [
         chord: [0, 2, 7, 11],
         dur: 196,
         poster: '/music/covers/dawn-train.webp',
-        tint: 'linear-gradient(145deg,#F7D1A6,#D98C6A)',
+        tint: 'linear-gradient(145deg,#df997d,#b38060)',
         lyrics: lines([
             [0, '列车穿过清晨的海岸'],
             [15, '太阳刚刚醒过来'],
@@ -185,7 +184,7 @@ export const TRACKS: Track[] = [
         chord: [0, 4, 7, 11],
         dur: 240,
         poster: '/music/covers/first-snow.webp',
-        tint: 'linear-gradient(145deg,#D6E2F3,#8FA3C6)',
+        tint: 'linear-gradient(145deg,#726a7d,#4f475f)',
         lyrics: lines([
             [0, '窗玻璃结了一层薄霜'],
             [18, '你在上面画了一颗心'],
