@@ -1,0 +1,2093 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>UI 动效与弹层比稿</title>
+        <link rel="stylesheet" href="board.css" />
+    </head>
+    <body>
+        <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+            <defs>
+                <symbol id="i-home" viewBox="0 0 24 24">
+                    <path d="m2.2 10.5 9.1-8a1.1 1.1 0 0 1 1.4 0l9.1 8-2 2-1.2-1v9h-4.5v-7H9.9v7H5.4v-9l-1.2 1z" />
+                </symbol>
+                <symbol id="i-chat" viewBox="0 0 24 24">
+                    <path
+                        d="M20.4 16.8a9.7 9.7 0 0 0 1.1-4.7c0-5.6-4.2-9.6-9.5-9.6S2.5 6.4 2.5 11.8c0 2.1.7 4 1.8 5.4l-1 4.1 4.2-1.8c1.4.7 2.9 1 4.5 1 2.2 0 4-.6 5.6-1.8l4.4 1.7z"
+                    />
+                </symbol>
+                <symbol id="i-music" viewBox="0 0 24 24">
+                    <path d="M9 18V5.5L21 3v13M9 10l12-2.5" />
+                    <ellipse cx="5.5" cy="18.5" rx="3.5" ry="2.8" transform="rotate(-16 5.5 18.5)" />
+                    <ellipse cx="17.5" cy="16.5" rx="3.5" ry="2.8" transform="rotate(-16 17.5 16.5)" />
+                </symbol>
+                <symbol id="i-tools" viewBox="0 0 24 24">
+                    <path
+                        d="m13.7 3.3 4.1-1.1-3.2 4.2 3 3 4.2-3.2-1.1 4.1a6.3 6.3 0 0 1-7.7 3.4L5 21.5c-.6.6-1.5.6-2.1 0l-.4-.4c-.6-.6-.6-1.5 0-2.1l7.8-8a6.3 6.3 0 0 1 3.4-7.7Z"
+                    />
+                </symbol>
+                <symbol id="i-settings" viewBox="0 0 24 24">
+                    <path
+                        d="m10 2-.7 2.8-2 .9-2.5-.8-2 3.3 2 2.1v2.9l-2 2.1 2 3.3 2.5-.8 2 .9.7 2.8h4l.7-2.8 2-.9 2.5.8 2-3.3-2-2.1v-2.9l2-2.1-2-3.3-2.5.8-2-.9L14 2z"
+                    />
+                    <circle cx="12" cy="11.8" r="3.5" />
+                </symbol>
+                <symbol id="i-play" viewBox="0 0 24 24">
+                    <path d="M8 5.2c0-.6.6-.9 1.1-.6l9.4 6.2c.5.3.5 1 0 1.4l-9.4 6.2c-.5.3-1.1 0-1.1-.6V5.2z" />
+                </symbol>
+                <symbol id="i-pause" viewBox="0 0 24 24">
+                    <rect x="6.5" y="4.5" width="4" height="15" rx="1.4" />
+                    <rect x="13.5" y="4.5" width="4" height="15" rx="1.4" />
+                </symbol>
+                <symbol id="i-next" viewBox="0 0 24 24">
+                    <path
+                        d="M5 4.5c0-.6.6-.9 1.1-.6l7 5c.5.3.5 1 0 1.3l-7 5c-.5.4-1.1 0-1.1-.6V4.5z"
+                        transform="translate(0 1.5)"
+                    />
+                    <rect x="15" y="4.5" width="3.2" height="15" rx="1.2" />
+                </symbol>
+                <symbol id="i-prev" viewBox="0 0 24 24">
+                    <path
+                        d="M19 4.5c0-.6-.6-.9-1.1-.6l-7 5c-.5.3-.5 1 0 1.3l7 5c.5.4 1.1 0 1.1-.6V4.5z"
+                        transform="translate(0 1.5)"
+                    />
+                    <rect x="5.8" y="4.5" width="3.2" height="15" rx="1.2" />
+                </symbol>
+                <symbol id="i-vol" viewBox="0 0 24 24">
+                    <path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z" />
+                    <path d="M15.5 9a4 4 0 010 6" />
+                </symbol>
+                <symbol id="i-heart" viewBox="0 0 24 24">
+                    <path
+                        d="M12 20s-7-4.5-9.3-9C1.2 8 2.6 4.7 5.8 4.5 8 4.4 9.3 5.6 12 8c2.7-2.4 4-3.6 6.2-3.5 3.2.2 4.6 3.5 3.1 6.5C19 15.5 12 20 12 20z"
+                    />
+                </symbol>
+                <symbol id="i-list" viewBox="0 0 24 24">
+                    <path d="M9 6h11M9 12h11M9 18h7M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+                </symbol>
+                <symbol id="i-lyric" viewBox="0 0 24 24"><path d="M4 6.5h16M4 11h10M4 15.5h16M4 20h7" /></symbol>
+                <symbol id="i-shuffle" viewBox="0 0 24 24">
+                    <path d="M16 4h4v4M4 20 20 4M20 16v4h-4M15 15l5 5M4 4l5 5" />
+                </symbol>
+                <symbol id="i-repeat" viewBox="0 0 24 24">
+                    <path
+                        d="M17 2.5l3.5 3.5-3.5 3.5M3.5 11V9.5A3.5 3.5 0 0 1 7 6h13.5M7 21.5 3.5 18 7 14.5M20.5 13v1.5A3.5 3.5 0 0 1 17 18H3.5"
+                    />
+                </symbol>
+                <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></symbol>
+                <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></symbol>
+                <symbol id="i-search" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="6.5" />
+                    <path d="M20 20l-4.2-4.2" />
+                </symbol>
+                <symbol id="i-clock" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="8.5" />
+                    <path d="M12 7.5V12l3 1.8" />
+                </symbol>
+                <symbol id="i-cloud" viewBox="0 0 24 24">
+                    <path d="M7 18h9.5a3.5 3.5 0 00.4-7 5 5 0 00-9.6-1.2A3.8 3.8 0 007 18z" />
+                </symbol>
+                <symbol id="i-photo" viewBox="0 0 24 24">
+                    <rect x="3.5" y="5" width="17" height="14" rx="2.6" />
+                    <circle cx="9" cy="10" r="1.7" />
+                    <path d="M5 17l4.2-4 2.6 2.4L15 12l4 4.5" />
+                </symbol>
+                <symbol id="i-cal" viewBox="0 0 24 24">
+                    <rect x="4" y="5.5" width="16" height="14.5" rx="2.4" />
+                    <path d="M4 9.5h16M8.5 3.5v3.5M15.5 3.5v3.5" />
+                </symbol>
+                <symbol id="i-bag" viewBox="0 0 24 24">
+                    <path d="M6 8h12l1.2 11.2a1.8 1.8 0 0 1-1.8 2H6.6a1.8 1.8 0 0 1-1.8-2L6 8z" />
+                    <path d="M8.5 10V6.5a3.5 3.5 0 0 1 7 0V10" />
+                </symbol>
+                <symbol id="i-logout" viewBox="0 0 24 24">
+                    <path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3" />
+                    <path d="m16 17 5-5-5-5" />
+                    <path d="M21 12H9" />
+                </symbol>
+                <symbol id="i-lock" viewBox="0 0 24 24">
+                    <rect x="5" y="10.5" width="14" height="9.5" rx="2.4" />
+                    <path d="M8 10.5V8a4 4 0 018 0v2.5" />
+                </symbol>
+                <symbol id="i-expand" viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" /></symbol>
+                <symbol id="i-send" viewBox="0 0 24 24">
+                    <path d="M4.5 12L20 4.5l-4.2 15-3.6-6.2L4.5 12z" />
+                    <path d="M12.2 13.3L20 4.5" />
+                </symbol>
+                <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13" /></symbol>
+                <symbol id="i-headset" viewBox="0 0 24 24">
+                    <path d="M5 13v-1a7 7 0 0114 0v1" />
+                    <rect x="3.5" y="13" width="3.6" height="6" rx="1.6" />
+                    <rect x="16.9" y="13" width="3.6" height="6" rx="1.6" />
+                </symbol>
+                <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" /></symbol>
+                <symbol id="i-spark" viewBox="0 0 24 24">
+                    <path d="M12 4l1.7 4.6L18 10l-4.3 1.4L12 16l-1.7-4.6L6 10l4.3-1.4L12 4z" />
+                </symbol>
+                <symbol id="i-steam" viewBox="0 0 72 72">
+                    <path d="M16 34h34v10a15 15 0 0 1-15 15h-4a15 15 0 0 1-15-15z" />
+                    <path d="M50 38h4a6 6 0 0 1 0 12h-5" />
+                    <path d="M13 63h44" />
+                    <path d="M26 27c-3-4 3-6 0-10M34 25c-3-4 3-6 0-10M42 27c-3-4 3-6 0-10" />
+                </symbol>
+                <symbol id="i-chain" viewBox="0 0 24 48">
+                    <path d="M12 0v30" stroke-dasharray="1.5 2.5" />
+                    <circle cx="12" cy="36" r="5" />
+                    <path d="M12 41v5" />
+                </symbol>
+            </defs>
+        </svg>
+
+        <h1 class="board-title">UI 动效与弹层 · 比稿画板</h1>
+        <p class="board-note">
+            真实书房截图做背景（开发环境拍，去掉界面），材质数值与线上 Cinnaglass
+            一致。图上金色虚线标签是设计注记，不是界面。
+        </p>
+
+        <!-- ================= A · 手机功能弹层 ================= -->
+        <h2 class="board-title">A · 手机功能弹层（以音乐为例）</h2>
+        <div class="row">
+            <!-- A1 半桌托盘 -->
+            <figure>
+                <div class="ab phone night" id="A1">
+                    <div class="bg p-night"></div>
+                    <div class="glass amb">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 430px">
+                        <span class="grab"></span>
+                        <div class="np">
+                            <img class="poster" src="/music/covers/rainy-window.webp" width="76" height="76" alt="" />
+                            <div style="flex: 1; min-width: 0">
+                                <p class="np-title">雨天的窗边</p>
+                                <p class="np-sub">Lo-fi 时光 · 本机音景</p>
+                            </div>
+                            <span class="btn ghost round gold"
+                                ><svg class="i"><use href="#i-heart" /></svg
+                            ></span>
+                        </div>
+                        <div style="margin: 16px 2px 14px">
+                            <p class="lyr cur">雨一直敲着玻璃，像在替我们数心跳</p>
+                            <p class="lyr">你翻过一页书，我把灯拧暗一点</p>
+                        </div>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                        <div class="transport" style="margin-top: 10px">
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-repeat" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-list" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 128px; top: 380px"
+                        >上滑 340ms 弹簧 · 顶边停在对方书下</span
+                    >
+                    <span class="anno" data-n="2" style="left: 12px; top: 694px">底栏留着：点别的图标直接换内容</span>
+                </div>
+                <figcaption>
+                    <b>A1 半桌托盘（推荐）</b
+                    >：从下往上盖住我这边的手和杯子，对方的脸、肩和书完整可见；底导航保留，当标签栏用，点当前图标或下拉收起。
+                </figcaption>
+            </figure>
+
+            <!-- A2 整页播放器 -->
+            <figure>
+                <div class="ab phone night" id="A2">
+                    <div
+                        class="bg"
+                        style="
+                            background-image: url('/music/covers/rainy-window.webp');
+                            filter: blur(30px) brightness(0.72) saturate(1.5);
+                            transform: scale(1.35);
+                        "
+                    ></div>
+                    <div class="glass" style="inset: 0; border-radius: 0; --alpha: 0.22; border: 0"></div>
+                    <div
+                        style="
+                            position: absolute;
+                            inset: 0;
+                            padding: 18px 20px 28px;
+                            display: flex;
+                            flex-direction: column;
+                        "
+                    >
+                        <div style="display: flex; align-items: center; justify-content: space-between">
+                            <span class="btn ghost round"
+                                ><svg class="i"><use href="#i-down" /></svg
+                            ></span>
+                            <span class="glass presence" style="position: relative; --alpha: 0.4"
+                                ><img src="/avatars/ayu.webp" alt="" /><i></i>对面 · 阿屿在看书</span
+                            >
+                            <span class="btn ghost round"
+                                ><svg class="i"><use href="#i-list" /></svg
+                            ></span>
+                        </div>
+                        <img
+                            class="poster"
+                            src="/music/covers/rainy-window.webp"
+                            style="width: 300px; height: 300px; margin: 34px auto 26px; border-radius: 24px"
+                            alt=""
+                        />
+                        <p class="np-title" style="font-size: 22px">雨天的窗边</p>
+                        <p class="np-sub" style="font-size: 13px">Lo-fi 时光 · 本机音景</p>
+                        <div style="margin: 18px 0 16px">
+                            <p class="lyr cur" style="font-size: 17px">雨一直敲着玻璃，像在替我们数心跳</p>
+                            <p class="lyr" style="font-size: 14px">你翻过一页书，我把灯拧暗一点</p>
+                        </div>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                        <div class="transport" style="margin-top: 14px; padding: 0 10px">
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-shuffle" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 26px; height: 26px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play" style="width: 68px; height: 68px"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 26px; height: 26px"><use href="#i-next" /></svg
+                            ></span>
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-lyric" /></svg
+                            ></span>
+                        </div>
+                        <div style="display: flex; gap: 8px; justify-content: center; margin-top: auto">
+                            <span class="chip on">歌词</span><span class="chip">歌单 8</span
+                            ><span class="chip">音量 70%</span><span class="chip">列表循环</span>
+                        </div>
+                    </div>
+                    <span class="anno" data-n="1" style="left: 14px; top: 76px">整页 420ms 上推，场景暂停渲染</span>
+                </div>
+                <figcaption>
+                    <b>A2 整页播放器</b
+                    >：你说的第一种，点开直接进播放器主页面。沉浸、好读，但看不到对面，只能用顶部的「对面」胶囊保留在场感。
+                </figcaption>
+            </figure>
+
+            <!-- A3 镜头上抬 -->
+            <figure>
+                <div class="ab phone night" id="A3" style="background: #0c0d11">
+                    <div class="bg p-night lifted"></div>
+                    <section class="glass sheet" style="top: 404px">
+                        <span class="grab"></span>
+                        <div class="np">
+                            <img class="poster" src="/music/covers/rainy-window.webp" width="84" height="84" alt="" />
+                            <div style="flex: 1">
+                                <p class="np-title">雨天的窗边</p>
+                                <p class="np-sub">Lo-fi 时光 · 本机音景</p>
+                                <div class="tabs" style="margin-top: 8px">
+                                    <em style="left: 4px; width: calc(33.3% - 3px)"></em><span class="on">播放</span
+                                    ><span>歌词</span><span>歌单</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin: 16px 2px 12px">
+                            <p class="lyr cur">雨一直敲着玻璃，像在替我们数心跳</p>
+                            <p class="lyr">你翻过一页书，我把灯拧暗一点</p>
+                        </div>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                        <div class="transport" style="margin-top: 8px; padding: 0 30px">
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 150px; top: 20px">场景上抬 58px、缩到 95.5%、压暗</span>
+                </div>
+                <figcaption>
+                    <b>A3 镜头上抬</b
+                    >：托盘更高（56%），场景整体往上挪、缩一点再压暗，对方的脸移到上半屏中央。空间更大，代价是场景会动。
+                </figcaption>
+            </figure>
+
+            <!-- A4 浮卡托盘 -->
+            <figure>
+                <div class="ab phone twilight" id="A4">
+                    <div class="bg p-twilight"></div>
+                    <div class="glass amb">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <section class="glass sheet float thin" style="padding: 18px 16px 16px">
+                        <span class="grab" style="top: 7px"></span>
+                        <div class="np">
+                            <img
+                                class="poster"
+                                src="/music/covers/afternoon-clouds.webp"
+                                width="64"
+                                height="64"
+                                alt=""
+                            />
+                            <div style="flex: 1">
+                                <p class="np-title">云朵上的下午</p>
+                                <p class="np-sub">小满 & 知夏 · 本机音景</p>
+                            </div>
+                        </div>
+                        <p class="lyr cur" style="margin: 14px 2px 12px">云把下午拉得很长，长到够我们走完这条街</p>
+                        <div class="bar"><b style="width: 62%"></b><i style="left: 62%"></i></div>
+                        <div class="transport" style="margin-top: 14px; padding: 0 22px">
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play" style="width: 54px; height: 54px"
+                                ><svg class="i fill"><use href="#i-play" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 12px; top: 470px"
+                        >四角圆、离边 12px，透度同聊天窄卡</span
+                    >
+                </div>
+                <figcaption>
+                    <b>A4 浮卡托盘</b
+                    >：不贴边的浮起卡片，和现在的聊天窄卡同一种轻玻璃，桌面透得出来。最像现状，但高度有限，只放得下精简播放。
+                </figcaption>
+            </figure>
+
+            <!-- A5 拉满 -->
+            <figure>
+                <div class="ab phone night" id="A5" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px">
+                        <span class="grab"></span>
+                        <div
+                            style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                margin-bottom: 12px;
+                            "
+                        >
+                            <span class="glass presence" style="position: relative; --alpha: 0.3"
+                                ><img src="/avatars/ayu.webp" alt="" /><i></i>阿屿在看书</span
+                            >
+                            <span class="btn ghost round"
+                                ><svg class="i"><use href="#i-down" /></svg
+                            ></span>
+                        </div>
+                        <div class="tabs">
+                            <em style="left: calc(33.3% + 1px); width: calc(33.3% - 3px)"></em><span>正在播放</span
+                            ><span class="on">歌词</span><span>歌单</span>
+                        </div>
+                        <div style="flex: 1; padding: 22px 6px 0; overflow: hidden">
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3">窗外的灯一盏一盏亮起来</p>
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3">杯子里的热气慢慢变细</p>
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3">你说今天的雨好适合发呆</p>
+                            <p class="lyr cur" style="font-size: 21px; line-height: 2.1">
+                                雨一直敲着玻璃，<br />像在替我们数心跳
+                            </p>
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3">你翻过一页书，我把灯拧暗一点</p>
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3; opacity: 0.7">
+                                城市在远处安静地亮着
+                            </p>
+                            <p class="lyr" style="font-size: 16px; line-height: 2.3; opacity: 0.45">我们谁也不用说话</p>
+                        </div>
+                        <div class="np" style="margin-top: 8px">
+                            <img
+                                class="poster"
+                                src="/music/covers/rainy-window.webp"
+                                width="44"
+                                height="44"
+                                style="border-radius: 10px"
+                                alt=""
+                            />
+                            <div style="flex: 1">
+                                <b style="font-size: 14px; font-weight: 500">雨天的窗边</b>
+                                <div class="bar" style="margin-top: 8px"><b style="width: 38%"></b></div>
+                            </div>
+                            <span class="btn primary round" style="width: 46px; height: 46px"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 176px; top: 24px">托盘可拉满，顶上留「对面」胶囊</span>
+                </div>
+                <figcaption>
+                    <b>A5 拉满看歌词</b>：A1 上拉到第二档（全高），读歌词、翻歌单；对面人物被盖住时，顶部胶囊继续显示 TA
+                    的状态，下拉回到半桌。
+                </figcaption>
+            </figure>
+        </div>
+
+        <h2 class="board-title">A · 同一托盘装其他功能</h2>
+        <div class="row">
+            <!-- A6 聊天 -->
+            <figure>
+                <div class="ab phone twilight" id="A6">
+                    <div class="bg p-twilight"></div>
+                    <div class="glass amb">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 420px; gap: 10px">
+                        <span class="grab"></span>
+                        <div style="display: flex; align-items: center; justify-content: space-between">
+                            <b style="font-size: 15px">悄悄话</b>
+                            <span class="btn ghost round"
+                                ><svg class="i" style="width: 16px; height: 16px"><use href="#i-expand" /></svg
+                            ></span>
+                        </div>
+                        <div
+                            class="liner"
+                            style="
+                                flex: 1;
+                                padding: 12px;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 10px;
+                                justify-content: flex-end;
+                                background: linear-gradient(145deg, #43434f99, #34343f99 58%);
+                            "
+                        >
+                            <div class="msg"><img src="/avatars/ayu.webp" alt="" /><span>雨好大，你那边呢</span></div>
+                            <div class="msg">
+                                <img src="/avatars/xiaoman.webp" alt="" /><span>也在下，刚泡了热可可</span>
+                            </div>
+                            <div class="msg"><img src="/avatars/ayu.webp" alt="" /><span>给我也留一杯 ☕️</span></div>
+                        </div>
+                        <div style="display: flex; gap: 8px">
+                            <span class="btn ghost" style="font-size: 20px">❤️</span
+                            ><span class="btn ghost" style="font-size: 20px">🌟</span>
+                            <span
+                                class="btn"
+                                style="
+                                    flex: 1;
+                                    justify-content: start;
+                                    justify-items: start;
+                                    color: var(--muted);
+                                    background: var(--liner-base);
+                                "
+                                >悄悄说…</span
+                            >
+                            <span class="btn primary round" style="border-radius: 12px"
+                                ><svg class="i"><use href="#i-send" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 170px; top: 372px"
+                        >对方头像气泡依次弹入 · 40ms 错开</span
+                    >
+                </div>
+                <figcaption><b>A6 聊天托盘</b>：窄卡改成同一托盘，边聊边看 TA；展开钮进完整聊天。</figcaption>
+            </figure>
+
+            <!-- A7 工具 -->
+            <figure>
+                <div class="ab phone golden" id="A7">
+                    <div class="bg p-golden"></div>
+                    <div class="glass amb">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 452px; gap: 12px">
+                        <span class="grab"></span>
+                        <b style="font-size: 15px">工具</b>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+                            <div class="liner tile">
+                                <svg class="i"><use href="#i-photo" /></svg>照片墙
+                            </div>
+                            <div class="liner tile">
+                                <svg class="i"><use href="#i-cal" /></svg>日历·纪念日
+                            </div>
+                            <div class="liner tile" style="opacity: 0.45">
+                                <svg class="i"><use href="#i-bag" /></svg>装扮 · 敬请期待
+                            </div>
+                        </div>
+                        <div class="liner" style="padding: 4px 14px">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; height: 46px"
+                            >
+                                纪念日卡<span class="switch"></span>
+                            </div>
+                            <div
+                                style="
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: space-between;
+                                    height: 46px;
+                                    border-top: 1px solid #ffffff14;
+                                "
+                            >
+                                音乐迷你条<span class="switch off"></span>
+                            </div>
+                        </div>
+                        <span
+                            class="btn ghost"
+                            style="
+                                justify-self: start;
+                                gap: 6px;
+                                display: inline-flex;
+                                align-items: center;
+                                width: max-content;
+                            "
+                            ><svg class="i" style="width: 16px"><use href="#i-logout" /></svg>回大厅</span
+                        >
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 176px; top: 404px">开关：弹簧拨片 + 金色点亮</span>
+                </div>
+                <figcaption><b>A7 工具托盘</b>：原来的工具小菜单变成托盘，图块更好点，开关也有空间。</figcaption>
+            </figure>
+
+            <!-- A8 房间 -->
+            <figure>
+                <div class="ab phone twilight" id="A8">
+                    <div class="bg p-twilight"></div>
+                    <div class="glass amb">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 520px; gap: 12px">
+                        <span class="grab"></span>
+                        <b style="font-size: 15px">房间</b>
+                        <div style="display: flex; gap: 12px; margin-right: -16px; overflow: hidden">
+                            <div class="room-card cur"><img src="/rooms/study/thumb.webp" alt="" /><b>书房</b></div>
+                            <div class="room-card locked">
+                                <img src="../../concept/across-the-table/img/R-records-keyart.jpg" alt="" /><b>唱片角</b
+                                ><small>即将开放</small>
+                            </div>
+                            <div class="room-card locked">
+                                <img src="../../concept/across-the-table/img/R-greenhouse-keyart.jpg" alt="" /><b
+                                    >温室</b
+                                ><small>即将开放</small>
+                            </div>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span class="on"
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 164px; top: 474px">矮托盘：只占 38%，对方全身可见</span>
+                </div>
+                <figcaption>
+                    <b>A8 房间托盘</b>：高度随内容，房间卡横向滑动；未开放的房间只做概念占位（现在只有书房）。
+                </figcaption>
+            </figure>
+
+            <!-- A9 横屏 -->
+            <figure>
+                <div class="ab land night" id="A9">
+                    <div class="bg l-night"></div>
+                    <section
+                        class="glass"
+                        style="
+                            top: 12px;
+                            right: 12px;
+                            bottom: 12px;
+                            width: 330px;
+                            padding: 16px;
+                            border-radius: 26px;
+                            --alpha: 0.72;
+                        "
+                    >
+                        <div class="np">
+                            <img class="poster" src="/music/covers/rainy-window.webp" width="96" height="96" alt="" />
+                            <div style="flex: 1">
+                                <p class="np-title">雨天的窗边</p>
+                                <p class="np-sub">Lo-fi 时光 · 本机音景</p>
+                                <p class="lyr cur" style="margin-top: 8px; font-size: 13px">雨一直敲着玻璃…</p>
+                            </div>
+                        </div>
+                        <div class="bar" style="margin-top: 18px">
+                            <b style="width: 38%"></b><i style="left: 38%"></i>
+                        </div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                        <div class="transport" style="margin-top: 10px; padding: 0 26px">
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play" style="width: 54px; height: 54px"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav" style="left: 250px">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 300px; top: 18px">横屏改成右侧抽屉，从右滑入</span>
+                </div>
+                <figcaption><b>A9 横屏</b>：矮屏里托盘改成右侧抽屉，对方留在左中。</figcaption>
+            </figure>
+        </div>
+
+        <!-- ================= B · 音乐主页面 ================= -->
+        <h2 class="board-title">B · 音乐主页面：选曲、海报、歌词</h2>
+        <div class="row">
+            <!-- B1 海报+歌词 -->
+            <figure>
+                <div class="ab phone night" id="B1" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px">
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: 4px; width: calc(33.3% - 3px)"></em><span class="on">正在播放</span
+                            ><span>歌词</span><span>歌单</span>
+                        </div>
+                        <div style="position: relative; margin: 26px auto 18px; width: 236px; height: 236px">
+                            <img
+                                src="/music/covers/rainy-window.webp"
+                                alt=""
+                                style="
+                                    position: absolute;
+                                    inset: 14px;
+                                    width: 208px;
+                                    height: 208px;
+                                    border-radius: 22px;
+                                    filter: blur(26px) saturate(1.5);
+                                    opacity: 0.8;
+                                "
+                            />
+                            <img
+                                class="poster"
+                                src="/music/covers/rainy-window.webp"
+                                alt=""
+                                style="position: relative; width: 236px; height: 236px; border-radius: 24px"
+                            />
+                        </div>
+                        <div class="np" style="justify-content: space-between">
+                            <div>
+                                <p class="np-title" style="font-size: 20px">雨天的窗边</p>
+                                <p class="np-sub">Lo-fi 时光 · 本机音景</p>
+                            </div>
+                            <span class="btn ghost round gold"
+                                ><svg class="i"><use href="#i-heart" /></svg
+                            ></span>
+                        </div>
+                        <div style="margin: 14px 0; text-align: left">
+                            <p class="lyr" style="opacity: 0.6">你说今天的雨好适合发呆</p>
+                            <p class="lyr cur">雨一直敲着玻璃，像在替我们数心跳</p>
+                            <p class="lyr">你翻过一页书，我把灯拧暗一点</p>
+                        </div>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                        <div class="transport" style="margin-top: 8px">
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-repeat" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                            <span class="btn ghost round muted"
+                                ><svg class="i"><use href="#i-vol" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 222px; top: 128px">海报下垫同色柔光</span>
+                    <span class="anno" data-n="2" style="left: 160px; top: 398px"
+                        >当前句金色，换句时上移 14px 淡入</span
+                    >
+                </div>
+                <figcaption>
+                    <b>B1 海报 + 歌词（推荐）</b
+                    >：正在播放页给海报最大的位置，下面三行歌词滚动；「歌词」「歌单」是同一页的标签，指示条会滑过去。
+                </figcaption>
+            </figure>
+
+            <!-- B2 唱片机 -->
+            <figure>
+                <div class="ab phone night" id="B2" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px">
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: 4px; width: calc(33.3% - 3px)"></em><span class="on">正在播放</span
+                            ><span>歌词</span><span>歌单</span>
+                        </div>
+                        <div style="position: relative; width: 300px; height: 300px; margin: 18px auto 6px">
+                            <img
+                                src="/rooms/study/vinyl.webp"
+                                alt=""
+                                style="
+                                    position: absolute;
+                                    inset: 0;
+                                    width: 300px;
+                                    height: 300px;
+                                    transform: rotate(40deg);
+                                    filter: drop-shadow(0 16px 24px #000b);
+                                "
+                            />
+                            <img
+                                src="/music/covers/rainy-window.webp"
+                                alt=""
+                                style="
+                                    position: absolute;
+                                    left: 105px;
+                                    top: 105px;
+                                    width: 90px;
+                                    height: 90px;
+                                    border-radius: 50%;
+                                    transform: rotate(40deg);
+                                "
+                            />
+                            <span
+                                style="
+                                    position: absolute;
+                                    left: 146px;
+                                    top: 146px;
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 50%;
+                                    background: #111;
+                                "
+                            ></span>
+                            <img
+                                src="/rooms/study/tonearm.webp"
+                                alt=""
+                                style="
+                                    position: absolute;
+                                    left: 136px;
+                                    top: -8px;
+                                    width: 176px;
+                                    transform: rotate(-24deg);
+                                    transform-origin: 88% 30%;
+                                    filter: drop-shadow(0 8px 8px #000a);
+                                "
+                            />
+                        </div>
+                        <p class="np-title" style="text-align: center; font-size: 20px">雨天的窗边</p>
+                        <p class="np-sub" style="text-align: center">Lo-fi 时光 · 本机音景</p>
+                        <p class="lyr cur" style="text-align: center; margin: 12px 0">
+                            雨一直敲着玻璃，像在替我们数心跳
+                        </p>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="transport" style="margin-top: 14px; padding: 0 34px">
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-prev" /></svg
+                            ></span>
+                            <span class="btn primary play"
+                                ><svg class="i fill"><use href="#i-pause" /></svg
+                            ></span>
+                            <span class="btn ghost round"
+                                ><svg class="i fill" style="width: 24px; height: 24px"><use href="#i-next" /></svg
+                            ></span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 14px; top: 132px"
+                        >播放时唱片 33⅓ 转慢转，暂停唱臂抬起</span
+                    >
+                </div>
+                <figcaption>
+                    <b>B2 唱片机</b>：用书房唱片机的真唱片做海报底座，海报贴成唱片标签；和「落针放歌」的物件仪式呼应。
+                </figcaption>
+            </figure>
+
+            <!-- B3 歌词沉浸 -->
+            <figure>
+                <div class="ab phone night" id="B3" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px; overflow: hidden">
+                        <img
+                            src="/music/covers/rainy-window.webp"
+                            alt=""
+                            style="
+                                position: absolute;
+                                inset: -40px;
+                                width: calc(100% + 80px);
+                                height: calc(100% + 80px);
+                                object-fit: cover;
+                                filter: blur(40px) brightness(0.45) saturate(1.3);
+                                z-index: -1;
+                            "
+                        />
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: calc(33.3% + 1px); width: calc(33.3% - 3px)"></em><span>正在播放</span
+                            ><span class="on">歌词</span><span>歌单</span>
+                        </div>
+                        <div style="flex: 1; padding: 30px 8px 0">
+                            <p class="lyr" style="font-size: 18px; line-height: 2.2; opacity: 0.5">
+                                窗外的灯一盏一盏亮起来
+                            </p>
+                            <p class="lyr" style="font-size: 18px; line-height: 2.2; opacity: 0.7">
+                                你说今天的雨好适合发呆
+                            </p>
+                            <p class="lyr cur" style="font-size: 24px; line-height: 1.7; margin: 10px 0">
+                                雨一直敲着玻璃，<br />像在替我们数心跳
+                            </p>
+                            <p class="lyr" style="font-size: 18px; line-height: 2.2">你翻过一页书</p>
+                            <p class="lyr" style="font-size: 18px; line-height: 2.2">我把灯拧暗一点</p>
+                            <p class="lyr" style="font-size: 18px; line-height: 2.2; opacity: 0.55">
+                                城市在远处安静地亮着
+                            </p>
+                        </div>
+                        <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                        <div class="times"><span>1:15</span><span>3:18</span></div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 236px; top: 150px">点任一句跳到那里</span>
+                </div>
+                <figcaption><b>B3 歌词沉浸</b>：海报糊成整页底色，歌词大字滚动，当前句放大；点一句跳过去。</figcaption>
+            </figure>
+
+            <!-- B4 歌单 -->
+            <figure>
+                <div class="ab phone night" id="B4" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px; gap: 8px">
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: calc(66.6% - 2px); width: calc(33.3% - 3px)"></em><span>正在播放</span
+                            ><span>歌词</span><span class="on">歌单</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; margin: 6px 0 2px">
+                            <span class="chip on">全部 8</span><span class="chip">雨天</span
+                            ><span class="chip">夜里</span><span class="chip">收藏 ♥</span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/afternoon-clouds.webp" alt="" />
+                            <div class="t"><b>云朵上的下午</b><span>小满 & 知夏</span></div>
+                            <span class="d">3:34</span>
+                        </div>
+                        <div class="list-row on">
+                            <img src="/music/covers/rainy-window.webp" alt="" />
+                            <div class="t"><b class="gold">雨天的窗边</b><span>Lo-fi 时光</span></div>
+                            <span class="eq"
+                                ><i style="height: 9px"></i><i style="height: 14px"></i><i style="height: 6px"></i
+                            ></span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/lamp-radio.webp" alt="" />
+                            <div class="t"><b>暖灯电台</b><span>夜晚频率</span></div>
+                            <span class="d">3:56</span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/spring-walk.webp" alt="" />
+                            <div class="t"><b>一起散步</b><span>周末</span></div>
+                            <span class="d">3:08</span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/record-corner.webp" alt="" />
+                            <div class="t"><b>落针的唱片角</b><span>唱片角</span></div>
+                            <span class="d">3:25</span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/seaside-stars.webp" alt="" />
+                            <div class="t"><b>海边的星星</b><span>潮汐</span></div>
+                            <span class="d">3:42</span>
+                        </div>
+                        <div class="list-row" style="opacity: 0.6">
+                            <img src="/music/covers/dawn-train.webp" alt="" />
+                            <div class="t"><b>列车清晨</b><span>远行</span></div>
+                            <span class="d">3:16</span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 190px; top: 238px">正在播放：跳动的三根音柱</span>
+                </div>
+                <figcaption>
+                    <b>B4 歌单</b>：带海报缩略图的列表，正在播放的一行发金光、有音柱；上方是筛选小胶囊。
+                </figcaption>
+            </figure>
+        </div>
+
+        <div class="row">
+            <!-- B5 桌面右侧停靠 -->
+            <figure>
+                <div class="ab desk night" id="B5">
+                    <div class="bg d-night"></div>
+                    <nav class="glass side-nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <div class="glass amb" style="top: 24px; left: 38px">
+                        <span
+                            ><svg class="i"><use href="#i-clock" /></svg></span
+                        ><span
+                            ><svg class="i"><use href="#i-cloud" /></svg
+                        ></span>
+                    </div>
+                    <section
+                        class="glass"
+                        style="
+                            top: 24px;
+                            right: 24px;
+                            bottom: 24px;
+                            width: 400px;
+                            padding: 18px;
+                            border-radius: 28px;
+                            --alpha: 0.72;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 14px;
+                        "
+                    >
+                        <div style="display: flex; align-items: center; justify-content: space-between">
+                            <b style="font-size: 16px">一起听</b
+                            ><span class="btn ghost round"
+                                ><svg class="i"><use href="#i-close" /></svg
+                            ></span>
+                        </div>
+                        <div class="np">
+                            <img
+                                class="poster"
+                                src="/music/covers/rainy-window.webp"
+                                width="148"
+                                height="148"
+                                style="border-radius: 20px"
+                                alt=""
+                            />
+                            <div style="flex: 1">
+                                <p class="np-title" style="font-size: 19px">雨天的窗边</p>
+                                <p class="np-sub">Lo-fi 时光 · 本机音景</p>
+                                <div class="transport" style="margin-top: 16px">
+                                    <span class="btn ghost round"
+                                        ><svg class="i fill"><use href="#i-prev" /></svg
+                                    ></span>
+                                    <span class="btn primary play" style="width: 52px; height: 52px"
+                                        ><svg class="i fill"><use href="#i-pause" /></svg
+                                    ></span>
+                                    <span class="btn ghost round"
+                                        ><svg class="i fill"><use href="#i-next" /></svg
+                                    ></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bar"><b style="width: 38%"></b><i style="left: 38%"></i></div>
+                            <div class="times"><span>1:15</span><span>3:18</span></div>
+                        </div>
+                        <div class="liner" style="padding: 14px 16px">
+                            <p class="lyr" style="opacity: 0.6">你说今天的雨好适合发呆</p>
+                            <p class="lyr cur">雨一直敲着玻璃，像在替我们数心跳</p>
+                            <p class="lyr">你翻过一页书，我把灯拧暗一点</p>
+                        </div>
+                        <div class="tabs">
+                            <em style="left: 4px; width: calc(50% - 4px)"></em><span class="on">歌单</span
+                            ><span>歌词全文</span>
+                        </div>
+                        <div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 2px">
+                            <div class="list-row">
+                                <img src="/music/covers/afternoon-clouds.webp" alt="" />
+                                <div class="t"><b>云朵上的下午</b><span>小满 & 知夏</span></div>
+                                <span class="d">3:34</span>
+                            </div>
+                            <div class="list-row on">
+                                <img src="/music/covers/rainy-window.webp" alt="" />
+                                <div class="t"><b class="gold">雨天的窗边</b><span>Lo-fi 时光</span></div>
+                                <span class="eq"
+                                    ><i style="height: 9px"></i><i style="height: 14px"></i><i style="height: 6px"></i
+                                ></span>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/lamp-radio.webp" alt="" />
+                                <div class="t"><b>暖灯电台</b><span>夜晚频率</span></div>
+                                <span class="d">3:56</span>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/spring-walk.webp" alt="" />
+                                <div class="t"><b>一起散步</b><span>周末</span></div>
+                                <span class="d">3:08</span>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/record-corner.webp" alt="" />
+                                <div class="t"><b>落针的唱片角</b><span>唱片角</span></div>
+                                <span class="d">3:25</span>
+                            </div>
+                        </div>
+                    </section>
+                    <span class="anno" data-n="1" style="left: 820px; top: 32px">从右侧 32px 滑入 + 淡入 · 280ms</span>
+                </div>
+                <figcaption>
+                    <b>B5 桌面 · 右侧停靠（推荐）</b
+                    >：展开的播放器停在右边整列，对方在画面中间不被挡；迷你条收进这一列里。
+                </figcaption>
+            </figure>
+        </div>
+        <div class="row">
+            <!-- B6 桌面三栏 -->
+            <figure>
+                <div class="ab desk twilight" id="B6">
+                    <div class="bg d-twilight" style="filter: brightness(0.7)"></div>
+                    <div style="position: absolute; inset: 0; background: #11131666"></div>
+                    <section
+                        class="glass"
+                        style="
+                            left: 50%;
+                            top: 50%;
+                            width: 1000px;
+                            height: 620px;
+                            transform: translate(-50%, -50%);
+                            padding: 22px;
+                            border-radius: 28px;
+                            --alpha: 0.76;
+                            display: grid;
+                            grid-template-columns: 280px 1fr 300px;
+                            gap: 18px;
+                        "
+                    >
+                        <div class="liner" style="padding: 12px; display: flex; flex-direction: column; gap: 2px">
+                            <b style="padding: 4px 8px 8px">我们的歌单</b>
+                            <div class="list-row">
+                                <img src="/music/covers/afternoon-clouds.webp" alt="" />
+                                <div class="t"><b>云朵上的下午</b><span>小满 & 知夏</span></div>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/rainy-window.webp" alt="" />
+                                <div class="t"><b>雨天的窗边</b><span>Lo-fi 时光</span></div>
+                            </div>
+                            <div class="list-row on">
+                                <img src="/music/covers/lamp-radio.webp" alt="" />
+                                <div class="t"><b class="gold">暖灯电台</b><span>夜晚频率</span></div>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/spring-walk.webp" alt="" />
+                                <div class="t"><b>一起散步</b><span>周末</span></div>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/record-corner.webp" alt="" />
+                                <div class="t"><b>落针的唱片角</b><span>唱片角</span></div>
+                            </div>
+                            <div class="list-row">
+                                <img src="/music/covers/seaside-stars.webp" alt="" />
+                                <div class="t"><b>海边的星星</b><span>潮汐</span></div>
+                            </div>
+                        </div>
+                        <div
+                            style="
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 12px;
+                            "
+                        >
+                            <img
+                                class="poster"
+                                src="/music/covers/lamp-radio.webp"
+                                width="300"
+                                height="300"
+                                style="border-radius: 26px"
+                                alt=""
+                            />
+                            <p class="np-title" style="font-size: 22px">暖灯电台</p>
+                            <p class="np-sub">夜晚频率 · 本机音景</p>
+                            <div style="width: 100%">
+                                <div class="bar"><b style="width: 55%"></b><i style="left: 55%"></i></div>
+                                <div class="times"><span>2:10</span><span>3:56</span></div>
+                            </div>
+                            <div class="transport" style="gap: 26px">
+                                <span class="btn ghost round"
+                                    ><svg class="i fill"><use href="#i-prev" /></svg></span
+                                ><span class="btn primary play"
+                                    ><svg class="i fill"><use href="#i-pause" /></svg></span
+                                ><span class="btn ghost round"
+                                    ><svg class="i fill"><use href="#i-next" /></svg
+                                ></span>
+                            </div>
+                        </div>
+                        <div class="liner" style="padding: 24px 18px">
+                            <p class="lyr" style="font-size: 15px; line-height: 2.3">收音机里有人在念晚安</p>
+                            <p class="lyr" style="font-size: 15px; line-height: 2.3">旋钮转过一格，换成老情歌</p>
+                            <p class="lyr cur" style="font-size: 18px; line-height: 2">
+                                台灯把你的影子<br />放在我这边的桌上
+                            </p>
+                            <p class="lyr" style="font-size: 15px; line-height: 2.3">我们就这样听</p>
+                            <p class="lyr" style="font-size: 15px; line-height: 2.3">听到电台说再见</p>
+                        </div>
+                    </section>
+                </div>
+                <figcaption>
+                    <b>B6 桌面 · 中央三栏</b>：B 类任务弹窗，歌单 / 海报 /
+                    歌词三栏最完整，但会盖住对方，适合「专心选歌」而不是边听边陪。
+                </figcaption>
+            </figure>
+        </div>
+
+        <!-- ================= C · 搜索播放（仅设计） ================= -->
+        <h2 class="board-title">C · 搜索播放（这一期只出设计）</h2>
+        <div class="row">
+            <figure>
+                <div class="ab phone night" id="C1" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px; gap: 10px">
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: calc(66.6% - 2px); width: calc(33.3% - 3px)"></em><span>正在播放</span
+                            ><span>歌词</span><span class="on">找歌</span>
+                        </div>
+                        <div
+                            class="liner"
+                            style="
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                                height: 46px;
+                                padding: 0 14px;
+                                box-shadow: inset 0 0 0 1px #f1d19a66;
+                            "
+                        >
+                            <svg class="i gold"><use href="#i-search" /></svg><span>下雨天</span
+                            ><span style="width: 1.5px; height: 18px; background: var(--accent)"></span
+                            ><span style="margin-left: auto" class="muted">✕</span>
+                        </div>
+                        <div style="display: flex; gap: 6px">
+                            <span class="chip on">全部</span><span class="chip">歌曲</span><span class="chip">歌手</span
+                            ><span class="chip">我们的歌单</span>
+                        </div>
+                        <div class="list-row">
+                            <img src="/music/covers/rainy-window.webp" alt="" />
+                            <div class="t"><b>雨天的窗边</b><span>Lo-fi 时光 · 我们的歌单</span></div>
+                            <span class="chip on">在歌单</span>
+                        </div>
+                        <div class="list-row">
+                            <span
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    border-radius: 10px;
+                                    background: linear-gradient(145deg, #bfd0f2, #6f7fb8);
+                                "
+                            ></span>
+                            <div class="t"><b>下雨天</b><span>某位歌手 · 在线曲库</span></div>
+                            <span class="btn ghost round gold"
+                                ><svg class="i"><use href="#i-plus" /></svg
+                            ></span>
+                        </div>
+                        <div class="list-row">
+                            <span
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    border-radius: 10px;
+                                    background: linear-gradient(145deg, #e7c4f0, #8c6bb0);
+                                "
+                            ></span>
+                            <div class="t"><b>雨夜电台</b><span>某个乐队 · 在线曲库</span></div>
+                            <span class="btn ghost round gold"
+                                ><svg class="i"><use href="#i-plus" /></svg
+                            ></span>
+                        </div>
+                        <div class="list-row">
+                            <span
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    border-radius: 10px;
+                                    background: linear-gradient(145deg, #bfe8d2, #5f9d7f);
+                                "
+                            ></span>
+                            <div class="t"><b>窗边的雨</b><span>某位歌手 · 试听 30 秒</span></div>
+                            <span class="btn ghost round gold"
+                                ><svg class="i"><use href="#i-plus" /></svg
+                            ></span>
+                        </div>
+                        <div class="liner" style="padding: 10px 14px; font-size: 12px; color: var(--muted)">
+                            在线曲库需要连接音乐服务。加入「我们的歌单」后，两个人都能看到。
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 150px; top: 290px">结果逐行 30ms 错开浮入</span>
+                </div>
+                <figcaption>
+                    <b>C1 找歌</b>：歌单页第三个标签换成「找歌」，搜索框 +
+                    类型胶囊；本地歌单命中排最前，在线结果标来源和试听限制。
+                </figcaption>
+            </figure>
+            <figure>
+                <div class="ab phone twilight" id="C2">
+                    <div class="bg p-twilight"></div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 404px; gap: 12px">
+                        <span class="grab"></span>
+                        <div class="glass presence" style="position: relative; --alpha: 0.3; align-self: flex-start">
+                            <img src="/avatars/ayu.webp" alt="" /><i></i>阿屿也在听 · 同步中
+                        </div>
+                        <div class="np">
+                            <img class="poster" src="/music/covers/lamp-radio.webp" width="76" height="76" alt="" />
+                            <div style="flex: 1">
+                                <p class="np-title">暖灯电台</p>
+                                <p class="np-sub">夜晚频率 · 两个人一起听</p>
+                            </div>
+                            <span class="eq" style="height: 22px"
+                                ><i style="height: 12px"></i><i style="height: 22px"></i><i style="height: 8px"></i
+                                ><i style="height: 16px"></i
+                            ></span>
+                        </div>
+                        <div class="bar"><b style="width: 55%"></b><i style="left: 55%"></i></div>
+                        <div class="transport" style="padding: 0 30px">
+                            <span class="btn ghost round"
+                                ><svg class="i fill"><use href="#i-prev" /></svg></span
+                            ><span class="btn primary play"
+                                ><svg class="i fill"><use href="#i-pause" /></svg></span
+                            ><span class="btn ghost round"
+                                ><svg class="i fill"><use href="#i-next" /></svg
+                            ></span>
+                        </div>
+                        <div class="liner" style="padding: 10px 14px; font-size: 12px; color: var(--muted)">
+                            谁点暂停，两边一起停；阿屿切歌时，这里会轻轻闪一下他的头像。
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                </div>
+                <figcaption>
+                    <b>C2 一起听（远期）</b>：接了在线曲库之后的共享听歌，托盘顶上显示对方也在听；第一期不做，只留位置。
+                </figcaption>
+            </figure>
+            <figure>
+                <div class="ab phone night" id="C3" style="background: #0c0d11">
+                    <div class="bg p-night lifted" style="filter: brightness(0.6)"></div>
+                    <section class="glass sheet" style="top: 70px; padding-top: 20px; gap: 12px">
+                        <span class="grab"></span>
+                        <div class="tabs">
+                            <em style="left: calc(66.6% - 2px); width: calc(33.3% - 3px)"></em><span>正在播放</span
+                            ><span>歌词</span><span class="on">找歌</span>
+                        </div>
+                        <div
+                            class="liner"
+                            style="display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px"
+                        >
+                            <svg class="i muted"><use href="#i-search" /></svg><span class="muted">搜歌名、歌手</span>
+                        </div>
+                        <b style="font-size: 13px; margin-top: 6px" class="muted">最近搜过</b>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                            <span class="chip">下雨天</span><span class="chip">晚安电台</span
+                            ><span class="chip">海边</span><span class="chip">钢琴</span>
+                        </div>
+                        <div class="liner" style="margin-top: 16px; padding: 26px 18px; text-align: center">
+                            <div style="font-size: 30px">🎧</div>
+                            <b style="display: block; margin: 8px 0 4px">还没连上音乐服务</b>
+                            <p class="muted" style="margin: 0 0 14px; font-size: 13px">
+                                连上之后就能搜在线歌曲，现在先听我们的歌单
+                            </p>
+                            <span class="btn primary">去连接</span>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span class="on"
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                </div>
+                <figcaption>
+                    <b>C3 未连接与最近搜索</b>：空状态说清楚为什么搜不到、下一步是什么；最近搜索做成胶囊一点即搜。
+                </figcaption>
+            </figure>
+        </div>
+
+        <!-- ================= D · 进入世界加载 ================= -->
+        <h2 class="board-title">D · 进入世界的加载</h2>
+        <div class="row">
+            <figure>
+                <div class="ab desk twilight" id="D1">
+                    <div
+                        class="bg"
+                        style="
+                            background-image: url('/rooms/study/plate-twilight-off.webp');
+                            filter: blur(3px) brightness(0.8);
+                            transform: scale(1.03);
+                        "
+                    ></div>
+                    <section class="glass load-card" style="--alpha: 0.6">
+                        <div class="cup">
+                            <svg><use href="#i-steam" /></svg>
+                        </div>
+                        <b style="font-size: 18px">正在进入书房</b>
+                        <div class="load-bar"><b style="width: 64%"></b></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px" class="muted">
+                            <span>把台灯拧亮…</span><span style="font-variant-numeric: tabular-nums">64%</span>
+                        </div>
+                    </section>
+                    <span class="anno" data-n="1" style="left: 790px; top: 318px">三缕热气循环上飘 · 2.4s</span>
+                    <span class="anno" data-n="2" style="left: 790px; top: 470px"
+                        >进度来自真实贴图装载，提示语 2.2s 一换</span
+                    >
+                </div>
+                <figcaption>
+                    <b>D1 热气进度条（推荐）</b
+                    >：大厅的空桌做底，中间一张玻璃卡：冒热气的杯子、金色进度条、真实百分比和轮换的小提示。
+                </figcaption>
+            </figure>
+        </div>
+        <div class="row">
+            <figure>
+                <div class="ab desk night" id="D2" style="display: grid; grid-template-columns: repeat(3, 1fr)">
+                    <div style="position: relative; overflow: hidden">
+                        <div
+                            class="bg"
+                            style="
+                                background-image: url('/rooms/study/plate-night-off.webp');
+                                background-position: 14% 50%;
+                                filter: brightness(0.55);
+                            "
+                        ></div>
+                    </div>
+                    <div style="position: relative; overflow: hidden">
+                        <div
+                            class="bg"
+                            style="
+                                background-image: url('/rooms/study/plate-night-off.webp');
+                                background-position: 14% 50%;
+                            "
+                        ></div>
+                        <div
+                            class="bg"
+                            style="
+                                background-image: url('/rooms/study/plate-night-on.webp');
+                                background-position: 14% 50%;
+                                opacity: 0.5;
+                                z-index: -1;
+                            "
+                        ></div>
+                    </div>
+                    <div style="position: relative; overflow: hidden">
+                        <div
+                            class="bg"
+                            style="
+                                background-image: url('/rooms/study/plate-night-on.webp');
+                                background-position: 14% 50%;
+                            "
+                        ></div>
+                    </div>
+                    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #ffffff1f">
+                        <b
+                            style="
+                                position: absolute;
+                                inset: 0 34% 0 0;
+                                background: linear-gradient(90deg, #c99a5b, #f1d19a);
+                                box-shadow: 0 0 12px #f1d19a;
+                            "
+                        ></b>
+                    </div>
+                    <span class="anno" data-n="1" style="left: 20px; top: 20px">0%：灯灭，只有窗外</span>
+                    <span class="anno" data-n="2" style="left: 500px; top: 20px">50%：灯光按进度渐亮</span>
+                    <span class="anno" data-n="3" style="left: 980px; top: 20px">100%：灯全亮，对方入座</span>
+                </div>
+                <figcaption>
+                    <b>D2 台灯渐亮</b>：直接用书房的灭灯 /
+                    亮灯两张底图，加载进度就是灯亮的程度，底边一条细进度线。最有仪式感，但只在已有两张底图的房间成立。
+                </figcaption>
+            </figure>
+        </div>
+        <div class="row">
+            <figure>
+                <div class="ab phone twilight" id="D3">
+                    <div
+                        class="bg"
+                        style="
+                            background-image: url('/rooms/study/plate-twilight-on.webp');
+                            background-position: 58% 50%;
+                            filter: brightness(0.7);
+                        "
+                    ></div>
+                    <div
+                        class="glass capsule"
+                        style="
+                            left: 50%;
+                            top: 50%;
+                            transform: translate(-50%, -50%);
+                            --alpha: 0.55;
+                            padding: 12px 20px 12px 14px;
+                        "
+                    >
+                        <span class="spinner"></span>正在进入书房…
+                    </div>
+                    <span class="anno" data-n="1" style="left: 80px; top: 470px">金色弧线 900ms 一圈，匀速</span>
+                </div>
+                <figcaption>
+                    <b>D3 简约转圈</b>：最省的方案，一颗玻璃胶囊里转金色弧线；没有进度，只说明在等。
+                </figcaption>
+            </figure>
+            <figure>
+                <div class="ab phone night" id="D4">
+                    <div
+                        class="bg"
+                        style="
+                            background-image: url('/rooms/study/plate-night-off-dry.webp');
+                            background-position: 30% 50%;
+                            filter: brightness(0.7);
+                        "
+                    ></div>
+                    <div
+                        style="
+                            position: absolute;
+                            left: 50%;
+                            top: 0;
+                            transform: translateX(-50%);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                        "
+                    >
+                        <svg
+                            class="i"
+                            style="width: 48px; height: 260px; stroke: #f1d19a; stroke-width: 1.3"
+                            viewBox="0 0 24 130"
+                        >
+                            <path d="M12 0v96" stroke-dasharray="1.6 3" />
+                            <circle cx="12" cy="104" r="6" fill="#f1d19a33" />
+                            <path d="M12 110v8" />
+                        </svg>
+                        <div
+                            class="glass capsule"
+                            style="position: relative; margin-top: 12px; --alpha: 0.5; white-space: nowrap"
+                        >
+                            书房好了 · 拉一下灯绳进屋
+                        </div>
+                    </div>
+                    <span class="anno" data-n="1" style="left: 20px; top: 330px"
+                        >加载时灯绳轻轻晃；好了以后下拉 40px 触发</span
+                    >
+                </div>
+                <figcaption>
+                    <b>D4 拉绳开灯</b
+                    >：游戏感最强，加载时灯绳当等待动画；好了以后「拉一下」灯亮进屋，多一步操作但很好玩。
+                </figcaption>
+            </figure>
+            <figure>
+                <div class="ab phone twilight" id="D5">
+                    <div class="bg p-twilight" style="transform: scale(1.06); filter: blur(1.5px)"></div>
+                    <div
+                        style="
+                            position: absolute;
+                            inset: 0;
+                            background: radial-gradient(circle at 50% 40%, transparent 30%, #0e0f14 75%);
+                        "
+                    ></div>
+                    <div
+                        class="glass"
+                        style="
+                            left: 50%;
+                            bottom: 120px;
+                            transform: translateX(-50%);
+                            padding: 8px 16px;
+                            border-radius: 99px;
+                            font-size: 13px;
+                            --alpha: 0.5;
+                            white-space: nowrap;
+                        "
+                    >
+                        阿屿就在对面
+                    </div>
+                    <span class="anno" data-n="1" style="left: 40px; top: 40px"
+                        >揭幕：暗角 700ms 张开，画面 1.06→1</span
+                    >
+                </div>
+                <figcaption>
+                    <b>D5 进屋揭幕</b>：任一加载方案的收尾：暗角从中间张开，画面轻轻推近归位，UI 随后依次浮上来。
+                </figcaption>
+            </figure>
+        </div>
+
+        <!-- ================= E · 房间切换（仅设计） ================= -->
+        <h2 class="board-title">E · 房间切换的异步加载（这一期只出设计）</h2>
+        <div class="row">
+            <figure>
+                <div class="ab desk twilight" id="E1">
+                    <div
+                        class="bg d-twilight"
+                        style="filter: blur(10px) brightness(0.65); transform: scale(1.05)"
+                    ></div>
+                    <div
+                        class="glass capsule"
+                        style="
+                            left: 50%;
+                            top: 32px;
+                            transform: translateX(-50%);
+                            --alpha: 0.6;
+                            padding: 8px 18px 8px 8px;
+                        "
+                    >
+                        <span class="ring" style="--p: 62%"></span>
+                        <span>正在前往唱片角 · <b class="gold" style="font-variant-numeric: tabular-nums">62%</b></span>
+                        <span class="btn ghost" style="height: 30px; padding: 0 10px; font-size: 12px">留在书房</span>
+                    </div>
+                    <div
+                        class="glass"
+                        style="
+                            left: 50%;
+                            top: 50%;
+                            width: 420px;
+                            transform: translate(-50%, -50%);
+                            border-radius: 24px;
+                            overflow: hidden;
+                            padding: 0;
+                        "
+                    >
+                        <img
+                            src="../../concept/across-the-table/img/R-records-keyart.jpg"
+                            style="display: block; width: 100%; height: 236px; object-fit: cover; filter: blur(2px)"
+                            alt=""
+                        />
+                        <div style="padding: 14px 18px">
+                            <b>唱片角</b>
+                            <p class="muted" style="margin: 4px 0 0; font-size: 12px">落针放歌的房间 · 先看一眼预览</p>
+                        </div>
+                    </div>
+                    <span class="anno" data-n="1" style="left: 900px; top: 40px">可取消，取消回到原房间</span>
+                </div>
+                <figcaption>
+                    <b>E1 胶囊进度</b
+                    >：当前房间糊掉、压暗，顶部胶囊显示去哪、进度多少、可以反悔；中间先给目的房间的预览卡。
+                </figcaption>
+            </figure>
+        </div>
+        <div class="row">
+            <figure>
+                <div class="ab phone twilight" id="E2">
+                    <div class="bg p-twilight"></div>
+                    <div class="sheet-shadow"></div>
+                    <section class="glass sheet" style="top: 520px; gap: 12px">
+                        <span class="grab"></span>
+                        <b style="font-size: 15px">房间</b>
+                        <div style="display: flex; gap: 12px; margin-right: -16px; overflow: hidden">
+                            <div class="room-card"><img src="/rooms/study/thumb.webp" alt="" /><b>书房</b></div>
+                            <div class="room-card cur">
+                                <img src="../../concept/across-the-table/img/R-records-keyart.jpg" alt="" /><b>唱片角</b
+                                ><span class="ring" style="position: absolute; right: 8px; top: 8px; --p: 62%"></span>
+                            </div>
+                            <div class="room-card locked">
+                                <img src="../../concept/across-the-table/img/R-greenhouse-keyart.jpg" alt="" /><b
+                                    >温室</b
+                                >
+                            </div>
+                        </div>
+                    </section>
+                    <nav class="glass nav">
+                        <span class="on"
+                            ><svg class="i"><use href="#i-home" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-chat" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-music" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-tools" /></svg
+                        ></span>
+                        <span
+                            ><svg class="i"><use href="#i-settings" /></svg
+                        ></span>
+                    </nav>
+                    <span class="anno" data-n="1" style="left: 150px; top: 474px">进度环画在卡片上，场景照常</span>
+                </div>
+                <figcaption>
+                    <b>E2 卡片进度环</b>：点房间卡后原地加载，卡角一圈进度，人还留在当前房间；加载好了自动横移过去。
+                </figcaption>
+            </figure>
+            <figure>
+                <div class="ab phone night" id="E3">
+                    <div
+                        class="bg"
+                        style="
+                            background-image: url('../../concept/across-the-table/img/R-records-play.jpg');
+                            background-position: 40% 50%;
+                            filter: blur(8px) saturate(0.9);
+                        "
+                    ></div>
+                    <div
+                        style="
+                            position: absolute;
+                            inset: 0;
+                            background: linear-gradient(100deg, transparent 30%, #ffffff14 45%, transparent 60%);
+                        "
+                    ></div>
+                    <div
+                        class="glass capsule"
+                        style="
+                            left: 50%;
+                            bottom: 100px;
+                            transform: translateX(-50%);
+                            --alpha: 0.55;
+                            white-space: nowrap;
+                        "
+                    >
+                        <span class="spinner" style="width: 18px; height: 18px"></span>唱片角 · 细节还在路上
+                    </div>
+                    <span class="anno" data-n="1" style="left: 30px; top: 40px">先放低清图，高清到了 400ms 变清晰</span>
+                </div>
+                <figcaption>
+                    <b>E3 低清先到</b>：切过去立刻有画面（缩略图糊着放大），一道光扫过表示在加载，高清底图到了渐变清晰。
+                </figcaption>
+            </figure>
+        </div>
+
+        <!-- ================= F · 交互反馈语言 ================= -->
+        <h2 class="board-title">F · 交互反馈语言</h2>
+        <div class="row">
+            <div class="ab desk twilight" id="F1" style="padding: 36px; background: #1d1e25">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px">
+                    <div class="liner spec">
+                        <h4>按下</h4>
+                        <div class="demo">
+                            <span class="btn primary" style="transform: scale(0.96); box-shadow: 0 0 0 6px #f1d19a22"
+                                >进入世界</span
+                            >
+                        </div>
+                        <p>按下缩到 0.96，放开弹回；外圈暖金光 1 帧亮起。</p>
+                        <code>press 120ms · release spring(500, 30)</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>悬停</h4>
+                        <div class="demo">
+                            <span
+                                class="btn"
+                                style="
+                                    transform: translateY(-1px);
+                                    filter: brightness(1.15);
+                                    box-shadow: 0 8px 18px -8px #000c;
+                                "
+                                >设置</span
+                            >
+                        </div>
+                        <p>亮度 +12%、上浮 1px，只在鼠标设备生效。</p>
+                        <code>160ms ease-out</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>导航选中</h4>
+                        <div class="demo">
+                            <span
+                                class="glass"
+                                style="
+                                    position: relative;
+                                    display: grid;
+                                    place-items: center;
+                                    width: 64px;
+                                    height: 64px;
+                                    border-radius: 20px;
+                                "
+                                ><svg
+                                    class="i"
+                                    style="
+                                        width: 34px;
+                                        height: 34px;
+                                        stroke-width: 1.2;
+                                        filter: drop-shadow(0 0 6px #ffd189);
+                                    "
+                                >
+                                    <use href="#i-music" /></svg
+                            ></span>
+                        </div>
+                        <p>图标轻弹 1.12 → 1，光晕从中心扩开。</p>
+                        <code>spring(420, 18) · glow 220ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>开关</h4>
+                        <div class="demo"><span class="switch" style="transform: scale(1.4)"></span></div>
+                        <p>拨片弹簧滑动并在终点轻压扁，轨道渐变点亮。</p>
+                        <code>spring(600, 32) · 200ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>弹层进出</h4>
+                        <div class="demo">
+                            <span
+                                class="glass"
+                                style="
+                                    position: relative;
+                                    width: 150px;
+                                    height: 70px;
+                                    border-radius: 18px;
+                                    transform: scale(0.97) translateY(6px);
+                                    opacity: 0.85;
+                                "
+                            ></span>
+                        </div>
+                        <p>从触发点方向长出：0.96 → 1 + 上移 8px 归位；收起更快。</p>
+                        <code>in 220ms · out 150ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>未读小红点</h4>
+                        <div class="demo">
+                            <span style="position: relative; width: 44px; height: 44px"
+                                ><svg class="i" style="width: 40px; height: 40px"><use href="#i-chat" /></svg
+                                ><i
+                                    style="
+                                        position: absolute;
+                                        right: 0;
+                                        top: 0;
+                                        width: 12px;
+                                        height: 12px;
+                                        border-radius: 50%;
+                                        background: #f0a7ab;
+                                        box-shadow: 0 0 0 5px #f0a7ab33;
+                                    "
+                                ></i
+                            ></span>
+                        </div>
+                        <p>0 → 1.35 → 1 弹出，外圈一次涟漪。</p>
+                        <code>spring(700, 14)</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>快捷表情</h4>
+                        <div class="demo" style="font-size: 30px">
+                            ❤️<span style="position: absolute; font-size: 14px; left: 44%; top: 18%; opacity: 0.8"
+                                >❤</span
+                            ><span style="position: absolute; font-size: 11px; left: 58%; top: 30%; opacity: 0.6"
+                                >❤</span
+                            ><span style="position: absolute; font-size: 12px; left: 36%; top: 34%; opacity: 0.5"
+                                >✦</span
+                            >
+                        </div>
+                        <p>按钮弹一下，5–7 颗小心向上飘散。</p>
+                        <code>600ms · 随机 ±40° 扇形</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>气泡入场</h4>
+                        <div class="demo">
+                            <span
+                                class="glass"
+                                style="position: relative; padding: 8px 14px; border-radius: 16px; font-size: 13px"
+                                >给我也留一杯 ☕️</span
+                            >
+                        </div>
+                        <p>从对方脸侧 0.8 → 1 弹出，4.5 秒后淡出上移。</p>
+                        <code>spring(520, 22) · out 260ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>成功</h4>
+                        <div class="demo">
+                            <span
+                                style="
+                                    display: grid;
+                                    place-items: center;
+                                    width: 52px;
+                                    height: 52px;
+                                    border-radius: 50%;
+                                    background: #c4e5bb26;
+                                    color: #c4e5bb;
+                                "
+                                ><svg class="i" style="width: 28px; height: 28px; stroke-width: 2.4">
+                                    <use href="#i-check" /></svg
+                            ></span>
+                        </div>
+                        <p>勾线 240ms 画出，绿光一次脉冲。</p>
+                        <code>stroke-dashoffset 240ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>失败</h4>
+                        <div class="demo">
+                            <span class="btn" style="border-color: #ffc2c8aa; color: #ffc2c8">再试一次</span>
+                        </div>
+                        <p>左右轻晃 3 次 ±4px，不闪红；文字说明原因。</p>
+                        <code>shake 320ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>数字滚动</h4>
+                        <div class="demo">
+                            <span style="font-size: 30px; font-weight: 700"
+                                >1229 <small class="muted" style="font-size: 13px">天</small></span
+                            >
+                        </div>
+                        <p>纪念日天数、音量百分比等变化时逐位滚动。</p>
+                        <code>每位 380ms · 错开 40ms</code>
+                    </div>
+                    <div class="liner spec">
+                        <h4>低动效模式</h4>
+                        <div
+                            class="demo"
+                            style="font-size: 13px; color: var(--muted); padding: 10px; text-align: center"
+                        >
+                            位移、缩放、弹簧、粒子全关<br />只保留 120ms 透明度渐变
+                        </div>
+                        <p>设置里单独开关，默认跟随系统。</p>
+                        <code>data-motion="reduced"</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
