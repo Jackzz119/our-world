@@ -108,7 +108,8 @@
     opacity: 1;
     scale: 1;
     translate: 0 100%;
-    transition-duration: calc(var(--dur-sheet) * 0.6), var(--dur-exit);
+    /* translate, opacity, overlay, display: the page stays in the top layer until it has slid away */
+    transition-duration: var(--dur-sheet-exit), var(--dur-exit), var(--dur-sheet-exit), var(--dur-sheet-exit);
     transition-timing-function: var(--ease-out), ease;
 }
 @starting-style {
