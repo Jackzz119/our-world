@@ -114,8 +114,8 @@
     translate: calc(var(--at) * var(--tab)) 0;
     pointer-events: none;
     transition:
-        translate var(--dur-panel) var(--ease-spring),
-        width var(--dur-panel) var(--ease-spring);
+        translate var(--dur-toggle) var(--ease-toggle),
+        width var(--dur-toggle) var(--ease-toggle);
 }
 .mem-page-head .ui-icon-button {
     background: transparent;
@@ -202,7 +202,7 @@
         0 4px 10px -4px #000a,
         inset 0 1px 0 #fff8;
     translate: calc(var(--at) * 100%) 0;
-    transition: translate var(--dur-panel) var(--ease-spring);
+    transition: translate var(--dur-toggle) var(--ease-toggle);
 }
 .ui-page[data-compact] .mem-switch button {
     min-height: 36px;

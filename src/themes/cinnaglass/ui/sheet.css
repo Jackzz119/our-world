@@ -22,19 +22,28 @@
         inset 0 1px 0 rgb(var(--ui-rim) / 0.2);
     outline: none;
     will-change: transform;
+    /* the sheet takes vertical drags itself (sheet.tsx); lists inside still scroll on their own */
+    touch-action: none;
     transition:
         transform var(--dur-sheet) var(--ease-drawer),
         opacity var(--dur-enter) ease;
 }
 /* going down is quicker than coming up, but a whole sheet still needs a beat to travel */
 .ui-sheet[data-state='closing'] {
-    transition-duration: calc(var(--dur-sheet) * 0.56), var(--dur-exit);
+    transition-duration: var(--dur-sheet-exit), var(--dur-exit);
     transition-timing-function: var(--ease-out), ease;
     pointer-events: none;
 }
-.ui-sheet[data-dragging] {
+/* under the finger, then riding the release spring (Web Animations): no CSS transition in the way */
+.ui-sheet:is([data-dragging], [data-springing]) {
     transition: none;
+}
+.ui-sheet[data-dragging] {
     cursor: grabbing;
+}
+/* at half height there is nothing to scroll yet: a swipe anywhere lifts the sheet */
+.ui-sheet.expandable[data-detent='half'] .ui-sheet-body * {
+    touch-action: none;
 }
 .ui-sheet.expandable {
     height: var(--sheet-full);

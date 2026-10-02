@@ -2,15 +2,19 @@
 // It rises from the bottom over the viewer's side of the table (hands, mug) and
 // stops below the partner, so TA stays in full view; the navigation bar becomes
 // the sheet's own foot while it is open, and the scene stays live (non-modal).
-// Drag the grip or the header to change height or dismiss (a flick is enough), or
-// use the close button every sheet header carries (SheetHead); Esc closes, focus
-// returns to the opener. Children mark their draggable header strip with
-// data-sheet-grab, and a part that handles Escape itself (an open composer) with
-// data-esc-own. Concept: ai/design_system/codex-visual/ui-motion/ui-motion.md (A1).
+// Drag it anywhere to change height or dismiss — it follows the finger 1:1, gives
+// like a rubber band past the top, and on release carries the finger's speed into
+// a spring towards where the throw was heading (Apple's fluid-interface rules,
+// ui/spring.ts) — or use the close button every sheet header carries (SheetHead);
+// Esc closes, focus returns to the opener. Typing, sliders and lists that scroll keep
+// their own gestures; a header strip marked data-sheet-grab always drags, and a part
+// that handles Escape itself (an open composer) is marked data-esc-own.
+// Concept: ai/design_system/codex-visual/ui-motion/ui-motion.md (A1).
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { IClose } from '@/themes/cinnaglass/icons';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { project, rubberband, SPRING, springTranslateY } from '@/themes/cinnaglass/ui/spring';
 import { usePanelFocus } from '@/themes/cinnaglass/ui/use-panel-focus';
 import '@/themes/cinnaglass/ui/sheet.css';
 
@@ -35,12 +39,23 @@ type SheetProps = {
 // Half height is half the visible screen, never less than the compact player needs.
 const HALF_RATIO = 0.5;
 const HALF_MIN = 340;
-// A flick faster than this (px per ms) dismisses or switches height whatever the distance.
-const FLICK = 0.11;
-// Exit is quicker than entry; must cover --dur-sheet's exit share.
+// Faster than this (px per ms) the release counts as a throw: a little more bounce.
+const FLICK = 0.5;
+// Exit is quicker than entry; must cover the closing transition in sheet.css.
 const EXIT_MS = 300;
-// Past the top the sheet follows the finger with growing resistance.
-const rubber = (overshoot: number) => Math.pow(overshoot, 0.7);
+// Movement (px) before a press becomes a drag; until then taps and presses stay what they are.
+const SLOP = 6;
+// Where a press never starts a drag: typing and sliders keep the finger.
+const NO_DRAG = 'input, textarea, select, [contenteditable], [role="slider"]';
+
+// A list or a page that can scroll up and down keeps its own scrolling.
+function inScroller(node: Element | null, sheet: Element): boolean {
+    for (let el = node; el && el !== sheet; el = el.parentElement) {
+        const { overflowY } = getComputedStyle(el);
+        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 1) return true;
+    }
+    return false;
+}
 
 type Drag = { id: number; y0: number; base: number; moved: boolean; samples: { y: number; t: number }[] };
 
@@ -73,7 +88,9 @@ export function Sheet({
     const ref = useRef<HTMLElement>(null);
     const entered = useRef(false);
     const drag = useRef<Drag | null>(null);
-    // a drag that ends on the grip must not also count as a tap on it
+    // the spring a released drag is riding, so a new grab can catch it mid-flight
+    const flight = useRef<Animation | null>(null);
+    // a drag that ends on a button or the grip must not also count as a tap on it
     const dragEndedAt = useRef(0);
 
     useEffect(() => {
@@ -128,23 +145,16 @@ export function Sheet({
 
     if (!mounted && !keepMounted) return null;
 
-    // Drags start on the grip or any [data-sheet-grab] strip (never on a control inside it), and only
-    // take the pointer once it has moved, so taps, sliders and list scrolling keep working.
+    // A press anywhere becomes a drag once it has moved, except on typing, sliders and lists that scroll
+    // (a half-height sheet has nothing to scroll yet, so it drags from anywhere); the grip and header
+    // strips always drag.
     const startDrag = (event: React.PointerEvent<HTMLElement>) => {
         const el = ref.current;
         const target = event.target as Element;
-        if (!el || drag.current || event.button !== 0 || !event.isPrimary) return;
-        const grip = target.closest('.ui-sheet-grip');
-        if (!grip && (!target.closest('[data-sheet-grab]') || target.closest('button, input, select, textarea, a')))
-            return;
-        const current = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42;
-        drag.current = {
-            id: event.pointerId,
-            y0: event.clientY,
-            base: current,
-            moved: false,
-            samples: [{ y: current, t: event.timeStamp }]
-        };
+        if (!el || drag.current || event.button !== 0 || !event.isPrimary || target.closest(NO_DRAG)) return;
+        const strip = target.closest('.ui-sheet-grip, [data-sheet-grab]');
+        if (!strip && !(expandable && detent === 'half') && inScroller(target, el)) return;
+        drag.current = { id: event.pointerId, y0: event.clientY, base: 0, moved: false, samples: [] };
     };
     const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
         const el = ref.current;
@@ -152,13 +162,20 @@ export function Sheet({
         if (!el || !d || event.pointerId !== d.id) return;
         const dy = event.clientY - d.y0;
         if (!d.moved) {
-            if (Math.abs(dy) < 4) return;
+            if (Math.abs(dy) < SLOP) return;
             d.moved = true;
+            // catch the sheet where it is on screen, even mid-spring, and keep it under the finger
+            const current = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42;
+            flight.current?.cancel();
+            flight.current = null;
+            delete el.dataset.springing;
             el.dataset.dragging = '';
             el.setPointerCapture(event.pointerId);
+            d.base = current - dy;
         }
         let y = d.base + dy;
-        if (y < 0) y = -rubber(-y);
+        // past the top it gives like a rubber band (a sheet that is already as tall as it gets starts there)
+        if (y < 0) y = -rubberband(-y, el.offsetHeight);
         el.style.transform = `translateY(${y}px)`;
         d.samples.push({ y, t: event.timeStamp });
         while (d.samples.length > 2 && event.timeStamp - d.samples[0].t > 100) d.samples.shift();
@@ -171,32 +188,54 @@ export function Sheet({
         if (!d.moved) return;
         dragEndedAt.current = event.timeStamp;
         delete el.dataset.dragging;
-        const first = d.samples[0];
+        // the speed over the last 100ms before letting go: a finger that stopped before lifting throws nothing
         const last = d.samples[d.samples.length - 1];
-        const velocity = last.t > first.t ? (last.y - first.y) / (last.t - first.t) : 0;
+        d.samples.push({ y: last.y, t: event.timeStamp });
+        while (d.samples.length > 2 && event.timeStamp - d.samples[0].t > 100) d.samples.shift();
+        const first = d.samples[0];
+        const velocity = event.timeStamp > first.t ? (last.y - first.y) / (event.timeStamp - first.t) : 0;
         const at = offsets(el);
         const y = last.y;
-        if (!expandable) {
-            if (velocity > FLICK || y > el.offsetHeight * 0.38) onClose();
-            else el.style.transform = 'translateY(0px)';
+        // aim for the resting place the throw is heading to, not the one nearest the finger
+        const projected = y + project(velocity);
+        const stops: [SheetDetent | 'closed', number][] = expandable
+            ? [
+                  ['full', 0],
+                  ['half', at.half],
+                  ['closed', at.closed]
+              ]
+            : [
+                  ['half', 0],
+                  ['closed', at.closed]
+              ];
+        const [next, to] = stops.reduce((a, b) => (Math.abs(b[1] - projected) < Math.abs(a[1] - projected) ? b : a));
+        if (motionReduced()) {
+            if (next === 'closed') onClose();
+            else if (next !== detent && expandable) setDetent(next);
+            else el.style.transform = `translateY(${restingY(el, detent)}px)`;
             return;
         }
-        // expandable: full (0) ⇄ half ⇄ closed, chosen by flick direction or the nearest resting place
-        let next: SheetDetent | 'closed';
-        if (velocity > FLICK) next = y > at.half - 24 ? 'closed' : 'half';
-        else if (velocity < -FLICK) next = 'full';
-        else {
-            const projected = y + velocity * 160;
-            const stops: [SheetDetent | 'closed', number][] = [
-                ['full', 0],
-                ['half', at.half],
-                ['closed', at.closed]
-            ];
-            next = stops.reduce((a, b) => (Math.abs(b[1] - projected) < Math.abs(a[1] - projected) ? b : a))[0];
+        // the spring starts at the finger's speed, so letting go never jolts
+        el.dataset.springing = '';
+        const spring = next === 'closed' ? SPRING.away : Math.abs(velocity) > FLICK ? SPRING.fling : SPRING.release;
+        const flying = springTranslateY(el, y, to, velocity, spring);
+        flight.current = flying;
+        flying.finished
+            .then(() => {
+                if (flight.current !== flying) return;
+                flight.current = null;
+                delete el.dataset.springing;
+                if (next === 'closed') onClose();
+            })
+            .catch(() => {});
+        if (next !== 'closed' && next !== detent && expandable) setDetent(next);
+    };
+    // the press that turned into a drag is not a tap on whatever it started on
+    const swallowClick = (event: React.MouseEvent<HTMLElement>) => {
+        if (event.timeStamp - dragEndedAt.current < 350) {
+            event.preventDefault();
+            event.stopPropagation();
         }
-        if (next === 'closed') onClose();
-        else if (next !== detent) setDetent(next);
-        else el.style.transform = `translateY(${restingY(el, next)}px)`;
     };
 
     return (
@@ -215,6 +254,7 @@ export function Sheet({
             onPointerMove={moveDrag}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
+            onClickCapture={swallowClick}
             onKeyDown={(event) => {
                 if (event.key === 'Escape' && !(event.target as Element).closest('[data-esc-own]')) {
                     event.preventDefault();
@@ -227,8 +267,7 @@ export function Sheet({
                 type="button"
                 className="ui-sheet-grip"
                 aria-label={expandable ? (detent === 'full' ? `收回${label}` : `展开${label}`) : `收起${label}`}
-                onClick={(event) => {
-                    if (event.timeStamp - dragEndedAt.current < 350) return;
+                onClick={() => {
                     if (expandable) setDetent(detent === 'full' ? 'half' : 'full');
                     else onClose();
                 }}

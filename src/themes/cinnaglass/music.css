@@ -358,7 +358,8 @@
     background: var(--ui-accent);
     box-shadow: 0 4px 14px -6px rgb(241 209 154 / 0.8);
     translate: calc(var(--i) * 100%) 0;
-    transition: translate var(--dur-panel) var(--ease-spring);
+    /* something flipped: the pill springs across with a visible little overshoot */
+    transition: translate var(--dur-toggle) var(--ease-toggle);
 }
 .mp-tabs button {
     position: relative;

@@ -9,6 +9,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { IClose } from '@/themes/cinnaglass/icons';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { rubberband, SPRING, springTranslateY } from '@/themes/cinnaglass/ui/spring';
 import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
 import '@/themes/cinnaglass/ui/content-page.css';
 
@@ -24,6 +25,12 @@ type ContentPageProps = {
     children: ReactNode;
 };
 
+// The page's vertical offset as drawn right now (its translate, mid-animation included).
+function shownY(el: HTMLElement): number {
+    const [, y = '0px'] = getComputedStyle(el).translate.split(' ');
+    return y.endsWith('%') ? (parseFloat(y) / 100) * el.offsetHeight : parseFloat(y) || 0;
+}
+
 // Layers inside a page that answer Esc themselves; the page waits for the next Esc.
 const ESC_LAYERS = '[data-esc-own], .journal-index, .pd';
 // A pull this far (px), or this fast (px per ms), puts the page away.
@@ -36,7 +43,16 @@ export function ContentPage({ open, onClose, label, header, closeLabel, classNam
     // where the last Esc was pressed (the layer that answered it may already be gone when cancel arrives)
     const escFrom = useRef<Element | null>(null);
     const backdropPress = useRef(false);
-    const pull = useRef<{ id: number; y0: number; t0: number; dy: number } | null>(null);
+    const pull = useRef<{
+        id: number;
+        y0: number;
+        base: number;
+        moved: boolean;
+        samples: { y: number; t: number }[];
+        dy: number;
+    } | null>(null);
+    // the spring a short pull is riding back on, so the next grab catches it where it is
+    const flight = useRef<Animation | null>(null);
 
     useEffect(() => {
         const dialog = ref.current;
@@ -65,34 +81,62 @@ export function ContentPage({ open, onClose, label, header, closeLabel, classNam
         const target = event.target as Element;
         if (!target.closest('[data-page-grab]') || target.closest('button, a, input, select, textarea, [role="tab"]'))
             return;
-        pull.current = { id: event.pointerId, y0: event.clientY, t0: event.timeStamp, dy: 0 };
+        pull.current = { id: event.pointerId, y0: event.clientY, base: 0, moved: false, samples: [], dy: 0 };
     };
     const onPointerMove = (event: React.PointerEvent) => {
         const p = pull.current;
         const dialog = ref.current;
         if (!p || !dialog || event.pointerId !== p.id) return;
         const dy = event.clientY - p.y0;
-        if (!dialog.hasAttribute('data-pulling')) {
+        if (!p.moved) {
             if (Math.abs(dy) < 6) return;
+            p.moved = true;
+            // catch the page where it is, even while it is still springing back
+            p.base = shownY(dialog) - dy;
+            flight.current?.cancel();
+            flight.current = null;
             dialog.setPointerCapture(event.pointerId);
             dialog.setAttribute('data-pulling', '');
         }
-        // resist going up, follow going down
-        p.dy = dy > 0 ? dy : dy * 0.2;
+        // follow going down, give like a rubber band going up (the page is already as tall as it gets)
+        const y = p.base + dy;
+        p.dy = y > 0 ? y : -rubberband(-y, dialog.offsetHeight);
         dialog.style.translate = `0 ${p.dy}px`;
+        p.samples.push({ y: p.dy, t: event.timeStamp });
+        while (p.samples.length > 2 && event.timeStamp - p.samples[0].t > 100) p.samples.shift();
     };
     const onPointerUp = (event: React.PointerEvent) => {
         const p = pull.current;
         const dialog = ref.current;
         pull.current = null;
-        if (!p || !dialog || event.pointerId !== p.id || !dialog.hasAttribute('data-pulling')) return;
-        dialog.removeAttribute('data-pulling');
-        const speed = p.dy / Math.max(1, event.timeStamp - p.t0);
+        if (!p || !dialog || event.pointerId !== p.id || !p.moved) return;
+        // the speed over the last 100ms before letting go: a finger that stopped before lifting throws nothing
+        const last = p.samples[p.samples.length - 1];
+        p.samples.push({ y: last.y, t: event.timeStamp });
+        while (p.samples.length > 2 && event.timeStamp - p.samples[0].t > 100) p.samples.shift();
+        const first = p.samples[0];
+        const speed = event.timeStamp > first.t ? (last.y - first.y) / (event.timeStamp - first.t) : 0;
         if (p.dy > CLOSE_PX || speed > FLICK) {
+            dialog.removeAttribute('data-pulling');
             // carry on downwards from where the finger let go (low motion: the usual fade)
             dialog.style.translate = motionReduced() ? '' : '0 100%';
             onClose();
-        } else dialog.style.translate = '';
+        } else if (motionReduced()) {
+            dialog.removeAttribute('data-pulling');
+            dialog.style.translate = '';
+        } else {
+            // spring back at the finger's speed; the pulling flag keeps the CSS transition out of the way
+            const back = springTranslateY(dialog, p.dy, 0, speed, SPRING.release, 'translate');
+            flight.current = back;
+            back.finished
+                .then(() => {
+                    if (flight.current !== back) return;
+                    flight.current = null;
+                    dialog.removeAttribute('data-pulling');
+                    dialog.style.translate = '';
+                })
+                .catch(() => {});
+        }
     };
 
     return (
