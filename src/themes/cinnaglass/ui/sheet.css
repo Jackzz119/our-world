@@ -1,7 +1,11 @@
 /* Phone sheets (sheet.tsx). The sheet owns its transform (JS places it at a
    detent), CSS owns how it travels there. Navigation (.rail-wrap, z 40) stays
-   above as the sheet's foot (navigation-glass.css); the dialog top layer stays
+   above as the sheet's tab bar (navigation-glass.css); the dialog top layer stays
    above everything. */
+:root {
+    /* the tab bar the navigation opens into while a sheet is up (portrait phones) */
+    --ui-dock-h: 64px;
+}
 .ui-sheet.ui-surface {
     --ui-alpha: 0.74;
     --sheet-full: calc(var(--ui-visible-height, 100dvh) - var(--ui-safe-top, 0px) - 56px);
@@ -13,13 +17,12 @@
     display: flex;
     flex-direction: column;
     max-height: var(--sheet-full);
-    /* the navigation bar sits in the sheet's foot, under a hairline */
-    padding: 20px 14px calc(86px + var(--ui-safe-bottom, 0px));
+    /* the navigation's tab bar covers the sheet's foot */
+    padding: 20px 14px calc(var(--ui-dock-h) + 10px + var(--ui-safe-bottom, 0px));
     border-bottom: 0;
     border-radius: 28px 28px 0 0;
-    box-shadow:
-        0 -18px 44px -18px #000b,
-        inset 0 1px 0 rgb(var(--ui-rim) / 0.2);
+    /* the shadow on the room is the top strip's (.ui-sheet-shade) */
+    box-shadow: inset 0 1px 0 rgb(var(--ui-rim) / 0.2);
     outline: none;
     will-change: transform;
     /* the sheet takes vertical drags itself (sheet.tsx); lists inside still scroll on their own */
@@ -47,6 +50,23 @@
 }
 .ui-sheet.expandable {
     height: var(--sheet-full);
+}
+/* The sheet's shadow on the room, along its top edge only. A blurred shadow round the whole sheet
+   (most of it below the screen or under the tab bar) was the costliest thing to paint when a sheet
+   opened (2026-10-02 profile: half the longest GPU stall); a short strip casts the same shadow. Its
+   four corners are rounded alike, which the browser can blur in one cheap pass; the sheet's own
+   radius (rounded at the top only) sent it down the slow path. The lower corners sit inside the
+   sheet, where an outer shadow never shows. */
+.ui-sheet-shade {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: -2;
+    height: 56px;
+    border-radius: 28px;
+    box-shadow: 0 -18px 44px -18px #000b;
+    pointer-events: none;
 }
 .ui-sheet-grip {
     position: absolute;
@@ -113,30 +133,6 @@
 }
 /* keepMounted sheets stay in the DOM while closed; the display above would override [hidden] */
 .ui-sheet[hidden] {
-    display: none;
-}
-/* The hairline over the foot, where the navigation bar sits while the sheet is up. */
-.ui-sheet-foot {
-    position: absolute;
-    right: 18px;
-    bottom: calc(80px + var(--ui-safe-bottom, 0px));
-    left: 18px;
-    height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgb(var(--ui-rim) / 0.34) 16%,
-        rgb(var(--ui-rim) / 0.34) 84%,
-        transparent
-    );
-    pointer-events: none;
-}
-@media (min-width: 600px) and (max-height: 599px) {
-    .ui-sheet-foot {
-        display: none;
-    }
-}
-[data-ui-keyboard='true'] .ui-sheet-foot {
     display: none;
 }
 /* Every sheet's header: title, actions, and a close button (SheetHead). */
