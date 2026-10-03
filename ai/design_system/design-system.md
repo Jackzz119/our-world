@@ -80,5 +80,5 @@
 - **原始生成批次不入库**：`codex-visual` 的时间戳批次目录（草稿、未选图、工具日志）留在本地；定稿图、提示词与制作注记整理进常驻文档或 concept 后入库。
 - **待确认的比稿**放 [视觉工作台](codex-visual/README.md)，用看样页展示；方向认可后，Monet 把定下的部分写进领域文档，UI Tailor 把定稿的界面写进 `uiux/`，交互写进 [UX 参考](uiux/cinnaglass/ux/ux.md)（流程、状态、动效、录屏，不只 token）。
 - **美术图不在会话里自己生成**（2026-09-30 用户定）：需要新素材时先占位，等用户在机器上装好 Codex，再用 `codex-visual` 出图。要图的地方写进 [要图清单](codex-visual/art-requests/art-requests.md)（在哪、现在什么样、要什么、怎么接、怎么验），代码里用 `ART-REQUEST` 注释标出接入点。
-- **看样页常驻**（2026-10-02 用户定）：[UI/UX 看样页](uiux/cinnaglass/ux/index.html) 是 agent 和用户查看设计的参考，只放这一期在用的界面；界面改了就重拍、替换，旧图不留在页上。发布版用 `node scripts/build-review-page.mjs <输出目录>` 生成，发布到同一个地址。
+- **看样页常驻**（2026-10-02 用户定）：[UI/UX 看样页](uiux/cinnaglass/ux/index.html) 是 agent 和用户查看设计的参考，只放这一期在用的界面；界面改了就重拍、替换，旧图不留在页上。发布版用 `node scripts/build-review-page.mjs <输出目录>` 生成（已自动内联批注层，见技能 `annotated-report`），发布时 `capabilities` 带 `{comments: {}}`，发布到同一个地址。
 - 每次设计变化同步本页和受影响的领域文档，并运行 `node scripts/check-design-system.mjs` 检查链接与图文。

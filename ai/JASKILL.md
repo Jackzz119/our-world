@@ -13,6 +13,7 @@
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | `project-audit` | 用户说「audit / 审核 / 项目体检 / 全仓审核 / 清理冗余 / 性能复查」，或要继续、复查审核的某一步；开工先读 `ai/project-audit/INDEX.md`，再读 `STEPS.md` 当前阶段与 `FINDINGS.md` | 货架 `skills/project-audit`（自建，跨项目） |
 | `marionette` | 要做会动的 2D 人物、接手一套姿势图，或人物动画出问题（闪烁、眨眼跳脸、切姿势多出一块、反应生硬）；本项目的人物 rig 配置在 `arts/characters/<人物>/rig.json`，运行时核心 `src/themes/cinnaglass/room/rig-core.ts` 与导演 `rig-director.ts` 是技能模板的副本（改模板再复制过来） | 本项目自建（通用写法，暂不上货架，2026-09-28 用户定） |
+| `annotated-report` | 要出给用户读、等用户表态的 HTML 页面（报告、方案书、看样页、设计系统展示页）时，按它把批注层内联进发布副本；会话被页面上「发给 Claude」的批注唤醒，或用户说「看批注」时，按它读批注、改页面、回复。本项目的看样页由 `scripts/build-review-page.mjs` 自动内联；浏览器检查 `node scripts/check-annotate.mjs` | 本项目自建（通用写法，2026-10-03 用户批准；没上货架） |
 
 ## 第三方技能包：Emil Kowalski 的界面与动效技能
 
@@ -36,6 +37,8 @@
 分工边界：`project-audit` 只做审核与授权内的整理，不替代 `feature`（功能开发）与 `intj`（任务/文档维护）；审核发现的待办仍写进 `ai/TODO.md`，审核证据只放 `ai/project-audit/`。
 
 `marionette` 只管「怎么让人物动」：人物长什么样归 `monet`，出图的执行归 `codex-visual`（按它的策略先问）。它是跨项目的写法，但按用户决定登记在这里而不进 `CLAUDE.md` / `AGENTS.md`——不是每次都用得上的技能。
+
+`annotated-report` 只管「页面上的批注怎么回到 agent」：页面内容和设计归写页面的技能。`monet` / `ui-tailor` 发布设计报告、看样页、设计系统展示页时调用它（2026-10-03 用户定）。用户批准的是「进 jaSkills、登记进 monet 和 ui-tailor」，所以同样登记在这里而不进 `CLAUDE.md` / `AGENTS.md`。批注层的资产只有技能目录里这一份（`assets/annotate.js`、`assets/inline.mjs`），项目脚本直接 import，不复制。
 
 除上面的 Emil 技能包外，本项目没有其他第三方领域知识包（无 ORM / 组件库技能）；PixiJS、Supabase 的用法以官方文档为准，需要时再上架。`blender-create` 已于 2026-09-19 随 3D 管线退役一并移除。
 
