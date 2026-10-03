@@ -238,7 +238,11 @@ export function MobileFixture() {
                         open={chat}
                         inWorld
                         onClose={() => setChat(false)}
-                        onExpand={() => setScreen('chat')}
+                        onExpand={() => {
+                            // as WorldPage: the quick chat gives way to the whole conversation
+                            setChat(false);
+                            setScreen('chat');
+                        }}
                         channels={channels}
                         dmConvs={[]}
                         threads={{ [channels[0].id]: messages }}

@@ -35,6 +35,9 @@ type SheetProps = {
     /** controlled height (expandable sheets); uncontrolled starts at 'half' */
     detent?: SheetDetent;
     onDetentChange?: (detent: SheetDetent) => void;
+    /** a sheet of one height whose fuller view lives elsewhere (the chat's whole conversation): pushed
+        up or flung up, it hands over to that view, as its expand button does */
+    onPullUp?: () => void;
     /** children stay mounted (hidden) while closed, so drafts and scroll survive */
     keepMounted?: boolean;
     className?: string;
@@ -46,6 +49,10 @@ const HALF_RATIO = 0.5;
 const HALF_MIN = 340;
 // Faster than this (px per ms) the release counts as a throw: a little more bounce.
 const FLICK = 0.5;
+// A one-height sheet pushed up this far past its top (px, after the rubber band) or flung up faster
+// than this (px per ms) hands over to its fuller view (onPullUp).
+const PULL_UP_PX = 36;
+const PULL_UP_SPEED = 0.3;
 // Exit is quicker than entry; must cover the closing transition in sheet.css.
 const EXIT_MS = 300;
 // How long the room holds still for the rise (--dur-sheet, the smooth spring, is 621ms), a drag,
@@ -58,16 +65,30 @@ const SLOP = 6;
 // Where a press never starts a drag: typing and sliders keep the finger.
 const NO_DRAG = 'input, textarea, select, [contenteditable], [role="slider"]';
 
-// A list or a page that can scroll up and down keeps its own scrolling.
-function inScroller(node: Element | null, sheet: Element): boolean {
+// The list a press starts in, if it can scroll up and down.
+function scrollerOf(node: Element | null, sheet: Element): HTMLElement | null {
     for (let el = node; el && el !== sheet; el = el.parentElement) {
         const { overflowY } = getComputedStyle(el);
-        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 1) return true;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 1)
+            return el as HTMLElement;
     }
-    return false;
+    return null;
 }
+// Whether a list can still move the way the finger goes (up: towards its end; down: towards its start).
+// A list keeps its own scrolling until it runs out; past its end the drag is the sheet's, as in iOS:
+// the chat at its newest message pushed up opens out, a list at its top pulled down lowers the sheet.
+const canScroll = (list: HTMLElement, dy: number) =>
+    dy < 0 ? list.scrollTop + list.clientHeight < list.scrollHeight - 1 : list.scrollTop > 0;
 
-type Drag = { id: number; y0: number; base: number; moved: boolean; samples: { y: number; t: number }[] };
+type Drag = {
+    id: number;
+    y0: number;
+    base: number;
+    moved: boolean;
+    samples: { y: number; t: number }[];
+    /** the list the press started in: it keeps the gesture while it can still scroll that way */
+    list: HTMLElement | null;
+};
 
 export function Sheet({
     open,
@@ -76,6 +97,7 @@ export function Sheet({
     expandable = false,
     detent: controlled,
     onDetentChange,
+    onPullUp,
     keepMounted = false,
     className = '',
     children
@@ -131,6 +153,16 @@ export function Sheet({
         const reduced = motionReduced();
         const at = restingY(el, el.dataset.detent === 'full' ? 'full' : 'half');
         const away = el.dataset.state === 'closing';
+        // handed over to a fuller view (onPullUp): it stops where it is drawn now and fades out there
+        if (away && el.dataset.handoff !== undefined) {
+            const y = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42;
+            flight.current?.cancel();
+            flight.current = null;
+            delete el.dataset.springing;
+            el.style.transform = `translateY(${y}px)`;
+            el.style.opacity = '0';
+            return;
+        }
         el.style.transform = `translateY(${away && !reduced ? offsets(el).closed : at}px)`;
         el.style.opacity = away && reduced ? '0' : '1';
     };
@@ -146,6 +178,7 @@ export function Sheet({
         }
         if (!entered.current) {
             entered.current = true;
+            delete el.dataset.handoff;
             // Prepare first: lay the sheet out and paint it where it will rest, all but invisible, and
             // only then start it from below the screen, so the rise moves finished pixels. Painting a
             // whole sheet (glass, edges, text, a poster) on the way up held the GPU for ~100ms on a
@@ -185,13 +218,27 @@ export function Sheet({
         return () => cancelAnimationFrame(pending.current);
     }, []);
 
+    // On a touch screen the browser starts panning a list as soon as the finger moves; when the sheet
+    // has taken a gesture that began in a list (the list was at its end), each move must say so. Pointer
+    // events come first, so the decision in moveDrag is already made when the touch move arrives.
+    useEffect(() => {
+        const el = ref.current;
+        if (!el || !mounted) return;
+        const claim = (event: TouchEvent) => {
+            const d = drag.current;
+            if (d?.list && d.moved && event.cancelable) event.preventDefault();
+        };
+        el.addEventListener('touchmove', claim, { passive: false });
+        return () => el.removeEventListener('touchmove', claim);
+    }, [mounted]);
+
     usePanelFocus(open, ref);
 
     if (!mounted && !keepMounted) return null;
 
-    // A press anywhere becomes a drag once it has moved, except on typing, sliders and lists that scroll
-    // (a half-height sheet has nothing to scroll yet, so it drags from anywhere); the grip and header
-    // strips always drag.
+    // A press anywhere becomes a drag once it has moved, except on typing, sliders and lists that can
+    // still scroll the way the finger goes (a half-height sheet has nothing to scroll yet, so it drags
+    // from anywhere); the grip and header strips always drag.
     const startDrag = (event: React.PointerEvent<HTMLElement>) => {
         // a new press is never the tail of the last drag: its tap goes through (a close button tapped
         // just after a fling used to do nothing)
@@ -200,8 +247,8 @@ export function Sheet({
         const target = event.target as Element;
         if (!el || drag.current || event.button !== 0 || !event.isPrimary || target.closest(NO_DRAG)) return;
         const strip = target.closest('.ui-sheet-grip, [data-sheet-grab]');
-        if (!strip && !(expandable && detent === 'half') && inScroller(target, el)) return;
-        drag.current = { id: event.pointerId, y0: event.clientY, base: 0, moved: false, samples: [] };
+        const list = strip || (expandable && detent === 'half') ? null : scrollerOf(target, el);
+        drag.current = { id: event.pointerId, y0: event.clientY, base: 0, moved: false, samples: [], list };
     };
     const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
         const el = ref.current;
@@ -210,6 +257,11 @@ export function Sheet({
         const dy = event.clientY - d.y0;
         if (!d.moved) {
             if (Math.abs(dy) < SLOP) return;
+            // the list still has somewhere to go: it scrolls, the sheet stays
+            if (d.list && canScroll(d.list, dy)) {
+                drag.current = null;
+                return;
+            }
             d.moved = true;
             // catch the sheet where it is on screen, even mid-spring, and keep it under the finger
             const current = new DOMMatrixReadOnly(getComputedStyle(el).transform).m42;
@@ -244,6 +296,12 @@ export function Sheet({
         const velocity = event.timeStamp > first.t ? (last.y - first.y) / (event.timeStamp - first.t) : 0;
         const at = offsets(el);
         const y = last.y;
+        // a one-height sheet pushed or flung up hands over to its fuller view; it springs back to rest
+        // below that view, fading as it goes when the view closes it
+        if (onPullUp && !expandable && (y < -PULL_UP_PX || velocity < -PULL_UP_SPEED)) {
+            el.dataset.handoff = '';
+            onPullUp();
+        }
         // aim for the resting place the throw is heading to, not the one nearest the finger
         const projected = y + project(velocity);
         const stops: [SheetDetent | 'closed', number][] = expandable
@@ -271,6 +329,7 @@ export function Sheet({
         holdScene(Number(flying.effect?.getComputedTiming().duration) + 40 || RISE_HOLD_MS);
         flying.finished
             .then(() => {
+                if (el.dataset.state !== 'closing') delete el.dataset.handoff;
                 if (flight.current !== flying) return;
                 flight.current = null;
                 delete el.dataset.springing;

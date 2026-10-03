@@ -279,6 +279,15 @@ try {
     assert.equal(await page.locator('.rail-sheet').isVisible(), true);
     await page.keyboard.press('Escape');
     await page.locator('.rail-sheet').waitFor({ state: 'detached' });
+    // the quick chat pushed up from its newest message opens the whole conversation, as its expand
+    // button does (the list has nowhere further to go, so the push is the sheet's)
+    await page.locator('[data-nav-key="chat"]').tap();
+    await settle(page);
+    const pushUp = await pull('.chat-sheet .cc-list', -160);
+    await pushUp();
+    await page.locator('dialog[open] .chsc-input').waitFor();
+    await page.locator('.chat-sheet').waitFor({ state: 'detached' });
+    await page.keyboard.press('Escape');
 
     // the journal is a content page: the whole screen straight away (no half height); Esc in the lightbox
     // closes only the photo

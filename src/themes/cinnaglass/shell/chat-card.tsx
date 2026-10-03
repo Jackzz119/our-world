@@ -198,7 +198,7 @@ export function ChatCard({
     // the sheet plays its own exit, so it stays rendered while closed
     if (compact)
         return (
-            <Sheet open={open} onClose={onClose} label="聊天窗口" className="chat-sheet">
+            <Sheet open={open} onClose={onClose} onPullUp={onExpand} label="聊天窗口" className="chat-sheet">
                 <div ref={cardRef} className="chat-sheet-body" data-align={chatAlign}>
                     {body}
                 </div>
