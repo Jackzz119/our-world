@@ -15,25 +15,25 @@
 
 以下路径相对 `src/themes/cinnaglass/`；页面路径另写。表内是 2026-09-20 实际实现，不沿用旧行号。
 
-| 界面               | 入口与主要文件                                                               | 当前处理                                                       |
-| ------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| 导航/工具/房间菜单 | `shell/rail.tsx`、`shell/navigation-glass.css`                               | 保持基准；锁定房间表示未开放，不恢复旧无动作把手               |
-| 天气               | `shell/ambience.tsx`、`src/pages/world/useWeather.ts`                        | 同源 A 壳；加载/失败/手动分开，未知温度为 null                 |
-| 纪念卡             | `shell/floaters.tsx`                                                         | 同源材质、缺失纪念日空态、隐藏与工具恢复                       |
-| 音乐两态           | `shell/floaters.tsx`、`music.tsx`、`use-music-playback.ts`                   | 同一真实 WebAudio 状态；展开与播放/隐藏独立                    |
-| 聊天窄卡           | 导航聊天 → `shell/chat-card.tsx`                                             | A 壳与可读内容；保留真实消息/贴纸与展开路径                    |
-| 头顶 UI            | `room/room-scene.tsx`                                                        | 同源 DOM 气泡/标签；没有虚构 Presence 在线状态                 |
-| 完整聊天           | 窄卡展开 → `chat/chat-hub.tsx`                                               | TaskDialog；房间聊天优先，好友/DM 作为折叠次级入口             |
-| 表情/贴纸          | `chat/emote-picker.tsx`、`chat/emote-picker.css`，composer/message-list 定位 | 自适应网格、44px 控件、内部滚动、IME 防误提交、内联删除确认    |
-| 好友/DM            | `chat/friends-page.tsx`、`chat/conv-nav.tsx`                                 | 保留真实数据功能；内联确认、状态播报、字段名称、IME 与焦点行为 |
-| 设置               | 导航设置 → `settings.tsx`                                                    | TaskDialog 与随时辰内衬；减少透明效果、真实账号链路            |
-| 世界设置           | `world-settings.tsx` 已挂载，无用户入口                                      | B 壳已同步；入口依用户决定暂不恢复，不是死文件                 |
-| 日历/提醒          | 工具/挂钟 → `calendar.tsx`                                                   | B 壳；日期/温度缺失不造值，本机提醒列表不会通知                |
-| 照片/原图          | 相框/工具 → `surfaces/object-surfaces.tsx`、`photo-wall.tsx`                 | 仅非日记分支迁入 TaskDialog；图片原色与原图浏览保留            |
-| 心愿               | 许愿罐/工具 → `surfaces/wishlist.tsx`                                        | B 通用壳，明确当前浏览器本地保存                               |
-| 登录/重置          | `src/pages/LoginPage.tsx`、`ResetPasswordPage.tsx`                           | 真实书房背景 + 同源材料，保留 auth/错误/重试                   |
-| 大厅/路由等待      | `lobby.tsx`、`src/pages/ProtectedRoute.tsx`、`entry.css`                     | 实景背景；加载/已有世界/创建/失败各对应真实回调                |
-| 日记阅读/写作/详情 | `journal/` 与 C 共用依赖                                                     | 冻结，不以本次 A/B 完成状态涵盖其改造                          |
+| 界面               | 入口与主要文件                                                                             | 当前处理                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| 导航/工具/房间菜单 | `shell/rail.tsx`、`shell/navigation-glass.css`                                             | 保持基准；锁定房间表示未开放，不恢复旧无动作把手               |
+| 天气               | `shell/ambience.tsx`、`src/pages/world/useWeather.ts`                                      | 同源 A 壳；加载/失败/手动分开，未知温度为 null                 |
+| 纪念卡             | `shell/floaters.tsx`                                                                       | 同源材质、缺失纪念日空态、隐藏与工具恢复                       |
+| 音乐两态           | `shell/floaters.tsx`、`music/player.tsx`、`music/use-music.ts`（2026-10-03 迁入 `music/`） | 同一真实 WebAudio 状态；展开与播放/隐藏独立                    |
+| 聊天窄卡           | 导航聊天 → `shell/chat-card.tsx`                                                           | A 壳与可读内容；保留真实消息/贴纸与展开路径                    |
+| 头顶 UI            | `room/room-scene.tsx`                                                                      | 同源 DOM 气泡/标签；没有虚构 Presence 在线状态                 |
+| 完整聊天           | 窄卡展开 → `chat/chat-hub.tsx`                                                             | TaskDialog；房间聊天优先，好友/DM 作为折叠次级入口             |
+| 表情/贴纸          | `chat/emote-picker.tsx`、`chat/emote-picker.css`，composer/message-list 定位               | 自适应网格、44px 控件、内部滚动、IME 防误提交、内联删除确认    |
+| 好友/DM            | `chat/friends-page.tsx`、`chat/conv-nav.tsx`                                               | 保留真实数据功能；内联确认、状态播报、字段名称、IME 与焦点行为 |
+| 设置               | 导航设置 → `settings.tsx`                                                                  | TaskDialog 与随时辰内衬；减少透明效果、真实账号链路            |
+| 世界设置           | `world-settings.tsx` 已挂载，无用户入口                                                    | B 壳已同步；入口依用户决定暂不恢复，不是死文件                 |
+| 日历/提醒          | 工具/挂钟 → `calendar.tsx`                                                                 | B 壳；日期/温度缺失不造值，本机提醒列表不会通知                |
+| 照片/原图          | 相框/工具 → `surfaces/object-surfaces.tsx`、`photo-wall.tsx`                               | 仅非日记分支迁入 TaskDialog；图片原色与原图浏览保留            |
+| 心愿               | 许愿罐/工具 → `surfaces/wishlist.tsx`                                                      | B 通用壳，明确当前浏览器本地保存                               |
+| 登录/重置          | `src/pages/LoginPage.tsx`、`ResetPasswordPage.tsx`                                         | 真实书房背景 + 同源材料，保留 auth/错误/重试                   |
+| 大厅/路由等待      | `lobby.tsx`、`src/pages/ProtectedRoute.tsx`、`entry.css`                                   | 实景背景；加载/已有世界/创建/失败各对应真实回调                |
+| 日记阅读/写作/详情 | `journal/` 与 C 共用依赖                                                                   | 冻结，不以本次 A/B 完成状态涵盖其改造                          |
 
 ## 3. 原问题的收口
 

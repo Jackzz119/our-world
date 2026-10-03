@@ -42,7 +42,7 @@
 
 ![现在：手机音乐托盘的歌单，8 张海报都是窗外的城市](img/now-posters-phone.jpg)
 
-**在哪**：[music-tracks.ts](../../../../src/themes/cinnaglass/music-tracks.ts) 每首歌的 `poster`，文件在 [public/music/covers/](../../../../public/music/covers/)。显示尺寸：托盘和停靠栏的封套 72–112px（唱片从封套后面滑出来，海报同时印在唱片中心的圆标上，见 [music.css](../../../../src/themes/cinnaglass/music.css) `.mp-art`、`.mp-disc`）；歌单每行 44px；迷你条 40–52px；沉浸歌词里是 48px 小图，同时糊成整块面板的底色（`blur(38px) brightness(0.5)`）。
+**在哪**：[music/builtin-tracks.ts](../../../../src/themes/cinnaglass/music/builtin-tracks.ts) 每首歌的 `poster`，文件在 [public/music/covers/](../../../../public/music/covers/)。显示尺寸：托盘和停靠栏的封套 72–112px（唱片从封套后面滑出来，海报同时印在唱片中心的圆标上，见 [music/music.css](../../../../src/themes/cinnaglass/music/music.css) `.mp-art`、`.mp-disc`）；歌单每行 44px；迷你条 40–52px；沉浸歌词里是 48px 小图，同时糊成整块面板的底色（`blur(38px) brightness(0.5)`）。
 
 **现在**：当期概念图的方形裁切，8 张几乎都是窗外的城市和桌子，44px 时分不出哪首是哪首，有几张还带着概念图里人物的手。
 
@@ -70,7 +70,7 @@
 
 **参考图**：[书房夜景底图](../../../../public/rooms/study/plate-night-on.webp)（画法和光）、[对坐主视觉 A1](../../concept/across-the-table/img/A1-keyart.jpg)（世界）、[现在的歌单](img/now-posters-phone.jpg)（摆在哪、多大）。
 
-**接入**：同名覆盖 `public/music/covers/*.webp`；需要的话改 `tint`；把 [music-tracks.ts](../../../../src/themes/cinnaglass/music-tracks.ts) 文件头关于「概念图裁切」的注释改成新来源，更新 design-system.md「歌单海报」一行。
+**接入**：同名覆盖 `public/music/covers/*.webp`；需要的话改 `tint`；把 [music/builtin-tracks.ts](../../../../src/themes/cinnaglass/music/builtin-tracks.ts) 文件头关于「概念图裁切」的注释改成新来源，更新 design-system.md「歌单海报」一行。
 
 **验收**：8 张缩到 44px 拼成一排，一眼分得清；中间 40% 的圆里主体还在；`mobile-ui.html?screen=room&mood=night` 打开音乐托盘看封套和唱片圆标、切到歌单看 8 行、点歌词进沉浸看糊开的底色上歌词是否清楚；桌面停靠栏同样看一遍；每张 ≤ 60 KB。
 

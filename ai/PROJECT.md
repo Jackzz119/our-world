@@ -79,7 +79,8 @@ src/
     ├── journal/         # 棕皮书日记与翻页（C 类物件 UI，回忆页里日记的「书本」样子）：room-book · layout · turn · turn-controller · room.css · turn.css · diary.css
     ├── surfaces/        # 物件功能面：object-surfaces（SubScreen 编排）· memory-surface（回忆页：日记 + 照片墙）· memory-views（样子的约定）· 日记的样子 journal-stream / journal-calendar / journal-book-view · 照片墙的样子 photo-wall / photo-cork / photo-album / photo-projector · journal-index · show-entry · memory-lightbox · memory-photos · washi-tape（胶带的颜色与图）· memory.css · composer · post-detail · wishlist · use-signed-thumbs · date-format · author-tone · object-surfaces.css
     ├── chat/            # chat-data（门面）· store · use-message-store · use-world-stream · use-account-stream · use-emote-library · use-optimistic-send · chat-hub（完整聊天大窗）· conv-nav · message-list · chat-composer · bubble-dust · friends-page · emote-picker · emoji-data
-    ├── calendar · settings · world-settings · music + music-tracks + use-music-playback · lobby · entry.css
+    ├── calendar · settings · world-settings · lobby · entry.css
+    ├── music/           # 播放器（player：正在播放 / 歌词 / 曲库 / 声音 + 沉浸歌词、上传、音质三页）· use-music（引擎与曲库）· use-music-upload · builtin-tracks（8 首内置音景）
     ├── icons · model · profile · tweaks    # 共享图标/类型/偏好；旧登录 SVG 已移除
     └── image-slot.js    # 图片选择器 web component，仅设置页头像在用
 ```
@@ -102,7 +103,8 @@ src/
 - **回忆页**（2026-09-30 做成面板，2026-10-01 按用户的产品分层改为内容页，2026-10-02 用户认可）：日记与照片墙同一页两页签，桌面正中、手机全屏；日记 手帐 / 日历 / 书本，照片墙 拍立得 / 软木板 / 相册 / 放映，页头随时切换；共用灯箱；导航「回忆」入口替换了工具扳手。比稿已移档 `arts/archive/v3-ui-rounds/memories/`，功能 `ai/features/timeline.md`
 - **界面风格**（2026-10-01 深玻璃，2026-10-02 用户认可并要暖瓷浅色正式实装）：深玻璃是默认（更实的底、硬描边、深投影，内容页压暗场景）；描金暗夜和暖瓷浅色在设置 → 主题外观 → 界面风格里换，`?look=gilded|porcelain|classic` 也能切（classic 只作对比）。`ai/design_system/uiux/cinnaglass/ux/ux.md` §8
 - **要图清单与新美术**（2026-10-02）：界面里用占位的美术（歌单海报、手帐纸、和纸胶带、软木板与木框、空状态小插画）逐处写清要求后，同日在用户机器上用 Codex 出图、Monet 审图并全部接入，待用户看样：8 张封面 `public/music/covers/`，回忆页素材 `public/ui/memory/`（纸纹正片叠底、胶带按自身比例 `contain` 进约 5:1 的胶带位、软木与胡桃木框、空状态小画），母版与每一步处理在 `arts/ui/music/`、`arts/ui/memory/` 的 manifest，打包脚本 `scripts/build-ui-art.py`（Pillow + numpy，不修图，只缩放、导出、确定性接缝处理与近白归白）。胶带的颜色与图在 `surfaces/washi-tape.ts`。`ai/design_system/codex-visual/art-requests/art-requests.md`
-- **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签
+- **Debug log**：`src/lib/logman.ts`（`Logman.log` 仅 dev；格式 `[功能域][web][模块]`）。设置使用 `[auth][web][settings]` 记录改密/退出失败；聊天与房间也使用各自域标签；音乐用 `[music][web][<模块>]`（2026-10-03 加入标签池）
+- **音乐一期**（2026-10-03 实现，等迁移上线与真机验证）：本地上传进共享曲库（原件逐比特保存，Free 计划大文件分片）、`<audio>` 直出原件、CUE 整轨无缝、每首歌原件 / 省流切换、离线下载；数据层与引擎 `src/lib/music/`，界面 `src/themes/cinnaglass/music/`。细节见 `ai/features/music/impl.md`
 
 ## 数据库（Supabase 项目 `xrscspcqnsxvfshskfpy`）
 
@@ -130,6 +132,7 @@ src/
 - **RPC** `find_profile_by_email(p_email)` — 好友流程按邮箱找人
 - **Edge Function** `emotes` — `action:'search'`（Tenor 搜图）/ `'import'`（≤2MB 图片服务端转存 + 入库）；**待配 TENOR_API_KEY**
 - **Storage** 私有桶 `memories`（25MB/文件，png/jpeg/webp/avif；RLS 按首段路径 = world_id 判成员）：`<world_id>/<uuid>.<ext>` 原图 + `<uuid>.thumb.webp`（长边 1024）· `<world_id>/emotes/<uuid>.webp` 贴纸（长边 512）· `<world_id>/icon-<uuid>.webp` 世界 icon；展示走 signed URL（TTL 1h）；缩略图 40 分钟自动续签 + tab 重可见重签，世界 icon 与贴纸目前只有 40 分钟定时、无重可见重签（PA-044）
+- **音乐**（2026-10-01 / 10-03 两份迁移在 `supabase/migrations/`，**尚未应用到线上**）：13 张 `music_*` 表（文件 / 曲目 / 播放版本 / 歌词 / 封面 / 专辑 / 歌手 / 歌单 / 回应 / 收藏 / 播放记录）、私有桶 `music`（`orig/` 原件、`r/` 副本、`art/` 封面、`tmp/` 临时）、RPC `music_existing_hashes` / `music_finish_upload` / `music_ingest` / `music_record_copy` / `music_storage_usage` / `music_ours_playlist`、实时话题 `music:{world_id}`（只发 id）。表结构与策略以迁移文件为准，说明见 `ai/features/music/impl.md` §二
 - **Realtime = Broadcast from Database**：客户端从不主动广播，DB trigger 把 I/U/D 推到 private topic `world:{id}`（消息/回应/已读/贴纸库）与 `user:{uid}`（DM/好友）；**Presence 尚未接**（`WorldPage` 头顶胶囊为占位文案，R1 待办）
 
 ### 代码侧不一致（清理项）
@@ -170,7 +173,7 @@ src/
 ## 文档索引
 
 - `ai/TODO.md` — 任务唯一来源
-- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，两个视角都已上线，7 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `music/music.md` 🟡 音乐模块（本地上传一期，方案待讨论）· `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
+- `ai/features/` — 功能细节载体（本文只留摘要 + 引用）：`study-room/study-room.md` 🟡 书房（对坐第一期，两个视角都已上线，7 / 10）· `timeline.md` 🟢 回忆链路 · `chat.md` 🟢 聊天 · `supabase.md` 🟡 后端审计，待 MCP 回填 · `navigation-glass.md` 导航基准 · `mobile-ui.md` 手机布局与设备验收 · `music/music.md` 🟡 音乐模块（本地上传一期，2026-10-03 拍板并实现，实现说明 `music/impl.md`）· `ui-system/ui-system.md` + `audit.md` UI 当前实现、验收边界与历史收口
 - `ai/design_system/design-system.md` — 当前整体设计与素材位置；`character` / `scene` / `props` / `effects` 领域子文档；`uiux/uiux.md` + `interaction.md` UI 地图与交互；`uiux/cinnaglass/ui-system.md` 主题规范（`ui-system.html` 预览）、`decisions.md` 当前 UI 决定；`concept/across-the-table/` 当期对坐概念（77 张图、制作注记与出图 brief）；`uiux/cinnaglass/ux/ux.md` UX 参考（流程、状态、动效、录屏）；`codex-visual/` 待确认的比稿与看样页
 - `ai/STYLE.md` / `ai/UX.md` — 旧链接兼容入口（含旧章节对应表）
 - `ai/reboot/` — 重定位启动归档（2026-08-09 时点原件，不再更新；其中「三件套含 STYLE」「Blender/R3F/Rive 方案」等已被后续决策取代）
