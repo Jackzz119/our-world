@@ -87,7 +87,7 @@
     border-right-color: rgb(133 86 23 / 0.45);
 }
 
-/* ---------- phone sheets and content pages: grip and foot line ---------- */
+/* ---------- phone sheets and content pages: the grip ---------- */
 :root[data-look='porcelain'] .ui-environment .ui-sheet-grip > span,
 :root[data-look='porcelain'] .ui-environment .ui-page-grip::before {
     background: rgb(84 64 40 / 0.26);
@@ -96,10 +96,6 @@
 :root[data-look='porcelain'] .ui-environment .ui-sheet[data-dragging] .ui-sheet-grip > span {
     background: rgb(176 120 48 / 0.75);
 }
-:root[data-look='porcelain'] .ui-environment .ui-sheet-foot {
-    background: linear-gradient(90deg, transparent, var(--ui-line) 16%, var(--ui-line) 84%, transparent);
-}
-
 /* ---------- navigation: the rail, its popovers and phone sheets (navigation-glass.css) ---------- */
 /* the rail-wrap palette the hook copies (--nav-tint/top/cold/rim) is left alone; its children read
    porcelain's */
