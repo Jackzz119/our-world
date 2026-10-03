@@ -361,3 +361,33 @@ export const IHeadset = (p: IcoProps) => (
         <rect x="16.9" y="13" width="3.6" height="6" rx="1.6" />
     </Ico>
 );
+// Library and upload: send up, keep on this device, find, more, remove, a folder, a sound wave.
+export const IUpload = (p: IcoProps) => (
+    <Ico {...p} d="M12 15.5V4M7.5 8.5 12 4l4.5 4.5M4.5 14.5v3a2.5 2.5 0 002.5 2.5h10a2.5 2.5 0 002.5-2.5v-3" />
+);
+export const IDownload = (p: IcoProps) => (
+    <Ico {...p} d="M12 4v11.5M7.5 11 12 15.5l4.5-4.5M4.5 14.5v3a2.5 2.5 0 002.5 2.5h10a2.5 2.5 0 002.5-2.5v-3" />
+);
+export const ISearch = (p: IcoProps) => (
+    <Ico {...p}>
+        <circle cx="10.8" cy="10.8" r="6.3" />
+        <path d="M15.5 15.5 20 20" />
+    </Ico>
+);
+export const IMore = (p: IcoProps) => (
+    <Ico {...p} sw={0} fill="currentColor">
+        <circle cx="5.5" cy="12" r="1.7" />
+        <circle cx="12" cy="12" r="1.7" />
+        <circle cx="18.5" cy="12" r="1.7" />
+    </Ico>
+);
+export const ITrash = (p: IcoProps) => (
+    <Ico
+        {...p}
+        d="M4.5 7h15M9.5 7V5a1.5 1.5 0 011.5-1.5h2A1.5 1.5 0 0114.5 5v2M6.5 7l.9 12a2 2 0 002 1.8h5.2a2 2 0 002-1.8l.9-12M10 11v6M14 11v6"
+    />
+);
+export const IFolder = (p: IcoProps) => (
+    <Ico {...p} d="M3.5 7.5A2 2 0 015.5 5.5h3.6l2 2.2h7.4a2 2 0 012 2v7.8a2 2 0 01-2 2h-13a2 2 0 01-2-2V7.5z" />
+);
+export const IWave = (p: IcoProps) => <Ico {...p} d="M3.5 12h2M7.5 8v8M11.5 5v14M15.5 9v6M19.5 11v2" />;

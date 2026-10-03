@@ -1,8 +1,8 @@
-// music-tracks.ts — the built-in generative playlist (no audio files). Kept out
-// of music.tsx so that component file only exports components (react-refresh).
-// Posters are the playlist's own generated covers, one still life per track (public/music/covers/,
-// originals and provenance in arts/ui/music/manifest.json); lyrics are written for each soundscape
-// and timed in seconds on its generated timeline.
+// builtin-tracks.ts — the built-in generative playlist (no audio files): eight chord recipes the
+// soundscape synth (src/lib/music/synth.ts) plays when the library is empty or the listener picks
+// 本机音景. Posters are the playlist's own generated covers, one still life per track
+// (public/music/covers/, originals and provenance in arts/ui/music/manifest.json); lyrics are written
+// for each soundscape and timed in seconds on its generated timeline.
 
 export type LyricLine = { t: number; text: string };
 export type Track = {
@@ -200,10 +200,3 @@ export const TRACKS: Track[] = [
         ])
     }
 ];
-
-// Index of the lyric line being sung at `pos` seconds (-1 before the first).
-export const lyricAt = (track: Track, pos: number) => {
-    let at = -1;
-    for (let i = 0; i < track.lyrics.length && track.lyrics[i].t <= pos; i++) at = i;
-    return at;
-};
