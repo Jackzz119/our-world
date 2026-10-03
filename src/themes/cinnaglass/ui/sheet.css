@@ -25,6 +25,8 @@
     bottom: var(--ui-sheet-foot);
     left: calc(var(--ui-safe-left, 0px) + var(--ui-sheet-inset));
     z-index: 36;
+    /* clip: nothing can scroll it (focus would, with hidden); hidden is for browsers without clip (iOS 15) */
+    overflow: hidden;
     overflow: clip;
     border-radius: 28px;
     /* only the sheet takes taps: the room above a sheet at half height stays in reach */
