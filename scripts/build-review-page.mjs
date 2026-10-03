@@ -12,7 +12,8 @@ const REPO = 'https://github.com/Jackzz119/our-world/blob/dev/';
 // page-relative prefix -> folder in the published copy
 const MOUNTS = {
     '../../../codex-visual/ui-motion/img/': 'board/',
-    '../../../codex-visual/art-requests/img/': 'art/'
+    '../../../codex-visual/art-requests/img/': 'art/',
+    '../../../codex-visual/nav-dock/img/': 'dock/'
 };
 
 const out = process.argv[2];
