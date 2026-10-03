@@ -1,0 +1,354 @@
+[
+    {
+        "name": "phone-sheets",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 2300,
+        "steps": [
+            {
+                "tap": "[data-nav-key='music']",
+                "wait": 1700
+            },
+            {
+                "tap": "[data-nav-key='memories']",
+                "wait": 1700
+            },
+            {
+                "tap": "[data-nav-key='rooms']",
+                "wait": 1700
+            },
+            {
+                "tap": ".ui-sheet[data-state='open'] .ui-sheet-close",
+                "wait": 1500
+            },
+            {
+                "tap": "[data-nav-key='chat']",
+                "wait": 1700
+            },
+            {
+                "tap": "[data-nav-key='settings']",
+                "wait": 1800
+            },
+            {
+                "tap": "button[aria-label='关闭设置']",
+                "wait": 1200
+            }
+        ]
+    },
+    {
+        "name": "phone-music",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 5200,
+        "steps": [
+            {
+                "tap": "[data-nav-key='music']",
+                "wait": 1700
+            },
+            {
+                "tap": ".mp-play",
+                "wait": 1300
+            },
+            {
+                "tap": "button:text-is('歌单'):visible",
+                "wait": 1700
+            },
+            {
+                "tap": ".mp-row:visible",
+                "nth": 2,
+                "wait": 1600
+            },
+            {
+                "tap": "button:text-is('歌词'):visible",
+                "wait": 1300
+            },
+            {
+                "tap": ".mp-like",
+                "wait": 1100
+            },
+            {
+                "tap": ".mp-close",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "phone-chat",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 2600,
+        "steps": [
+            {
+                "tap": "[data-nav-key='chat']",
+                "wait": 1700
+            },
+            {
+                "tap": ".cc-q.q-heart",
+                "wait": 1400
+            },
+            {
+                "tap": "input[aria-label='聊天消息']",
+                "wait": 300
+            },
+            {
+                "type": "今晚的月亮很圆",
+                "wait": 700
+            },
+            {
+                "tap": ".cc-send",
+                "wait": 1400
+            },
+            {
+                "tap": "[data-nav-key='chat']",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "phone-lyrics",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 3300,
+        "steps": [
+            {
+                "tap": "[data-nav-key='music']",
+                "wait": 1600
+            },
+            {
+                "tap": ".mp-lyric",
+                "wait": 1800
+            },
+            {
+                "tap": "button:text-is('云把下午拉得很长'):visible",
+                "wait": 1600
+            },
+            {
+                "tap": "button[aria-label='退出沉浸']",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "desk-music",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 1280,
+        "h": 800,
+        "slow": 4,
+        "kbps": 2000,
+        "poster": 3800,
+        "steps": [
+            {
+                "click": "[data-nav-key='music']",
+                "wait": 1600
+            },
+            {
+                "click": ".mp-play",
+                "wait": 1300
+            },
+            {
+                "click": "button:text-is('歌单'):visible",
+                "wait": 1400
+            },
+            {
+                "click": ".mp-row:visible",
+                "nth": 2,
+                "wait": 1500
+            },
+            {
+                "click": ".mp-like",
+                "wait": 1100
+            },
+            {
+                "click": "button:text-is('声音'):visible",
+                "wait": 1500
+            },
+            {
+                "click": ".mp-close",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "desk-lyrics",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 1280,
+        "h": 800,
+        "slow": 4,
+        "kbps": 2000,
+        "poster": 3200,
+        "steps": [
+            {
+                "click": "[data-nav-key='music']",
+                "wait": 1500
+            },
+            {
+                "click": ".mp-immerse",
+                "wait": 1800
+            },
+            {
+                "click": "button:text-is('云把下午拉得很长'):visible",
+                "wait": 1600
+            },
+            {
+                "key": "Escape",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "desk-memory",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 1280,
+        "h": 800,
+        "slow": 4,
+        "kbps": 2000,
+        "poster": 3300,
+        "steps": [
+            {
+                "click": "[data-nav-key='memories']",
+                "wait": 1300
+            },
+            {
+                "click": ".memory-link:visible",
+                "wait": 2200
+            },
+            {
+                "click": ".mem-day:visible",
+                "wait": 1600
+            },
+            {
+                "click": "button:text-is('日历'):visible",
+                "wait": 1600
+            },
+            {
+                "click": "button:text-is('书本'):visible",
+                "wait": 1700
+            },
+            {
+                "click": ".mem-tab:has-text('照片墙'):visible",
+                "wait": 1600
+            },
+            {
+                "click": "button:text-is('软木板'):visible",
+                "wait": 1500
+            },
+            {
+                "click": "button:text-is('相册'):visible",
+                "wait": 1500
+            },
+            {
+                "click": "button:text-is('放映'):visible",
+                "wait": 1600
+            },
+            {
+                "click": ".ui-page-close:visible",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "phone-memory",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 3400,
+        "steps": [
+            {
+                "tap": "[data-nav-key='memories']",
+                "wait": 1600
+            },
+            {
+                "tap": ".memory-link:visible",
+                "wait": 2200
+            },
+            {
+                "eval": "document.querySelector('.mem-view:not([hidden]) .mem-scroll')?.scrollBy({ top: 620, behavior: 'smooth' })",
+                "wait": 1500
+            },
+            {
+                "tap": "button:text-is('日历'):visible",
+                "wait": 1600
+            },
+            {
+                "tap": "button:text-is('书本'):visible",
+                "wait": 1700
+            },
+            {
+                "tap": ".mem-tab:has-text('照片墙'):visible",
+                "wait": 1500
+            },
+            {
+                "tap": "button:text-is('软木板'):visible",
+                "wait": 1400
+            },
+            {
+                "tap": "button:text-is('相册'):visible",
+                "wait": 1400
+            },
+            {
+                "tap": "button:text-is('放映'):visible",
+                "wait": 1500
+            },
+            {
+                "tap": ".ui-page-close:visible",
+                "wait": 1500
+            }
+        ]
+    },
+    {
+        "name": "phone-publish",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 7600,
+        "steps": [
+            {
+                "tap": "[data-nav-key='memories']",
+                "wait": 1500
+            },
+            {
+                "tap": ".memory-link:visible",
+                "wait": 2000
+            },
+            {
+                "tap": ".compose-collapsed",
+                "wait": 1500
+            },
+            {
+                "tap": ".memory-panel textarea",
+                "wait": 300
+            },
+            {
+                "type": "今天一起听了雨声，窗外的灯一盏一盏亮起来。",
+                "delay": 45,
+                "wait": 800
+            },
+            {
+                "tap": ".btn-pub",
+                "wait": 3000
+            }
+        ]
+    }
+]
