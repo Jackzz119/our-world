@@ -44,6 +44,8 @@ import '@/themes/cinnaglass/image-slot';
 
 const noop = () => {};
 const done = async () => {};
+// screens that put a page or a dialog over the room; it holds still under them, as in WorldPage
+const COVERING = new Set(['settings', 'calendar', 'clock', 'journal', 'photos', 'wishes', 'world', 'chat', 'friends']);
 // ?screen=friends and ?screen=world: one demo friend and a demo world, never saved
 const demoFriends = [{ otherId: 'friend-fixture', name: '阿屿', color: '#7aa0c8', dmChannelId: null }];
 const demoWorld: World = {
@@ -174,6 +176,7 @@ export function MobileFixture() {
             <style>{'.table-dev.ui-surface { display: none; }'}</style>
             {screen !== 'lobby' && (
                 <RoomScene
+                    active={!COVERING.has(screen)}
                     mood={t.mood}
                     weatherKind={t.weather === 'rain' ? 'rain' : 'sun'}
                     presence={{ partner: { name: '阿屿', status: '' } }}

@@ -12,6 +12,7 @@ import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
 import { PARTNER_RIGS, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
+import { onSceneHold, sceneHeld } from '@/themes/cinnaglass/ui/scene-hold';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
@@ -40,7 +41,7 @@ type RoomSceneProps = {
     presence?: Record<string, { name: string; status: string; online?: boolean }>;
     /** Transient overhead speech bubble (new incoming message preview). */
     bubble?: { seatId: string; text: string; key: number } | null;
-    /** false freezes the ticker while a full-screen surface covers the room. */
+    /** false freezes the ticker while a page or a dialog covers the room (dimmed, softened, still). */
     active?: boolean;
     /** entry loader: share of the room loaded (0–1), then ready, or failed */
     onProgress?: (fraction: number) => void;
@@ -50,14 +51,16 @@ type RoomSceneProps = {
 
 const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'rain' : 'sun');
 
-// Draw at the screen's own pixel density (a phone is 3x) so the browser never
-// stretches the canvas a second time, within a pixel budget that keeps big
-// high-density desktop screens cheap.
+// Draw at the screen's pixel density up to 2x, within a pixel budget that keeps big high-density
+// desktop screens cheap. The plates and poses are 1536 px wide: at 2x a phone already shows them
+// magnified more than 1.6 times, so a 3x canvas only cost the GPU 2.25 times the pixels for nothing
+// to see — and its frames competed with panels opening over the room.
 const MAX_CANVAS_PX = 8_000_000;
+const MAX_SCENE_DPR = 2;
 const sceneResolution = () => {
     const dpr = window.devicePixelRatio || 1;
     const budget = Math.sqrt(MAX_CANVAS_PX / Math.max(1, window.innerWidth * window.innerHeight));
-    return Math.max(1, Math.min(dpr, 3, budget));
+    return Math.max(1, Math.min(dpr, MAX_SCENE_DPR, budget));
 };
 
 // CSS px: the room a side needs to hold speech clear of the hair, the margin
@@ -239,11 +242,16 @@ export function RoomScene({
         setHead({ anchors: scene.headAnchors(), width: holderRef.current?.clientWidth ?? 0 });
     }, [partnerState]);
 
+    // The ticker runs while the room is in view and no panel is on the move (ui/scene-hold.ts).
     useEffect(() => {
-        const a = appRef.current;
-        if (!a || !sceneRef.current) return;
-        if (active) a.start();
-        else a.stop();
+        const apply = () => {
+            const a = appRef.current;
+            if (!a || !sceneRef.current) return;
+            if (active && !sceneHeld()) a.start();
+            else a.stop();
+        };
+        apply();
+        return onSceneHold(apply);
     }, [active]);
 
     const partnerTag = Object.values(presence ?? {})[0];

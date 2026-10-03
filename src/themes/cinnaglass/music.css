@@ -69,7 +69,9 @@
     position: absolute;
     inset: 3%;
     border-radius: 50%;
-    filter: drop-shadow(0 6px 10px #0009);
+    /* the record is a full circle, so a round box-shadow is its drop shadow (drop-shadow's blur is a
+       standard deviation, half a box-shadow blur) without a filter pass on every frame it turns */
+    box-shadow: 0 6px 20px #0009;
     transition: translate var(--dur-panel) var(--ease-spring);
     animation: ow-spin 5.4s linear infinite;
     animation-play-state: paused;

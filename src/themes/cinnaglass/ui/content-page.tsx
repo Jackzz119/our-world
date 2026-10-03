@@ -6,9 +6,13 @@
 // DOM while closed, so what the page holds (scroll, drafts) survives. Esc closes it — unless a
 // layer inside owns that Esc ([data-esc-own], a menu, a detail view) — and so do the close button,
 // a click on the dimmed room and, on a phone, pulling the header down.
+// It opens in two steps (2026-10-02): laid out and painted where it will rest, all but invisible,
+// and only then sent on its way, so painting a whole page no longer lands in the middle of the rise;
+// the room holds still while the page moves (ui/scene-hold.ts).
 import { useEffect, useRef, type ReactNode } from 'react';
 import { IClose } from '@/themes/cinnaglass/icons';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { holdScene } from '@/themes/cinnaglass/ui/scene-hold';
 import { rubberband, SPRING, springTranslateY } from '@/themes/cinnaglass/ui/spring';
 import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
 import '@/themes/cinnaglass/ui/content-page.css';
@@ -36,6 +40,36 @@ const ESC_LAYERS = '[data-esc-own], .journal-index, .pd';
 // A pull this far (px), or this fast (px per ms), puts the page away.
 const CLOSE_PX = 110;
 const FLICK = 0.45;
+// How long the room holds still for the page's rise (the sheet spring) and for its exit.
+const ENTER_HOLD_MS = 700;
+const EXIT_HOLD_MS = 320;
+// The longest the page waits for its first view to be ready before it rises anyway.
+const READY_MAX_MS = 300;
+
+// What the page shows first, made ready before it moves: the pictures in view decoded (photos, and
+// the paper, cork and tape drawn behind them) and the type loaded. Decoding them during the rise made
+// it stutter (2026-10-02 profile); a slow network only shortens the wait, it never holds the page.
+function whenReady(page: HTMLElement): Promise<unknown> {
+    const pictures: Promise<unknown>[] = [];
+    const backgrounds = new Set<string>();
+    for (const el of page.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect();
+        if (!r.width || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
+        if (el instanceof HTMLImageElement) pictures.push(el.decode().catch(() => {}));
+        for (const part of [null, '::before', '::after'])
+            for (const [, url] of getComputedStyle(el, part).backgroundImage.matchAll(/url\("?(.+?)"?\)/g))
+                backgrounds.add(url);
+    }
+    for (const url of backgrounds) {
+        const img = new Image();
+        img.src = url;
+        pictures.push(img.decode().catch(() => {}));
+    }
+    return Promise.race([
+        Promise.all([...pictures, document.fonts.ready]),
+        new Promise((resolve) => setTimeout(resolve, READY_MAX_MS))
+    ]);
+}
 
 export function ContentPage({ open, onClose, label, header, closeLabel, className = '', children }: ContentPageProps) {
     const ref = useRef<HTMLDialogElement>(null);
@@ -53,18 +87,50 @@ export function ContentPage({ open, onClose, label, header, closeLabel, classNam
     } | null>(null);
     // the spring a short pull is riding back on, so the next grab catches it where it is
     const flight = useRef<Animation | null>(null);
+    // the frame the page waits for before it rises (it is being laid out and painted at rest)
+    const preparing = useRef(0);
 
     useEffect(() => {
         const dialog = ref.current;
         if (!dialog) return;
         if (open && !dialog.open) {
             const opener = document.activeElement;
+            let live = true;
             dialog.style.translate = '';
+            // in place and all but invisible (content-page.css), until its first view is painted
+            dialog.setAttribute('data-preparing', '');
             dialog.showModal();
             // keyboard users start on the page itself; the title tabs are the first stop after it
             dialog.focus({ preventScroll: true });
+            holdScene(ENTER_HOLD_MS + READY_MAX_MS);
+            const rise = () => {
+                preparing.current = 0;
+                if (!dialog.open) return;
+                // one style pass at the starting point, then let it go to rest
+                dialog.setAttribute('data-entering', '');
+                dialog.removeAttribute('data-preparing');
+                void dialog.offsetHeight;
+                dialog.removeAttribute('data-entering');
+                holdScene(ENTER_HOLD_MS);
+            };
+            // pictures and type ready, then two frames: the first paints the page at rest, the
+            // second starts the rise
+            void whenReady(dialog).then(() => {
+                if (!live) return;
+                preparing.current = requestAnimationFrame(() => {
+                    preparing.current = requestAnimationFrame(rise);
+                });
+            });
             return () => {
-                if (dialog.open) dialog.close();
+                live = false;
+                cancelAnimationFrame(preparing.current);
+                preparing.current = 0;
+                dialog.removeAttribute('data-preparing');
+                dialog.removeAttribute('data-entering');
+                if (dialog.open) {
+                    holdScene(EXIT_HOLD_MS);
+                    dialog.close();
+                }
                 if (
                     opener instanceof HTMLElement &&
                     opener.isConnected &&
