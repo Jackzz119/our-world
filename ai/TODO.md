@@ -140,15 +140,17 @@
     - [x] 第二份迁移 `supabase/migrations/20261003100000_music_ingest.sql` + 46 条测试（共 108 条，`bash scripts/check-music-db.sh`）
     - [x] 数据层、播放引擎（CUE 无缝、iOS 点按即播、出错重签、锁屏）、上传流水线（配对、标签与乱码、歌词、CUE、封面、省流版）、曲库 / 上传 / 音质三页
     - [ ] **上线（下一个 agent / 用户）**：Supabase SQL Editor 依次运行两份迁移（或配好 `SUPABASE_ACCESS_TOKEN` 后 `supabase db push`）；云端会话连不上 supabase.co（环境网络策略拦截），要在环境设置里放行 `*.supabase.co`、`api.supabase.com` 并加令牌才能由云端 agent 代做
-    - [ ] **真机验证**：先跑 `/dev/music-check`（`ai/features/music/m0.md` 二），再按 `impl.md` §七 的曲库清单在 iPhone 上传、播放、锁屏连播、CUE 无缝、切省流、离线下载
+    - [ ] **真机验证**：先跑 `/dev/music-check`（`ai/features/music/m0.md` 二），再按 `impl.md` §七 的曲库清单在 iPhone 上传、播放、锁屏连播、CUE 无缝、切省流、离线下载（地址：dev 最新提交的「Cloudflare Pages」检查里的 Preview URL；PR 分支不部署）。完整步骤和交接在存档 `ai/sessions/音乐模块一期：本地上传、播放器与报告批注.md`
     - [ ] 歌词编辑器与 LRCLIB 自动匹配；封面自动匹配
     - [ ] 「我们的歌单」与两人小事（谁加的、回应、送一首歌、TA 在听）
     - [ ] 补做省流版按钮；删除后的原件清理任务（服务端）
     - [ ] 拼音搜索、专辑 / 歌手页签、长列表虚拟滚动、Web Audio 增强模式
     - [ ] UX 文档：曲库 / 上传 / 音质三页的实装录屏（`scripts/record-ux.mjs` 需要 Chrome 正式版，云端容器只有 Chromium），看样页加这三页
-- [~] **报告页批注层**（2026-10-03 用户要求：手机上看报告 / 看样页，不用退出去聊天里描述，就地选中文字或点任意元素写批注，自动回到 agent）：`scripts/annotate/annotate.js`（层本体，≤ 30 KB、无依赖）+ `inline.mjs`（内联工具，幂等）；`node scripts/check-annotate.mjs` 桌面与手机 55 项通过。看样页发布版已自动内联（`build-review-page.mjs`），音乐方案书 artifact 已带批注层重发（v3）。在 claude.ai 里发布时 `capabilities` 要含 `{comments: {}}`：能编辑的人点「发给 Claude」会唤醒发布它的会话；别处（本地文件、给 Codex 的报告）存在本机，「清单 → 复制给 agent」粘贴即可
-    - [ ] **技能草稿待用户批准**：`ai/features/report-notes/skill-draft.md`（`annotated-report`，通用技能）。批准后按 custom-skill「落地三步」写进 `ai/jaSkills/annotated-report/`（`scripts/annotate/` 两个文件拷进 `assets/`），登记到 CLAUDE.md / AGENTS.md 要用户明确同意
-    - [ ] 真壳验证：claude.ai 手机 App 里点按与选中、第一次发送的授权弹窗、「发给 Claude」唤醒会话、下载与剪贴板（目前只对假的 comments 命名空间测过）
+- [~] **报告页批注层**（2026-10-03 用户要求：手机上看报告 / 看样页，不用退出去聊天里描述，就地选中文字或点任意元素写批注，自动回到 agent）：技能 `ai/jaSkills/annotated-report/`（层本体 `assets/annotate.js` ≤ 32 KB、无依赖 + 内联工具 `assets/inline.mjs`）；`node scripts/check-annotate.mjs` 桌面与手机 57 项通过。看样页发布版自动内联（`build-review-page.mjs`）；带批注层的页面：音乐方案书、看样页（第 9 版）、技能页。在 claude.ai 里发布时 `capabilities` 要含 `{comments: {}}`
+    - [x] **技能批准并落地**（2026-10-03 用户：可以进 jaSkills，登记进 monet 和 ui-tailor 的设计报告 / 设计系统触发）：登记在 `ai/JASKILL.md`；`monet`、`ui-tailor` 各加一条「发布的报告 / 看样页装批注层」；`design-system.md` 的看样页发布说明同步。没进 CLAUDE.md / AGENTS.md（用户没说）
+    - [ ] **货架同步（用户本机）**：`shelf push ai/jaSkills/monet`、`shelf push ai/jaSkills/ui-tailor`（10-03 各加了一条）；`annotated-report` 要不要上货架由用户定
+    - [x] 真壳第一次试用（10-03 用户在手机上）：评论写入正常（4 条线程落在技能页上），但 claude.ai 说这个视图发不到 Claude，层退成「留批注」，当时没显示原因码 → 已改：提示里带 `canSendToClaude()` 的原因码，并写明「回聊天说『看批注』就行」
+    - [ ] 弄清发不到 Claude 的原因（看下次提示里的原因码：`no_session` 是会话没在线，`off` 是这个视图不提供）；授权弹窗、下载与剪贴板在手机 App 里还没确认
 - [ ] **音乐搜索播放 / 在线曲库**（2026-09-29 只出设计 C1–C3；2026-09-30 调研见 `ai/features/music/music.md`「在线曲库」；**2026-10-03 用户：没有会员、实在不行先不接**，暂缓；以后先看 OpenSubsonic 自托管或可合法整首播放的开放曲库，非官方接口不进代码）：先定音乐来源（平台、版权、登录方式），再做「找歌」标签、加入「我们的歌单」、共享听歌
 - [ ] **房间切换的异步加载**（2026-09-29 只出设计 E1–E3，建议 E2 卡片进度环 + E3 低清先到）：随第二个房间上线实现，复用 `shell/load-progress.ts`
 - [x] 正式歌单封面：`public/music/covers/` 换成 8 张生成的封面（2026-10-02，待看样，见上方「新美术看样」）
