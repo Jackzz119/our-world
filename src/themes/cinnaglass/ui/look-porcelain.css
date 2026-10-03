@@ -542,12 +542,12 @@
 :root[data-look='porcelain'] .ui-environment .wl-cup {
     filter: drop-shadow(0 1px 0 #fff);
 }
-:root[data-look='porcelain'] .ui-environment .wl-bar {
+:root[data-look='porcelain'] .ui-environment .wl-card .wl-bar {
     background: rgb(84 64 40 / 0.12);
 }
-:root[data-look='porcelain'] .ui-environment .wl-bar > b {
-    background: linear-gradient(90deg, #e2b974, #b98035);
-    box-shadow: 0 0 10px rgb(196 140 62 / 0.45);
+/* the fill slides in whole (world-loader.css): deepening along its length to a lighter tip at the head */
+:root[data-look='porcelain'] .ui-environment .wl-card .wl-bar > b {
+    background: linear-gradient(90deg, #e2b974, #b98035 calc(100% - 26px), #e7c27f);
 }
 :root[data-look='porcelain'] .ui-environment.ui-entry input,
 :root[data-look='porcelain'] .ui-environment .ui-entry input {

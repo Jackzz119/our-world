@@ -115,7 +115,8 @@
         translate: 0 -8px;
     }
 }
-.wl-bar {
+/* scoped to the card: the wishlist's progress row is a .wl-bar too, and these rules once squashed it */
+.wl-card .wl-bar {
     position: relative;
     height: 6px;
     margin: 18px 0 10px;
@@ -123,28 +124,33 @@
     border-radius: 6px;
     background: #ffffff1f;
 }
-.wl-bar > b {
+/* The fill is a whole bar slid in from the left as the room loads, so its head keeps its round end and
+   its warm tip, and the glint riding the head is part of it: it cannot get ahead. (A sheen used to
+   sweep across a fill stretched to the loaded share; it ran on past the head into the empty track and
+   looked like a light racing the bar, 2026-10-03.) */
+.wl-card .wl-bar > b {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, #c99a5b, var(--ui-accent) 70%, #fff1cf);
-    box-shadow: 0 0 12px rgb(241 209 154 / 0.6);
-    transform: scaleX(max(0.04, var(--p)));
-    transform-origin: left;
-    transition: transform 520ms var(--ease-out);
+    background: linear-gradient(90deg, #c99a5b, var(--ui-accent) 55%, var(--ui-accent) calc(100% - 26px), #fff1cf);
+    translate: calc((max(0.04, var(--p)) - 1) * 100%) 0;
+    transition: translate 520ms var(--ease-out);
 }
-/* a slow sheen keeps a pause from looking frozen */
-.wl-bar > b::after {
+/* the glint: a warm light on the head, breathing slowly so a pause never looks frozen */
+.wl-card .wl-bar > b::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(100deg, transparent 30%, #fff8 50%, transparent 70%);
-    translate: -100% 0;
-    animation: wl-sheen 1800ms var(--ease-in-out) infinite;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 24px;
+    border-radius: inherit;
+    background: radial-gradient(closest-side, #fffdf4, #fff1cf99 60%, transparent);
+    animation: wl-glint 1400ms ease-in-out infinite alternate;
 }
-@keyframes wl-sheen {
-    to {
-        translate: 100% 0;
+@keyframes wl-glint {
+    from {
+        opacity: 0.45;
     }
 }
 .wl-foot {
@@ -194,7 +200,7 @@
 .app[data-world='ready'] .music-bar {
     animation-delay: 660ms;
 }
-:root[data-motion='reduced'] :is(.wl-steam, .wl-bar > b::after) {
+:root[data-motion='reduced'] :is(.wl-steam, .wl-card .wl-bar > b::after) {
     animation: none;
 }
 :root[data-motion='reduced'] .wl-steam {
