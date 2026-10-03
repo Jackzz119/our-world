@@ -12,7 +12,7 @@ import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
 import { PARTNER_RIGS, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
-import { onSceneHold, sceneHeld } from '@/themes/cinnaglass/ui/scene-hold';
+import { onSceneHold, releaseScene, sceneHeld } from '@/themes/cinnaglass/ui/scene-hold';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
@@ -56,6 +56,9 @@ const toRoomWeather = (kind: WeatherKind): RoomWeather => (kind === 'rain' ? 'ra
 // magnified more than 1.6 times, so a 3x canvas only cost the GPU 2.25 times the pixels for nothing
 // to see — and its frames competed with panels opening over the room.
 const MAX_CANVAS_PX = 8_000_000;
+// How long a change in the partner's state keeps panels from holding the room: their walk from one
+// pose to the next (a few steps of the rig plus the way home) plays out within it.
+const PARTNER_MOVE_MS = 2500;
 const MAX_SCENE_DPR = 2;
 const sceneResolution = () => {
     const dpr = window.devicePixelRatio || 1;
@@ -238,6 +241,8 @@ export function RoomScene({
     useEffect(() => {
         const scene = sceneRef.current;
         if (!scene) return;
+        // their move plays now and from its start, even while a panel is on the move
+        releaseScene(PARTNER_MOVE_MS);
         scene.setPartnerState(partnerState);
         setHead({ anchors: scene.headAnchors(), width: holderRef.current?.clientWidth ?? 0 });
     }, [partnerState]);
