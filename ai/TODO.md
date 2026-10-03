@@ -146,6 +146,9 @@
     - [ ] 补做省流版按钮；删除后的原件清理任务（服务端）
     - [ ] 拼音搜索、专辑 / 歌手页签、长列表虚拟滚动、Web Audio 增强模式
     - [ ] UX 文档：曲库 / 上传 / 音质三页的实装录屏（`scripts/record-ux.mjs` 需要 Chrome 正式版，云端容器只有 Chromium），看样页加这三页
+- [~] **报告页批注层**（2026-10-03 用户要求：手机上看报告 / 看样页，不用退出去聊天里描述，就地选中文字或点任意元素写批注，自动回到 agent）：`scripts/annotate/annotate.js`（层本体，≤ 30 KB、无依赖）+ `inline.mjs`（内联工具，幂等）；`node scripts/check-annotate.mjs` 桌面与手机 55 项通过。看样页发布版已自动内联（`build-review-page.mjs`），音乐方案书 artifact 已带批注层重发（v3）。在 claude.ai 里发布时 `capabilities` 要含 `{comments: {}}`：能编辑的人点「发给 Claude」会唤醒发布它的会话；别处（本地文件、给 Codex 的报告）存在本机，「清单 → 复制给 agent」粘贴即可
+    - [ ] **技能草稿待用户批准**：`ai/features/report-notes/skill-draft.md`（`annotated-report`，通用技能）。批准后按 custom-skill「落地三步」写进 `ai/jaSkills/annotated-report/`（`scripts/annotate/` 两个文件拷进 `assets/`），登记到 CLAUDE.md / AGENTS.md 要用户明确同意
+    - [ ] 真壳验证：claude.ai 手机 App 里点按与选中、第一次发送的授权弹窗、「发给 Claude」唤醒会话、下载与剪贴板（目前只对假的 comments 命名空间测过）
 - [ ] **音乐搜索播放 / 在线曲库**（2026-09-29 只出设计 C1–C3；2026-09-30 调研见 `ai/features/music/music.md`「在线曲库」；**2026-10-03 用户：没有会员、实在不行先不接**，暂缓；以后先看 OpenSubsonic 自托管或可合法整首播放的开放曲库，非官方接口不进代码）：先定音乐来源（平台、版权、登录方式），再做「找歌」标签、加入「我们的歌单」、共享听歌
 - [ ] **房间切换的异步加载**（2026-09-29 只出设计 E1–E3，建议 E2 卡片进度环 + E3 低清先到）：随第二个房间上线实现，复用 `shell/load-progress.ts`
 - [x] 正式歌单封面：`public/music/covers/` 换成 8 张生成的封面（2026-10-02，待看样，见上方「新美术看样」）
