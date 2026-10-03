@@ -163,6 +163,8 @@ export function MusicMini({
                     onClose={() => setOpen(false)}
                     label="一起听"
                     expandable
+                    // half height shows what is playing, down to the tabs
+                    peek=".mp-tabs"
                     detent={detent}
                     onDetentChange={(next) => {
                         setDetent(next);

@@ -123,13 +123,16 @@ async function layout(page, label) {
                 if (r.left < rail.right && r.right > rail.left && r.top < rail.bottom && r.bottom > rail.top)
                     bad.push('active widget covers navigation');
             }
-            // phone sheets run under the bar by design; the bar must still be what a tap hits
+            // phone sheets float above the bar (2026-10-03): the frame they move in ends over its top edge,
+            // and the bar is still what a tap hits
             const sheet = [...document.querySelectorAll('.ui-sheet')].find((el) => el.checkVisibility());
             if (sheet && rail) {
                 const hit = document.elementFromPoint(rail.left + rail.width / 2, rail.top + rail.height / 2);
                 if (!hit?.closest('.rail')) bad.push('sheet covers navigation');
                 const r = sheet.getBoundingClientRect();
                 if (r.left < -1 || r.right > innerWidth + 1) bad.push('sheet outside viewport');
+                if (sheet.closest('.ui-sheet-frame').getBoundingClientRect().bottom > rail.top - 4)
+                    bad.push('sheet reaches the navigation');
             }
         }
         return bad;
@@ -188,6 +191,8 @@ try {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     await observe(page);
     await visit(page, 'room');
+    // the navigation as it is with nothing open: a sheet never changes it
+    const pill = await page.locator('.rail').boundingBox();
     await page.locator('[data-nav-key="chat"]').tap();
     assert.equal(await page.locator('.chat-sheet').isVisible(), true);
     await page.locator('[data-nav-key="chat"]').tap();
@@ -196,6 +201,18 @@ try {
     assert.equal(await page.locator('.music-sheet').isVisible(), true);
     await settle(page);
     await layout(page, 'music sheet open');
+    // direction A (2026-10-03): the navigation keeps its pill and its place, the sheet floats above it,
+    // and at half height the music sheet shows down to its tabs and stops below the partner's face (the
+    // chin sits at 36–38% down a phone's screen)
+    assert.deepEqual(await page.locator('.rail').boundingBox(), pill, 'the navigation stays as it is');
+    const fit = await page.locator('.music-sheet').evaluate((e) => ({
+        frame: e.closest('.ui-sheet-frame').getBoundingClientRect().bottom,
+        tabs: e.querySelector('.mp-tabs').getBoundingClientRect().bottom,
+        top: e.getBoundingClientRect().top
+    }));
+    assert.ok(fit.frame <= pill.y - 6, `the sheet floats above the navigation: ${JSON.stringify(fit)}`);
+    assert.ok(fit.tabs <= fit.frame, `half height shows the music sheet down to its tabs: ${JSON.stringify(fit)}`);
+    assert.ok(fit.top >= 844 * 0.4 - 1, `half height leaves the partner's face in view: ${JSON.stringify(fit)}`);
     // the grip toggles the music sheet between half and full height
     await page.getByRole('button', { name: '展开一起听' }).tap();
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full');
@@ -238,16 +255,22 @@ try {
     await settle(page);
     assert.ok(Math.abs(await sheetY()) < 1, 'springs back to full height');
     await page.evaluate(() => window.__owApp?.start());
-    // while a sheet is up the bar opens out into the sheet's tab bar: the full width of the screen on
-    // its bottom edge, a name under every icon (navigation-glass.css, 2026-10-02)
-    const bar = await page.locator('.rail').boundingBox();
-    const view = page.viewportSize();
-    assert.ok(
-        Math.abs(bar.x) < 1 && Math.abs(bar.width - view.width) < 1 && Math.abs(bar.y + bar.height - view.height) < 1,
-        `navigation docks into the open sheet: ${JSON.stringify(bar)}`
-    );
-    assert.ok(await page.locator('.rail .rail-label').first().isVisible(), 'the tab bar names its tabs');
+    assert.deepEqual(await page.locator('.rail').boundingBox(), pill, 'the navigation stays as it is at full height');
     // every sheet can be put away with a button, not only by dragging
+    await page.locator('.music-sheet .mp-close').tap();
+    await page.locator('.music-sheet').waitFor({ state: 'detached' });
+    // pulled to full height the music sheet covers the partner and the room stops (ui/scene-hold.ts);
+    // back at half height, once the hold for the way down has lapsed, it runs again
+    const roomRuns = () => page.evaluate(() => window.__owApp?.ticker.started);
+    await page.locator('[data-nav-key="music"]').tap();
+    await settle(page);
+    await page.getByRole('button', { name: '展开一起听' }).tap();
+    await settle(page);
+    assert.equal(await roomRuns(), false, 'the room stops under a full sheet');
+    await page.getByRole('button', { name: '收回一起听' }).tap();
+    await settle(page);
+    await page.waitForTimeout(400);
+    assert.equal(await roomRuns(), true, 'the room runs again below a half-height sheet');
     await page.locator('.music-sheet .mp-close').tap();
     await page.locator('.music-sheet').waitFor({ state: 'detached' });
     // one window at a time: opening another sends the open one away
@@ -274,7 +297,7 @@ try {
     await page.locator('dialog.settings-dialog[open], dialog[open]').first().waitFor();
     await page.locator('.chat-sheet').waitFor({ state: 'detached' });
     await page.keyboard.press('Escape');
-    // rooms and memories open as sheets behind the bar; Escape puts them away
+    // rooms and memories open as sheets above the bar; Escape puts them away
     await page.locator('[data-nav-key="memories"]').tap();
     assert.equal(await page.locator('.rail-sheet').isVisible(), true);
     await page.keyboard.press('Escape');

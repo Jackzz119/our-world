@@ -4,6 +4,9 @@
     --ui-safe-right: env(safe-area-inset-right, 0px);
     --ui-safe-bottom: env(safe-area-inset-bottom, 0px);
     --ui-safe-left: env(safe-area-inset-left, 0px);
+    /* the phone navigation pill: its height and its lift off the bottom edge (sheets float above it) */
+    --ui-nav-h: 62px;
+    --ui-nav-lift: 10px;
 }
 .ui-environment .ui-dialog {
     left: var(--ui-safe-left);
@@ -34,7 +37,7 @@
             max(12px, var(--ui-safe-left));
     }
     body .app.ui-environment .rail-wrap {
-        bottom: calc(10px + var(--ui-safe-bottom));
+        bottom: calc(var(--ui-nav-lift) + var(--ui-safe-bottom));
     }
     body .app.ui-environment .rail {
         max-width: calc(100vw - var(--ui-safe-left) - var(--ui-safe-right) - 24px);
@@ -128,15 +131,16 @@
         left: max(154px, calc(var(--ui-safe-left) + 148px));
         max-height: calc(var(--ui-visible-height, 100dvh) - 112px - var(--ui-safe-top) - var(--ui-safe-bottom));
     }
-    .ui-environment .ui-sheet.ui-surface {
-        --sheet-full: calc(var(--ui-visible-height, 100dvh) - 96px - var(--ui-safe-top) - var(--ui-safe-bottom));
-        top: auto;
+    .ui-environment .ui-sheet-frame {
+        top: calc(12px + var(--ui-safe-top));
         left: auto;
         right: calc(12px + var(--ui-safe-right));
         bottom: calc(84px + var(--ui-safe-bottom));
         width: min(400px, calc(100vw - 180px - var(--ui-safe-left) - var(--ui-safe-right)));
+        border-radius: 24px;
+    }
+    .ui-environment .ui-sheet.ui-surface {
         padding-bottom: 12px;
-        border-bottom: 1px solid rgb(var(--ui-rim) / 0.27);
         border-radius: 24px;
     }
     .ui-environment .ui-sheet .mp-lyric .mp-line:not(.on) {

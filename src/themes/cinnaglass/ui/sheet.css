@@ -1,29 +1,62 @@
-/* Phone sheets (sheet.tsx). The sheet owns its transform (JS places it at a
-   detent), CSS owns how it travels there. Navigation (.rail-wrap, z 40) stays
-   above as the sheet's tab bar (navigation-glass.css); the dialog top layer stays
-   above everything. */
+/* Phone sheets (sheet.tsx). The navigation keeps its pill and its place whatever opens, and a sheet
+   floats above it (2026-10-03, direction A — ai/design_system/codex-visual/nav-dock/nav-dock.md):
+   inset from the screen's sides, rounded all round, its foot a small gap above the bar, so the two
+   never overlap and nothing the sheet holds is ever under the bar. A frame that stands still holds the
+   sheet's place and clips it; the sheet moves inside, so it grows out of the frame's foot, just over
+   the bar, and sinks back into it. The sheet owns its transform (JS places it at a detent), CSS owns
+   how it travels there. The dialog top layer stays above everything. */
 :root {
-    /* the tab bar the navigation opens into while a sheet is up (portrait phones) */
-    --ui-dock-h: 64px;
+    /* the gap a sheet keeps to the screen's sides, and its foot: the navigation pill (its lift off the
+       bottom edge and its height, mobile-layout.css) and a gap above it */
+    --ui-sheet-inset: 12px;
+    --ui-sheet-foot: calc(var(--ui-safe-bottom, 0px) + var(--ui-nav-lift, 10px) + var(--ui-nav-h, 62px) + 8px);
+}
+/* with the keyboard up the navigation is hidden: the sheet stands on the keyboard */
+:root[data-ui-keyboard='true'] {
+    --ui-sheet-foot: calc(var(--ui-keyboard-inset, 0px) + 8px);
+}
+/* Where the sheet can be: from just below the ambience pill at the top (12px off the safe area, 64px
+   tall: at full height the sheet stops under it rather than sliding beneath it) down to its foot. Full
+   height fills it; half height and the sheets of one height rest on its foot. */
+.ui-sheet-frame {
+    position: fixed;
+    top: calc(var(--ui-visible-top, 0px) + var(--ui-safe-top, 0px) + 84px);
+    right: calc(var(--ui-safe-right, 0px) + var(--ui-sheet-inset));
+    bottom: var(--ui-sheet-foot);
+    left: calc(var(--ui-safe-left, 0px) + var(--ui-sheet-inset));
+    z-index: 36;
+    overflow: clip;
+    border-radius: 28px;
+    /* only the sheet takes taps: the room above a sheet at half height stays in reach */
+    pointer-events: none;
+}
+.ui-sheet-frame[hidden] {
+    display: none;
+}
+/* the narrowest phones keep more of their width for the sheet's content */
+@media (max-width: 359px) {
+    :root {
+        --ui-sheet-inset: 6px;
+    }
+}
+[data-ui-keyboard='true'] .ui-sheet-frame {
+    top: calc(var(--ui-visible-top, 0px) + 12px);
 }
 .ui-sheet.ui-surface {
     --ui-alpha: 0.74;
-    --sheet-full: calc(var(--ui-visible-height, 100dvh) - var(--ui-safe-top, 0px) - 56px);
-    position: fixed;
-    left: var(--ui-safe-left, 0px);
-    right: var(--ui-safe-right, 0px);
+    position: absolute;
+    right: 0;
     bottom: 0;
-    z-index: 36;
+    left: 0;
     display: flex;
     flex-direction: column;
-    max-height: var(--sheet-full);
-    /* the navigation's tab bar covers the sheet's foot */
-    padding: 20px 14px calc(var(--ui-dock-h) + 10px + var(--ui-safe-bottom, 0px));
-    border-bottom: 0;
-    border-radius: 28px 28px 0 0;
-    /* the shadow on the room is the top strip's (.ui-sheet-shade) */
+    max-height: 100%;
+    padding: 20px 14px 16px;
+    border-radius: 28px;
+    /* the shadow on the room is the top strip's (.ui-sheet-shade); the frame clips anything else */
     box-shadow: inset 0 1px 0 rgb(var(--ui-rim) / 0.2);
     outline: none;
+    pointer-events: auto;
     will-change: transform;
     /* the sheet takes vertical drags itself (sheet.tsx); lists inside still scroll on their own */
     touch-action: none;
@@ -49,7 +82,7 @@
     touch-action: none;
 }
 .ui-sheet.expandable {
-    height: var(--sheet-full);
+    height: 100%;
 }
 /* The sheet's shadow on the room, along its top edge only. A blurred shadow round the whole sheet
    (most of it below the screen or under the tab bar) was the costliest thing to paint when a sheet
@@ -125,10 +158,8 @@
 .stage:has(.ui-sheet[data-state='open'])::after {
     opacity: 1;
 }
-/* A sheet with the keyboard up rides on the keyboard; navigation is hidden then. */
+/* A sheet with the keyboard up stands on the keyboard (its frame, above); navigation is hidden then. */
 [data-ui-keyboard='true'] .ui-sheet.ui-surface {
-    bottom: var(--ui-keyboard-inset, 0px);
-    max-height: calc(var(--ui-visible-height, 100dvh) - 12px);
     padding-bottom: 12px;
 }
 /* keepMounted sheets stay in the DOM while closed; the display above would override [hidden] */

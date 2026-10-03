@@ -30,10 +30,16 @@
     scale: var(--enter-scale);
     pointer-events: none;
 }
-/* Phone: the same conversation in a sheet over the viewer's side of the table. */
+/* Phone: the same conversation in a sheet over the viewer's side of the table. It reaches up to 40% of
+   the way down the screen and no higher — the partner's chin sits at 36–38% on every phone (measured
+   2026-10-03) — so TA's face stays in view; a short screen still keeps room for a few messages. Typing,
+   it takes all the room above the keyboard. */
 .chat-sheet.ui-surface {
     --ui-alpha: 0.6;
-    height: min(56dvh, var(--sheet-full));
+    height: max(280px, calc(var(--ui-visible-height, 100dvh) * 0.6 - var(--ui-sheet-foot)));
+}
+[data-ui-keyboard='true'] .chat-sheet.ui-surface {
+    height: 100%;
 }
 .chat-sheet-body {
     --cc-liner-mix: 58%;
