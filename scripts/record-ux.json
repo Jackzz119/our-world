@@ -145,6 +145,58 @@
         ]
     },
     {
+        "name": "phone-drag",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "poster": 2600,
+        "steps": [
+            {
+                "tap": "[data-nav-key='music']",
+                "wait": 1500
+            },
+            {
+                "drag": {
+                    "from": [200, 560],
+                    "to": [200, 230],
+                    "ms": 420
+                },
+                "wait": 1500
+            },
+            {
+                "drag": {
+                    "from": [200, 130],
+                    "to": [200, 560],
+                    "ms": 420
+                },
+                "wait": 1400
+            },
+            {
+                "tap": ".mp-close",
+                "wait": 1200
+            },
+            {
+                "tap": "[data-nav-key='chat']",
+                "wait": 1500
+            },
+            {
+                "drag": {
+                    "from": [200, 560],
+                    "to": [200, 380],
+                    "ms": 300
+                },
+                "wait": 1800
+            },
+            {
+                "key": "Escape",
+                "wait": 1200
+            }
+        ]
+    },
+    {
         "name": "desk-music",
         "url": "/scripts/fixtures/mobile-ui.html?screen=room&mood=night",
         "w": 1280,
@@ -350,5 +402,34 @@
                 "wait": 3000
             }
         ]
+    },
+    {
+        "name": "phone-enter",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=enter&mood=night",
+        "w": 390,
+        "h": 844,
+        "phone": true,
+        "slow": 4,
+        "kbps": 1500,
+        "fromLoad": true,
+        "assetGap": 22,
+        "lead": 0,
+        "tail": 4400,
+        "poster": 1500,
+        "steps": []
+    },
+    {
+        "name": "desk-enter",
+        "url": "/scripts/fixtures/mobile-ui.html?screen=enter&mood=night",
+        "w": 1280,
+        "h": 800,
+        "slow": 4,
+        "kbps": 3000,
+        "fromLoad": true,
+        "assetGap": 22,
+        "lead": 0,
+        "tail": 4400,
+        "poster": 1500,
+        "steps": []
     }
 ]

@@ -8,8 +8,11 @@
 // usage: node scripts/record-ux.mjs [name filter] [--out <dir>] [--frames]
 //   scenarios: scripts/record-ux.json; output: ai/design_system/uiux/cinnaglass/ux/live (or --out);
 //   --frames also writes every distinct frame, named by its time, for inspection.
-// scenario: { name, url, w, h, phone?, slow?, boot?, lead?, tail?, poster?, kbps?, steps: [{ tap? | click?:
-//   selector, nth?, type?: text, delay?, key?, eval?: js, drag?: { from: [x, y], to: [x, y], ms }, wait? }] }
+// scenario: { name, url, w, h, phone?, slow?, boot?, lead?, tail?, poster?, kbps?, fromLoad?, assetGap?,
+//   steps: [{ tap? | click?: selector, nth?, type?: text, delay?, key?, eval?: js,
+//   drag?: { from: [x, y], to: [x, y], ms }, wait? }] }
+//   fromLoad: the clip starts with the page loading (the entry loader), from its first frame on the dark
+//   loader; assetGap: pictures arrive one at a time, this many ms apart, so a load shows its progress.
 import { dependency, baseUrl } from './lib/deps.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -135,12 +138,23 @@ for (const s of scenarios) {
         reducedMotion: 'no-preference'
     });
     if (slow !== 1) await ctx.addInitScript(timeShim);
+    // a clip that films the load runs slow from the page's first script on
+    if (slow !== 1 && s.fromLoad) await ctx.addInitScript((k) => window.__setTimeScale(k), slow);
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
-    await page.goto(baseUrl() + s.url, { waitUntil: 'load' });
-    await page.waitForTimeout(s.boot ?? 2500);
-    await settle(page);
+    if (s.assetGap) {
+        let gate = Promise.resolve();
+        await page.route(/\.(png|webp|jpe?g|avif)(\?|$)/, (route) => {
+            gate = gate.then(() => new Promise((r) => setTimeout(r, s.assetGap * slow)));
+            return gate.then(() => route.continue());
+        });
+    }
+    if (!s.fromLoad) {
+        await page.goto(baseUrl() + s.url, { waitUntil: 'load' });
+        await page.waitForTimeout(s.boot ?? 2500);
+        await settle(page);
+    }
     const cdp = await ctx.newCDPSession(page);
     const frames = [];
     cdp.on('Page.screencastFrame', ({ data, metadata, sessionId }) => {
@@ -150,9 +164,13 @@ for (const s of scenarios) {
     if (slow !== 1) {
         await cdp.send('Animation.enable');
         await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / slow });
-        await page.evaluate((k) => window.__setTimeScale(k), slow);
+        if (!s.fromLoad) await page.evaluate((k) => window.__setTimeScale(k), slow);
     }
     await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, everyNthFrame: 1 });
+    if (s.fromLoad) {
+        await page.goto(baseUrl() + s.url, { waitUntil: 'commit' });
+        await page.locator('.world-loader').waitFor();
+    }
     const t0 = Date.now();
     await page.waitForTimeout((s.lead ?? 700) * slow);
     for (const step of s.steps) {
