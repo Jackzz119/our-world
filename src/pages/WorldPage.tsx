@@ -16,6 +16,7 @@ import { Rail } from '@/themes/cinnaglass/shell/rail';
 import { Ambience } from '@/themes/cinnaglass/shell/ambience';
 import { SunlitLetter } from '@/themes/cinnaglass/shell/sunlit-letter';
 import { MomentCard, MusicMini } from '@/themes/cinnaglass/shell/floaters';
+import { supabaseMusic } from '@/lib/music/library';
 import { ChatCard } from '@/themes/cinnaglass/shell/chat-card';
 import { WorldLoader } from '@/themes/cinnaglass/shell/world-loader';
 import { createLoadProgress } from '@/themes/cinnaglass/shell/load-progress';
@@ -381,6 +382,8 @@ const WorldPage = () => {
                         )}
                         <MusicMini
                             spaceName={liveProfile.world}
+                            worldId={world?.id ?? null}
+                            backend={supabaseMusic}
                             visible={widgets.music !== false}
                             onPlayingChange={setMusicPlaying}
                             open={musicOpen}

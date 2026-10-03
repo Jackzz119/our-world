@@ -1,0 +1,661 @@
+/* The library, upload and quality pages of the player (library-view.tsx, upload-view.tsx,
+   quality-view.tsx) and the bits they add to the main page. Colours come from the UI tokens
+   (accent, line, muted, hover) so the porcelain look carries over without its own overrides.
+   Motion uses the shared tokens (ui/motion.css). */
+
+/* ---------- covers without an image yet ---------- */
+.mp-cover-blank {
+    display: grid;
+    place-items: center;
+    color: rgb(255 255 255 / 0.72);
+}
+span.mp-poster.mp-cover-blank {
+    display: grid;
+}
+
+/* ---------- now playing: the quality word, preparing a whole file, busy play ---------- */
+.mp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 22px;
+    margin: -2px 0;
+    padding: 1px 8px;
+    border: 1px solid var(--ui-line);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--ui-muted);
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.5;
+    vertical-align: 1px;
+    cursor: pointer;
+    transition:
+        border-color var(--dur-hover) ease,
+        color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-badge[data-badge='hires'],
+.mp-badge[data-badge='lossless'] {
+    border-color: color-mix(in srgb, var(--ui-accent) 55%, transparent);
+    color: var(--ui-accent);
+}
+.mp-badge[data-badge='compact'] {
+    border-style: dashed;
+}
+.mp-badge:active {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mp-badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ui-success);
+}
+.mp-preparing {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.mp-prep-bar {
+    display: block;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--ui-line);
+    overflow: hidden;
+}
+.mp-prep-bar span {
+    display: block;
+    width: var(--p, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ui-accent);
+    transition: width var(--dur-hover) linear;
+}
+.mp-play[data-busy] {
+    animation: mp-busy 1.4s ease-in-out infinite;
+}
+@keyframes mp-busy {
+    50% {
+        box-shadow:
+            0 0 0 6px color-mix(in srgb, var(--ui-accent) 22%, transparent),
+            inset 0 1px 0 #fff6;
+    }
+}
+
+/* ---------- lyrics: translations, word timing, plain text ---------- */
+.mp-trans {
+    display: block;
+    margin-top: 2px;
+    color: var(--ui-muted);
+    font-size: 0.8em;
+    font-weight: 400;
+    opacity: 0.85;
+}
+.mp-word {
+    transition: color var(--dur-hover) ease;
+}
+.mp-lyrics button[aria-current='true'] .mp-word:not([data-on]) {
+    color: color-mix(in srgb, var(--ui-accent) 45%, var(--ui-muted));
+}
+.mp-lyrics[data-plain] button {
+    cursor: default;
+    color: var(--ui-text);
+    opacity: 0.86;
+}
+.mp-lyrics button:disabled {
+    cursor: default;
+}
+.mp-no-lyrics {
+    align-self: center;
+    margin: auto 8px;
+    text-align: center;
+}
+
+/* ---------- the sound tab additions ---------- */
+.mp-switch {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    cursor: pointer;
+}
+.mp-switch input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--ui-accent);
+}
+.mp-switch span {
+    display: grid;
+    gap: 2px;
+    font-size: 13px;
+}
+.mp-switch small {
+    color: var(--ui-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.mp-switch:has(input:disabled) {
+    opacity: 0.6;
+    cursor: default;
+}
+.mp-meters p {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+.mp-meters b {
+    color: var(--ui-text);
+    font-weight: 600;
+}
+
+/* ---------- 曲库 ---------- */
+.mp-libbar {
+    display: flex;
+    gap: 8px;
+    margin: 2px 0 8px;
+}
+.mp-search {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #00000016;
+    color: var(--ui-muted);
+}
+.mp-search:focus-within {
+    border-color: color-mix(in srgb, var(--ui-accent) 60%, transparent);
+}
+.mp-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+}
+.mp-search input::placeholder {
+    color: var(--ui-muted);
+}
+.mp-upload-btn.ui-button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px 14px;
+    font-size: 13px;
+}
+.mp-upload-btn[data-busy] svg {
+    animation: mp-rise 1.1s ease-in-out infinite;
+}
+@keyframes mp-rise {
+    50% {
+        translate: 0 -2px;
+    }
+}
+.mp-chips-scroll {
+    flex-wrap: nowrap;
+    margin-right: -4px;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.mp-chips-scroll .mp-chip {
+    flex: none;
+}
+.mp-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ui-accent);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.mp-hero {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+    margin: 6px 2px 14px;
+    padding: 16px;
+    border: 1px dashed color-mix(in srgb, var(--ui-accent) 45%, transparent);
+    border-radius: 16px;
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+}
+.mp-hero b {
+    font-size: 15px;
+}
+.mp-hero p {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+.mp-hero .ui-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.mp-section {
+    margin: 14px 8px 6px;
+    color: var(--ui-muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+.mp-lrow {
+    display: flex;
+    align-items: center;
+}
+.mp-lrow .mp-row {
+    flex: 1;
+    min-width: 0;
+}
+.mp-row .mp-row-cover {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+.mp-fmt {
+    font-style: normal;
+}
+.mp-fmt[data-badge='hires'],
+.mp-fmt[data-badge='lossless'] {
+    color: color-mix(in srgb, var(--ui-accent) 80%, var(--ui-muted));
+}
+.mp-library .mp-row-text > span {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.mp-row-marks {
+    display: flex;
+    flex: none;
+    gap: 4px;
+    color: var(--ui-muted);
+}
+.mp-row-marks:empty {
+    display: none;
+}
+.mp-row-marks svg:last-child[fill='currentColor'] {
+    color: #f5b6c1;
+}
+.mp-more.ui-icon-button {
+    width: 38px;
+    min-height: 44px;
+    color: var(--ui-muted);
+}
+.mp-library li[data-open] .mp-more {
+    color: var(--ui-accent);
+}
+.mp-actions {
+    display: grid;
+    gap: 4px;
+    margin: 2px 6px 10px 64px;
+    animation: ow-rise-in var(--dur-enter) var(--ease-out) both;
+}
+.mp-act {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #00000012;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-act svg {
+    flex: none;
+    margin-top: 2px;
+}
+.mp-act span {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+.mp-act small {
+    color: var(--ui-muted);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+.mp-act:active:not(:disabled) {
+    scale: var(--press-scale-soft);
+    transition-duration: var(--dur-press);
+}
+.mp-act:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+@media (hover: hover) and (pointer: fine) {
+    .mp-act:not(:disabled):hover {
+        background: var(--ui-hover);
+    }
+}
+.mp-act-danger {
+    color: var(--ui-error);
+}
+.mp-act-note {
+    margin: 2px 2px 4px;
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+
+/* ---------- the sub pages: upload and quality ---------- */
+.mp-upload,
+.mp-quality {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    animation: ow-fade-in var(--dur-panel) var(--ease-out) both;
+}
+.mp-subhead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mp-subhead h3 {
+    flex: 1;
+    margin: 0;
+    font-family: var(--ui-display);
+    font-size: 19px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+/* the chevron points right; back points left */
+.mp-back svg {
+    rotate: 180deg;
+}
+.mp-drop {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border: 1px dashed var(--ui-line);
+    border-radius: 16px;
+    transition:
+        border-color var(--dur-hover) ease,
+        background-color var(--dur-hover) ease;
+}
+.mp-drop[data-over] {
+    border-color: var(--ui-accent);
+    background: color-mix(in srgb, var(--ui-accent) 10%, transparent);
+}
+.mp-drop p {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+.mp-drop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.mp-drop-actions .ui-button,
+.mp-upload-ft .ui-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.mp-upload-opts {
+    display: grid;
+    gap: 8px;
+}
+.mp-drafts {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.mp-draft {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 4px 10px;
+    padding: 10px;
+    border: 1px solid var(--ui-line);
+    border-radius: 14px;
+    background: #00000012;
+    animation: ow-rise-in var(--dur-panel) var(--ease-spring) both;
+}
+.mp-draft[data-status='done'] {
+    border-color: color-mix(in srgb, var(--ui-success) 45%, transparent);
+}
+.mp-draft[data-status='failed'] {
+    border-color: color-mix(in srgb, var(--ui-error) 50%, transparent);
+}
+.mp-draft-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--ui-hover);
+}
+.mp-draft[data-status='analyzing'] .mp-draft-cover {
+    filter: blur(2px);
+    opacity: 0.7;
+}
+.mp-draft-body {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+.mp-draft-title {
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+input.mp-draft-title {
+    width: 100%;
+    padding: 2px 6px;
+    margin-left: -6px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ui-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+}
+input.mp-draft-title:hover,
+input.mp-draft-title:focus {
+    border-color: var(--ui-line);
+    outline: none;
+}
+.mp-draft-sub {
+    overflow: hidden;
+    color: var(--ui-muted);
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.mp-draft-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    color: var(--ui-muted);
+    font-size: 11px;
+}
+.mp-draft-tags i {
+    font-style: normal;
+}
+.mp-draft-note {
+    color: var(--ui-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+.mp-draft-note[data-error] {
+    color: var(--ui-error);
+}
+.mp-draft-status {
+    color: var(--ui-muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.mp-draft[data-status='done'] .mp-draft-status {
+    color: var(--ui-success);
+}
+.mp-draft[data-status='failed'] .mp-draft-status {
+    color: var(--ui-error);
+}
+.mp-draft-remove.ui-icon-button {
+    grid-column: 3;
+    justify-self: end;
+    width: 36px;
+    min-height: 36px;
+    color: var(--ui-muted);
+}
+.mp-ignored {
+    color: var(--ui-muted);
+    font-size: 12px;
+}
+.mp-ignored ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    line-height: 1.7;
+}
+.mp-upload-ft {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 -2px;
+    padding: 14px 2px 2px;
+    /* the list scrolls under the actions; the panel's own colour fades it out behind them */
+    background: linear-gradient(to top, rgb(var(--ui-base) / 0.94) 62%, rgb(var(--ui-base) / 0));
+}
+.mp-quality-title {
+    margin-top: -6px;
+}
+.mp-versions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+.mp-versions button {
+    display: grid;
+    align-content: start;
+    gap: 3px;
+    min-height: 64px;
+    padding: 8px 10px;
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    background: #00000012;
+    color: var(--ui-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color var(--dur-hover) ease,
+        background-color var(--dur-hover) ease,
+        scale var(--dur-release) var(--ease-pop);
+}
+.mp-versions b {
+    font-size: 13px;
+}
+.mp-versions small {
+    color: var(--ui-muted);
+    font-size: 10.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.mp-versions button[aria-checked='true'] {
+    border-color: color-mix(in srgb, var(--ui-accent) 70%, transparent);
+    background: color-mix(in srgb, var(--ui-accent) 12%, transparent);
+}
+.mp-versions button[aria-checked='true'] b {
+    color: var(--ui-accent);
+}
+.mp-versions button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.mp-versions button:active:not(:disabled) {
+    scale: var(--press-scale);
+    transition-duration: var(--dur-press);
+}
+.mp-path {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    border: 1px solid var(--ui-line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+.mp-path div {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 10px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+}
+.mp-path div + div {
+    border-top: 1px solid var(--ui-line);
+}
+.mp-path dt {
+    color: var(--ui-muted);
+}
+.mp-path dd {
+    margin: 0;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+.mp-verdict {
+    margin: 0;
+    color: var(--ui-accent);
+    font-size: 13px;
+    font-weight: 600;
+}
+.mp-offline {
+    display: grid;
+    gap: 6px;
+}
+.mp-offline .mp-section {
+    margin: 4px 2px 0;
+}
+
+:root[data-motion='reduced'] :is(.mp-hero, .mp-draft, .mp-actions, .mp-upload, .mp-quality) {
+    animation: ow-fade-in var(--dur-enter) ease both;
+}
+:root[data-motion='reduced'] :is(.mp-play[data-busy], .mp-upload-btn[data-busy] svg) {
+    animation: none;
+}

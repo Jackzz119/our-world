@@ -58,7 +58,7 @@
                 "wait": 1300
             },
             {
-                "tap": "button:text-is('歌单'):visible",
+                "tap": "button:text-is('曲库'):visible",
                 "wait": 1700
             },
             {
@@ -162,7 +162,7 @@
                 "wait": 1300
             },
             {
-                "click": "button:text-is('歌单'):visible",
+                "click": "button:text-is('曲库'):visible",
                 "wait": 1400
             },
             {

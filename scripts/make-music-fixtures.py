@@ -2,7 +2,7 @@
 """make-music-fixtures.py — build the music module's test corpus (ai/features/music/m0.md).
 
 Everything is synthetic (sweeps, tones, pink noise, a glide, and the built-in soundscapes' chord
-recipes), so every file is ours to share. Lyrics come from src/themes/cinnaglass/music-tracks.ts.
+recipes), so every file is ours to share. Lyrics come from src/themes/cinnaglass/music/builtin-tracks.ts.
 Writes into tmp/music-fixtures/ (gitignored) plus manifest.json: what each file is, its SHA-256 and
 decoded-PCM MD5, and which browsers should play it. APE and DSF cannot be encoded with ffmpeg; add
 one of each from your own library when testing the conversion path.
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TRACKS_TS = ROOT / 'src/themes/cinnaglass/music-tracks.ts'
+TRACKS_TS = ROOT / 'src/themes/cinnaglass/music/builtin-tracks.ts'
 
 # Which browsers play a container/codec directly (ai/features/music/research/audio-quality.md §1).
 ALL = {'chrome': True, 'firefox': True, 'safari': True, 'ios': True, 'android': True}
@@ -100,7 +100,7 @@ def loudness(path):
 
 
 def soundscapes():
-    """Title, duration, root, chord and lyrics of the built-in soundscapes, read from music-tracks.ts."""
+    """Title, duration, root, chord and lyrics of the built-in soundscapes, read from music/builtin-tracks.ts."""
     text = TRACKS_TS.read_text(encoding='utf-8')
     found = {}
     for m in re.finditer(r"title: '([^']+)',\s*artist: '([^']+)',\s*root: ([\d.]+),\s*chord: \[([^\]]+)\],"
@@ -225,7 +225,7 @@ def main():
                         'bytes': path.stat().st_size, 'sha256': sha256(path), 'pcm_md5': pcm_md5(path),
                         'browsers': support, 'note': note, **info, **more})
 
-    # Posters: the 雨天的窗边 tint from music-tracks.ts, as JPEG (folder art) and PNG (embedded).
+    # Posters: the 雨天的窗边 tint from music/builtin-tracks.ts, as JPEG (folder art) and PNG (embedded).
     cover_jpg, cover_png = out / 'cover/cover.jpg', out / 'cover/cover.png'
     gradient = 'gradients=s=1200x1200:c0=0xbfd0f2:c1=0x8c9ddb:x0=0:y0=0:x1=1200:y1=1200:nb_colors=2:d=1'
     ffmpeg('-f', 'lavfi', '-i', gradient, '-frames:v', '1', '-q:v', '3', cover_jpg)

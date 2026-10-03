@@ -1,12 +1,15 @@
 // Scene floaters share the approved glass material and keep their real state visible.
 import { useEffect, useId, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { IChevron, IEye, IHeart, IPause, IPlay } from '@/themes/cinnaglass/icons';
-import { MusicPlayer, PosterArt, type MusicTab } from '@/themes/cinnaglass/music';
+import { MusicPlayer, PosterArt, type MusicPage, type MusicTab } from '@/themes/cinnaglass/music/player';
+import { musicTime } from '@/themes/cinnaglass/music/music-model';
+import { useMusic, type MusicPlayback } from '@/themes/cinnaglass/music/use-music';
+import { useMusicUpload } from '@/themes/cinnaglass/music/use-music-upload';
 import { daysSince, daysUntilAnniversary, parseAnniv } from '@/themes/cinnaglass/profile';
-import { musicTime, useMusicPlayback, type MusicPlayback } from '@/themes/cinnaglass/use-music-playback';
 import { Sheet, type SheetDetent } from '@/themes/cinnaglass/ui/sheet';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { useCompactUi } from '@/themes/cinnaglass/ui/use-ui-environment';
+import type { MusicBackend } from '@/types/music';
 import '@/themes/cinnaglass/shell/floaters.css';
 
 type MomentCardProps = { anniv: string | null; onHide: () => void };
@@ -82,6 +85,10 @@ const DOCK_EXIT_MS = 200;
 
 type MusicMiniProps = {
     spaceName?: string;
+    /** the world whose shared library plays; null (lobby, fixtures without one) leaves the soundscapes */
+    worldId?: string | null;
+    /** where the library lives: Supabase in the app, an in-memory fake in fixtures */
+    backend?: MusicBackend | null;
     open: boolean;
     setOpen: (value: boolean) => void;
     visible?: boolean;
@@ -92,22 +99,33 @@ type MusicMiniProps = {
 // One audio transport, three presentations: phones get the sheet (no floating bar, the
 // navigation is the way in), desktops get the mini bar that opens into the right-side dock.
 // Stays mounted while hidden so audio continues; disclosure is never a playback action.
-export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingChange }: MusicMiniProps) {
-    const player = useMusicPlayback();
+export function MusicMini({
+    spaceName,
+    worldId = null,
+    backend = null,
+    open,
+    setOpen,
+    visible = true,
+    onPlayingChange
+}: MusicMiniProps) {
+    const player = useMusic(worldId, backend);
+    const upload = useMusicUpload(worldId, backend, player.reload);
     const compact = useCompactUi();
     const panelId = useId();
     const foldRef = useRef<HTMLButtonElement>(null);
     const dockRef = useRef<HTMLDivElement>(null);
     const [tab, setTab] = useState<MusicTab>('lyrics');
     const [detent, setDetent] = useState<SheetDetent>('half');
-    const [immersive, setImmersive] = useState(false);
-    // opening again starts at half height on the main page (render-time adjustment, react.dev "previous renders")
+    const [page, setPage] = useState<MusicPage>('main');
+    // opening again starts at half height on the main page, unless an upload is still running there
+    // (render-time adjustment, react.dev "previous renders")
     const [wasOpen, setWasOpen] = useState(open);
     if (open !== wasOpen) {
         setWasOpen(open);
         if (open) {
-            setDetent('half');
-            setImmersive(false);
+            const keepUpload = page === 'upload' && upload.running;
+            setDetent(keepUpload ? 'full' : 'half');
+            if (!keepUpload) setPage('main');
         }
     }
     const dock = usePresence(open && visible && !compact, DOCK_EXIT_MS);
@@ -148,21 +166,22 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                     detent={detent}
                     onDetentChange={(next) => {
                         setDetent(next);
-                        // the immersion needs the whole sheet; lowering it goes back to the main page
-                        if (next === 'half') setImmersive(false);
+                        // the other pages need the whole sheet; lowering it goes back to the main page
+                        if (next === 'half') setPage('main');
                     }}
                     className="music-sheet"
                 >
                     <MusicPlayer
                         player={player}
+                        upload={upload}
                         spaceName={spaceName}
                         variant="sheet"
                         tab={tab}
                         onTab={setTab}
                         onNeedRoom={() => setDetent('full')}
                         onClose={() => setOpen(false)}
-                        immersive={immersive}
-                        onImmersive={setImmersive}
+                        page={page}
+                        onPage={setPage}
                     />
                 </Sheet>
             ) : (
@@ -176,13 +195,14 @@ export function MusicMini({ spaceName, open, setOpen, visible = true, onPlayingC
                         >
                             <MusicPlayer
                                 player={player}
+                                upload={upload}
                                 spaceName={spaceName}
                                 variant="dock"
                                 tab={tab}
                                 onTab={setTab}
                                 onClose={closeDock}
-                                immersive={immersive}
-                                onImmersive={setImmersive}
+                                page={page}
+                                onPage={setPage}
                             />
                         </div>
                     )}
@@ -219,8 +239,8 @@ function MusicBar({
                 <PosterArt player={player} />
             </span>
             <div className="mb-mid">
-                <span key={player.track.title} className="mb-title">
-                    {player.track.title}
+                <span key={player.item.key} className="mb-title">
+                    {player.item.title}
                 </span>
                 <span className="mb-status">
                     {player.starting
@@ -230,21 +250,20 @@ function MusicBar({
                               ? '播放中 · 静音'
                               : '播放中'
                           : '已暂停'}{' '}
-                    · 本机音景
+                    · {player.item.library ? player.item.artist : '本机音景'}
                 </span>
                 <progress
                     className="mb-progress"
                     value={player.pos}
-                    max={player.track.dur}
-                    aria-label="当前音景进度"
-                    aria-valuetext={`${musicTime(player.pos)} / ${musicTime(player.track.dur)}`}
+                    max={player.state.durationMs || player.item.durationMs || 1}
+                    aria-label="播放进度"
+                    aria-valuetext={`${musicTime(player.pos)} / ${musicTime(player.state.durationMs || player.item.durationMs)}`}
                 />
             </div>
             <button
                 type="button"
                 className="ui-icon-button ui-button-primary mb-main"
-                onClick={() => void player.toggle()}
-                disabled={player.starting}
+                onClick={() => player.toggle()}
                 aria-label={player.playing ? '暂停音乐' : '播放音乐'}
             >
                 <span key={player.playing ? 'pause' : 'play'} className="mb-glyph">
