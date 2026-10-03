@@ -1,7 +1,7 @@
 // inline.mjs — inlines the annotation layer (annotate.js) into an HTML page as one <script data-annotate> tag, before
 // </body> when the page has one, else at the end. Idempotent: a copy inlined earlier is replaced, not duplicated.
-//   import { inlineAnnotate } from './annotate/inline.mjs';  html = inlineAnnotate(html, { source: 'docs/report.html' });
-//   node scripts/annotate/inline.mjs <in.html> <out.html> [--source <text>] [--agent <name>] [--label <text>]
+//   import { inlineAnnotate } from '<skill dir>/assets/inline.mjs';  html = inlineAnnotate(html, { source: 'docs/report.html' });
+//   node <skill dir>/assets/inline.mjs <in.html> <out.html> [--source <text>] [--agent <name>] [--label <text>]
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +34,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         else files.push(arg);
     }
     if (files.length !== 2) {
-        process.stderr.write('usage: node scripts/annotate/inline.mjs <in.html> <out.html> [--source <text>]\n');
+        process.stderr.write('usage: node inline.mjs <in.html> <out.html> [--source <text>]\n');
         process.exit(1);
     }
     fs.writeFileSync(files[1], inlineAnnotate(fs.readFileSync(files[0], 'utf8'), options));

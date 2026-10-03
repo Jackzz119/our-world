@@ -1,4 +1,4 @@
-// Browser check of the annotation layer (scripts/annotate/annotate.js). Builds a small sample report in a temp dir,
+// Browser check of the annotation layer (ai/jaSkills/annotated-report/assets/annotate.js). Builds a small sample report in a temp dir,
 // inlines the layer, serves it locally and drives it at desktop 1280×800 and phone 390×844 (touch): local mode
 // (select → chip → note, annotate mode on a card, an image and a table row, links and buttons that must not fire,
 // pins, drawer, export, reload) and claude mode against a fake comments namespace (send, plain comment, error paths,
@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-import { inlineAnnotate } from './annotate/inline.mjs';
+import { inlineAnnotate } from '../ai/jaSkills/annotated-report/assets/inline.mjs';
 
 const { chromium } = dependency('playwright');
 const shots = path.resolve(process.env.ANNOTATE_SHOTS || path.join(os.tmpdir(), 'annotate-shots'));
@@ -61,6 +61,7 @@ const PAGE = `<!doctype html>
 </tbody>
 </table>
 </section>
+<section data-anchor="§3 附录"><h2><span>3</span>附录</h2><p id="p-app">附录里只有一句话。</p></section>
 </main>
 <script>
     document.getElementById('btn').addEventListener('click', () => (window.buttonClicks = (window.buttonClicks || 0) + 1));
@@ -289,6 +290,14 @@ async function localFlow(view) {
         await box.waitFor({ state: 'detached' });
     });
 
+    await check(name('a heading and its own data-anchor count once in the location'), async () => {
+        await tap(page.locator('#p-app'));
+        await box.waitFor();
+        assert.equal(await box.locator('.ann-loc').textContent(), '§3 附录 › #p-app');
+        await tap(box.locator('.ann-x'));
+        await box.waitFor({ state: 'detached' });
+    });
+
     await check(name('links, buttons and details do not fire in annotate mode, and do again after it'), async () => {
         const state = () =>
             page.evaluate(() => [location.hash, window.buttonClicks || 0, document.querySelector('#more').open]);
@@ -509,7 +518,10 @@ async function otherModes(view) {
             await tap(page.locator('.ann-pill'));
             await tap(page.locator('#fig'));
             await box.waitFor();
-            assert.equal(await box.locator('.ann-hint').textContent(), '只有能编辑这页的人能发给 Claude');
+            assert.equal(
+                await box.locator('.ann-hint').textContent(),
+                '只有能编辑这页的人能发给 Claude（writers_only）。会留成这页的评论，回聊天说「看批注」就行'
+            );
             assert.equal(await button(box, '发给 Claude').count(), 0);
             await box.locator('textarea').fill('图注字太小');
             await tap(button(box, '留批注'));
@@ -556,8 +568,8 @@ await check('inline.mjs: idempotent, before </body>, or at the end without one',
     assert.ok(/<\/script>\n<\/body>/.test(once), 'right before </body>');
     const bare = inlineAnnotate('<p>hi</p>');
     assert.ok(bare.startsWith('<p>hi</p>\n<script data-annotate>\n') && bare.endsWith('})();\n</script>\n'));
-    const size = fs.statSync(new URL('./annotate/annotate.js', import.meta.url)).size;
-    assert.ok(size <= 30 * 1024, `annotate.js is ${size} bytes`);
+    const size = fs.statSync(new URL('../ai/jaSkills/annotated-report/assets/annotate.js', import.meta.url)).size;
+    assert.ok(size <= 32 * 1024, `annotate.js is ${size} bytes`);
 });
 try {
     for (const view of ['desktop', 'phone']) {

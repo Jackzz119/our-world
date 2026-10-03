@@ -81,6 +81,7 @@ html[data-annotating] body :not([data-annotate-ui]){cursor:pointer!important}
     const ITEM = `<li class="ann-item"><div class="ann-loc"></div><div class="ann-quote"></div><div class="ann-note"></div><div class="ann-meta"><span></span></div></li>`;
 
     const squash = (s) => (s ? String(s) : '').replace(/\s+/g, ' ').trim();
+    const key = (s) => s.replace(/[\s§·]/g, '');
     const clip = (s, n, chars = Array.from(s)) => (chars.length > n ? chars.slice(0, n - 1).join('') + '…' : s);
     const bytes = (s) => new TextEncoder().encode(s).length;
     const clean = (s) => s.replace(/\r\n?/g, '\n').replace(CTRL, '').trim();
@@ -164,10 +165,15 @@ html[data-annotating] body :not([data-annotate-ui]){cursor:pointer!important}
     const labelOf = (el) => {
         const out = chainOf(el);
         const n = out.length;
+        // names compare without spaces and § · marks, so a heading and its own data-anchor count once
         const add = (node, s = node && node.textContent) => {
             s = clip(squash(s), 40);
-            if (!s || out.some((x) => x.includes(s))) return;
-            for (let i = out.length - 1; i >= n; i--) if (s.includes(out[i])) out.splice(i, 1);
+            const k = s && key(s);
+            if (!k) return;
+            const same = out.findIndex((x) => key(x) === k);
+            if (same >= 0) return void (s.length > out[same].length && (out[same] = s));
+            if (out.some((x) => key(x).includes(k))) return;
+            for (let i = out.length - 1; i >= n; i--) if (k.includes(key(out[i]))) out.splice(i, 1);
             if (out.length < n + 2) out.push(s);
         };
         const [anchored, figure, table] = [el.closest('[data-anchor]'), el.closest('figure'), el.closest('table')];
@@ -216,9 +222,11 @@ html[data-annotating] body :not([data-annotate-ui]){cursor:pointer!important}
         if (S.refresh) S.refresh(changed);
         paint();
     };
+    // claude.ai's own answer goes on screen as a code: the reasons differ by view and are not all documented
     const recheck = async (ns = S.ns) => {
-        const can = await safe(() => ns.canSendToClaude(), 'off');
-        if (S.ns === ns) setMode(can === 'available' ? 'claude' : 'comments', WHY[can] || '这里不能发给 Claude');
+        const can = String(await safe(() => ns.canSendToClaude(), 'error'));
+        const why = `${WHY[can] || 'claude.ai 说这里发不到 Claude'}（${can}）。会留成这页的评论，回聊天说「看批注」就行`;
+        if (S.ns === ns) setMode(can === 'available' ? 'claude' : 'comments', can === 'available' ? '' : why);
     };
     const detect = async () => {
         if (cfg.agent !== 'claude' || !window.claude || typeof window.claude.use !== 'function') return;
@@ -339,7 +347,11 @@ html[data-annotating] body :not([data-annotate-ui]){cursor:pointer!important}
         const panel = make(DRAWER);
         const [hint, ol, manual, acts, title] = $(panel, '.ann-hint', 'ol', 'textarea', '.ann-acts', 'strong');
         title.textContent = `批注清单（${items.length}）`;
-        hint.textContent = S.volatile ? '这里存不住，刷新就会丢，记得复制' : '';
+        hint.textContent = S.volatile
+            ? '这里存不住，刷新就会丢，记得复制'
+            : S.mode === 'comments' && S.sent.length
+              ? '留成评论的批注在 claude.ai 的评论里，回聊天说「看批注」Claude 就能读到'
+              : '';
         items.forEach((n, i) => {
             const li = fill(make(ITEM), { '.ann-loc': `${i + 1}. ${n.label}`, '.ann-quote': n.quote });
             fill(li, { '.ann-note': n.note, span: `${KIND[n.kind]} · ${stamp(new Date(n.at)).slice(5)}` });
