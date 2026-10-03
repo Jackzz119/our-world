@@ -14,7 +14,9 @@
     /* The design system's standing UI/UX review page (ai/design_system/uiux/cinnaglass/ux/): only what
        the app looks like and does today — real screenshots and recordings of the shipped components,
        the motion lab, the decisions and the open questions; undecided designs come last. The published
-       copy is built from this file by scripts/build-review-page.mjs. Dark first, like the night room. */
+       copy is built from this file by scripts/build-review-page.mjs (run scripts/check-design-system.mjs
+       first: every file the page names must exist). Dark first, like the night room. `.read` only caps the
+       width; giving its <p> a grid would put every inline link on a line of its own. */
     :root {
         color-scheme: dark;
         --bg: #16151a;
@@ -1005,6 +1007,294 @@
         width: min(100%, 520px);
         margin: 0 auto;
     }
+    /* ---------- the navigation lab (section N): the pill stays, the sheet finds its place ---------- */
+    .nl-wrap {
+        display: grid;
+        gap: 18px 24px;
+        grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+        align-items: start;
+    }
+    .nl-phone {
+        --nl-nav-w: 226px;
+        --nl-nav-h: 48px;
+        position: relative;
+        width: min(100%, 300px);
+        height: 600px;
+        border-radius: 34px;
+        overflow: hidden;
+        background: url('img/lab-room-phone.jpg') 50% 0 / cover no-repeat, var(--ph-room);
+        box-shadow:
+            0 0 0 7px #0d0c10,
+            0 0 0 8px #ffffff1a,
+            0 30px 60px -30px #000;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    /* where a sheet may be seen: the frame clips it, so it comes out of (and goes back into) its bottom edge */
+    .nl-frame {
+        position: absolute;
+        z-index: 2;
+        top: 40px;
+        left: 8px;
+        right: 8px;
+        bottom: calc(10px + var(--nl-nav-h) + 6px);
+        overflow: hidden;
+        border-radius: 22px;
+        pointer-events: none;
+    }
+    .nl-phone[data-dir='B'] .nl-frame {
+        bottom: calc(10px + var(--nl-nav-h) / 2);
+    }
+    .nl-phone:is([data-dir='C'], [data-dir='dock']) .nl-frame {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 26px 26px 0 0;
+    }
+    .nl-sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        height: calc(var(--h) + var(--reserve, 0px));
+        padding: 10px 14px calc(14px + var(--reserve, 0px));
+        border-radius: 22px 22px 0 0;
+        background: var(--ph-glass);
+        box-shadow:
+            0 0 0 1px var(--ph-line),
+            inset 0 1px 0 #ffffff1f;
+        color: var(--ph-ink);
+        pointer-events: auto;
+        touch-action: none;
+        cursor: grab;
+        transform: translateY(calc(100% + 30px));
+        transition: transform 280ms var(--ease-out);
+    }
+    .nl-phone:is([data-dir='C'], [data-dir='dock']) .nl-sheet {
+        border-radius: 26px 26px 0 0;
+    }
+    .nl-phone[data-dir='B'] .nl-sheet {
+        --reserve: 28px;
+    }
+    .nl-phone[data-dir='C'] .nl-sheet {
+        --reserve: calc(10px + var(--nl-nav-h) + 8px);
+    }
+    .nl-phone[data-dir='dock'] .nl-sheet {
+        --reserve: 56px;
+    }
+    .nl-sheet.open {
+        transform: translateY(0);
+        transition: transform var(--dur-smooth) var(--spring-smooth);
+    }
+    .nl-sheet.dragging {
+        transition: none;
+        cursor: grabbing;
+    }
+    .nl-phone.reduced .nl-sheet {
+        transform: none;
+        opacity: 0;
+        transition: opacity 160ms ease;
+    }
+    .nl-phone.reduced .nl-sheet.open {
+        opacity: 1;
+    }
+    .nl-grip {
+        align-self: center;
+        width: 34px;
+        height: 4px;
+        flex: none;
+        border-radius: 3px;
+        background: #ffffff40;
+    }
+    .nl-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .nl-art {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #fce3b0, #f5b774);
+    }
+    .nl-title {
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        line-height: 1.35;
+        font-size: 13.5px;
+    }
+    .nl-title span,
+    .nl-muted {
+        color: var(--ph-muted);
+        font-size: 11px;
+    }
+    .nl-gold {
+        color: var(--ph-gold);
+        font-size: 12.5px;
+    }
+    .nl-bar {
+        height: 3px;
+        border-radius: 2px;
+        background: #ffffff26;
+    }
+    .nl-controls {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        color: var(--ph-ink);
+        font-size: 15px;
+    }
+    .nl-controls b {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--ph-gold);
+        color: #2e2519;
+    }
+    .nl-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 3px;
+        border-radius: 11px;
+        background: #ffffff12;
+        font-size: 11.5px;
+        text-align: center;
+    }
+    .nl-tabs span {
+        padding: 4px 0;
+        color: var(--ph-muted);
+    }
+    .nl-tabs span:first-child {
+        border-radius: 8px;
+        background: var(--ph-gold);
+        color: #2e2519;
+        font-weight: 700;
+    }
+    .nl-bubble {
+        align-self: flex-start;
+        max-width: 78%;
+        padding: 6px 10px;
+        border: 1px solid var(--ph-line);
+        border-radius: 12px;
+        background: #ffffff0d;
+        font-size: 11.5px;
+    }
+    .nl-bubble.me {
+        align-self: flex-end;
+    }
+    .nl-input {
+        margin-top: auto;
+        padding: 8px 12px;
+        border: 1px solid #f1d19a99;
+        border-radius: 12px;
+        color: var(--ph-muted);
+        font-size: 12px;
+    }
+    /* the pill: the same in A, B and C whatever is open */
+    .nl-nav {
+        position: absolute;
+        z-index: 3;
+        left: 50%;
+        bottom: 10px;
+        width: var(--nl-nav-w);
+        height: var(--nl-nav-h);
+        translate: -50% 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 7px;
+        border: 1px solid #ffffff24;
+        border-radius: 17px;
+        background:
+            linear-gradient(112deg, #d2c3a017, transparent 32%, #d2c3a00e 78%, transparent),
+            rgb(31 31 40 / 0.72);
+        box-shadow:
+            0 8px 24px -9px #0006,
+            inset 0 1px 1px #d5be9329;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+    }
+    .nl-nav button {
+        display: grid;
+        place-items: center;
+        gap: 1px;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        border-radius: 13px;
+        background: transparent;
+        color: #eed5a8;
+        font: inherit;
+        font-size: 9.5px;
+        line-height: 1.1;
+        cursor: pointer;
+    }
+    .nl-nav button span {
+        display: none;
+    }
+    .nl-nav button[aria-pressed='true'] {
+        background: radial-gradient(ellipse at 50% 43%, #ffd18954, #ffd1891f 55%, transparent 82%);
+        box-shadow: inset 0 0 0 1px #ffd1893b;
+    }
+    .nl-nav svg {
+        width: 21px;
+        height: 21px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    /* the rejected dock, for comparison: the pill becomes a full-width tab bar while a sheet is up */
+    .nl-phone[data-dir='dock'][data-open] .nl-nav {
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 56px;
+        translate: none;
+        padding: 0 8px;
+        border: 0;
+        border-top: 1px solid var(--ph-line);
+        border-radius: 0;
+        background: var(--ph-glass);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    .nl-phone[data-dir='dock'][data-open] .nl-nav button {
+        flex: 1;
+        height: 46px;
+        color: var(--ph-muted);
+    }
+    .nl-phone[data-dir='dock'][data-open] .nl-nav button span {
+        display: block;
+    }
+    .nl-phone[data-dir='dock'][data-open] .nl-nav button[aria-pressed='true'] {
+        color: var(--ph-gold);
+    }
+    .nl-side {
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+    }
+    .nl-side .note {
+        max-width: none;
+    }
+    @media (max-width: 720px) {
+        .nl-wrap {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        .nl-phone {
+            justify-self: center;
+        }
+    }
     @media (max-width: 720px) {
         .drag-lab,
         .art-row {
@@ -1045,6 +1335,9 @@
                 <b>10 月 2 日第四轮</b>：动效改成苹果的弹簧模型。托盘从哪儿都能拖，跟手，放手时带着手指的速度回弹（<a href="#spring-title">M 节</a>可以直接拖）。暖瓷浅色正式做进了所有组件，设置里能换。界面里还在用占位的美术都标了出来，并写清楚要什么。同一天这些图由 Codex 在你的机器上出好、接进了界面：歌单封面、手帐纸、和纸胶带、软木与木框、空状态小画（<a href="#art-title">新美术</a>，之前 / 现在并排）。
             </p>
             <p>
+                <b>10 月 3 日</b>：你在手机上看过坞，说它打断了连续（样子变、按钮跳位），还挡住了半开的托盘。导航重新调研、重新比稿，三个方向都让导航保持原来的胶囊不动，在 <a href="#nav2-title">N 节</a>，等你选（推荐 A）。另外：聊天托盘往上推就展开完整聊天（以前只能点按钮）；TA 有动作时房间立刻恢复，不再等托盘。
+            </p>
+            <p>
                 <b>10 月 2 日晚上第五轮</b>：你说手机导航只去掉背景还不够，图标看起来仍不是弹出框的一部分、像第三层；弹出框时能看出掉帧。现在托盘打开时导航展开成<b>托盘的标签栏</b>（坞，<a href="#a-title">A 节</a>，三个方向并排比过）；掉帧查清是「第一次画托盘落在上升途中」加上房间和托盘抢显卡，改成先画好再升起、动的时候房间暂停，改前改后的帧测在 <a href="#perf-title">P 节</a>。受影响的截图和录屏都重拍了。
             </p>
             <p class="muted">
@@ -1063,7 +1356,7 @@
         <ol class="decide">
             <li><b>音乐：曲库、上传、音质</b><span>三页做好了（<a href="#b-title">B 节</a>下半）：在 dev 上点「一起听」→ 曲库，传一首、点歌名下的音质徽章看看。数据库的两份音乐迁移要先在 Supabase 运行；不说就按现在的保留。</span></li>
             <li><b>默认的界面风格</b><span>深玻璃仍是默认。暖瓷已经做进所有组件，在设置 → 主题外观 → 界面风格里换（地址加 <code>?look=porcelain</code> 也行）。要不要改默认，你说了算。</span></li>
-            <li><b>坞</b><span>托盘打开时导航展开成托盘的标签栏（<a href="#a-title">A 节</a>，另两个方向的对比在<a href="../../../codex-visual/nav-dock/nav-dock.md">比稿区</a>）。在手机上开关几个托盘看看它是不是托盘的一部分；不说就按坞保留。</span></li>
+            <li><b>手机导航：A / B / C 选一个</b><span>三个方向都让导航保持平时的胶囊、按钮不挪、内容不被挡（<a href="#nav2-title">N 节</a>，能在模拟手机上开开关关比）。我推荐 A：托盘浮在导航上方。你选了我再做。</span></li>
             <li><b>真机手感</b><span>帧测是本机显卡加手机仿真（<a href="#perf-title">P 节</a>），真机还没测。请在手机上开关托盘、拖一下音乐托盘（往上推、往下甩）、打开一次回忆页；哪一下卡或不对，告诉我是哪个动作。</span></li>
             <li><b>新美术</b><span>5 处占位美术都换成了生成的图（见<a href="#art-title">新美术</a>）。看看哪张要重画；胶带比清单写的长，所以胶带位改成了约 5:1。不说就按现在的保留。</span></li>
             <li><b>音乐来源</b><span>找歌（C 组）要先定用哪个平台，以及版权和登录怎么处理。</span></li>
@@ -1087,11 +1380,130 @@
             <li><b>导航要成为托盘的一部分</b><span>只去掉背景不够，要重新设计（做成坞，已实现，待你看样）。</span></li>
             <li><b>弹出框掉帧</b><span>要确保解决（先画后升、房间暂停、便宜的画法，已实现，见 P 节）；还可以打磨的记进了待办。</span></li>
         </ol>
+        <h3 class="decided-title">你 10 月 3 日定下的</h3>
+        <ol class="decide decided">
+            <li><b>坞不要</b><span>弹托盘时导航变样、按钮跳位，打断连续；真机上还挡住了半开的托盘。重新调研比稿（N 节）。</span></li>
+            <li><b>聊天托盘往上推要能展开</b><span>已实现：往上推或往上甩，和右上角的展开按钮一样，打开完整聊天；聊天记录已经在最新一条时，在记录上推也算。</span></li>
+            <li><b>TA 的动画不能等托盘</b><span>已实现：托盘动的时候房间会暂停一下，但 TA 一有动作（开始打字、离开、反应）房间立刻恢复，之后 2.5 秒不再暂停，TA 的动作准时、从头播放。</span></li>
+            <li><b>存档</b><span>「UI优化与交互动画设计」已删，里面的决定都已经在设计系统和待办里。</span></li>
+        </ol>
         <h3 class="decided-title">之前定下的</h3>
         <ul class="history">
             <li><b>10-01</b> 产品分层（场景伴生 / 内容页）；手机导航并进托盘；每个托盘都有关闭按钮；手机一次只开一个窗口；扳手换成「回忆」；日记三种样子、照片墙四种样子都能切换、都有手机版；UI 换成更实的深玻璃。</li>
             <li><b>09-30</b> UX 用看样页展示，并写进设计系统；面板标题用站酷小薇；要 B3 沉浸歌词，不要 B6 三栏；任务窗从底边升起；Emil 的 10 个技能入库；美术图不自己生成，先占位。</li>
         </ul>
+    </section>
+
+    <section aria-labelledby="nav2-title">
+        <h2 id="nav2-title">N · 手机导航与托盘：第二轮比稿（等你选）</h2>
+        <div class="read">
+            <p>10 月 3 日你在手机上看了坞，说不行：</p>
+            <ul class="points">
+                <li><b>样子变了</b>：弹出托盘时导航从胶囊变成整宽的条，打断了体验的连续；</li>
+                <li><b>按钮的位置也变了</b>：五个图标跳到新的位置，同样打断连续；</li>
+                <li><b>挡住了半开的托盘</b>：真机底部有 34px 的安全区，标签栏加上它有 98px 高，音乐托盘的「歌词 / 歌单 / 声音」那一排被盖住一半（下面左图在样板里按同样的屏幕复现）。</li>
+            </ul>
+            <p>加上 10 月 2 日的要求（导航不能像一层浮在托盘上），这一轮的约束是：<b>导航的样子和按钮位置在托盘开关时一点不变</b>；<b>托盘的内容永远不被导航挡住</b>；<b>导航不叠在托盘的内容上</b>。</p>
+        </div>
+        <div class="grid phones">
+            <div class="card">
+                <button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-dock-covers-iphone.jpg" aria-label="放大 坞挡住半开内容"><img src="../../../codex-visual/nav-dock/img/r2-dock-covers-iphone.jpg" alt="393×852、底部安全区 34px：坞盖住了歌词歌单声音那一排" loading="lazy" /></button>
+                <div class="card-head"><h3>现在的坞 · 真机尺寸</h3><span class="chip design">已否决</span></div>
+                <p>393 × 852、底部安全区 34px（你的手机）。半开高度按屏幕的一半算，没算导航和安全区，最下面一排被盖住。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-a-iphone.jpg" aria-label="放大 方向 A 同一台手机"><img src="../../../codex-visual/nav-dock/img/r2-a-iphone.jpg" alt="同一台手机上的方向 A：整排露出，导航在原处" loading="lazy" /></button>
+                <div class="card-head"><h3>方向 A · 同一台手机</h3><span class="chip done">推荐</span></div>
+                <p>半开高度按内容算：刚好露出「正在播放」这一块，量的是导航上沿以上的空间，所以哪台手机都不会被挡。导航还在原来的地方。</p>
+            </div>
+        </div>
+
+        <h3>三个方向（同一个夜晚的书房，390 × 844；导航都保持平时的胶囊）</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>A · 浮在导航上方（推荐）</th><th>B · 插在导航后面</th><th>C · 凹槽托住导航</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>半开 · 一起听</td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-a-music-phone.jpg" aria-label="放大 A 一起听"><img src="../../../codex-visual/nav-dock/img/r2-a-music-phone.jpg" alt="A：音乐托盘浮在导航上方，留一道缝" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-b-music-phone.jpg" aria-label="放大 B 一起听"><img src="../../../codex-visual/nav-dock/img/r2-b-music-phone.jpg" alt="B：音乐托盘的下沿插在导航后面" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-c-music-phone.jpg" aria-label="放大 C 一起听"><img src="../../../codex-visual/nav-dock/img/r2-c-music-phone.jpg" alt="C：音乐托盘铺到底，在导航处挖一个凹槽" loading="lazy" /></button></td>
+                    </tr>
+                    <tr>
+                        <td>半开 · 聊天</td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-a-chat-phone.jpg" aria-label="放大 A 聊天"><img src="../../../codex-visual/nav-dock/img/r2-a-chat-phone.jpg" alt="A：聊天托盘" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-b-chat-phone.jpg" aria-label="放大 B 聊天"><img src="../../../codex-visual/nav-dock/img/r2-b-chat-phone.jpg" alt="B：聊天托盘" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-c-chat-phone.jpg" aria-label="放大 C 聊天"><img src="../../../codex-visual/nav-dock/img/r2-c-chat-phone.jpg" alt="C：聊天托盘" loading="lazy" /></button></td>
+                    </tr>
+                    <tr>
+                        <td>拉满</td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-a-full-phone.jpg" aria-label="放大 A 拉满"><img src="../../../codex-visual/nav-dock/img/r2-a-full-phone.jpg" alt="A：拉满时也停在导航上方" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-b-full-phone.jpg" aria-label="放大 B 拉满"><img src="../../../codex-visual/nav-dock/img/r2-b-full-phone.jpg" alt="B：拉满" loading="lazy" /></button></td>
+                        <td><button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-c-full-phone.jpg" aria-label="放大 C 拉满"><img src="../../../codex-visual/nav-dock/img/r2-c-full-phone.jpg" alt="C：拉满" loading="lazy" /></button></td>
+                    </tr>
+                    <tr><td>导航</td><td>完全不变，四周仍是房间</td><td>不变，但压着托盘的下沿</td><td>不变，坐在凹槽里，四周露出房间</td></tr>
+                    <tr><td>托盘</td><td>四角圆、离屏幕边 8px 的浮层，从导航上沿里长出来</td><td>从导航后面抽出来，两侧露出它的下角</td><td>和以前一样铺到底，导航处挖空</td></tr>
+                    <tr><td>挡内容</td><td>不会</td><td>不会（内容在导航上方结束）</td><td>不会（内容在凹槽上方结束）</td></tr>
+                    <tr><td>像第三层</td><td>不会：两块玻璃不重叠</td><td>有一点：导航叠在托盘边上</td><td>不会：导航和托盘之间是房间</td></tr>
+                    <tr><td>做起来</td><td>最省：一个静止的圆角裁切框，托盘在里面移动</td><td>同 A</td><td>要一个带凹槽的遮罩，第一次画更贵；凹槽两侧的托盘是空白</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="lab" id="nav-lab">
+            <div class="lab-row">
+                <h3>开开关关看导航</h3>
+                <div class="seg" role="group" aria-label="方向" id="nl-dirs">
+                    <button type="button" aria-pressed="true" data-dir="A">A 浮在上方</button>
+                    <button type="button" aria-pressed="false" data-dir="B">B 插在后面</button>
+                    <button type="button" aria-pressed="false" data-dir="C">C 凹槽托住</button>
+                    <button type="button" aria-pressed="false" data-dir="dock">现在的坞</button>
+                </div>
+            </div>
+            <div class="nl-wrap">
+                <div class="nl-phone" id="nl-phone" data-dir="A">
+                    <div class="nl-frame" id="nl-frame">
+                        <div class="nl-sheet" data-sheet="music" style="--h: 236px" role="dialog" aria-label="示例音乐托盘">
+                            <span class="nl-grip" aria-hidden="true"></span>
+                            <div class="nl-row">
+                                <span class="nl-art" aria-hidden="true"></span>
+                                <span class="nl-title"><b>云朵上的下午</b><span>小满 &amp; 知夏 · 本机音景</span></span>
+                            </div>
+                            <span class="nl-gold">午后的风把窗帘吹成一朵云</span>
+                            <span class="nl-muted">你把橘子分我一半</span>
+                            <div class="nl-bar" aria-hidden="true"></div>
+                            <div class="nl-controls" aria-hidden="true"><span>⇄</span><span>⏮</span><b>▶</b><span>⏭</span><span>≡</span></div>
+                            <div class="nl-tabs" aria-hidden="true"><span>歌词</span><span>歌单</span><span>声音</span></div>
+                        </div>
+                        <div class="nl-sheet" data-sheet="chat" style="--h: 262px" role="dialog" aria-label="示例聊天托盘">
+                            <span class="nl-grip" aria-hidden="true"></span>
+                            <b style="font-size: 13px">悄悄话</b>
+                            <span class="nl-bubble">今晚一起听雨声吧。</span>
+                            <span class="nl-bubble me">好，我把灯调暗一点。</span>
+                            <span class="nl-bubble">窗外的灯一盏一盏亮起来了。</span>
+                            <span class="nl-input">悄悄说…</span>
+                        </div>
+                    </div>
+                    <nav class="nl-nav" id="nl-nav" aria-label="示例导航">
+                        <button type="button" data-key="rooms" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z" /></svg><span>房间</span></button>
+                        <button type="button" data-key="chat" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 18l-1 3 4-2a9 8 0 1 0-3-1z" /></svg><span>聊天</span></button>
+                        <button type="button" data-key="music" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="16.5" cy="16" r="2.5" /></svg><span>一起听</span></button>
+                        <button type="button" data-key="memories" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 4h11v14H7z" /><path d="M5 7v13h11" /><path d="M12.5 13.5l-2-2a1.3 1.3 0 0 1 2-1.6 1.3 1.3 0 0 1 2 1.6z" /></svg><span>回忆</span></button>
+                        <button type="button" data-key="settings" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" /></svg><span>设置</span></button>
+                    </nav>
+                </div>
+                <div class="nl-side">
+                    <p class="note" id="nl-what"></p>
+                    <p class="lab-hint">试试：点「一起听」打开 → 点「聊天」换一个 → 往下拖托盘收起，或再点一次图标。每个方向都做一遍，盯着导航看：A、B、C 里它一直不动；「现在的坞」里它会变形、按钮跳位。</p>
+                    <p class="lab-hint">这是示意：样子用色块代替，只看托盘和导航的关系和动法。真界面在上面的图里。</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="note"><b>推荐 A</b>：导航的样子、位置、背后的房间三样都不变，是唯一完全不打断的；托盘和导航不重叠，不会像第三层；内容量在导航上沿以上，换什么手机都不会被挡；托盘从导航上沿里长出来，和桌面上「弹层从触发它的地方长出来」是同一个规矩；托盘四周露出一点房间，「TA 优先、场景一直在」的感觉更强；做起来最省（一个静止的圆角裁切框，没有遮罩）。C 是第二选择：如果你更想要「托盘贴着屏幕底」的稳，C 用凹槽让导航坐在托盘里，但凹槽两侧是空着的托盘，遮罩也更贵。B 的问题是导航压着托盘的下沿，又有一点叠层的感觉。三个方向的半开高度都改成按内容算（露出「正在播放」那一块 / 聊天的输入框），量的是导航上沿以上的空间。</p>
+        <p class="note"><b>调研</b>：Material 的托盘规范：和底部导航一起用时，<a href="https://m2.material.io/components/sheets-bottom">收起的托盘放在底部导航上方</a>，托盘展开到全屏时才让导航让开；iOS 26 的半高托盘<a href="https://nilcoalescing.com/blog/PresentingLiquidGlassSheetsInSwiftUI/">离开屏幕边缘、四角圆，像浮在界面上</a>，拉满才贴边变实；iOS 26 的标签栏是浮着的胶囊，迷你播放器这类<a href="https://www.donnywals.com/exploring-tab-bars-on-ios-26-with-liquid-glass/">放在标签栏上方</a>；Google 地图是可拖的托盘在上、五个标签的导航在下，两者一直都在。转译到这里：A 取「托盘放在导航上方」和 iOS 26 的浮层托盘；C 取 Material 底栏「凹槽托住按钮」的做法。拉满时三个方向都留着导航（你要连续），这一点和 Material「展开时导航让开」不同。比稿记录在 <a href="../../../codex-visual/nav-dock/nav-dock.md">比稿区</a>。</p>
     </section>
 
     <section aria-labelledby="layer-title">
@@ -1392,7 +1804,7 @@
         <div class="grid phones">
             <div class="card">
                 <button class="shot" type="button" data-full="img/sheet-merged-phone.jpg" aria-label="放大 坞"><img src="img/sheet-merged-phone.jpg" alt="音乐托盘：导航展开成整宽的标签栏，一起听点亮，右上关闭" loading="lazy" /></button>
-                <div class="card-head"><h3>坞：托盘的标签栏</h3><span class="chip done">已实现 · 待看样</span></div>
+                <div class="card-head"><h3>坞：托盘的标签栏</h3><span class="chip design">已实现 · 10-03 否决</span></div>
                 <p>托盘打开时，导航贴着屏幕底边展开成整宽的一条：托盘的玻璃，图标下写名字，当前这个金色并垫一块金色小圆角底。托盘从它后面升起、沉回它里面。音乐托盘的关闭按钮在心形旁边。</p>
             </div>
             <div class="card">
@@ -1411,7 +1823,8 @@
                 <p>桌面上是导航旁的小菜单，三项各带一句说明。</p>
             </div>
         </div>
-        <h3>为什么是坞（同一个夜晚的书房、同一首歌）</h3>
+        <p class="note"><b>坞已被否决</b>（10 月 3 日）：它让导航变样、按钮跳位，真机上还挡住了半开的托盘。下面是第一轮的比较，第二轮在 <a href="#nav2-title">N 节</a>。</p>
+        <h3>第一轮：为什么选了坞（同一个夜晚的书房、同一首歌）</h3>
         <div class="grid phones">
             <div class="card">
                 <button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/before-1001-phone.jpg" aria-label="放大 10 月 1 日的做法"><img src="../../../codex-visual/nav-dock/img/before-1001-phone.jpg" alt="10 月 1 日：胶囊底淡掉，图标仍浮在托盘上" loading="lazy" /></button>
@@ -2084,6 +2497,89 @@
                 anim.onfinish = () => p.remove();
             }
         });
+    })();
+</script>
+<script>
+    (() => {
+        // ---------- section N: the navigation lab. The pill stays put in A, B and C; the sheet finds its place ----------
+        const phone = document.getElementById('nl-phone');
+        if (!phone) return;
+        const frame = document.getElementById('nl-frame');
+        const nav = document.getElementById('nl-nav');
+        const what = document.getElementById('nl-what');
+        const sheets = Object.fromEntries([...phone.querySelectorAll('.nl-sheet')].map((s) => [s.dataset.sheet, s]));
+        const WHAT = {
+            A: '<b>A 浮在导航上方</b>：托盘是离屏幕边 8px、四角圆的浮层，停在导航上方一道缝里；它从导航上沿里长出来，收起时缩回那里。导航始终是那颗胶囊，背后仍是房间。',
+            B: '<b>B 插在导航后面</b>：托盘从导航后面抽出来，下沿压在导航下面，两侧露出它的下角。导航不变，但叠在托盘的边上。',
+            C: '<b>C 凹槽托住导航</b>：托盘和以前一样铺到底，在导航处挖一个凹槽；导航坐在凹槽里，四周露出房间，所以它看起来和平时一模一样。',
+            dock: '<b>现在的坞</b>（你 10 月 3 日否决）：托盘一开，胶囊就变成整宽的条，按钮跳到新位置；收起后再变回去。'
+        };
+        let dir = 'A';
+        let open = null;
+        phone.classList.toggle('reduced', matchMedia('(prefers-reduced-motion: reduce)').matches);
+        // C's cradle: the frame is cut round the pill, so the room shows around it
+        const cradle = () => {
+            if (dir !== 'C') {
+                frame.style.clipPath = '';
+                return;
+            }
+            const f = frame.getBoundingClientRect();
+            const n = nav.getBoundingClientRect();
+            const [W, H, r, g] = [f.width, f.height, 22, 6];
+            const [x0, x1, y0] = [n.left - f.left - g, n.right - f.left + g, n.top - f.top - g];
+            frame.style.clipPath = `path('M0 26 A26 26 0 0 1 26 0 H${W - 26} A26 26 0 0 1 ${W} 26 V${H} H${x1} V${y0 + r} A${r} ${r} 0 0 0 ${x1 - r} ${y0} H${x0 + r} A${r} ${r} 0 0 0 ${x0} ${y0 + r} V${H} H0 Z')`;
+        };
+        const show = (key) => {
+            for (const [k, s] of Object.entries(sheets)) s.classList.toggle('open', k === key);
+            open = key;
+            phone.toggleAttribute('data-open', !!key);
+            for (const b of nav.querySelectorAll('button')) b.setAttribute('aria-pressed', String(!!key && b.dataset.key === key));
+        };
+        nav.addEventListener('click', (e) => {
+            const key = e.target.closest('button')?.dataset.key;
+            if (!key || !sheets[key]) return;
+            show(open === key ? null : key);
+        });
+        const dirs = [...document.querySelectorAll('#nl-dirs button')];
+        for (const b of dirs) {
+            b.addEventListener('click', () => {
+                dir = b.dataset.dir;
+                for (const o of dirs) o.setAttribute('aria-pressed', String(o === b));
+                phone.dataset.dir = dir;
+                what.innerHTML = WHAT[dir];
+                show(null);
+                requestAnimationFrame(cradle);
+            });
+        }
+        // drag a sheet down to put it away; a short pull springs back
+        for (const s of Object.values(sheets)) {
+            let id = null;
+            let y0 = 0;
+            let dy = 0;
+            let t0 = 0;
+            s.addEventListener('pointerdown', (e) => {
+                if (!s.classList.contains('open')) return;
+                [id, y0, t0, dy] = [e.pointerId, e.clientY, e.timeStamp, 0];
+                s.setPointerCapture(id);
+                s.classList.add('dragging');
+            });
+            s.addEventListener('pointermove', (e) => {
+                if (e.pointerId !== id) return;
+                dy = Math.max(0, e.clientY - y0);
+                s.style.transform = `translateY(${dy}px)`;
+            });
+            const end = (e) => {
+                if (e.pointerId !== id) return;
+                id = null;
+                s.classList.remove('dragging');
+                s.style.transform = '';
+                if (dy > 70 || dy / Math.max(1, e.timeStamp - t0) > 0.6) show(null);
+            };
+            s.addEventListener('pointerup', end);
+            s.addEventListener('pointercancel', end);
+        }
+        what.innerHTML = WHAT.A;
+        addEventListener('resize', cradle);
     })();
 </script>
 </body>
