@@ -95,7 +95,7 @@ music/<world>/art/<sha256>/{256,512,1200}.webp|jpg 封面三档（Safari 出 jpg
 
 1. Supabase Dashboard → SQL Editor：先整段运行 `supabase/migrations/20261001100000_music_library.sql`，再运行 `20261003100000_music_ingest.sql`（都能重复运行）。核对：`select id from storage.buckets where id = 'music';` 有一行；`select proname from pg_proc where proname like 'music_%';` 能看到 `music_ingest`、`music_finish_upload` 等。
 2. 电脑上 `.env.local` 填真实的 `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`；`python3 scripts/make-music-fixtures.py` 生成测试曲集（`tmp/music-fixtures/`，要 ffmpeg）。
-3. **最省事：用 Cloudflare Pages 的部署**。每个 PR 和 dev 分支都会自动部署（PR 页面的「Cloudflare Pages」检查里有 HTTPS 预览地址，形如 `https://<编号>.ilovelei.pages.dev`），连的是真实 Supabase，iPhone 直接打开就能测曲库、锁屏控制条和离线下载；**迁移没应用前，部署上的曲库页会显示「曲库没能载入」**（内置音景照常能放）。`/dev/music-check` 只在本机开发构建里有，要用下面的本机方式。
+3. **最省事：用 Cloudflare Pages 的部署**。只有 dev 分支会自动部署（PR 分支不构建：2026-10-03 查过，#18–#21 的「Cloudflare Pages」检查一直排队）。地址在 GitHub 上 dev 最新提交的「Cloudflare Pages」检查里（Preview URL，形如 `https://<编号>.ilovelei.pages.dev`；10-03 合并后是 `https://22169fd9.ilovelei.pages.dev`）。它连的是真实 Supabase，iPhone 直接打开就能测曲库、锁屏控制条和离线下载；**迁移没应用前，曲库页会显示「曲库还没开通：Supabase 还没运行音乐的两份迁移。」**（内置音景照常能放）。`/dev/music-check` 只在本机开发构建里有，要用下面的本机方式。
 4. 本机方式：`pnpm dev --host`。手机和电脑连同一个 Wi-Fi：
     - **http 局域网**（`http://<电脑 IP>:5173`）：能测上传、播放、CUE、离线；**没有**锁屏控制条（Media Session 只在 HTTPS 下有），Web Crypto 也没有（SHA-256 自动改用 JS 实现）。
     - **HTTPS**（测锁屏控制条时用）：另开终端 `npx cloudflared tunnel --url http://localhost:5173`（或 ngrok），手机打开它给的 `https://….trycloudflare.com`；`vite.config.ts` 已放行这两类域名。
