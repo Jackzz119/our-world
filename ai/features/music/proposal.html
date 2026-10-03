@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<!-- Local copy of the published proposal (https://claude.ai/artifact/FgMvGftKN7Lhbd7w7WccFK). Voting and comments only work in the published version; here picks stay in this browser. -->
+<!-- Local copy of the published proposal (https://claude.ai/artifact/FgMvGftKN7Lhbd7w7WccFK). Voting and comments only work in the published version; here picks stay in this browser. The published copy also inlines the annotation layer: node scripts/annotate/inline.mjs <body-only copy> <out> --source ai/features/music/proposal.html -->
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -396,6 +396,12 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
 .board-row em.set { color: var(--ink); font-weight: 500; }
 .board-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .board-status { font-size: 13.5px; color: var(--ink-3); }
+
+    .faq { margin: 8px 0 0; display: grid; gap: 10px; }
+    .faq dt { font-weight: 600; }
+    .faq dd { margin: 0; color: var(--muted, inherit); line-height: 1.7; }
+    details.was { margin-top: 16px; }
+    details.was summary { cursor: pointer; font-weight: 600; }
 </style>
 
 <div class="wrap">
@@ -450,8 +456,38 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
       </details>
     </header>
 
-    <section class="summary" id="summary">
-      <h2>一页结论</h2>
+    <section class="summary" id="summary" data-anchor="summary">
+      <h2>拍板结果（10 月 3 日）</h2>
+      <p>你们的回答：<b>在美国用</b>；Supabase <b>先用 Free</b>；这一期 <b>20 首以内</b>（实在不行先一首跑通）；<b>没有会员</b>；<b>曲库共享</b>；<b>要离线下载</b>；发行时间待定。其余按推荐做，已经开始实现。</p>
+      <div class="route">
+        <a href="#d1" data-anchor="result-d1"><b>D1</b>A<small>这一期不上 Worker，零服务器</small></a>
+        <a href="#d2" data-anchor="result-d2"><b>D2</b>E1<small>纯净直出；增强模式等真机结论</small></a>
+        <a href="#d3" data-anchor="result-d3"><b>D3</b>Q2<small>原件 + 省流版，省流版在上传的设备上做</small></a>
+        <a href="#d4" data-anchor="result-d4"><b>D4</b>R1<small>自研歌词：逐句、翻译、逐字点亮</small></a>
+        <a href="#d5" data-anchor="result-d5"><b>D5</b>L3<small>默认共享，上传者可设仅自己</small></a>
+        <a href="#d6" data-anchor="result-d6"><b>D6</b>S1 · Free<small>大文件分片存，升 Pro 改一个常量</small></a>
+        <a href="#d7" data-anchor="result-d7"><b>D7</b>V1 + V3<small>在 dev 最新界面（坞、暖瓷）上做</small></a>
+        <a href="#d8" data-anchor="result-d8"><b>D8</b>暂缓<small>没有会员，先不接在线曲库</small></a>
+      </div>
+      <div class="note" data-anchor="changes">
+        <b>和推荐不一样的三处</b>
+        <span>① 没有 Worker，所以省流版（AAC 256，编不了 AAC 的浏览器用 Opus 160）在上传的电脑或手机上生成；② Supabase Free 单个对象 50 MB，Hi-Res 原件和 CUE 整轨拆成 45 MB 的分片存，第一次播放先整份取到这台设备，之后离线也能听；③ 不做「始终原件」设置，改成每首歌在「音质」页里选 自动 / 原件 / 省流（iPhone 网页看不出是不是在用流量，所以 iPhone 上要省流时点这首歌的「省流」）。</span>
+      </div>
+      <h3>你问的四件事</h3>
+      <dl class="faq" data-anchor="faq">
+        <dt>歌词授权是什么？</dt>
+        <dd>歌词是词作者和音乐出版社的作品，有版权。App 要公开给别人看歌词，得向版权方拿许可，一般通过 Musixmatch、LyricFind 这类公司（它们和出版社签了约，按调用或分成收费）。现在自动匹配用的 LRCLIB 是网友整理的免费库，没有授权声明：你们两个人私下用没问题；哪天公开发行，就换成有授权的来源，或者只显示自己导入的歌词。</dd>
+        <dt>「响度扫描、指纹匹配要在用户设备上跑，大文件费电」是什么意思？</dt>
+        <dd>两件要把整首歌读一遍的活。响度扫描是算出每首歌有多响，让切歌时音量差不多；指纹匹配是听一遍音频算出声纹，去 AcoustID / MusicBrainz 查这是哪首歌、自动补全标签和封面。没有服务器时只能让上传的手机或电脑来算，一首 Hi-Res 要解码几百 MB 的数据，手机会发热耗电。所以这一期只读文件里已有的 ReplayGain 标签，不做扫描和指纹，等以后有 Worker 再在服务器上做。</dd>
+        <dt>「播放直接串流原件（签名 URL + Range 请求）」是什么意思？</dt>
+        <dd>存音乐的桶是私有的，外人拿不到。播放时 App 先向 Supabase 要一个临时链接（签名 URL，6 小时内有效，带一段只有服务器能验证的签名），播放器拿这个链接去取文件；取的时候用 Range 请求，只要眼下需要的那一段字节：开头一小段先出声，拖到中间就直接从中间取，不用先把整首下载完。全程是原件原样的字节，没有转码，音质等于原件。</dd>
+        <dt>CUE 整轨的原理是什么？</dt>
+        <dd>很多无损专辑是整张抓成一个大文件，再配一个 .cue 文本，写着每首从第几分几秒几帧开始（CD 的一帧是 1/75 秒，44.1 kHz 下正好 588 个采样）。我们不切文件：整轨只存一份，每首歌在库里是「这个文件的第 X 到第 Y 个采样」。放到一首的终点时，如果下一首正好接着同一个文件，播放器只把标题和进度换过去，声音一刻不停，所以真正无缝（现场专辑、古典乐章之间没有缝）。锁屏也稳：系统看到的始终是一个一直在放的音频流，没有「停止—加载新文件—再开始」这一步，iPhone 最容易在这一步把后台播放掐掉。</dd>
+      </dl>
+      <details class="was" data-anchor="was">
+        <summary>原来的推荐和问题（10 月 1 日版）</summary>
+
+      <h3>一页结论</h3>
       <p>推荐组合：一期不加服务器，浏览器解析、Supabase 存原件、原件直出播放；数据模型从第一天按「原件 / 串流版 / 副本」三层设计，第二步加媒体 Worker 时不用返工。每个决定点开有三四套方案可以比较和投票。</p>
       <div class="route">
         <a href="#d1"><b>D1</b>A 起步、随后加 B<small>一期零服务器，按流水线设计</small></a>
@@ -484,6 +520,8 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
         <li>要不要离线下载，手机没网也能听？</li>
         <li>公开发行大概什么时候？（决定版权和歌词授权要投入多少）</li>
       </ol>
+    
+      </details>
     </section>
 
     <section id="s1">
@@ -825,7 +863,7 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
         <figcaption>A 和 B 的唯一差别是底下那一层：B 多了一个从 Postgres 取任务、读写 Storage 的 Worker，浏览器那一侧完全不变，所以可以先做 A、以后加 B 而不返工。C 把曲库和音频整个挪出 Supabase；D 把「一个文件一个 URL」换成分片和清单。</figcaption>
       </figure>
 
-      <div class="decision" data-d="D1" id="d1">
+      <div class="decision" data-d="D1" data-anchor="D1" id="d1">
         <div class="decision-head"><span class="dtag">D1</span><h3>总体架构怎么搭？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <div class="opts four">
           <div class="opt rec">
@@ -898,7 +936,7 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
         </table>
       </div>
 
-      <div class="decision" data-d="D2" id="d2">
+      <div class="decision" data-d="D2" data-anchor="D2" id="d2">
         <div class="decision-head"><span class="dtag">D2</span><h3>播放引擎用哪种？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <div class="opts four">
           <div class="opt">
@@ -1129,7 +1167,7 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
         </div>
       </div>
 
-      <div class="decision" data-d="D3" id="d3">
+      <div class="decision" data-d="D3" data-anchor="D3" id="d3">
         <div class="decision-head"><span class="dtag">D3</span><h3>存几档音质？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <p>原件一定存。问题是要不要再存一份小的，给蜂窝网络和弱网用。按码率算，一首 4 分钟的歌：FLAC 16/44.1 约 25–35 MB，FLAC 24/96 约 80–120 MB，AAC 256 kbps 约 8 MB。</p>
         <div class="opts">
@@ -1193,7 +1231,7 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
         </div>
       </div>
 
-      <div class="decision" data-d="D4" id="d4">
+      <div class="decision" data-d="D4" data-anchor="D4" id="d4">
         <div class="decision-head"><span class="dtag">D4</span><h3>歌词怎么渲染？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <p>目标效果是 Apple Music 那种：当前句放大、逐字点亮、远处的句子渐隐，对唱分左右，和声小一号。开源里做得最像的是 AMLL（applemusic-like-lyrics），但它不适合直接用。</p>
         <div class="opts">
@@ -1245,7 +1283,7 @@ figcaption { font-size: 13.5px; line-height: 1.7; color: var(--ink-3); }
       <div class="sec-head"><span class="eyebrow">第 8 节 · D5</span><h2>曲库与数据模型</h2></div>
       <p>一首歌拆成三层：<strong>文件</strong>是你传上来的东西（音频、CUE、.lrc、封面图，按内容哈希存一次，字节不动）；<strong>曲目</strong>是曲库里的那一行（标题、艺人、歌词、海报，CUE 整轨切出来的多首歌指向同一个文件的不同片段）；<strong>播放版本</strong>是真正拿去播放的东西（默认就是原件，必要时加无损串流版和省流副本）。改标签只改数据库，原件永远不回写；你手动改过的字段会被锁住，自动匹配不会覆盖。</p>
 
-      <div class="decision" data-d="D5" id="d5">
+      <div class="decision" data-d="D5" data-anchor="D5" id="d5">
         <div class="decision-head"><span class="dtag">D5</span><h3>曲库归谁？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <div class="opts">
           <div class="opt">
@@ -1358,7 +1396,7 @@ create table music_tracks (
       </div>
       <p class="small muted">按码率算流量：CD 音质 FLAC 约 0.4 GB / 小时，24/96 约 1.4 GB / 小时。两个人每天各听 3 小时，CD 音质每月约 73 GB，全听 Hi-Res 约 250 GB，都在 Pro 的额度附近。</p>
 
-      <div class="decision" data-d="D6" id="d6">
+      <div class="decision" data-d="D6" data-anchor="D6" id="d6">
         <div class="decision-head"><span class="dtag">D6</span><h3>文件放哪？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <div class="opts four">
           <div class="opt rec">
@@ -1570,7 +1608,7 @@ create table music_tracks (
         <li><strong>读屏</strong>：歌词不逐行播报（会盖住音乐），当前句标 <code>aria-current</code>；进度条的读数改成「3 分 20 秒，共 4 分 3 秒」，现在代码里读出来是「3:20」。</li>
       </ul>
 
-      <div class="decision" data-d="D7" id="d7">
+      <div class="decision" data-d="D7" data-anchor="D7" id="d7">
         <div class="decision-head"><span class="dtag">D7</span><h3>界面走哪个方向？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <p>三种可以按页面组合：正在播放、沉浸歌词、曲库各选各的。</p>
         <div class="verdict"><b>推荐 V1 + V3。</b>正在播放继续用定稿的封套与唱片（和唱片机同一个比喻，已有实现）；曲库和上传用 V3 的安静列表，几千首也好找；V2 的逐字点亮和流动底色升级进现有的沉浸歌词，不做默认页。上面「两个人的小事」三件（谁加的、回应、送一首歌）放进「我们的歌单」，不管选哪个方向都做。</div>
@@ -1659,7 +1697,7 @@ export type Playable =
         <li><strong>前提</strong>：两人都要能播同一首歌。自己的曲库天然满足，精度能做到几十毫秒。平台来源只能靠跳转纠偏（误差几百毫秒），而且条款不友好：Spotify 禁止复刻「Jam」这类核心功能，Apple 要求每个人自己点开始。所以一起听只做自己的曲库和自托管来源。</li>
       </ul>
 
-      <div class="decision" data-d="D8" id="d8">
+      <div class="decision" data-d="D8" data-anchor="D8" id="d8">
         <div class="decision-head"><span class="dtag">D8</span><h3>在线曲库先接谁？</h3><button class="talk" type="button" hidden>在这里讨论</button></div>
         <div class="opts four">
           <div class="opt rec">

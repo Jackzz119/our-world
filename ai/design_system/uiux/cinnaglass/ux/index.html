@@ -1061,12 +1061,19 @@
     <section aria-labelledby="decide-title">
         <h2 id="decide-title">还需要你决定</h2>
         <ol class="decide">
+            <li><b>音乐：曲库、上传、音质</b><span>三页做好了（<a href="#b-title">B 节</a>下半）：在 dev 上点「一起听」→ 曲库，传一首、点歌名下的音质徽章看看。数据库的两份音乐迁移要先在 Supabase 运行；不说就按现在的保留。</span></li>
             <li><b>默认的界面风格</b><span>深玻璃仍是默认。暖瓷已经做进所有组件，在设置 → 主题外观 → 界面风格里换（地址加 <code>?look=porcelain</code> 也行）。要不要改默认，你说了算。</span></li>
             <li><b>坞</b><span>托盘打开时导航展开成托盘的标签栏（<a href="#a-title">A 节</a>，另两个方向的对比在<a href="../../../codex-visual/nav-dock/nav-dock.md">比稿区</a>）。在手机上开关几个托盘看看它是不是托盘的一部分；不说就按坞保留。</span></li>
             <li><b>真机手感</b><span>帧测是本机显卡加手机仿真（<a href="#perf-title">P 节</a>），真机还没测。请在手机上开关托盘、拖一下音乐托盘（往上推、往下甩）、打开一次回忆页；哪一下卡或不对，告诉我是哪个动作。</span></li>
             <li><b>新美术</b><span>5 处占位美术都换成了生成的图（见<a href="#art-title">新美术</a>）。看看哪张要重画；胶带比清单写的长，所以胶带位改成了约 5:1。不说就按现在的保留。</span></li>
             <li><b>音乐来源</b><span>找歌（C 组）要先定用哪个平台，以及版权和登录怎么处理。</span></li>
             <li><b>房间切换的加载</b><span>等有了第二个房间再做，我建议 E2 加 E3。</span></li>
+        </ol>
+        <h3 class="decided-title">你 10 月 3 日定下的</h3>
+        <ol class="decide decided">
+            <li><b>音乐的界面</b><span>方案书的界面不错，但要在最新的 dev 上改（已实现：沿用坞、暖瓷和停靠栏，「歌单」改成「曲库」，加上传页和音质页）。</span></li>
+            <li><b>音质的选择</b><span>不要「始终原件」设置，每首歌可以在原件和省流版之间切换（已实现：音质页的 自动 / 原件 / 省流）。</span></li>
+            <li><b>其他</b><span>在美国用、Supabase 先用 Free、不上服务器、曲库共享、支持离线下载、暂不接在线曲库；其余按方案书推荐做。</span></li>
         </ol>
         <h3 class="decided-title">你 10 月 2 日定下的</h3>
         <ol class="decide decided">
@@ -1486,7 +1493,37 @@
                 <p>沉浸歌词就在停靠栏这一列里，Esc 先退出沉浸，再收起播放器。</p>
             </div>
         </div>
-        <p class="note"><b>现在的音乐</b>：8 首本机合成的音景，每首有海报和随时间高亮的歌词；点歌单任一行直接播放，收藏只存在这台设备。手机上没有悬浮条，出声时导航的音乐图标带三根小音柱。音乐只在本机播放，不和对方同步。<b>海报是这份歌单自己的封面</b>（10 月 2 日生成，每首一个静物画面，待你看样），见<a href="#art-title">新美术</a>。</p>
+        <p class="note"><b>现在的音乐</b>：两人共享的曲库（自己上传的歌，原件原样播放）加 8 首本机合成的音景；每首有海报和随时间高亮的歌词，点曲库任一行直接播放。手机上没有悬浮条，出声时导航的音乐图标带三根小音柱。音乐只在本机播放，不和对方同步。<b>音景的海报是这份歌单自己的封面</b>（10 月 2 日生成），见<a href="#art-title">新美术</a>。</p>
+        <h3 class="decided-title">曲库、上传与音质（10 月 3 日）</h3>
+        <div class="grid phones">
+            <div class="card">
+                <button class="shot" type="button" data-full="img/music-library-phone.jpg" aria-label="放大 手机曲库"><img src="img/music-library-phone.jpg" alt="手机托盘里的曲库：搜索、筛选、每行格式" loading="lazy" /></button>
+                <div class="card-head"><h3>曲库</h3><span class="chip done">已实现 · 待看样</span></div>
+                <p>「歌单」改名「曲库」：搜索歌名 / 歌手 / 专辑；全部 · 我传的 · TA 传的 · 收藏 · 已下载 · 本机音景；每行写格式，Hi-Res 单独标出，私有、已下载、收藏各有小标记。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/music-row-actions-phone.jpg" aria-label="放大 行内操作"><img src="img/music-row-actions-phone.jpg" alt="一行的 ⋯ 展开：下载原件、可见范围、删除" loading="lazy" /></button>
+                <div class="card-head"><h3>一首歌的操作</h3><span class="chip done">已实现 · 待看样</span></div>
+                <p>行尾 ⋯ 就地展开：下载原件或省流版到这台设备、改成仅自己可见、从曲库删除（只有上传的人能改，删除点两次）。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/music-upload-phone.jpg" aria-label="放大 手机上传页"><img src="img/music-upload-phone.jpg" alt="手机上传页" loading="lazy" /></button>
+                <div class="card-head"><h3>上传</h3><span class="chip done">已实现 · 待看样</span></div>
+                <p>选文件（电脑上还能选文件夹、直接拖进来）；每首一张卡片写清格式、歌词、封面、CUE 段数；关掉托盘上传不停。</p>
+            </div>
+        </div>
+        <div class="grid wide">
+            <div class="card">
+                <button class="shot" type="button" data-full="img/music-upload-desk.jpg" aria-label="放大 桌面上传页"><img src="img/music-upload-desk.jpg" alt="桌面停靠栏里的上传页：读完待上传" loading="lazy" /></button>
+                <div class="card-head"><h3>桌面上传页</h3><span class="chip done">已实现 · 待看样</span></div>
+                <p>GBK 乱码的标签自动修好并写明；这台浏览器放不了的格式（如 WavPack）照样入库、写清原因。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/music-quality-desk.jpg" aria-label="放大 音质页"><img src="img/music-quality-desk.jpg" alt="音质页：自动 / 原件 / 省流、信号路径、离线下载" loading="lazy" /></button>
+                <div class="card-head"><h3>音质页</h3><span class="chip done">已实现 · 待看样</span></div>
+                <p>点歌名下的徽章进来：每首选 自动 / 原件 / 省流（iPhone 网页看不出在不在用流量，要省流时在这里点）；来源 → 解码 → 处理 → 输出如实写；两种版本都能存到这台设备离线听。</p>
+            </div>
+        </div>
     </section>
 
     <section aria-labelledby="g-title">
