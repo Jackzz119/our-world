@@ -1,8 +1,10 @@
 // Sheet — the phone layout's home for the companion panels (music, chat, rooms, the memories menu).
-// It rises from the bottom over the viewer's side of the table (hands, mug) and
-// stops below the partner, so TA stays in full view; the navigation bar opens out
-// into the sheet's own tab bar while it is open (navigation-glass.css) — the sheet
-// rises from behind it and sinks back into it — and the scene stays live (non-modal).
+// It floats over the viewer's side of the table (hands, mug), above the navigation, which never
+// changes for it (2026-10-03, direction A in ai/design_system/codex-visual/nav-dock/nav-dock.md):
+// inset from the screen's sides and rounded all round, it moves inside a frame that stands still and
+// clips it (.ui-sheet-frame, ending just above the bar), so it grows out of the bar's top edge and
+// sinks back into it. It stops below the partner, so TA stays in full view, and the scene stays live
+// (non-modal); pulled to full height it covers TA, and the room stops until it comes back down.
 // Before rising, the sheet is laid out and painted where it will rest, all but
 // invisible, so the rise only moves finished pixels; while it moves, the room holds
 // still (ui/scene-hold.ts) so the two do not fight over a phone's GPU.
@@ -18,7 +20,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { IClose } from '@/themes/cinnaglass/icons';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
-import { holdScene } from '@/themes/cinnaglass/ui/scene-hold';
+import { coverScene, holdScene } from '@/themes/cinnaglass/ui/scene-hold';
 import { project, rubberband, SPRING, springTranslateY } from '@/themes/cinnaglass/ui/spring';
 import { usePanelFocus } from '@/themes/cinnaglass/ui/use-panel-focus';
 import '@/themes/cinnaglass/ui/sheet.css';
@@ -32,6 +34,8 @@ type SheetProps = {
     label: string;
     /** two heights: 'half' keeps the partner visible, 'full' is for reading */
     expandable?: boolean;
+    /** expandable sheets: the part the half height shows down to (a selector; the music sheet's tabs) */
+    peek?: string;
     /** controlled height (expandable sheets); uncontrolled starts at 'half' */
     detent?: SheetDetent;
     onDetentChange?: (detent: SheetDetent) => void;
@@ -44,7 +48,7 @@ type SheetProps = {
     children: ReactNode;
 };
 
-// Half height is half the visible screen, never less than the compact player needs.
+// Half height without a `peek` part: half the visible screen, never less than the compact player needs.
 const HALF_RATIO = 0.5;
 const HALF_MIN = 340;
 // Faster than this (px per ms) the release counts as a throw: a little more bounce.
@@ -56,10 +60,13 @@ const PULL_UP_SPEED = 0.3;
 // Exit is quicker than entry; must cover the closing transition in sheet.css.
 const EXIT_MS = 300;
 // How long the room holds still for the rise (--dur-sheet, the smooth spring, is 621ms), a drag,
-// and the way down: the exit, then the tab bar closing up into the pill (--dur-enter, 260ms).
+// and the way down.
 const RISE_HOLD_MS = 680;
 const DRAG_HOLD_MS = 250;
-const SINK_HOLD_MS = EXIT_MS + 300;
+const SINK_HOLD_MS = EXIT_MS + 40;
+// A sheet pulled to full height covers the partner when it spans the screen (this share of its
+// width); a phone on its side keeps it in a column beside the room.
+const COVERS_PARTNER = 0.8;
 // Movement (px) before a press becomes a drag; until then taps and presses stay what they are.
 const SLOP = 6;
 // Where a press never starts a drag: typing and sliders keep the finger.
@@ -95,6 +102,7 @@ export function Sheet({
     onClose,
     label,
     expandable = false,
+    peek,
     detent: controlled,
     onDetentChange,
     onPullUp,
@@ -126,24 +134,47 @@ export function Sheet({
     const flight = useRef<Animation | null>(null);
     // a drag that ends on a button or the grip must not also count as a tap on it
     const dragEndedAt = useRef(0);
+    // the height the sheet was last placed at, so a change of height can hold the room for its travel
+    const placedAt = useRef<SheetDetent>(detent);
 
     useEffect(() => {
         if (!mounted) return;
         const bump = () => setViewportTick((n) => n + 1);
         window.addEventListener('resize', bump);
         window.visualViewport?.addEventListener('resize', bump);
+        // the half height follows what it shows: the part it ends at and everything above it (looked up
+        // again whenever the sheet comes back to half height, which is when a sheet puts that part back)
+        const part = expandable && peek && detent === 'half' ? ref.current?.querySelector(peek) : null;
+        const sizes = part
+            ? new ResizeObserver(() => {
+                  if (!drag.current?.moved) bump();
+              })
+            : null;
+        for (let el = part; el; el = el.previousElementSibling) sizes?.observe(el);
         return () => {
             window.removeEventListener('resize', bump);
             window.visualViewport?.removeEventListener('resize', bump);
+            sizes?.disconnect();
         };
-    }, [mounted]);
+    }, [mounted, expandable, peek, detent]);
 
-    // Pixel offsets for each resting place, measured from the rendered sheet.
+    // Pixel offsets for each resting place, measured from the rendered sheet: how far down it rests at
+    // half height (an expandable sheet shows its top down to its `peek` part and then its own bottom
+    // padding, as a sheet of one height ends) and how far down it has gone once closed (out of its frame).
     const offsets = (el: HTMLElement) => {
         const height = el.offsetHeight;
-        const visible = window.visualViewport?.height ?? window.innerHeight;
-        const half = expandable ? Math.min(height, Math.max(HALF_MIN, Math.round(visible * HALF_RATIO))) : height;
-        return { open: 0, half: height - half, closed: height + 24 };
+        let shown = height;
+        if (expandable) {
+            const part = peek ? el.querySelector(peek) : null;
+            if (part) {
+                const end = part.getBoundingClientRect().bottom - el.getBoundingClientRect().top;
+                shown = Math.ceil(end + parseFloat(getComputedStyle(el).paddingBottom));
+            } else {
+                const visible = window.visualViewport?.height ?? window.innerHeight;
+                shown = Math.max(HALF_MIN, Math.round(visible * HALF_RATIO));
+            }
+        }
+        return { half: height - Math.min(height, shown), closed: height + 24 };
     };
     const restingY = (el: HTMLElement, at: SheetDetent) => (at === 'full' ? 0 : offsets(el).half);
     // Where the sheet's rendered state says it belongs: its detent, or away below the screen while
@@ -178,6 +209,7 @@ export function Sheet({
         }
         if (!entered.current) {
             entered.current = true;
+            placedAt.current = detent;
             delete el.dataset.handoff;
             // Prepare first: lay the sheet out and paint it where it will rest, all but invisible, and
             // only then start it from below the screen, so the rise moves finished pixels. Painting a
@@ -207,6 +239,10 @@ export function Sheet({
         // still being prepared: the rise places it with the latest state
         if (preparing.current) return;
         if (closing) holdScene(SINK_HOLD_MS);
+        // a new height set by the grip (or by a page that needs the room) moves the whole sheet as well;
+        // a thrown sheet is already held for its spring
+        else if (detent !== placedAt.current && el.dataset.springing === undefined) holdScene(RISE_HOLD_MS);
+        placedAt.current = detent;
         place(el);
         // offsets/restingY/place read the element each time; they are not reactive inputs
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -217,6 +253,15 @@ export function Sheet({
         const pending = preparing;
         return () => cancelAnimationFrame(pending.current);
     }, []);
+
+    // Pulled to full height across the screen, the sheet covers the partner: the room stops until it
+    // comes back down, and TA's moves wait for it (ui/scene-hold.ts).
+    useEffect(() => {
+        const frame = ref.current?.parentElement;
+        if (!mounted || closing || detent !== 'full' || !frame) return;
+        if (frame.offsetWidth < window.innerWidth * COVERS_PARTNER) return;
+        return coverScene();
+    }, [mounted, closing, detent]);
 
     // On a touch screen the browser starts panning a list as soon as the finger moves; when the sheet
     // has taken a gesture that began in a list (the list was at its end), each move must say so. Pointer
@@ -347,44 +392,46 @@ export function Sheet({
     };
 
     return (
-        <section
-            ref={ref}
-            className={`ui-sheet ui-surface ${expandable ? 'expandable' : ''} ${className}`}
-            role="dialog"
-            aria-modal="false"
-            aria-label={label}
-            tabIndex={-1}
-            hidden={!mounted}
-            inert={!mounted}
-            data-state={!mounted ? 'closed' : closing ? 'closing' : 'open'}
-            data-detent={detent}
-            onPointerDown={startDrag}
-            onPointerMove={moveDrag}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            onClickCapture={swallowClick}
-            onKeyDown={(event) => {
-                if (event.key === 'Escape' && !(event.target as Element).closest('[data-esc-own]')) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    onClose();
-                }
-            }}
-        >
-            <span className="ui-sheet-shade" aria-hidden="true" />
-            <button
-                type="button"
-                className="ui-sheet-grip"
-                aria-label={expandable ? (detent === 'full' ? `收回${label}` : `展开${label}`) : `收起${label}`}
-                onClick={() => {
-                    if (expandable) setDetent(detent === 'full' ? 'half' : 'full');
-                    else onClose();
+        <div className="ui-sheet-frame" hidden={!mounted}>
+            <section
+                ref={ref}
+                className={`ui-sheet ui-surface ${expandable ? 'expandable' : ''} ${className}`}
+                role="dialog"
+                aria-modal="false"
+                aria-label={label}
+                tabIndex={-1}
+                hidden={!mounted}
+                inert={!mounted}
+                data-state={!mounted ? 'closed' : closing ? 'closing' : 'open'}
+                data-detent={detent}
+                onPointerDown={startDrag}
+                onPointerMove={moveDrag}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                onClickCapture={swallowClick}
+                onKeyDown={(event) => {
+                    if (event.key === 'Escape' && !(event.target as Element).closest('[data-esc-own]')) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onClose();
+                    }
                 }}
             >
-                <span aria-hidden="true" />
-            </button>
-            <div className="ui-sheet-body">{children}</div>
-        </section>
+                <span className="ui-sheet-shade" aria-hidden="true" />
+                <button
+                    type="button"
+                    className="ui-sheet-grip"
+                    aria-label={expandable ? (detent === 'full' ? `收回${label}` : `展开${label}`) : `收起${label}`}
+                    onClick={() => {
+                        if (expandable) setDetent(detent === 'full' ? 'half' : 'full');
+                        else onClose();
+                    }}
+                >
+                    <span aria-hidden="true" />
+                </button>
+                <div className="ui-sheet-body">{children}</div>
+            </section>
+        </div>
     );
 }
 
