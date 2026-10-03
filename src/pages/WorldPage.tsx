@@ -305,7 +305,9 @@ const WorldPage = () => {
                             onProgress={room.progress.set}
                             onReady={() => setRoom((r) => ({ ...r, state: 'ready' }))}
                             onFailed={() => setRoom((r) => ({ ...r, state: 'failed' }))}
-                            active={screen === null || memoryOpen}
+                            // the room holds still under the memory page too: it is dimmed and softened
+                            // there, and every frame of it would make the page's blurred backdrop redraw
+                            active={screen === null}
                             mood={t.mood}
                             weatherKind={weather.kind}
                             onHotspot={onHotspot}

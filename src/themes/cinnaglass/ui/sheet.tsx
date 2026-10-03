@@ -1,7 +1,11 @@
 // Sheet — the phone layout's home for the companion panels (music, chat, rooms, the memories menu).
 // It rises from the bottom over the viewer's side of the table (hands, mug) and
-// stops below the partner, so TA stays in full view; the navigation bar becomes
-// the sheet's own foot while it is open, and the scene stays live (non-modal).
+// stops below the partner, so TA stays in full view; the navigation bar opens out
+// into the sheet's own tab bar while it is open (navigation-glass.css) — the sheet
+// rises from behind it and sinks back into it — and the scene stays live (non-modal).
+// Before rising, the sheet is laid out and painted where it will rest, all but
+// invisible, so the rise only moves finished pixels; while it moves, the room holds
+// still (ui/scene-hold.ts) so the two do not fight over a phone's GPU.
 // Drag it anywhere to change height or dismiss — it follows the finger 1:1, gives
 // like a rubber band past the top, and on release carries the finger's speed into
 // a spring towards where the throw was heading (Apple's fluid-interface rules,
@@ -14,6 +18,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { IClose } from '@/themes/cinnaglass/icons';
 import { usePresence } from '@/themes/cinnaglass/ui/use-presence';
 import { motionReduced } from '@/themes/cinnaglass/ui/motion-preference';
+import { holdScene } from '@/themes/cinnaglass/ui/scene-hold';
 import { project, rubberband, SPRING, springTranslateY } from '@/themes/cinnaglass/ui/spring';
 import { usePanelFocus } from '@/themes/cinnaglass/ui/use-panel-focus';
 import '@/themes/cinnaglass/ui/sheet.css';
@@ -43,6 +48,11 @@ const HALF_MIN = 340;
 const FLICK = 0.5;
 // Exit is quicker than entry; must cover the closing transition in sheet.css.
 const EXIT_MS = 300;
+// How long the room holds still for the rise (--dur-sheet, the smooth spring, is 621ms), a drag,
+// and the way down: the exit, then the tab bar closing up into the pill (--dur-enter, 260ms).
+const RISE_HOLD_MS = 680;
+const DRAG_HOLD_MS = 250;
+const SINK_HOLD_MS = EXIT_MS + 300;
 // Movement (px) before a press becomes a drag; until then taps and presses stay what they are.
 const SLOP = 6;
 // Where a press never starts a drag: typing and sliders keep the finger.
@@ -87,6 +97,8 @@ export function Sheet({
     const [viewportTick, setViewportTick] = useState(0);
     const ref = useRef<HTMLElement>(null);
     const entered = useRef(false);
+    // the frame request that will start the rise once the sheet has been painted in place
+    const preparing = useRef(0);
     const drag = useRef<Drag | null>(null);
     // the spring a released drag is riding, so a new grab can catch it mid-flight
     const flight = useRef<Animation | null>(null);
@@ -112,34 +124,66 @@ export function Sheet({
         return { open: 0, half: height - half, closed: height + 24 };
     };
     const restingY = (el: HTMLElement, at: SheetDetent) => (at === 'full' ? 0 : offsets(el).half);
+    // Where the sheet's rendered state says it belongs: its detent, or away below the screen while
+    // closing (low motion fades in place instead). Read from the element, so a frame request that
+    // runs later still sees the latest state.
+    const place = (el: HTMLElement) => {
+        const reduced = motionReduced();
+        const at = restingY(el, el.dataset.detent === 'full' ? 'full' : 'half');
+        const away = el.dataset.state === 'closing';
+        el.style.transform = `translateY(${away && !reduced ? offsets(el).closed : at}px)`;
+        el.style.opacity = away && reduced ? '0' : '1';
+    };
 
-    // Place the sheet: slide up from below on mount, to the detent, or away when closing.
+    // Place the sheet: prepare it and rise from below on mount, then follow the detent, or go away.
     useLayoutEffect(() => {
         const el = ref.current;
         if (!el || !mounted) {
             entered.current = false;
+            cancelAnimationFrame(preparing.current);
+            preparing.current = 0;
             return;
         }
-        const reduced = motionReduced();
-        const target = restingY(el, detent);
         if (!entered.current) {
             entered.current = true;
+            // Prepare first: lay the sheet out and paint it where it will rest, all but invisible, and
+            // only then start it from below the screen, so the rise moves finished pixels. Painting a
+            // whole sheet (glass, edges, text, a poster) on the way up held the GPU for ~100ms on a
+            // phone-sized screen and the rise stuttered (2026-10-02).
             el.style.transition = 'none';
-            el.style.transform = `translateY(${reduced ? target : offsets(el).closed}px)`;
-            el.style.opacity = reduced ? '0' : '1';
-            void el.offsetHeight; // commit the start position before transitioning
-            el.style.transition = '';
+            el.style.transform = `translateY(${restingY(el, detent)}px)`;
+            el.style.opacity = '0.01';
+            const rise = () => {
+                preparing.current = 0;
+                if (!el.isConnected) return;
+                const reduced = motionReduced();
+                const at = restingY(el, el.dataset.detent === 'full' ? 'full' : 'half');
+                el.style.transform = `translateY(${reduced ? at : offsets(el).closed}px)`;
+                el.style.opacity = reduced ? '0' : '1';
+                void el.offsetHeight; // commit the start position before transitioning
+                el.style.transition = '';
+                holdScene(RISE_HOLD_MS);
+                place(el);
+            };
+            // two frames: the first commits the sheet, the second comes once it has been painted
+            preparing.current = requestAnimationFrame(() => {
+                preparing.current = requestAnimationFrame(rise);
+            });
+            return;
         }
-        if (closing) {
-            el.style.transform = `translateY(${reduced ? target : offsets(el).closed}px)`;
-            el.style.opacity = reduced ? '0' : '1';
-        } else {
-            el.style.transform = `translateY(${target}px)`;
-            el.style.opacity = '1';
-        }
-        // offsets/restingY read the element each time; they are not reactive inputs
+        // still being prepared: the rise places it with the latest state
+        if (preparing.current) return;
+        if (closing) holdScene(SINK_HOLD_MS);
+        place(el);
+        // offsets/restingY/place read the element each time; they are not reactive inputs
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted, closing, detent, viewportTick]);
+
+    // a sheet removed while it is being prepared never rises
+    useEffect(() => {
+        const pending = preparing;
+        return () => cancelAnimationFrame(pending.current);
+    }, []);
 
     usePanelFocus(open, ref);
 
@@ -149,6 +193,9 @@ export function Sheet({
     // (a half-height sheet has nothing to scroll yet, so it drags from anywhere); the grip and header
     // strips always drag.
     const startDrag = (event: React.PointerEvent<HTMLElement>) => {
+        // a new press is never the tail of the last drag: its tap goes through (a close button tapped
+        // just after a fling used to do nothing)
+        dragEndedAt.current = -Infinity;
         const el = ref.current;
         const target = event.target as Element;
         if (!el || drag.current || event.button !== 0 || !event.isPrimary || target.closest(NO_DRAG)) return;
@@ -177,6 +224,7 @@ export function Sheet({
         // past the top it gives like a rubber band (a sheet that is already as tall as it gets starts there)
         if (y < 0) y = -rubberband(-y, el.offsetHeight);
         el.style.transform = `translateY(${y}px)`;
+        holdScene(DRAG_HOLD_MS);
         d.samples.push({ y, t: event.timeStamp });
         while (d.samples.length > 2 && event.timeStamp - d.samples[0].t > 100) d.samples.shift();
     };
@@ -220,6 +268,7 @@ export function Sheet({
         const spring = next === 'closed' ? SPRING.away : Math.abs(velocity) > FLICK ? SPRING.fling : SPRING.release;
         const flying = springTranslateY(el, y, to, velocity, spring);
         flight.current = flying;
+        holdScene(Number(flying.effect?.getComputedTiming().duration) + 40 || RISE_HOLD_MS);
         flying.finished
             .then(() => {
                 if (flight.current !== flying) return;
@@ -263,6 +312,7 @@ export function Sheet({
                 }
             }}
         >
+            <span className="ui-sheet-shade" aria-hidden="true" />
             <button
                 type="button"
                 className="ui-sheet-grip"
@@ -275,7 +325,6 @@ export function Sheet({
                 <span aria-hidden="true" />
             </button>
             <div className="ui-sheet-body">{children}</div>
-            <span className="ui-sheet-foot" aria-hidden="true" />
         </section>
     );
 }
