@@ -201,6 +201,9 @@ try {
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'full');
     await page.getByRole('button', { name: '收回一起听' }).tap();
     assert.equal(await page.locator('.music-sheet').getAttribute('data-detent'), 'half');
+    // the half height is read below: let the sheet finish travelling there first (on a real GPU the
+    // read otherwise lands mid-way and the push falls short of the middle)
+    await settle(page);
     // the sheet drags from anywhere (here its lyric preview, a button): pushed past the middle and held still,
     // it settles at full height — a finger that stopped throws nothing — and the press is not a tap on the button
     const touch = await page.context().newCDPSession(page);
@@ -235,12 +238,15 @@ try {
     await settle(page);
     assert.ok(Math.abs(await sheetY()) < 1, 'springs back to full height');
     await page.evaluate(() => window.__owApp?.start());
-    // while a sheet is up the bar is the sheet's foot, not a pill of its own
-    assert.equal(
-        await page.locator('.rail').evaluate((e) => getComputedStyle(e).backgroundColor),
-        'rgba(0, 0, 0, 0)',
-        'navigation merges into the open sheet'
+    // while a sheet is up the bar opens out into the sheet's tab bar: the full width of the screen on
+    // its bottom edge, a name under every icon (navigation-glass.css, 2026-10-02)
+    const bar = await page.locator('.rail').boundingBox();
+    const view = page.viewportSize();
+    assert.ok(
+        Math.abs(bar.x) < 1 && Math.abs(bar.width - view.width) < 1 && Math.abs(bar.y + bar.height - view.height) < 1,
+        `navigation docks into the open sheet: ${JSON.stringify(bar)}`
     );
+    assert.ok(await page.locator('.rail .rail-label').first().isVisible(), 'the tab bar names its tabs');
     // every sheet can be put away with a button, not only by dragging
     await page.locator('.music-sheet .mp-close').tap();
     await page.locator('.music-sheet').waitFor({ state: 'detached' });
