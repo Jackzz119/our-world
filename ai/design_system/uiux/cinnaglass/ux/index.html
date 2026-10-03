@@ -484,22 +484,34 @@
         user-select: none;
         -webkit-user-select: none;
     }
+    /* where the sheet can be, as in the app (direction A): a frame that stands still above the pill and clips it */
+    .dl-frame {
+        position: absolute;
+        top: 40px;
+        left: 8px;
+        right: 8px;
+        bottom: 70px;
+        overflow: hidden;
+        border-radius: 22px;
+        pointer-events: none;
+    }
     .dl-sheet {
         position: absolute;
         left: 0;
         right: 0;
         bottom: 0;
-        height: 500px;
+        height: 100%;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        padding: 10px 14px 78px;
-        border-radius: 26px 26px 0 0;
+        padding: 10px 14px 14px;
+        border-radius: 22px;
         background: var(--ph-glass);
         box-shadow:
-            0 0 0 1px var(--ph-line),
+            inset 0 0 0 1px var(--ph-line),
             0 -18px 40px -18px #000c;
         color: var(--ph-ink);
+        pointer-events: auto;
         touch-action: none;
         cursor: grab;
         will-change: transform;
@@ -605,52 +617,34 @@
         color: var(--ph-muted);
         font-variant-numeric: tabular-nums;
     }
+    /* the navigation pill: the same whether a sheet is open or not (direction A) */
     .dl-nav {
         position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 2;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 18px 16px;
-        border-top: 1px solid var(--ph-line);
-        background: var(--ph-glass);
-        transition:
-            background-color 260ms ease,
-            border-color 260ms ease;
-    }
-    .dl-phone[data-closed] .dl-nav {
         left: 14px;
         right: 14px;
         bottom: 10px;
+        z-index: 2;
+        display: flex;
+        justify-content: space-around;
+        padding: 6px 12px;
         border: 1px solid var(--ph-line);
         border-radius: 22px;
+        background: var(--ph-glass);
     }
-    /* open: the sheet's tab bar, a name under each icon (the dock); closed: the pill */
     .dl-nav button {
         display: grid;
         place-items: center;
-        align-content: center;
-        gap: 2px;
-        width: 50px;
-        height: 44px;
+        width: 38px;
+        height: 38px;
         padding: 0;
         border: 0;
-        border-radius: 12px;
+        border-radius: 50%;
         background: transparent;
         color: var(--ph-muted);
         font: inherit;
-        font-size: 10px;
-        line-height: 1.2;
         cursor: pointer;
     }
-    .dl-phone[data-closed] .dl-nav button {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-    }
-    .dl-phone[data-closed] .dl-nav button span {
+    .dl-nav button span {
         display: none;
     }
     .dl-nav button[aria-pressed='true'] {
@@ -1325,7 +1319,7 @@
 <body>
 <div class="page">
     <header>
-        <span class="eyebrow">对坐 · 第三期 · 现行界面 · 2026-10-02 更新</span>
+        <span class="eyebrow">对坐 · 第三期 · 现行界面 · 2026-10-03 更新</span>
         <h1>UI/UX 看样</h1>
         <div class="read">
             <p>
@@ -1335,13 +1329,13 @@
                 <b>10 月 2 日第四轮</b>：动效改成苹果的弹簧模型。托盘从哪儿都能拖，跟手，放手时带着手指的速度回弹（<a href="#spring-title">M 节</a>可以直接拖）。暖瓷浅色正式做进了所有组件，设置里能换。界面里还在用占位的美术都标了出来，并写清楚要什么。同一天这些图由 Codex 在你的机器上出好、接进了界面：歌单封面、手帐纸、和纸胶带、软木与木框、空状态小画（<a href="#art-title">新美术</a>，之前 / 现在并排）。
             </p>
             <p>
-                <b>10 月 3 日</b>：你在手机上看过坞，说它打断了连续（样子变、按钮跳位），还挡住了半开的托盘。导航重新调研、重新比稿，三个方向都让导航保持原来的胶囊不动，在 <a href="#nav2-title">N 节</a>，等你选（推荐 A）。另外：聊天托盘往上推就展开完整聊天（以前只能点按钮）；TA 有动作时房间立刻恢复，不再等托盘。
+                <b>10 月 3 日</b>：你在手机上看过坞，说它打断了连续（样子变、按钮跳位），还挡住了半开的托盘。导航重新调研、重新比稿（<a href="#nav2-title">N 节</a>），你选了 A，当天做好：<b>导航永远是原来的胶囊，托盘浮在它上方</b>，离屏幕边 12px、四角圆，从导航上沿长出来（<a href="#a-title">A 节</a>，截图和录屏都重拍了）。另外：聊天托盘往上推就展开完整聊天；TA 有动作时房间立刻恢复，不再等托盘；托盘拉满、完整聊天这些盖住 TA 的时候房间完全停下，TA 的动作等露出来再播；加载条上的光改成长在进度条头上，不再跑到前面。
             </p>
             <p>
                 <b>10 月 2 日晚上第五轮</b>：你说手机导航只去掉背景还不够，图标看起来仍不是弹出框的一部分、像第三层；弹出框时能看出掉帧。现在托盘打开时导航展开成<b>托盘的标签栏</b>（坞，<a href="#a-title">A 节</a>，三个方向并排比过）；掉帧查清是「第一次画托盘落在上升途中」加上房间和托盘抢显卡，改成先画好再升起、动的时候房间暂停，改前改后的帧测在 <a href="#perf-title">P 节</a>。受影响的截图和录屏都重拍了。
             </p>
             <p class="muted">
-                09-29 到 10-01 三轮的比稿（旧导航、工具扳手、旧玻璃的方案图）已经移进档案，这里不再放。还没做的两组设计（找歌、房间切换的加载）放在<a href="#next-title">最后</a>。截图和 10 月 2 日重录的录屏在本机显卡上拍，场景照常在动；进入世界、桌面聊天和设置三段录屏仍是 10 月 1 日在没有显卡的云端容器里录的，那时暂停了场景，所以阿屿是静止的。点任意一张看大图。
+                09-29 到 10-01 三轮的比稿（旧导航、工具扳手、旧玻璃的方案图）已经移进档案，这里不再放。还没做的两组设计（找歌、房间切换的加载）放在<a href="#next-title">最后</a>。截图和录屏在本机显卡上拍，场景照常在动（手机上开托盘的录屏和进入世界 10 月 3 日重录）；桌面聊天和设置两段录屏仍是 10 月 1 日在没有显卡的云端容器里录的，那时暂停了场景，所以阿屿是静止的。点任意一张看大图。
             </p>
         </div>
         <div class="legend" aria-label="状态说明">
@@ -1356,15 +1350,21 @@
         <ol class="decide">
             <li><b>音乐：曲库、上传、音质</b><span>三页做好了（<a href="#b-title">B 节</a>下半）：在 dev 上点「一起听」→ 曲库，传一首、点歌名下的音质徽章看看。数据库的两份音乐迁移要先在 Supabase 运行；不说就按现在的保留。</span></li>
             <li><b>默认的界面风格</b><span>深玻璃仍是默认。暖瓷已经做进所有组件，在设置 → 主题外观 → 界面风格里换（地址加 <code>?look=porcelain</code> 也行）。要不要改默认，你说了算。</span></li>
-            <li><b>手机导航：A / B / C 选一个</b><span>三个方向都让导航保持平时的胶囊、按钮不挪、内容不被挡（<a href="#nav2-title">N 节</a>，能在模拟手机上开开关关比）。我推荐 A：托盘浮在导航上方。你选了我再做。</span></li>
-            <li><b>真机手感</b><span>帧测是本机显卡加手机仿真（<a href="#perf-title">P 节</a>），真机还没测。请在手机上开关托盘、拖一下音乐托盘（往上推、往下甩）、打开一次回忆页；哪一下卡或不对，告诉我是哪个动作。</span></li>
+            <li><b>真机手感</b><span>帧测是本机显卡加手机仿真（<a href="#perf-title">P 节</a>），真机还没测。请在手机上开关托盘、拖一下音乐托盘（往上推、往下甩）、打开一次回忆页；再看一眼托盘的四个圆角（iOS 上圆角框要把托盘的背景模糊一起裁圆，本机 Chrome 没问题）。哪一下卡或不对，告诉我是哪个动作。</span></li>
             <li><b>新美术</b><span>5 处占位美术都换成了生成的图（见<a href="#art-title">新美术</a>）。看看哪张要重画；胶带比清单写的长，所以胶带位改成了约 5:1。不说就按现在的保留。</span></li>
             <li><b>音乐来源</b><span>找歌（C 组）要先定用哪个平台，以及版权和登录怎么处理。</span></li>
             <li><b>房间切换的加载</b><span>等有了第二个房间再做，我建议 E2 加 E3。</span></li>
         </ol>
         <h3 class="decided-title">你 10 月 3 日定下的</h3>
         <ol class="decide decided">
-            <li><b>音乐的界面</b><span>方案书的界面不错，但要在最新的 dev 上改（已实现：沿用坞、暖瓷和停靠栏，「歌单」改成「曲库」，加上传页和音质页）。</span></li>
+            <li><b>手机导航选 A</b><span>已实现：导航永远是原来的胶囊；托盘浮在它上方，离屏幕边 12px、四角圆、脚下离导航 8px，从导航上沿长出来、缩回去；半开按内容（音乐到标签那一行，聊天顶到屏幕往下 40%），拉满停在时辰天气胶囊下面（A 节、N 节）。</span></li>
+            <li><b>弹层展开后场景停下</b><span>已实现：看不到对方的时候（托盘拉满、完整聊天、内容页、任务窗）房间一帧都不画，TA 的动作等露出来再从头播。</span></li>
+            <li><b>加载条的光</b><span>已修：以前的光带在拉伸过的进度条里扫，会冲进空槽，看上去比进度条快；现在进度条整根滑入，光长在头上跟着走。</span></li>
+            <li><b>坞不要</b><span>弹托盘时导航变样、按钮跳位，打断连续；真机上还挡住了半开的托盘。重新调研比稿（N 节）。</span></li>
+            <li><b>聊天托盘往上推要能展开</b><span>已实现：往上推或往上甩，和右上角的展开按钮一样，打开完整聊天；聊天记录已经在最新一条时，在记录上推也算。</span></li>
+            <li><b>TA 的动画不能等托盘</b><span>已实现：托盘动的时候房间会暂停一下，但 TA 一有动作（开始打字、离开、反应）房间立刻恢复，之后 2.5 秒不再暂停，TA 的动作准时、从头播放。</span></li>
+            <li><b>存档</b><span>「UI优化与交互动画设计」已删，里面的决定都已经在设计系统和待办里。</span></li>
+            <li><b>音乐的界面</b><span>方案书的界面不错，但要在最新的 dev 上改（已实现：沿用托盘、暖瓷和停靠栏，「歌单」改成「曲库」，加上传页和音质页）。</span></li>
             <li><b>音质的选择</b><span>不要「始终原件」设置，每首歌可以在原件和省流版之间切换（已实现：音质页的 自动 / 原件 / 省流）。</span></li>
             <li><b>其他</b><span>在美国用、Supabase 先用 Free、不上服务器、曲库共享、支持离线下载、暂不接在线曲库；其余按方案书推荐做。</span></li>
         </ol>
@@ -1377,15 +1377,8 @@
             <li><b>美术图</b><span>先标注要图的地方并写清要求，交给下一个 agent 出图（清单已写，同日已出图接入，待你看样）。</span></li>
             <li><b>技能修改</b><span>Monet 和 UI Tailor 里关于看样页的规则保留。</span></li>
             <li><b>合并</b><span>这次做完合并进 dev。</span></li>
-            <li><b>导航要成为托盘的一部分</b><span>只去掉背景不够，要重新设计（做成坞，已实现，待你看样）。</span></li>
+            <li><b>导航要成为托盘的一部分</b><span>只去掉背景不够，要重新设计（做成了坞；10 月 3 日你看后否决，换成方向 A）。</span></li>
             <li><b>弹出框掉帧</b><span>要确保解决（先画后升、房间暂停、便宜的画法，已实现，见 P 节）；还可以打磨的记进了待办。</span></li>
-        </ol>
-        <h3 class="decided-title">你 10 月 3 日定下的</h3>
-        <ol class="decide decided">
-            <li><b>坞不要</b><span>弹托盘时导航变样、按钮跳位，打断连续；真机上还挡住了半开的托盘。重新调研比稿（N 节）。</span></li>
-            <li><b>聊天托盘往上推要能展开</b><span>已实现：往上推或往上甩，和右上角的展开按钮一样，打开完整聊天；聊天记录已经在最新一条时，在记录上推也算。</span></li>
-            <li><b>TA 的动画不能等托盘</b><span>已实现：托盘动的时候房间会暂停一下，但 TA 一有动作（开始打字、离开、反应）房间立刻恢复，之后 2.5 秒不再暂停，TA 的动作准时、从头播放。</span></li>
-            <li><b>存档</b><span>「UI优化与交互动画设计」已删，里面的决定都已经在设计系统和待办里。</span></li>
         </ol>
         <h3 class="decided-title">之前定下的</h3>
         <ul class="history">
@@ -1395,7 +1388,25 @@
     </section>
 
     <section aria-labelledby="nav2-title">
-        <h2 id="nav2-title">N · 手机导航与托盘：第二轮比稿（等你选）</h2>
+        <h2 id="nav2-title">N · 手机导航与托盘：第二轮比稿（你选了 A，已实装）</h2>
+        <div class="grid phones">
+            <div class="card">
+                <button class="shot" type="button" data-full="img/sheet-music-phone.jpg" aria-label="放大 方向 A 半开"><img src="img/sheet-music-phone.jpg" alt="方向 A：音乐托盘半开，浮在导航上方，导航还是胶囊" loading="lazy" /></button>
+                <div class="card-head"><h3>半开</h3><span class="chip done">已实现 · 10-03</span></div>
+                <p>露出正在播放、到标签那一行为止；导航和关着时一样，对方的脸完整露出。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/sheet-full-phone.jpg" aria-label="放大 方向 A 拉满"><img src="img/sheet-full-phone.jpg" alt="方向 A：音乐托盘拉满，停在时辰天气胶囊下面" loading="lazy" /></button>
+                <div class="card-head"><h3>拉满</h3><span class="chip done">已实现 · 10-03</span></div>
+                <p>停在时辰 / 天气胶囊下面，不再从它底下穿过；这时 TA 被盖住，房间停下。</p>
+            </div>
+            <div class="card">
+                <button class="shot" type="button" data-full="img/chat-sheet-phone.jpg" aria-label="放大 方向 A 聊天"><img src="img/chat-sheet-phone.jpg" alt="方向 A：聊天托盘顶到对方下巴以下" loading="lazy" /></button>
+                <div class="card-head"><h3>聊天</h3><span class="chip done">已实现 · 10-03</span></div>
+                <p>顶到屏幕往下 40% 为止（对方的下巴在 36–38%），输入框在导航上方。</p>
+            </div>
+        </div>
+        <p class="note"><b>和比稿时不同的几处</b>：离屏幕边 12px（比稿图 10px、模拟手机 8px），和时辰天气胶囊对齐成一条边，窄于 360px 的手机 6px；拉满停在时辰天气胶囊下面（比稿时从顶上让出 56px，会从胶囊底下穿过）。下面是比稿时的记录。</p>
         <div class="read">
             <p>10 月 3 日你在手机上看了坞，说不行：</p>
             <ul class="points">
@@ -1408,7 +1419,7 @@
         <div class="grid phones">
             <div class="card">
                 <button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/r2-dock-covers-iphone.jpg" aria-label="放大 坞挡住半开内容"><img src="../../../codex-visual/nav-dock/img/r2-dock-covers-iphone.jpg" alt="393×852、底部安全区 34px：坞盖住了歌词歌单声音那一排" loading="lazy" /></button>
-                <div class="card-head"><h3>现在的坞 · 真机尺寸</h3><span class="chip design">已否决</span></div>
+                <div class="card-head"><h3>坞 · 真机尺寸</h3><span class="chip design">已否决 · 已撤</span></div>
                 <p>393 × 852、底部安全区 34px（你的手机）。半开高度按屏幕的一半算，没算导航和安全区，最下面一排被盖住。</p>
             </div>
             <div class="card">
@@ -1459,7 +1470,7 @@
                     <button type="button" aria-pressed="true" data-dir="A">A 浮在上方</button>
                     <button type="button" aria-pressed="false" data-dir="B">B 插在后面</button>
                     <button type="button" aria-pressed="false" data-dir="C">C 凹槽托住</button>
-                    <button type="button" aria-pressed="false" data-dir="dock">现在的坞</button>
+                    <button type="button" aria-pressed="false" data-dir="dock">坞（已撤）</button>
                 </div>
             </div>
             <div class="nl-wrap">
@@ -1475,7 +1486,7 @@
                             <span class="nl-muted">你把橘子分我一半</span>
                             <div class="nl-bar" aria-hidden="true"></div>
                             <div class="nl-controls" aria-hidden="true"><span>⇄</span><span>⏮</span><b>▶</b><span>⏭</span><span>≡</span></div>
-                            <div class="nl-tabs" aria-hidden="true"><span>歌词</span><span>歌单</span><span>声音</span></div>
+                            <div class="nl-tabs" aria-hidden="true"><span>歌词</span><span>曲库</span><span>声音</span></div>
                         </div>
                         <div class="nl-sheet" data-sheet="chat" style="--h: 262px" role="dialog" aria-label="示例聊天托盘">
                             <span class="nl-grip" aria-hidden="true"></span>
@@ -1496,13 +1507,13 @@
                 </div>
                 <div class="nl-side">
                     <p class="note" id="nl-what"></p>
-                    <p class="lab-hint">试试：点「一起听」打开 → 点「聊天」换一个 → 往下拖托盘收起，或再点一次图标。每个方向都做一遍，盯着导航看：A、B、C 里它一直不动；「现在的坞」里它会变形、按钮跳位。</p>
+                    <p class="lab-hint">试试：点「一起听」打开 → 点「聊天」换一个 → 往下拖托盘收起，或再点一次图标。每个方向都做一遍，盯着导航看：A、B、C 里它一直不动；「坞」里它会变形、按钮跳位。</p>
                     <p class="lab-hint">这是示意：样子用色块代替，只看托盘和导航的关系和动法。真界面在上面的图里。</p>
                 </div>
             </div>
         </div>
 
-        <p class="note"><b>推荐 A</b>：导航的样子、位置、背后的房间三样都不变，是唯一完全不打断的；托盘和导航不重叠，不会像第三层；内容量在导航上沿以上，换什么手机都不会被挡；托盘从导航上沿里长出来，和桌面上「弹层从触发它的地方长出来」是同一个规矩；托盘四周露出一点房间，「TA 优先、场景一直在」的感觉更强；做起来最省（一个静止的圆角裁切框，没有遮罩）。C 是第二选择：如果你更想要「托盘贴着屏幕底」的稳，C 用凹槽让导航坐在托盘里，但凹槽两侧是空着的托盘，遮罩也更贵。B 的问题是导航压着托盘的下沿，又有一点叠层的感觉。三个方向的半开高度都改成按内容算（露出「正在播放」那一块 / 聊天的输入框），量的是导航上沿以上的空间。</p>
+        <p class="note"><b>推荐 A</b>（你选了 A）：导航的样子、位置、背后的房间三样都不变，是唯一完全不打断的；托盘和导航不重叠，不会像第三层；内容量在导航上沿以上，换什么手机都不会被挡；托盘从导航上沿里长出来，和桌面上「弹层从触发它的地方长出来」是同一个规矩；托盘四周露出一点房间，「TA 优先、场景一直在」的感觉更强；做起来最省（一个静止的圆角裁切框，没有遮罩）。C 是第二选择：如果你更想要「托盘贴着屏幕底」的稳，C 用凹槽让导航坐在托盘里，但凹槽两侧是空着的托盘，遮罩也更贵。B 的问题是导航压着托盘的下沿，又有一点叠层的感觉。三个方向的半开高度都改成按内容算（露出「正在播放」那一块 / 聊天的输入框），量的是导航上沿以上的空间。</p>
         <p class="note"><b>调研</b>：Material 的托盘规范：和底部导航一起用时，<a href="https://m2.material.io/components/sheets-bottom">收起的托盘放在底部导航上方</a>，托盘展开到全屏时才让导航让开；iOS 26 的半高托盘<a href="https://nilcoalescing.com/blog/PresentingLiquidGlassSheetsInSwiftUI/">离开屏幕边缘、四角圆，像浮在界面上</a>，拉满才贴边变实；iOS 26 的标签栏是浮着的胶囊，迷你播放器这类<a href="https://www.donnywals.com/exploring-tab-bars-on-ios-26-with-liquid-glass/">放在标签栏上方</a>；Google 地图是可拖的托盘在上、五个标签的导航在下，两者一直都在。转译到这里：A 取「托盘放在导航上方」和 iOS 26 的浮层托盘；C 取 Material 底栏「凹槽托住按钮」的做法。拉满时三个方向都留着导航（你要连续），这一点和 Material「展开时导航让开」不同。比稿记录在 <a href="../../../codex-visual/nav-dock/nav-dock.md">比稿区</a>。</p>
     </section>
 
@@ -1515,7 +1526,7 @@
                     <tr><th>层</th><th>现在有谁</th><th>桌面</th><th>手机</th><th>场景</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><b>场景伴生</b></td><td>房间、聊天、一起听、回忆入口（菜单）、时辰 / 天气</td><td>贴边浮窗、右侧停靠栏、导航旁的小菜单</td><td>底部托盘，可以半开 / 拉满；导航展开成托盘的标签栏；关闭按钮 + 拖动</td><td>不暂停，TA 完整可见</td></tr>
+                    <tr><td><b>场景伴生</b></td><td>房间、聊天、一起听、回忆入口（菜单）、时辰 / 天气</td><td>贴边浮窗、右侧停靠栏、导航旁的小菜单</td><td>浮在导航上方的托盘，可以半开 / 拉满；导航始终是原来的胶囊；关闭按钮 + 拖动</td><td>不暂停，TA 完整可见（拉满盖住 TA 时房间停下）</td></tr>
                     <tr><td><b>内容页</b></td><td>日记、照片墙；以后要「进去看」的都归这里</td><td>屏幕正中的大窗，房间压暗、虚化</td><td>直接全屏，没有半开；页头关闭 + 下拉关闭</td><td>压暗退后</td></tr>
                     <tr><td><b>任务窗</b></td><td>设置、日历·纪念日、时钟、心愿单、完整聊天</td><td>正中小窗</td><td>从底边升起</td><td>压暗</td></tr>
                 </tbody>
@@ -1548,7 +1559,7 @@
             <div class="card">
                 <button class="shot" type="button" data-full="img/look-deep-phone.jpg" aria-label="放大 深玻璃手机"><img src="img/look-deep-phone.jpg" alt="深玻璃：手机音乐托盘" loading="lazy" /></button>
                 <div class="card-head"><h3>L1 手机</h3><span class="chip done">默认</span></div>
-                <p>托盘和并进去的导航是一整块深玻璃。</p>
+                <p>深玻璃托盘浮在导航上方，导航是平时的胶囊。</p>
             </div>
             <div class="card">
                 <button class="shot" type="button" data-full="img/look-gilded-phone.jpg" aria-label="放大 描金暗夜手机"><img src="img/look-gilded-phone.jpg" alt="描金暗夜：手机" loading="lazy" /></button>
@@ -1571,7 +1582,7 @@
             <div class="card">
                 <button class="shot" type="button" data-full="img/porcelain-memories-phone.jpg" aria-label="放大 暖瓷回忆入口"><img src="img/porcelain-memories-phone.jpg" alt="暖瓷：回忆托盘" loading="lazy" /></button>
                 <div class="card-head"><h3>回忆入口</h3><span class="chip done">已实现</span></div>
-                <p>托盘和并进去的导航一整块浅瓷，图标描深金。</p>
+                <p>浅瓷托盘浮在导航上方，图标描深金。</p>
             </div>
             <div class="card">
                 <button class="shot" type="button" data-full="img/porcelain-chat-phone.jpg" aria-label="放大 暖瓷聊天"><img src="img/porcelain-chat-phone.jpg" alt="暖瓷：暮色里的聊天托盘" loading="lazy" /></button>
@@ -1626,27 +1637,29 @@
             </div>
             <div class="drag-lab">
                 <div class="dl-phone" id="dl-phone">
-                    <div class="dl-sheet" id="dl-sheet" role="dialog" aria-label="示例音乐托盘">
-                        <div class="dl-grab">
-                            <span class="dl-grip" aria-hidden="true"></span>
-                            <div class="dl-head">
-                                <span class="dl-art" aria-hidden="true"></span>
-                                <span class="dl-title"><b>云朵上的下午</b><span>小满 &amp; 知夏 · 本机音景</span></span>
-                                <button class="dl-x" type="button" id="dl-x" aria-label="关闭示例托盘">×</button>
+                    <div class="dl-frame">
+                        <div class="dl-sheet" id="dl-sheet" role="dialog" aria-label="示例音乐托盘">
+                            <div class="dl-grab">
+                                <span class="dl-grip" aria-hidden="true"></span>
+                                <div class="dl-head">
+                                    <span class="dl-art" aria-hidden="true"></span>
+                                    <span class="dl-title"><b>云朵上的下午</b><span>小满 &amp; 知夏 · 本机音景</span></span>
+                                    <button class="dl-x" type="button" id="dl-x" aria-label="关闭示例托盘">×</button>
+                                </div>
                             </div>
-                        </div>
-                        <p class="dl-lyric">午后的风把窗帘吹成一朵云</p>
-                        <p class="dl-lyric">你把橘子分我一半</p>
-                        <div class="dl-tabs" aria-hidden="true"><span>歌词</span><span>歌单</span><span>声音</span></div>
-                        <div class="dl-list" aria-hidden="true">
-                            <div><i style="--t: linear-gradient(145deg, #fce3b0, #f5b774)"></i>云朵上的下午<small>3:34</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #bfd0f2, #8c9ddb)"></i>雨天的窗边<small>3:18</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #e7c4f0, #b68fd9)"></i>暖灯电台<small>3:56</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #bfe8d2, #86c9a6)"></i>一起散步<small>3:08</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #c9b3e8, #7e6ab5)"></i>落针的唱片角<small>3:25</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #9fb6e8, #3f5a9e)"></i>海边的星星<small>3:41</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #f7d1a6, #d98c6a)"></i>列车清晨<small>3:12</small></div>
-                            <div><i style="--t: linear-gradient(145deg, #d6e2f3, #8fa3c6)"></i>初雪的夜<small>3:50</small></div>
+                            <p class="dl-lyric">午后的风把窗帘吹成一朵云</p>
+                            <p class="dl-lyric">你把橘子分我一半</p>
+                            <div class="dl-tabs" aria-hidden="true"><span>歌词</span><span>曲库</span><span>声音</span></div>
+                            <div class="dl-list" aria-hidden="true">
+                                <div><i style="--t: linear-gradient(145deg, #fce3b0, #f5b774)"></i>云朵上的下午<small>3:34</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #bfd0f2, #8c9ddb)"></i>雨天的窗边<small>3:18</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #e7c4f0, #b68fd9)"></i>暖灯电台<small>3:56</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #bfe8d2, #86c9a6)"></i>一起散步<small>3:08</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #c9b3e8, #7e6ab5)"></i>落针的唱片角<small>3:25</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #9fb6e8, #3f5a9e)"></i>海边的星星<small>3:41</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #f7d1a6, #d98c6a)"></i>列车清晨<small>3:12</small></div>
+                                <div><i style="--t: linear-gradient(145deg, #d6e2f3, #8fa3c6)"></i>初雪的夜<small>3:50</small></div>
+                            </div>
                         </div>
                     </div>
                     <nav class="dl-nav" aria-label="示例导航">
@@ -1658,7 +1671,7 @@
                     </nav>
                 </div>
                 <div class="dl-side">
-                    <p class="lab-hint" id="dl-hint">试试：从歌单往上推到顶，再多推一点；拉满后轻轻往下放；从半开用力往下甩。再切到「改之前」做一遍，对比一下。</p>
+                    <p class="lab-hint" id="dl-hint">试试：从列表往上推到顶，再多推一点；拉满后轻轻往下放；从半开用力往下甩。再切到「改之前」做一遍，对比一下。</p>
                     <dl class="readout" aria-live="polite">
                         <div><dt>松手速度</dt><dd id="ro-v">—</dd></div>
                         <div><dt>推算落点</dt><dd id="ro-p">—</dd></div>
@@ -1709,7 +1722,7 @@
                 <div class="lab-tabs" role="tablist" aria-label="示例标签" id="lab-tabs">
                     <em aria-hidden="true"></em>
                     <button type="button" role="tab" aria-selected="true" data-i="0">歌词</button>
-                    <button type="button" role="tab" aria-selected="false" data-i="1">歌单</button>
+                    <button type="button" role="tab" aria-selected="false" data-i="1">曲库</button>
                     <button type="button" role="tab" aria-selected="false" data-i="2">声音</button>
                 </div>
                 <button class="lab-heart" type="button" id="lab-heart" aria-label="发送爱心">❤️</button>
@@ -1741,11 +1754,15 @@
 
     <section aria-labelledby="live-title">
         <h2 id="live-title">实装录屏</h2>
-        <p class="muted read">正式组件在隔离样板里操作录下来的。10 月 2 日晚重录了托盘、音乐、聊天、沉浸歌词、回忆页和写一页：本机显卡，场景照常在动；为了一帧不漏，录的时候页面里的时钟和动画一起放慢 4 倍、再按原速合成，所以这里看的是设计的动效，顺不顺看 <a href="#perf-title">P 节</a>的帧测。进入世界、桌面聊天和设置仍是 10 月 1 日的录制。录屏器是 <code>scripts/record-ux.mjs</code>，场景清单在 <code>scripts/record-ux.json</code>。</p>
+        <p class="muted read">正式组件在隔离样板里操作录下来的。10 月 3 日重录了手机上所有打开托盘的录屏（托盘、拖动、音乐、聊天、沉浸歌词、回忆页、写一页）和进入世界；桌面的回忆页、歌词、停靠栏是 10 月 2 日录的。本机显卡，场景照常在动；为了一帧不漏，录的时候页面里的时钟和动画一起放慢 4 倍、再按原速合成，所以这里看的是设计的动效，顺不顺看 <a href="#perf-title">P 节</a>的帧测。桌面聊天和设置仍是 10 月 1 日的录制。录屏器是 <code>scripts/record-ux.mjs</code>，场景清单在 <code>scripts/record-ux.json</code>。</p>
         <div class="videos">
             <figure>
                 <video src="live/phone-sheets.mp4" poster="live/phone-sheets.jpg" muted loop playsinline autoplay preload="metadata"></video>
-                <figcaption>手机托盘与坞：导航展开成托盘的标签栏；换到回忆、房间时一个沉下一个升起，标签栏不收回；点关闭后收回胶囊；聊天、设置也一次一个</figcaption>
+                <figcaption>手机托盘（方向 A）：导航一直不动；换到回忆、房间时一个缩回导航上沿、一个长出来；点关闭收起；聊天、设置也一次一个</figcaption>
+            </figure>
+            <figure>
+                <video src="live/phone-drag.mp4" poster="live/phone-drag.jpg" muted loop playsinline autoplay preload="metadata"></video>
+                <figcaption>拖动：音乐托盘往上拖到拉满、往下拖回半开；聊天托盘往上推，完整聊天升起</figcaption>
             </figure>
             <figure>
                 <video src="live/phone-memory.mp4" poster="live/phone-memory.jpg" muted loop playsinline autoplay preload="metadata"></video>
@@ -1769,11 +1786,11 @@
             </figure>
             <figure>
                 <video src="live/phone-music.mp4" poster="live/phone-music.jpg" muted loop playsinline autoplay preload="metadata"></video>
-                <figcaption>手机音乐托盘：升起、播放时唱片转出、拉满看歌单、换歌、歌词、收藏、收起</figcaption>
+                <figcaption>手机音乐托盘：升起、播放时唱片转出、拉满看曲库、换歌、歌词、收藏、收起</figcaption>
             </figure>
             <figure>
                 <video src="live/phone-enter.mp4" poster="live/phone-enter.jpg" muted loop playsinline autoplay preload="metadata"></video>
-                <figcaption>进入世界：台灯随真实的加载进度亮起，揭幕后界面依次浮上来</figcaption>
+                <figcaption>进入世界：台灯随真实的加载进度亮起，进度条头上的光跟着走，揭幕后界面依次浮上来</figcaption>
             </figure>
             <figure>
                 <video src="live/phone-chat.mp4" poster="live/phone-chat.jpg" muted loop playsinline autoplay preload="metadata"></video>
@@ -1800,12 +1817,12 @@
 
     <section aria-labelledby="a-title">
         <h2 id="a-title">A · 手机托盘</h2>
-        <p class="read muted">手机上的场景伴生功能都从底部升起，只盖住我这边（手和杯子），对面的人完整可见。托盘打开时导航展开成托盘的标签栏（坞），每个托盘都有关闭按钮，一次只开一个。</p>
+        <p class="read muted">手机上的场景伴生功能都是浮在导航上方的托盘，只盖住我这边（手和杯子），对面的人完整可见。导航永远是原来的胶囊（10 月 3 日方向 A，坞已撤掉），每个托盘都有关闭按钮，一次只开一个。</p>
         <div class="grid phones">
             <div class="card">
-                <button class="shot" type="button" data-full="img/sheet-merged-phone.jpg" aria-label="放大 坞"><img src="img/sheet-merged-phone.jpg" alt="音乐托盘：导航展开成整宽的标签栏，一起听点亮，右上关闭" loading="lazy" /></button>
-                <div class="card-head"><h3>坞：托盘的标签栏</h3><span class="chip design">已实现 · 10-03 否决</span></div>
-                <p>托盘打开时，导航贴着屏幕底边展开成整宽的一条：托盘的玻璃，图标下写名字，当前这个金色并垫一块金色小圆角底。托盘从它后面升起、沉回它里面。音乐托盘的关闭按钮在心形旁边。</p>
+                <button class="shot" type="button" data-full="img/sheet-music-phone.jpg" aria-label="放大 一起听托盘"><img src="img/sheet-music-phone.jpg" alt="音乐托盘：浮在导航上方，导航还是胶囊，一起听点亮，右上关闭" loading="lazy" /></button>
+                <div class="card-head"><h3>一起听</h3><span class="chip done">已实现 · 10-03</span></div>
+                <p>离屏幕边 12px、四角圆，脚下离导航 8px，在一个不动的框里移动：从导航上沿长出来、缩回那里。导航不变，「一起听」的图标照常点亮。音乐托盘的关闭按钮在心形旁边。</p>
             </div>
             <div class="card">
                 <button class="shot" type="button" data-full="img/memories-sheet-phone.jpg" aria-label="放大 回忆入口"><img src="img/memories-sheet-phone.jpg" alt="回忆托盘：日记、照片墙、纪念日" loading="lazy" /></button>
@@ -1823,7 +1840,7 @@
                 <p>桌面上是导航旁的小菜单，三项各带一句说明。</p>
             </div>
         </div>
-        <p class="note"><b>坞已被否决</b>（10 月 3 日）：它让导航变样、按钮跳位，真机上还挡住了半开的托盘。下面是第一轮的比较，第二轮在 <a href="#nav2-title">N 节</a>。</p>
+        <p class="note"><b>坞已被否决、已撤掉</b>（10 月 3 日）：它让导航变样、按钮跳位，真机上还挡住了半开的托盘。下面是第一轮的比较，留作记录；第二轮在 <a href="#nav2-title">N 节</a>。</p>
         <h3>第一轮：为什么选了坞（同一个夜晚的书房、同一首歌）</h3>
         <div class="grid phones">
             <div class="card">
@@ -1833,7 +1850,7 @@
             </div>
             <div class="card">
                 <button class="shot" type="button" data-full="../../../codex-visual/nav-dock/img/dock-phone.jpg" aria-label="放大 坞"><img src="../../../codex-visual/nav-dock/img/dock-phone.jpg" alt="坞：整宽标签栏、写名字、当前项金色" loading="lazy" /></button>
-                <div class="card-head"><h3>坞</h3><span class="chip done">采用 · 已实现</span></div>
+                <div class="card-head"><h3>坞</h3><span class="chip design">10-02 采用 · 10-03 撤掉</span></div>
                 <p>手机应用底部标签栏的读法：整宽、贴底、图标加名字、当前项一块底。用托盘自己的玻璃和字色，所以它就是托盘的底边。</p>
             </div>
             <div class="card">
@@ -1847,8 +1864,8 @@
                 <p>最干净，但要换到另一个托盘得先关再开，「一次一个」多一步。</p>
             </div>
         </div>
-        <p class="note"><b>坞怎么动</b>：展开是一下切过去，趁托盘还看不见（托盘先画好再升起），只有颜色 260ms 过渡、名字淡入——最初做的逐帧变宽变高会让托盘升起的每一帧多一次排版和重画（帧测多出约 70ms 卡顿）。收起有过程：托盘沉下时名字先淡出，托盘卸下后标签栏 260ms 收回胶囊，这时别的都不在动。低动效时形状直接换。只在竖屏手机上；横屏仍是右侧一列加导航自己的胶囊。</p>
-        <p class="note"><b>托盘的规则</b>：半高是可见高度的一半（至少 340px）。从托盘任何地方都能拖，6px 起拖；过顶有橡皮筋；松手按推算的落点停在拉满、半开或收起，弹簧带着手指的速度（M 节）。关闭按钮、再点同一个图标或 Esc 收起，焦点回到入口。托盘不挡场景：打开时仍能戳对方、摸头；我这边的桌面轻轻压暗，对方保持明亮。横屏时托盘是右侧一列。</p>
+        <p class="note"><b>坞当时怎么动</b>（已撤，留作记录）：展开是一下切过去，趁托盘还看不见（托盘先画好再升起），只有颜色 260ms 过渡、名字淡入——最初做的逐帧变宽变高会让托盘升起的每一帧多一次排版和重画（帧测多出约 70ms 卡顿）。收起有过程：托盘沉下时名字先淡出，托盘卸下后标签栏 260ms 收回胶囊，这时别的都不在动。低动效时形状直接换。只在竖屏手机上；横屏仍是右侧一列加导航自己的胶囊。</p>
+        <p class="note"><b>托盘的规则</b>：半高按内容：音乐露出到「歌词 / 曲库 / 声音」那一行，聊天顶到屏幕往下 40%（对方的下巴在 36–38%），回忆、房间是自己的高度；拉满停在时辰天气胶囊下面，这时盖住 TA，房间完全停下。从托盘任何地方都能拖，6px 起拖；过顶有橡皮筋；松手按推算的落点停在拉满、半开或收起，弹簧带着手指的速度（M 节）。关闭按钮、再点同一个图标或 Esc 收起，焦点回到入口。托盘不挡场景：打开时仍能戳对方、摸头；我这边的桌面轻轻压暗，对方保持明亮。横屏时托盘是右侧一列。</p>
     </section>
 
     <section aria-labelledby="perf-title">
@@ -1860,7 +1877,7 @@
                 <li><b>房间和托盘抢显卡</b>：房间每秒 30 帧画满屏，托盘每动一帧还要重算背景模糊。</li>
                 <li><b>几处贵的画法</b>：整张托盘的投影（大半在屏幕外或标签栏底下）、上圆下方的阴影走了慢路径、唱片的滤镜阴影、回忆页自己的整页模糊和逐帧变大的背后虚化。</li>
             </ul>
-            <p>改法：<b>先画后升</b>（托盘和回忆页先在原位画好，看不见，再出发；回忆页还会等视野里的照片和纹理解码完，最多 300ms）；<b>动的时候房间暂停</b>，回忆页开着时房间一直停着，房间的画布最高 2 倍像素（底图本来只有 1536 宽，三倍屏看不出区别）；<b>样子不变、画法便宜</b>：投影只画顶边一条且四角同圆角，唱片阴影换成等价的圆形阴影（逐像素对过），回忆页去掉自己的模糊、背后虚化一开始就满、跟着压暗淡入，坞展开一下切过去。</p>
+            <p>改法：<b>先画后升</b>（托盘和回忆页先在原位画好，看不见，再出发；回忆页还会等视野里的照片和纹理解码完，最多 300ms）；<b>动的时候房间暂停</b>，回忆页开着时房间一直停着，房间的画布最高 2 倍像素（底图本来只有 1536 宽，三倍屏看不出区别）；<b>样子不变、画法便宜</b>：投影只画顶边一条且四角同圆角，唱片阴影换成等价的圆形阴影（逐像素对过），回忆页去掉自己的模糊、背后虚化一开始就满、跟着压暗淡入。<b>盖住 TA 时房间完全停下</b>（10 月 3 日）：托盘拉满、完整聊天、回忆页和任务窗开着时一帧不画。</p>
         </div>
         <div class="table-wrap">
             <table>
@@ -1884,9 +1901,9 @@
         <h2 id="b-title">B · 音乐</h2>
         <div class="grid phones">
             <div class="card">
-                <button class="shot" type="button" data-full="img/music-playlist-phone.jpg" aria-label="放大 音乐托盘的歌单"><img src="img/music-playlist-phone.jpg" alt="手机音乐托盘：正在播放、标签、歌单" loading="lazy" /></button>
-                <div class="card-head"><h3>正在播放 + 歌单</h3><span class="chip done">已实现</span></div>
-                <p>海报（播放时唱片从封套后转出来）、两行歌词、进度和播放键；「歌词 / 歌单 / 声音」标签的金色滑块用 bouncy 滑过去，点标签自动拉满。</p>
+                <button class="shot" type="button" data-full="img/music-playlist-phone.jpg" aria-label="放大 音乐托盘的曲库"><img src="img/music-playlist-phone.jpg" alt="手机音乐托盘拉满：正在播放、标签、曲库" loading="lazy" /></button>
+                <div class="card-head"><h3>正在播放 + 曲库</h3><span class="chip done">已实现</span></div>
+                <p>海报（播放时唱片从封套后转出来）、两行歌词、进度和播放键；「歌词 / 曲库 / 声音」标签的金色滑块用 bouncy 滑过去，点标签自动拉满。</p>
             </div>
             <div class="card">
                 <button class="shot" type="button" data-full="img/lyrics-immersive-phone.jpg" aria-label="放大 沉浸歌词手机"><img src="img/lyrics-immersive-phone.jpg" alt="手机沉浸歌词" loading="lazy" /></button>
@@ -2144,7 +2161,7 @@
 
     <section aria-labelledby="next-title">
         <h2 id="next-title">还没做的设计</h2>
-        <p class="read muted">这两组只出了设计，10 月 2 日按当时的界面重画（回忆图标、关闭按钮、深玻璃；托盘打开时导航还是去掉胶囊底的旧做法，现在是坞，开工时按坞改）。画板在 <a href="../../../codex-visual/ui-motion/ui-motion.md">比稿区</a>。</p>
+        <p class="read muted">这两组只出了设计，10 月 2 日按当时的界面重画（回忆图标、关闭按钮、深玻璃；托盘打开时导航还是去掉胶囊底的旧做法；现在是方向 A：导航不变、托盘浮在上方，开工时按 A 改）。画板在 <a href="../../../codex-visual/ui-motion/ui-motion.md">比稿区</a>。</p>
         <h3>C · 找歌</h3>
         <div class="grid phones">
             <div class="card">
@@ -2509,10 +2526,10 @@
         const what = document.getElementById('nl-what');
         const sheets = Object.fromEntries([...phone.querySelectorAll('.nl-sheet')].map((s) => [s.dataset.sheet, s]));
         const WHAT = {
-            A: '<b>A 浮在导航上方</b>：托盘是离屏幕边 8px、四角圆的浮层，停在导航上方一道缝里；它从导航上沿里长出来，收起时缩回那里。导航始终是那颗胶囊，背后仍是房间。',
+            A: '<b>A 浮在导航上方</b>：托盘是离屏幕边 8px、四角圆的浮层，停在导航上方一道缝里；它从导航上沿里长出来，收起时缩回那里。导航始终是那颗胶囊，背后仍是房间。你选了这个，已实装。',
             B: '<b>B 插在导航后面</b>：托盘从导航后面抽出来，下沿压在导航下面，两侧露出它的下角。导航不变，但叠在托盘的边上。',
             C: '<b>C 凹槽托住导航</b>：托盘和以前一样铺到底，在导航处挖一个凹槽；导航坐在凹槽里，四周露出房间，所以它看起来和平时一模一样。',
-            dock: '<b>现在的坞</b>（你 10 月 3 日否决）：托盘一开，胶囊就变成整宽的条，按钮跳到新位置；收起后再变回去。'
+            dock: '<b>坞</b>（你 10 月 3 日否决，已撤掉）：托盘一开，胶囊就变成整宽的条，按钮跳到新位置；收起后再变回去。'
         };
         let dir = 'A';
         let open = null;
