@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { inlineAnnotate } from './annotate/inline.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pageDir = path.join(root, 'ai/design_system/uiux/cinnaglass/ux');
@@ -64,6 +65,8 @@ if (failures.length) {
 
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(outDir, { recursive: true });
+// the annotation layer (scripts/annotate): publish with capabilities: {comments: {}} so notes can reach Claude
+html = inlineAnnotate(html, { source: 'ai/design_system/uiux/cinnaglass/ux/index.html' });
 fs.writeFileSync(path.join(outDir, 'index.html'), html);
 const files = {};
 for (const [published, source] of [...copies].sort()) {
