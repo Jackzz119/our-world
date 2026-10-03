@@ -306,9 +306,10 @@ const WorldPage = () => {
                             onProgress={room.progress.set}
                             onReady={() => setRoom((r) => ({ ...r, state: 'ready' }))}
                             onFailed={() => setRoom((r) => ({ ...r, state: 'failed' }))}
-                            // the room holds still under the memory page too: it is dimmed and softened
-                            // there, and every frame of it would make the page's blurred backdrop redraw
-                            active={screen === null}
+                            // the room stops under any page or dialog, the whole conversation included: it is
+                            // dimmed and covered there, and every frame of it would make the cover's blurred
+                            // backdrop redraw
+                            active={screen === null && convOpen === null}
                             mood={t.mood}
                             weatherKind={weather.kind}
                             onHotspot={onHotspot}

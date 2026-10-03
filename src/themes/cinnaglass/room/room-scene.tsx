@@ -4,7 +4,7 @@
 // and anchors the speech bubble and name tag beside the partner's head. In dev
 // a panel stands in for real presence until it is wired.
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Application } from 'pixi.js';
 import type { HotspotOpenEvent, PartnerState, RoomMood, RoomWeather } from '@/themes/cinnaglass/room/room-types';
 import type { WeatherKind } from '@/themes/cinnaglass/model';
@@ -12,7 +12,7 @@ import { buildTableScene, type TableCast, type TableSceneHandle } from '@/themes
 import type { HeadAnchors } from '@/themes/cinnaglass/room/partner-layer';
 import { PARTNER_RIGS, STUDY_TABLE } from '@/themes/cinnaglass/room/study-table';
 import { PARTNER, VIEWER } from '@/themes/cinnaglass/cast';
-import { onSceneHold, releaseScene, sceneHeld } from '@/themes/cinnaglass/ui/scene-hold';
+import { onSceneChange, releaseScene, sceneCovered, sceneHeld } from '@/themes/cinnaglass/ui/scene-hold';
 import { Logman } from '@/lib/logman';
 import '@/themes/cinnaglass/room/room-overlays.css';
 
@@ -41,7 +41,8 @@ type RoomSceneProps = {
     presence?: Record<string, { name: string; status: string; online?: boolean }>;
     /** Transient overhead speech bubble (new incoming message preview). */
     bubble?: { seatId: string; text: string; key: number } | null;
-    /** false freezes the ticker while a page or a dialog covers the room (dimmed, softened, still). */
+    /** false stops the room while a page or a dialog covers it (dimmed, softened, still); the partner's
+        moves wait until it is back in view */
     active?: boolean;
     /** entry loader: share of the room loaded (0–1), then ready, or failed */
     onProgress?: (fraction: number) => void;
@@ -114,6 +115,11 @@ export function RoomScene({
     const [failed, setFailed] = useState(false);
     const [ready, setReady] = useState(false);
     const [partnerState, setPartnerState] = useState<PartnerState>('reading');
+    // the partner state the scene shows: a change waits while nobody can see the room
+    const shownPartner = useRef(partnerState);
+    // a sheet pulled up over the partner covers the room as a page does (ui/scene-hold.ts)
+    const covered = useSyncExternalStore(onSceneChange, sceneCovered);
+    const hidden = !active || covered;
     const [lampOn, setLampOn] = useState(true);
     const onHotspotRef = useRef(onHotspot);
     const loadRef = useRef({ onProgress, onReady, onFailed });
@@ -195,6 +201,7 @@ export function RoomScene({
                 scene.setMood(moodRef.current, false);
                 scene.setWeather(toRoomWeather(weatherRef.current), false);
                 scene.setPartnerState(partnerRef.current);
+                shownPartner.current = partnerRef.current;
                 sceneRef.current = scene;
                 const live = a;
                 ro = new ResizeObserver(() => {
@@ -238,26 +245,32 @@ export function RoomScene({
         sceneRef.current?.setWeather(toRoomWeather(weatherKind), true);
     }, [weatherKind]);
 
+    // The partner's move plays where it can be seen: now and from its start, even while a panel is on
+    // the move. While something covers the room (a page, the whole conversation, a sheet pulled to full
+    // height) nobody would see it, so it waits, and the latest one plays from its start once the room
+    // is back in view.
     useEffect(() => {
         const scene = sceneRef.current;
-        if (!scene) return;
-        // their move plays now and from its start, even while a panel is on the move
+        if (!scene || hidden || shownPartner.current === partnerState) return;
+        shownPartner.current = partnerState;
         releaseScene(PARTNER_MOVE_MS);
         scene.setPartnerState(partnerState);
         setHead({ anchors: scene.headAnchors(), width: holderRef.current?.clientWidth ?? 0 });
-    }, [partnerState]);
+    }, [partnerState, hidden]);
 
-    // The ticker runs while the room is in view and no panel is on the move (ui/scene-hold.ts).
+    // The ticker runs while the room is in view and no panel is on the move (ui/scene-hold.ts), from the
+    // moment the room is built; a cover is read when it changes, not from the last render, so the room
+    // stops in the same moment.
     useEffect(() => {
         const apply = () => {
             const a = appRef.current;
             if (!a || !sceneRef.current) return;
-            if (active && !sceneHeld()) a.start();
+            if (active && !sceneCovered() && !sceneHeld()) a.start();
             else a.stop();
         };
         apply();
-        return onSceneHold(apply);
-    }, [active]);
+        return onSceneChange(apply);
+    }, [active, ready]);
 
     const partnerTag = Object.values(presence ?? {})[0];
     const place = head.anchors ? placeBeside(head.anchors, head.width) : null;
