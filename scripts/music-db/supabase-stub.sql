@@ -72,6 +72,36 @@ begin
 end
 $$;
 
+-- realtime: Broadcast from Database writes rows into realtime.messages; the Realtime server lets a
+-- client join a private topic when a select policy passes with realtime.topic() set to that topic.
+create schema realtime;
+grant usage on schema realtime to anon, authenticated, service_role;
+create table realtime.messages (
+    id          bigint generated always as identity primary key,
+    topic       text not null,
+    extension   text not null,
+    payload     jsonb,
+    event       text,
+    private     boolean default false,
+    inserted_at timestamptz default now()
+);
+alter table realtime.messages enable row level security;
+grant select, insert on realtime.messages to anon, authenticated, service_role;
+create function realtime.topic() returns text
+language sql stable
+as $$
+    select nullif(current_setting('realtime.topic', true), '')
+$$;
+grant execute on function realtime.topic() to anon, authenticated, service_role;
+create function realtime.send(payload jsonb, event text, topic text, private boolean default true) returns void
+language plpgsql security definer
+as $$
+begin
+    insert into realtime.messages (topic, extension, payload, event, private)
+    values (topic, 'broadcast', payload, event, private);
+end
+$$;
+
 -- public: Supabase grants the API roles everything by default and relies on RLS.
 grant usage on schema public to anon, authenticated, service_role;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
